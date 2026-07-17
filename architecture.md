@@ -2,7 +2,7 @@
 
 **Architecture snapshot:** 2026-07-17
 **Repository:** `dot-gov-news-pipeline`
-**Status:** Infrastructure foundation implemented and hosted-smoke-tested; inventory, feed discovery, polling, and news processing remain planned work
+**Status:** Infrastructure and GSA inventory reconciliation implemented and hosted-verified; feed discovery, polling, and news processing remain planned work
 **Primary design context:** Codex tasks `019f7117-db3b-7eb2-bf27-dda5fae1cf23` and `019f7129-622b-7bf3-93f1-f5de84d2e559`
 
 This document is the architectural handoff for a new implementation session. It combines the proposed end-state design with the infrastructure that exists in this working tree. Where an older plan conflicts with code, migrations, or the hosted verification record, the repository and hosted evidence in `docs/infrastructure/runbook.md` are authoritative.
@@ -19,7 +19,7 @@ The pipeline is designed as a sequence of independently schedulable stages:
 
 RSS is not a persistent stream. The default ingestion mechanism is timer-based conditional polling. WebSub or publisher-specific webhooks can reduce latency when a publisher offers them, but polling remains the universal fallback.
 
-Supabase Postgres is the durable system of record and authoritative scheduler state. Cloudflare Cron and Queues wake bounded work; they are not the permanent backlog. R2 stores raw snapshots and large artifacts. The current Cloudflare Worker and event contract prove the asynchronous path end to end. GitHub Actions is the intended batch runtime for the GSA inventory import because the source CSV is too CPU-heavy for the Cloudflare Workers Free budget.
+Supabase Postgres is the durable system of record and authoritative scheduler state. Cloudflare Cron and Queues wake bounded work; they are not the permanent backlog. R2 stores raw snapshots and large artifacts. The current Cloudflare Worker and event contract prove the asynchronous path end to end. GitHub Actions is the implemented batch runtime for the GSA inventory import because the source CSV is too CPU-heavy for the Cloudflare Workers Free budget.
 
 TypeScript is the default implementation language for inventory, discovery, and polling because these are I/O-bound workloads and the active runtime is Cloudflare Workers. SQL owns atomic reconciliation and leasing. Python is deliberately deferred until ranking, NLP, embeddings, or analytical workloads create a concrete ecosystem advantage.
 
@@ -31,17 +31,21 @@ TypeScript is the default implementation language for inventory, discovery, and 
 | Cloudflare Worker                        | Implemented and deployed     | HTTP, scheduled, and queue handlers under `apps/pipeline-worker/`               |
 | Cloudflare Queue and DLQ                 | Provisioned and smoke-tested | Main queue retry and poison-message DLQ behavior recorded in the runbook        |
 | Cloudflare R2                            | Provisioned and smoke-tested | Deterministic heartbeat artifact was retrieved remotely                         |
-| Supabase                                 | Provisioned and migrated     | `public.pipeline_events` exists with RLS and service-role-only access           |
+| Supabase                                 | Provisioned and migrated     | Event and GSA inventory schemas are hosted with service-role-only access        |
 | End-to-end heartbeat                     | Implemented and verified     | `Cron -> Queue -> Worker -> R2 + Supabase`, including replay idempotency        |
-| CI                                       | Implemented                  | Format, lint, typecheck, tests, and Worker dry-run bundle validation            |
+| CI                                       | Implemented                  | App verification plus migration reset and 35 database assertions                |
 | Chroma                                   | Local-only bootstrap         | Docker Compose with persistent named volume; not part of hosted ingestion       |
-| GSA inventory sync                       | Planned, not implemented     | Add batch app, schema/RPCs, R2 snapshot archival, and scheduled GitHub Action   |
-| Site feed discovery                      | Planned, not implemented     | Add lease-based due-site claiming and bounded discovery Worker behavior         |
+| GSA inventory sync                       | Implemented and hosted       | 29,569 rows reconciled; 25,367 usable sites; checksum replay verified unchanged |
+| Site feed discovery                      | Database primitives only     | Due-state claim/recovery RPCs exist; dispatcher and discovery Worker do not     |
 | Feed polling                             | Architected, not implemented | Add adaptive due-feed scheduler and stateless TypeScript pollers                |
 | Entry normalization/deduplication        | Architected, not implemented | Add durable entry model and idempotent new-entry events                         |
 | Clustering, ranking, API, UI             | Future                       | Keep downstream from collection and serve materialized ranked results           |
 
-Important repository-state caveat: at this snapshot, the working tree is on `main` and the infrastructure foundation is mostly untracked or uncommitted relative to the initial commit. A new session must inspect `git status` and preserve these files; it must not assume the foundation is already committed or merged.
+Important repository-state caveat: this snapshot includes uncommitted inventory
+work on `codex/gsa-inventory-sync`, based on `origin/main`. The hosted inventory
+migration and manual verification are complete, but the GitHub workflow will
+not become scheduled until this branch is committed and merged into the default
+branch. A new session must inspect `git status` and preserve the working tree.
 
 ## System context and end-state flow
 
@@ -128,6 +132,7 @@ The repository is a pnpm monorepo:
 
 ```text
 apps/pipeline-worker/       Cloudflare Worker
+apps/inventory-sync/        GSA inventory batch importer
 packages/contracts/         Provider-neutral runtime-validated event contract
 supabase/                   Local project config and additive SQL migrations
 infra/chroma/               Local Chroma Docker Compose service
@@ -136,7 +141,10 @@ docs/infrastructure/        Access, operations, and teardown procedures
 
 Node 24 is pinned with `mise`. The root package uses pnpm 11.9.0. An empty Python 3.12+ `uv` environment is retained for later workloads but is not required by the infrastructure bootstrap.
 
-CI runs on pushes to `main` and pull requests. It installs the locked pnpm dependencies and runs formatting, linting, typechecking, tests, and `wrangler deploy --dry-run`.
+CI runs on pushes to `main` and pull requests. The application job installs the
+locked pnpm dependencies and runs formatting, linting, typechecking, 32 Vitest
+tests, and `wrangler deploy --dry-run`. A separate database job starts local
+Supabase, reapplies every migration from scratch, and runs 35 pgTAP assertions.
 
 ### Deployed development resources
 
@@ -155,7 +163,10 @@ The operational commands, provider identifiers, secret setup, hosted evidence, a
 - `docs/infrastructure/runbook.md`
 - `docs/infrastructure/teardown.md`
 
-Do not copy secrets into this document. The Worker receives `SUPABASE_SECRET_KEY` through Wrangler secrets and uses it only server-side. Cloudflare OAuth is stored in the OS keychain for local work.
+Do not copy secrets into this document. The Worker receives
+`SUPABASE_SECRET_KEY` through Wrangler secrets and uses it only server-side. The
+inventory batch uses separate bucket-scoped R2 S3 credentials. Cloudflare OAuth
+is stored in the OS keychain for local work.
 
 ### Implemented heartbeat path
 
@@ -197,7 +208,9 @@ R2 activation, direct artifact retrieval, and the full hosted smoke are verified
 
 ### Existing database schema
 
-Only `public.pipeline_events` exists for application state today. It contains the event ID, schema version, event type, idempotency key, occurrence time, JSON payload, optional artifact key, and creation time. It has:
+`public.pipeline_events` contains the event ID, schema version, event type,
+idempotency key, occurrence time, JSON payload, optional artifact key, and
+creation time. It has:
 
 - A unique constraint on `idempotency_key`.
 - Indexes on event type/time and creation time.
@@ -206,6 +219,13 @@ Only `public.pipeline_events` exists for application state today. It contains th
 - `SELECT`, `INSERT`, and `UPDATE` granted to `service_role`.
 
 `pipeline_events` is diagnostic event history. It must not become the authoritative inventory, discovery backlog, or feed schedule.
+
+The inventory migration additionally provides `inventory_sync_runs`,
+`government_sites`, private per-run staging, `site_discovery_state`, and the
+`usable_government_sites` view. Service-only RPCs own run lifecycle, batch
+staging, atomic reconciliation, summary reads, keyset pagination, and due-site
+leasing. GSA-owned site fields cannot be mutated through generic CRUD; source
+reconciliation updates them and missing rows are soft-deactivated.
 
 ## Phase 1: GSA inventory reconciliation
 
@@ -217,7 +237,7 @@ GSA Site Scanning data can later enrich final URLs, redirects, CMS hints, robots
 
 ### Runtime and schedule
 
-The intended scheduler is one GitHub Actions workflow:
+The implemented scheduler is one GitHub Actions workflow:
 
 ```text
 .github/workflows/gsa-inventory-sync.yml
@@ -227,6 +247,12 @@ local: pnpm inventory:sync
 ```
 
 The off-minute schedule reduces exposure to GitHub Actions' top-of-hour congestion. Scheduled Actions can be delayed or dropped, so an operator query must flag a last successful import older than eight days and `workflow_dispatch` is the recovery path.
+
+The workflow exists only in this branch at the current snapshot. GitHub will
+start evaluating its schedule after it reaches the default branch. Its
+`development` environment must expose the exact variables and secrets listed in
+the runbook; at the recorded verification point, `R2_ACCESS_KEY_ID` still needed
+to be moved from variable scope to the secret scope consumed by the workflow.
 
 Do not configure this same import in Cloudflare Cron or Supabase Cron. One workflow gets one scheduler.
 
@@ -254,22 +280,23 @@ flowchart LR
     RECON --> STATE
 ```
 
-Each run should:
+The implemented run:
 
 1. Create an `inventory_sync_runs` record.
 2. Fetch the source over HTTPS with timeouts, a maximum response size, and `If-None-Match` when an earlier `ETag` exists.
-3. Stream the source through SHA-256 calculation and a standards-compliant CSV parser.
-4. Archive the source once in R2 under a content-addressed key such as `inventory/gsa/<sha256>.csv`.
-5. Treat HTTP `304` or an already-successful checksum as a successful no-op.
-6. Stage rows in bounded batches keyed by `(sync_run_id, source_row_number)`.
-7. Validate the entire snapshot before touching the current inventory.
-8. Atomically upsert present sites, reactivate returning sites, and soft-deactivate missing sites.
-9. Make new, reactivated, newly eligible, or reachability-changed sites due for discovery.
-10. Persist counts and mark the run successful in the same finalization transaction.
+3. Stream the response to a temporary file while enforcing the 20 MiB limit and calculating SHA-256.
+4. Treat HTTP `304` or an already-successful checksum as a successful no-op before staging.
+5. Archive each new source once in R2 under `inventory/gsa/<sha256>.csv`.
+6. Analyze and parse the CSV with strict headers, booleans, hostname normalization, and bounded records.
+7. Stage rows in 500-row batches keyed by `(sync_run_id, source_row_number)`.
+8. Validate the entire snapshot before touching the current inventory.
+9. Atomically upsert present sites, reactivate returning sites, and soft-deactivate missing sites.
+10. Make new, reactivated, newly eligible, or reachability-changed sites due for discovery.
+11. Persist counts and mark the run successful in the same finalization transaction.
 
 ### Safety invariants
 
-Finalization must fail without modifying current inventory when any of these is true:
+Finalization fails without modifying current inventory when any of these is true:
 
 - Required columns are missing.
 - Normalized source keys are duplicated.
@@ -286,15 +313,55 @@ All GSA records are retained for audit, but only these are discovery-eligible:
 ```sql
 inventory_active = true
 and gsa_filtered = false
+and inventory_usable = true
 ```
 
+`inventory_usable` is an ingestion-owned safety classification. It keeps
+malformed unfiltered source values in the audit inventory while preventing
+them from entering discovery; `gsa_filtered` continues to preserve GSA's own
+classification unchanged.
+
 Changes to agency/bureau labels or other non-reachability metadata should not force rediscovery. Store a full source-row hash for audit and a separate discovery-input hash for fields that change reachability or eligibility.
+
+Inventory API access is service-only. Controlled RPCs create and close sync
+runs, stage batches, finalize reconciliation, return aggregate health, and
+keyset-page sites. Source-derived site rows have no generic update or hard
+delete path; reconciliation owns their lifecycle.
+
+### Implemented verification
+
+The hosted development project contains one fully reconciled GSA snapshot:
+
+| Result                        |  Value |
+| ----------------------------- | -----: |
+| Source rows                   | 29,569 |
+| Usable discovery targets      | 25,367 |
+| GSA-filtered rows retained    |  4,195 |
+| Ingestion-excluded rows       |      7 |
+| Pending site-discovery states | 25,367 |
+| Duplicate usable hostnames    |      0 |
+
+The snapshot was retrieved back from R2 and matched its recorded SHA-256. A
+second run with the same checksum completed as `unchanged` without restaging or
+mutating the inventory. The runbook contains run IDs, checksum, queries, and
+recovery commands.
 
 ## Phase 2: Site-level feed discovery
 
 ### Scheduling model
 
-`site_discovery_state` is a one-to-zero-or-one operational child of `government_sites`. A lightweight Cloudflare Cron tick runs every minute and places one small `site.discovery.dispatch.requested` control event on the queue. The consumer then claims due sites transactionally from Supabase.
+`site_discovery_state` is a one-to-zero-or-one operational child of
+`government_sites`. The inventory migration already creates and updates these
+rows and implements row-level lease-safe `claim_due_site_discoveries` and
+`recover_expired_site_discovery_leases` RPCs. A single claim call selects at
+most one site per base domain. Cross-invocation domain serialization is an
+explicit prerequisite in the discovery implementation plan and must be added
+before consumer concurrency is raised above one.
+
+No Cloudflare handler invokes those RPCs yet. The next Worker phase will add a
+lightweight Cron tick that places one small `site.discovery.dispatch.requested`
+control event on the queue; its consumer will claim due sites transactionally
+from Supabase and perform bounded discovery.
 
 The database is the backlog:
 
@@ -702,23 +769,28 @@ CI deployment credentials and automated deployment are intentionally deferred. I
 
 Backups are also a production gate. The current runbook uses manual Supabase dumps. Automated database and artifact backup/restore testing is required before valuable production data accumulates.
 
-## Implementation sequence
+## Next implementation sequence
 
-The next implementation session should follow this order:
+The infrastructure and inventory phases are complete in this working tree. The
+next implementation session should follow this order:
 
-1. Inspect `git status`, commit or branch the infrastructure foundation safely, and reconcile stale plan status.
-2. Renumber the proposed inventory/discovery migrations after the existing `...00200_harden_pipeline_event_grants.sql` migration.
-3. Add database tests, inventory tables/private staging, constraints, and service-only reconciliation/claim RPCs.
-4. Convert the generic event parser into typed event routing and add the discovery dispatch contract.
-5. Add `apps/inventory-sync/` with streaming fetch/hash/CSV parsing, R2 archival, staging batches, and finalization.
-6. Add manual inventory sync and validate a real GSA snapshot before scheduling it.
-7. Add the Thursday `04:17 UTC` GitHub Action with concurrency protection and staleness monitoring.
-8. Add feed tables and complete/fail discovery RPCs.
-9. Implement bounded discovery and SSRF/XML protections in the Worker.
-10. Change the scheduled handler from heartbeat-only behavior to explicit schedule/event routing, then add the one-minute discovery tick.
-11. Run fixture/integration tests, then 25-site and 250-site canaries before expanding the backlog.
-12. Design and benchmark the feed-polling runtime/paid capacity before consuming `feed_fetch_state` at scale.
-13. Add entry normalization/deduplication, then clustering/ranking, then the materialized API/UI.
+1. Commit and merge `codex/gsa-inventory-sync`, correct the GitHub environment
+   scope for `R2_ACCESS_KEY_ID`, and manually dispatch the first Action run.
+2. Convert the generic event parser into typed event routing and add the
+   discovery dispatch contract.
+3. Add the `...00400` feed migration with `feeds`,
+   `government_site_feeds`, `feed_fetch_state`, and complete/fail discovery
+   RPCs.
+4. Implement bounded discovery with SSRF, redirect, response-size, and XML
+   protections in the Worker.
+5. Route Cron schedules explicitly, then add the one-minute discovery tick
+   without changing the hourly heartbeat behavior.
+6. Run discovery fixtures followed by 25-site and 250-site canaries before
+   expanding the backlog.
+7. Design and benchmark the feed-polling runtime/paid capacity before consuming
+   `feed_fetch_state` at scale.
+8. Add entry normalization/deduplication, then clustering/ranking, then the
+   materialized API/UI.
 
 The current scheduled handler emits a heartbeat for every Cron invocation. Do not simply add a second one-minute Cron to `wrangler.jsonc`; first route `ScheduledController.cron` or otherwise produce an explicit discovery event so both schedules do not execute heartbeat behavior.
 
@@ -729,8 +801,8 @@ The current queue handler also writes every schema-valid event under `health/<id
 Do not enable unattended schedules until the preceding gate passes:
 
 1. Infrastructure heartbeat passes locally and hosted. **Passed.**
-2. Real GSA snapshot stages and reconciles with expected counts; replay is a no-op; malformed/truncated snapshots do not change inventory.
-3. Inventory manual run is observable and recoverable; then enable the weekly Action.
+2. Real GSA snapshot stages and reconciles with expected counts; replay is a no-op; malformed/truncated snapshots do not change inventory. **Passed locally and hosted.**
+3. Inventory manual run is observable and recoverable. **Passed.** Merge the workflow, correct the remaining GitHub environment scope mismatch, and verify one controlled dispatch before relying on the weekly schedule.
 4. Discovery fixtures cover redirects, multiple feeds, shared feeds, no-feed, malformed feed, oversized payload, SSRF target, lease expiry, and duplicate delivery.
 5. Run a 25-site discovery canary and inspect every result.
 6. Run a 250-site canary and evaluate errors, subrequests, domain behavior, database growth, and queue operations.
@@ -759,20 +831,21 @@ Keeping these out of the first domain phase prevents discovery reliability and i
 5. **Feed canonicalization:** preserve path/query semantics. Do not remove trailing slashes or tracking-looking parameters without evidence that two feeds are equivalent.
 6. **No-feed coverage:** sitemap and HTML change detection are separate, slower adapters, not behavior to hide inside RSS polling.
 7. **Backups and data retention:** define R2 raw-payload retention and automated Supabase backup/restore before production.
-8. **Plan drift:** the ignored `.claude/plans/` documents are useful design artifacts but contain stale status and migration names. Code, applied migrations, this architecture snapshot, and the runbook take precedence.
-9. **Local lint after Wrangler runs:** `pnpm lint` currently scans generated files under `apps/pipeline-worker/.wrangler/tmp` because the ESLint ignore only names `.wrangler/` at its configured level. Source-only lint passes, and fresh CI lints before generating the bundle. A follow-up should ignore `**/.wrangler/**` (or otherwise exclude generated Worker output) so the documented local verification sequence remains repeatable.
+8. **Plan drift:** the ignored `.claude/plans/` documents are useful design artifacts but may contain stale status. Code, applied migrations, this architecture snapshot, and the runbook take precedence.
 
 ## Handoff map
 
 Use these files rather than reconstructing context from scratch:
 
 - `architecture.md`: target architecture, current state, decisions, and phase boundaries.
-- `.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md`: detailed inventory/discovery tasks, tests, and original field-level proposals; reconcile migration names before execution.
+- `.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md`: detailed inventory/discovery tasks, tests, and original field-level proposals.
 - `.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md`: original foundation plan; its R2-pending status is stale.
 - `README.md`: local setup and bootstrap summary.
+- `apps/inventory-sync/`: implemented GSA downloader, parser, R2 snapshot store, and reconciliation orchestration.
 - `apps/pipeline-worker/`: the implemented Worker entry points and current heartbeat behavior.
 - `packages/contracts/`: the current versioned Zod event envelope.
-- `supabase/migrations/`: the only authoritative migration sequence.
+- `supabase/migrations/20260717000300_create_government_site_inventory.sql`: authoritative inventory schema, reconciliation, and discovery-claim RPCs.
+- `supabase/migrations/`: the authoritative additive migration sequence.
 - `docs/infrastructure/runbook.md`: resource inventory, hosted smoke evidence, operations, and incident procedures.
 - `docs/infrastructure/access.md`: interactive authentication and secret handling.
 - `docs/infrastructure/teardown.md`: destructive teardown order and safeguards.

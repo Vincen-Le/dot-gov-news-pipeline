@@ -1,0 +1,4 @@
+initial_url,base_domain,top_level_domain,branch,agency,bureau,filtered,source_list_other
+agency.gov,agency.gov,gov,Executive,"Agency, Federal",Bureau,false,true
+news.agency.gov,agency.gov,gov,Executive,"Agency, Federal",Bureau,false,true
+retired.gov,retired.gov,gov,Executive,Retired Agency,,true,false

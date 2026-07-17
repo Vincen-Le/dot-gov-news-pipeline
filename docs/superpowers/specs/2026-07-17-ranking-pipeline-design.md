@@ -46,11 +46,11 @@ Cloudflare Cron (*/5) ────────────┤ safety wake
 
 ### Durability split
 
-| Store | Holds | Durable? |
-| --- | --- | --- |
-| Supabase Postgres | Entries, embeddings (fp16 bytea), clusters, rubric bits, rank_key, FTS index | Yes — source of truth |
-| ChromaDB (in container) | Embedding index for near-dup + semantic search | No — rebuilt on boot |
-| R2 | Hourly Chroma snapshot | Yes — boot accelerator |
+| Store                   | Holds                                                                        | Durable?               |
+| ----------------------- | ---------------------------------------------------------------------------- | ---------------------- |
+| Supabase Postgres       | Entries, embeddings (fp16 bytea), clusters, rubric bits, rank_key, FTS index | Yes — source of truth  |
+| ChromaDB (in container) | Embedding index for near-dup + semantic search                               | No — rebuilt on boot   |
+| R2                      | Hourly Chroma snapshot                                                       | Yes — boot accelerator |
 
 Boot sequence: load latest R2 snapshot → top-up from Postgres rows newer than snapshot watermark → serve. Seconds, not minutes.
 
@@ -89,13 +89,13 @@ For each claimed entry:
 
 Gov corpus ≈ low thousands of entries/day, ~2–5/min peak:
 
-| Step | Cost |
-| --- | --- |
-| Workers AI embedding (batched) | ~50 ms amortized |
-| Chroma near-dup query (72 h window, in-process) | < 5 ms |
-| Centroid match (~300 clusters × 1024 dims, numpy) | microseconds |
-| Topic assign (~15 dot products) | negligible |
-| Attach RPC transaction | ~20 ms |
+| Step                                              | Cost             |
+| ------------------------------------------------- | ---------------- |
+| Workers AI embedding (batched)                    | ~50 ms amortized |
+| Chroma near-dup query (72 h window, in-process)   | < 5 ms           |
+| Centroid match (~300 clusters × 1024 dims, numpy) | microseconds     |
+| Topic assign (~15 dot products)                   | negligible       |
+| Attach RPC transaction                            | ~20 ms           |
 
 Nothing scales with total corpus size — only with the 72 h active window.
 
@@ -268,17 +268,17 @@ Online greedy clustering drifts. One nightly job:
 
 ## Configuration (not constants)
 
-| Key | Initial | Notes |
-| --- | --- | --- |
-| `EMBEDDING_MODEL` | `@cf/baai/bge-large-en-v1.5` | 1024 dims; `bge-base` (768) is the DB-size pressure valve |
-| `JUDGE_MODEL` | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | via AI Gateway |
-| `NEAR_DUP_THRESHOLD` | calibrate on real corpus | BGE-space, not OpenAI-space |
-| `CLUSTER_JOIN_THRESHOLD` | calibrate on real corpus | ditto |
-| `HALF_LIFE` | 24 h | τ = half_life/ln(2) |
-| `ACTIVE_WINDOW` | 72 h | clustering/near-dup horizon |
-| `SERVING_WINDOW` | 7 days | query filter |
-| `PRIOR_POINTS` | ½ Σ rubric weights | unjudged default |
-| Rubric weights | table-driven | retune without LLM calls |
+| Key                      | Initial                                    | Notes                                                     |
+| ------------------------ | ------------------------------------------ | --------------------------------------------------------- |
+| `EMBEDDING_MODEL`        | `@cf/baai/bge-large-en-v1.5`               | 1024 dims; `bge-base` (768) is the DB-size pressure valve |
+| `JUDGE_MODEL`            | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | via AI Gateway                                            |
+| `NEAR_DUP_THRESHOLD`     | calibrate on real corpus                   | BGE-space, not OpenAI-space                               |
+| `CLUSTER_JOIN_THRESHOLD` | calibrate on real corpus                   | ditto                                                     |
+| `HALF_LIFE`              | 24 h                                       | τ = half_life/ln(2)                                       |
+| `ACTIVE_WINDOW`          | 72 h                                       | clustering/near-dup horizon                               |
+| `SERVING_WINDOW`         | 7 days                                     | query filter                                              |
+| `PRIOR_POINTS`           | ½ Σ rubric weights                         | unjudged default                                          |
+| Rubric weights           | table-driven                               | retune without LLM calls                                  |
 
 ## Failure semantics
 

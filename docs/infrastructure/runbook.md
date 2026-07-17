@@ -45,7 +45,13 @@ Start and verify the local stack:
 ```sh
 mise exec -- pnpm supabase start
 mise exec -- pnpm supabase db reset
+mise exec -- pnpm supabase test db
 ```
+
+This repository uses dedicated local ports in the `5742x` range so it can run
+alongside other Supabase or Postgres projects. Local analytics is intentionally
+disabled because it is not needed for migration or RPC testing and its Vector
+collector cannot bind the default Colima Docker socket reliably.
 
 Link and apply migrations to the hosted development project:
 
@@ -64,6 +70,175 @@ mise exec -- pnpm supabase db dump --linked --file pipeline-backup.sql
 ```
 
 `pipeline-backup.sql` matches the ignored `*-backup.sql` pattern. Still move the dump outside the repository immediately. Automated backups to R2 are required before production use.
+
+## GSA government-site inventory
+
+Validate the current upstream snapshot and write the active, unfiltered,
+ingestion-usable hostname list without changing Supabase or R2:
+
+```sh
+mise exec -- pnpm inventory:sync --dry-run
+mise exec -- pnpm inventory:sync --dry-run --output /tmp/dot-gov-usable-sites.txt
+```
+
+To exercise the complete reconciliation against local Supabase without R2
+credentials, load the local Supabase URL and service-role key and use a
+temporary artifact directory:
+
+```sh
+mise exec -- pnpm inventory:sync --local-artifact-directory /tmp/dot-gov-inventory-artifacts
+```
+
+The command refuses local artifact storage when `SUPABASE_URL` is not localhost.
+
+The durable synchronization additionally requires the Supabase server key and
+R2 S3-compatible credentials listed in `.env.example`. The Cloudflare API token
+used by Wrangler is not an R2 S3 access key. Create a narrowly scoped R2 token
+for the artifact bucket, then run:
+
+```sh
+mise exec -- pnpm inventory:sync
+```
+
+The batch downloads the GSA CSV over HTTPS, enforces a 20 MiB maximum, computes
+its SHA-256 checksum, archives it under
+`inventory/gsa/<sha256>.csv`, stages rows in batches, and asks PostgreSQL to
+validate and reconcile the complete snapshot atomically. Filtered, malformed,
+duplicate-normalized, and missing records remain stored for audit; only active,
+unfiltered, ingestion-usable records appear in
+`public.usable_government_sites`.
+
+### Service-only inventory API
+
+Supabase exposes the public-schema functions through PostgREST under
+`/rest/v1/rpc/<function_name>`. They require the server-side service key; `anon`
+and `authenticated` cannot execute them.
+
+| Operation | RPC or relation                     | Purpose                                                     |
+| --------- | ----------------------------------- | ----------------------------------------------------------- |
+| Create    | `begin_gsa_inventory_sync`          | Open one auditable running sync                             |
+| Update    | `record_gsa_inventory_snapshot`     | Attach checksum, ETag, artifact key, and parsed count       |
+| Update    | `stage_gsa_inventory_batch`         | Idempotently commit up to 1,000 source rows                 |
+| Update    | `finalize_gsa_inventory_sync`       | Validate and atomically reconcile the complete snapshot     |
+| Update    | `mark_gsa_inventory_sync_unchanged` | Close a verified ETag/checksum replay without staging       |
+| Update    | `fail_gsa_inventory_sync`           | Close a pre-finalization failure with bounded diagnostics   |
+| Read      | `get_government_inventory_summary`  | Return inventory, eligibility, and discovery-state counts   |
+| Read      | `list_government_sites`             | Keyset-paginate and filter sites, including discovery state |
+| Read      | `usable_government_sites`           | Query the active, unique discovery targets directly         |
+
+For example, a server-side Supabase client can page usable sites with:
+
+```ts
+const { data, error } = await supabase.rpc("list_government_sites", {
+  p_after_id: previousPageLastId,
+  p_limit: 250,
+  p_usable_only: true,
+});
+```
+
+There is intentionally no generic update or hard-delete endpoint for
+`government_sites`. GSA-owned fields change only through snapshot
+reconciliation, and missing records are soft-deactivated. This prevents an API
+caller from creating inventory state that cannot be explained by a source run.
+
+Inspect recent runs and inventory counts with:
+
+```sql
+select
+    status,
+    source_row_count,
+    staged_count,
+    inserted_count,
+    updated_count,
+    reactivated_count,
+    deactivated_count,
+    eligible_count,
+    started_at,
+    completed_at,
+    error_code
+from public.inventory_sync_runs
+order by started_at desc
+limit 10;
+
+select
+    count(*) filter (
+        where inventory_active and not gsa_filtered and inventory_usable
+    ) as usable,
+    count(*) filter (where inventory_active and gsa_filtered) as filtered,
+    count(*) filter (where inventory_active and not inventory_usable) as excluded,
+    count(*) filter (where not inventory_active) as inactive
+from public.government_sites;
+```
+
+The GitHub workflow runs Thursday at `04:17 UTC` and also supports manual
+dispatch. Configure the `development` GitHub environment with:
+
+- Variables: `CLOUDFLARE_ACCOUNT_ID`, `R2_BUCKET_NAME`, `SUPABASE_URL`.
+- Secrets: `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+  `SUPABASE_SECRET_KEY`.
+
+The workflow file reads `R2_ACCESS_KEY_ID` from the environment's **secrets**
+scope. A same-named GitHub variable does not satisfy that expression. Verify
+names and scopes without printing values before the first run:
+
+```sh
+gh variable list --env development
+gh secret list --env development
+```
+
+GitHub evaluates scheduled workflows only from the default branch. The schedule
+therefore becomes active only after `.github/workflows/gsa-inventory-sync.yml`
+is merged into `main`; use `workflow_dispatch` for the first controlled run.
+
+Use the manual `allow_large_decrease` input only after inspecting the archived
+snapshot. It bypasses the 80% week-over-week guard, but not required columns,
+duplicate-hostname detection, staged-count equality, or the absolute 20,000-row
+minimum.
+
+### Local verification record (2026-07-17)
+
+The live GSA snapshot was downloaded and reconciled into a reset local
+Supabase instance:
+
+| Check                            |                          Result |
+| -------------------------------- | ------------------------------: |
+| Source bytes                     |                       8,182,959 |
+| Source rows staged               |                          29,569 |
+| Usable unique hostnames          |                          25,367 |
+| GSA-filtered rows retained       |                           4,195 |
+| Ingestion-excluded rows retained |                               7 |
+| Duplicate usable hostnames       |                               0 |
+| Replay result                    | `unchanged`, zero rows restaged |
+
+The seven ingestion exclusions comprise six malformed hostname values and one
+duplicate normalized Unicode/punycode hostname. The raw snapshot SHA-256 was
+`044512695181e8366a661c9597e27f66e645424b3d34302b1812b6e277f13a68`.
+
+### Hosted inventory verification record (2026-07-17)
+
+Migration `20260717000300_create_government_site_inventory.sql` was applied to
+the hosted development project. The same source snapshot was uploaded to R2,
+downloaded again, and verified at 8,182,959 bytes with the SHA-256 above before
+its artifact key was attached to the hosted sync run.
+
+| Check                            |                                 Result |
+| -------------------------------- | -------------------------------------: |
+| Successful run                   | `1ef2749e-ca15-45da-a945-72c986e60ead` |
+| Source rows committed            |                                 29,569 |
+| Usable discovery targets         |                                 25,367 |
+| GSA-filtered rows retained       |                                  4,195 |
+| Ingestion-excluded rows retained |                                      7 |
+| Pending discovery states         |                                 25,367 |
+| Replay run                       | `29853ecc-8446-46e4-832d-072e9744963a` |
+| Replay result                    |        `unchanged`, zero rows restaged |
+
+The service-key summary and paginated-list RPCs returned the same counts from
+hosted PostgREST. The one-time archive bootstrap used authenticated Wrangler.
+At this verification point the scheduled workflow remained inactive because it
+had not yet been merged into the default branch; additionally,
+`R2_ACCESS_KEY_ID` existed as a GitHub environment variable while the workflow
+reads it as a secret. Correct that scope mismatch before the first controlled
+dispatch.
 
 ## Local Chroma
 

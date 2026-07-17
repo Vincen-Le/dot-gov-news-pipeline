@@ -3,7 +3,33 @@
 **Date:** 2026-07-17
 **Owner:** Vincent Le / independent project
 **Type:** Backend, infrastructure, and external-data integration
-**Status:** Draft for implementation after the infrastructure bootstrap branch
+**Status:** Inventory reconciliation implemented and hosted-verified; feed discovery pending
+
+## Implementation checkpoint
+
+As of 2026-07-17, the inventory half of this plan is implemented in
+`codex/gsa-inventory-sync`:
+
+- `apps/inventory-sync/` performs bounded HTTPS download, streaming SHA-256,
+  strict CSV parsing and hostname normalization, R2 archival, batched staging,
+  checksum no-ops, and finalization recovery.
+- Migration `20260717000300_create_government_site_inventory.sql` provides
+  auditable runs, private staging, `government_sites`,
+  `site_discovery_state`, the usable-sites view, atomic reconciliation, and
+  service-only inventory and lease-claim RPCs.
+- `.github/workflows/gsa-inventory-sync.yml` provides the Thursday `04:17 UTC`
+  schedule, manual dispatch, concurrency protection, and the reviewed
+  large-decrease override. It becomes scheduled only after merge to the default
+  branch.
+- The hosted verification reconciled 29,569 rows into 25,367 usable sites and
+  confirmed an unchanged checksum replay without restaging.
+- Local verification passes 32 Vitest tests and 35 pgTAP assertions; the new CI
+  jobs still need their first remote run after the branch is pushed.
+
+The discovery event contract, feed tables, discovery Worker, and feed polling
+remain unimplemented. Step 3 was deliberately deferred because the standalone
+inventory batch does not use the Worker event envelope; it is the first task of
+the discovery phase.
 
 ## Problem Statement
 
@@ -71,7 +97,7 @@ The current GSA CSV is approximately 8.2 MB (7.8 MiB) and 29,500 rows. Unlike th
 4. Every candidate snapshot is staged and validated before it can modify `government_sites`.
 5. Required-column failure, duplicate keys, a suspicious row-count decrease, or an incomplete download aborts reconciliation and leaves the current inventory unchanged.
 6. Present rows are upserted; missing rows are soft-deactivated, never deleted.
-7. All GSA rows are retained for audit, but only `inventory_active = true AND gsa_filtered = false` sites are eligible for discovery.
+7. All GSA rows are retained for audit, but only `inventory_active = true AND gsa_filtered = false AND inventory_usable = true` sites are eligible for discovery. Unfiltered source values that are not valid hostnames remain stored with an ingestion-owned exclusion reason.
 8. The sync makes new, reactivated, and newly eligible sites due immediately without resetting unrelated discovery history.
 9. Agency, bureau, analytics, or source-list-only changes do not by themselves trigger rediscovery.
 10. Site discovery is lease-based and safe across retries or concurrent consumers.
@@ -138,8 +164,8 @@ The discovery dispatcher is separate from the weekly inventory trigger because f
 
 Create two additive migrations after the bootstrap migration:
 
-- `supabase/migrations/20260717000200_create_government_site_inventory.sql`
-- `supabase/migrations/20260717000300_create_feed_discovery.sql`
+- `supabase/migrations/20260717000300_create_government_site_inventory.sql`
+- `supabase/migrations/20260717000400_create_feed_discovery.sql`
 
 The first migration owns inventory reconciliation and due-site scheduling. The second owns canonical feeds, website-to-feed provenance, and the polling handoff. Splitting them keeps the weekly inventory usable even if feed discovery needs additional iteration. Use `TIMESTAMPTZ`, database-generated UUIDs, explicit check constraints, and additive indexes.
 
@@ -170,6 +196,7 @@ inserted_count INTEGER NOT NULL DEFAULT 0
 updated_count INTEGER NOT NULL DEFAULT 0
 reactivated_count INTEGER NOT NULL DEFAULT 0
 deactivated_count INTEGER NOT NULL DEFAULT 0
+eligible_count INTEGER NOT NULL DEFAULT 0
 error_code TEXT NULL
 error_detail TEXT NULL
 started_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -185,33 +212,39 @@ Persistent staging is required because the GitHub-hosted Node batch will insert 
 ```text
 sync_run_id UUID NOT NULL REFERENCES inventory_sync_runs(id) ON DELETE CASCADE
 source_row_number INTEGER NOT NULL
-initial_url TEXT NOT NULL
-base_domain TEXT NOT NULL
+source_initial_url TEXT NOT NULL
+initial_url TEXT NULL
+base_domain TEXT NULL
 top_level_domain TEXT NOT NULL
 branch TEXT NULL
 agency TEXT NULL
 bureau TEXT NULL
 gsa_filtered BOOLEAN NOT NULL
+inventory_usable BOOLEAN NOT NULL
+exclusion_reason TEXT NULL
 source_record JSONB NOT NULL
 source_row_hash TEXT NOT NULL
 discovery_input_hash TEXT NOT NULL
 PRIMARY KEY (sync_run_id, source_row_number)
 ```
 
-Stage by source row number rather than normalized URL so a duplicate upstream key cannot be hidden by an upsert. Finalization must reject duplicate `(sync_run_id, initial_url)` values. `source_row_hash` detects any source change for audit. `discovery_input_hash` contains only fields that affect reachability or eligibility; agency or analytics changes must not cause rediscovery.
+Stage by source row number rather than normalized URL so a duplicate upstream key cannot be hidden by an upsert. Finalization must reject duplicate `(sync_run_id, source_initial_url)` values. `source_row_hash` detects any source change for audit. `discovery_input_hash` contains only fields that affect reachability or eligibility; agency or analytics changes must not cause rediscovery. `source_initial_url` preserves the upstream identity while `initial_url` and `base_domain` are null for unusable values, preventing malformed unfiltered records from reaching discovery.
 
 ### `public.government_sites`
 
 ```text
 id UUID PRIMARY KEY
 source TEXT NOT NULL DEFAULT 'gsa_federal_website_index'
-initial_url TEXT NOT NULL
-base_domain TEXT NOT NULL
+source_initial_url TEXT NOT NULL
+initial_url TEXT NULL
+base_domain TEXT NULL
 top_level_domain TEXT NOT NULL
 branch TEXT NULL
 agency TEXT NULL
 bureau TEXT NULL
 gsa_filtered BOOLEAN NOT NULL
+inventory_usable BOOLEAN NOT NULL
+exclusion_reason TEXT NULL
 inventory_active BOOLEAN NOT NULL DEFAULT true
 source_row_hash TEXT NOT NULL
 discovery_input_hash TEXT NOT NULL
@@ -219,7 +252,7 @@ first_seen_at TIMESTAMPTZ NOT NULL
 last_seen_at TIMESTAMPTZ NOT NULL
 deactivated_at TIMESTAMPTZ NULL
 last_sync_run_id UUID NOT NULL REFERENCES inventory_sync_runs(id)
-UNIQUE (source, initial_url)
+UNIQUE (source, source_initial_url)
 ```
 
 Add indexes for eligible sites, `base_domain`, agency, and `last_seen_at`.
@@ -358,7 +391,7 @@ Confirm the actual queue binding, R2 binding, Supabase client, event dispatch pa
 
 Create for the inventory migration:
 
-- `supabase/migrations/20260717000200_create_government_site_inventory.sql`
+- `supabase/migrations/20260717000300_create_government_site_inventory.sql`
 - `supabase/tests/database/inventory_reconciliation.test.sql`
 - `supabase/tests/database/site_discovery_claiming.test.sql`
 
@@ -477,7 +510,7 @@ Do not configure a Cloudflare or Supabase schedule for this workflow. GitHub doc
 
 Create the feed persistence migration and its tests first:
 
-- `supabase/migrations/20260717000300_create_feed_discovery.sql`
+- `supabase/migrations/20260717000400_create_feed_discovery.sql`
 - `supabase/tests/database/feed_discovery.test.sql`
 
 This migration implements `feeds`, `government_site_feeds`, `feed_fetch_state`, `complete_site_discovery`, and `fail_site_discovery` before Worker discovery code can write results.
@@ -723,13 +756,13 @@ If a bad snapshot was finalized despite validation, restore active flags and met
 
 ## Acceptance Criteria
 
-- [ ] A real GSA snapshot is archived, staged, validated, and reconciled successfully.
-- [ ] Repeating the same source produces no duplicate sites and no destructive changes.
-- [ ] A malformed or suspiciously small snapshot cannot deactivate current sites.
-- [ ] Missing sites are soft-deactivated and reappearing sites reactivate correctly.
-- [ ] Only active, unfiltered sites can be claimed for discovery.
-- [ ] New and reactivated sites become immediately due.
-- [ ] Discovery claims are lease-safe and recover after worker failure.
+- [x] A real GSA snapshot is archived, staged, validated, and reconciled successfully.
+- [x] Repeating the same source produces no duplicate sites and no destructive changes.
+- [x] A malformed or suspiciously small snapshot cannot deactivate current sites.
+- [x] Missing sites are soft-deactivated and reappearing sites reactivate correctly.
+- [x] Only active, unfiltered, ingestion-usable sites can be claimed for discovery.
+- [x] New and reactivated sites become immediately due.
+- [x] Discovery claims are lease-safe and recover after worker failure.
 - [ ] The discovery implementation finds standard HTML-advertised RSS and Atom feeds.
 - [ ] Invalid, unsafe, oversized, or redirecting candidates are handled within policy.
 - [ ] Multiple websites can reference one canonical feed without duplicate polling state.
@@ -737,8 +770,8 @@ If a bad snapshot was finalized despite validation, restore active flags and met
 - [ ] New feeds receive pending `feed_fetch_state` but are not polled in this phase.
 - [ ] The initial backfill can be paused and resumed from database state.
 - [ ] Operator queries expose source freshness, backlog age, failures, and feed counts.
-- [ ] CI lint, typecheck, unit, database, and integration tests pass.
-- [ ] No anonymous client can mutate inventory or scheduling state.
+- [ ] CI lint, typecheck, unit, database, and integration tests pass remotely.
+- [x] No anonymous client can mutate inventory or scheduling state.
 
 ## Risks and Mitigations
 

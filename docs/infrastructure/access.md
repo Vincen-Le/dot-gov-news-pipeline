@@ -46,6 +46,38 @@ The account must have Workers, Queues, and R2 enabled. No DNS or zone permission
 
 Do not use a Cloudflare Global API Key. If CI deployment is added later, use an account-scoped token with only Workers Scripts Edit, Queues Edit, and Workers R2 Storage Edit.
 
+### R2 S3-compatible access
+
+The inventory batch runs outside the Worker runtime, so it uses R2's
+S3-compatible API rather than the `ARTIFACTS` Worker binding. In **Cloudflare
+Dashboard > Storage & databases > R2 > Overview > Manage API Tokens**, create
+an account token with **Object Read & Write** limited to
+`dot-gov-news-artifacts-dev`.
+
+Record the generated values only in approved secret stores:
+
+```text
+R2_ACCESS_KEY_ID
+R2_SECRET_ACCESS_KEY
+```
+
+The inventory client combines those values with these non-secret identifiers:
+
+```text
+CLOUDFLARE_ACCOUNT_ID=a2d6c849c1770d0e7e4fc042db14de25
+R2_BUCKET_NAME=dot-gov-news-artifacts-dev
+```
+
+For local use, place all four values in the ignored root `.env` file. For the
+scheduled workflow, place `CLOUDFLARE_ACCOUNT_ID`, `R2_BUCKET_NAME`, and
+`SUPABASE_URL` in the GitHub `development` environment as variables, and place
+`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, and `SUPABASE_SECRET_KEY` there as
+secrets.
+
+`CLOUDFLARE_API_TOKEN` is a management API credential and is not interchangeable
+with either S3-compatible R2 value. The Worker binding itself does not require
+S3 credentials.
+
 ## Chroma
 
 The bootstrap runs Chroma locally through Docker and requires no account or API key.

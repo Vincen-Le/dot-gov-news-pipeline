@@ -45,3 +45,37 @@ jobs:
 
       - name: Validate Worker bundle
         run: pnpm --filter @dot-gov-news/pipeline-worker check:deploy
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          cache: pnpm
+          node-version: 24
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Start local Supabase
+        run: pnpm supabase start
+
+      - name: Apply migrations from scratch
+        run: pnpm supabase db reset
+
+      - name: Test database functions and grants
+        run: pnpm supabase test db
+
+      - name: Stop local Supabase
+        if: always()
+        run: pnpm supabase stop

@@ -1,14 +1,23 @@
 # dot-gov-news-pipeline
 
-Minimal independent infrastructure for collecting and processing news from U.S. government websites.
+Independent infrastructure and source inventory for collecting news from U.S.
+government websites.
 
-The current bootstrap intentionally implements infrastructure only:
+The repository currently implements:
 
-- Supabase for durable, idempotent pipeline events.
-- Cloudflare Workers, Cron Triggers, Queues, and R2 for asynchronous compute and artifacts.
+- Supabase for durable pipeline events, GSA inventory runs, government sites,
+  and lease-based site-discovery due state.
+- A Node/TypeScript batch application that validates and reconciles the weekly
+  GSA Federal Website Index.
+- Content-addressed source snapshot archival in Cloudflare R2.
+- A scheduled and manually dispatchable GitHub Actions inventory workflow.
+- Cloudflare Workers, Cron Triggers, Queues, and R2 for asynchronous compute
+  and artifacts, currently exercised by the infrastructure heartbeat.
 - Local Chroma through Docker for future semantic-search development.
 
-Feed discovery, polling, parsing, embeddings, ranking, search, and the public UI are separate follow-up projects.
+Feed discovery, feed polling, article parsing, embeddings, ranking, search,
+and the public UI remain follow-up work. In particular, the current Worker does
+not yet consume `site_discovery_state` or create feed records.
 
 ## Architecture smoke path
 
@@ -21,6 +30,34 @@ Cloudflare Cron
 ```
 
 The queue is at-least-once. Event idempotency is enforced by the unique Supabase `idempotency_key`, and R2 objects use deterministic keys.
+
+## GSA inventory path
+
+```text
+GSA Federal Website Index
+    -> inventory-sync batch (local or GitHub Actions)
+        -> R2 inventory/gsa/<sha256>.csv
+        -> Supabase private staging
+        -> atomic reconciliation
+            -> government_sites
+            -> site_discovery_state
+            -> usable_government_sites
+```
+
+Every source row is retained for audit. Only active, GSA-unfiltered, and
+ingestion-usable hostnames become due for feed discovery. A full hosted import
+has reconciled 29,569 source rows into 25,367 usable discovery targets; replay
+of the same checksum completed as an unchanged no-op.
+
+Run a read-only source inspection with:
+
+```sh
+mise exec -- pnpm inventory:sync --dry-run
+```
+
+The durable sync, credential setup, hosted verification record, and recovery
+queries are documented in the
+[infrastructure runbook](docs/infrastructure/runbook.md#gsa-government-site-inventory).
 
 ## Dependency management
 
@@ -76,6 +113,7 @@ mise exec -- pnpm format:check
 mise exec -- pnpm lint
 mise exec -- pnpm typecheck
 mise exec -- pnpm test
+mise exec -- pnpm supabase test db
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker check:deploy
 ```
 
@@ -91,6 +129,7 @@ Run the local Supabase stack:
 ```sh
 mise exec -- pnpm supabase start
 mise exec -- pnpm supabase db reset
+mise exec -- pnpm supabase test db
 ```
 
 ## Local secrets
@@ -111,3 +150,4 @@ Never add real credentials to `.env.example` or commit `.env`. Worker-local secr
 - [Operations runbook](docs/infrastructure/runbook.md)
 - [Teardown procedure](docs/infrastructure/teardown.md)
 - [Implementation plan](.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)
+- [Inventory and feed-discovery plan](.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md)

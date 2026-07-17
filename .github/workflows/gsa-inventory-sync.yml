@@ -1,0 +1,57 @@
+name: GSA inventory sync
+
+on:
+  schedule:
+    - cron: "17 4 * * 4"
+  workflow_dispatch:
+    inputs:
+      allow_large_decrease:
+        description: Allow a snapshot below 80% of the previous successful row count
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gsa-inventory-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: development
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          cache: pnpm
+          node-version: 24
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Synchronize inventory
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.allow_large_decrease }}
+        run: pnpm inventory:sync
+
+      - name: Synchronize inventory with reviewed row-count override
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_large_decrease }}
+        run: pnpm inventory:sync --allow-large-decrease

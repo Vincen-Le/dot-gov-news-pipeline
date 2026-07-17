@@ -1,0 +1,22 @@
+{
+  "name": "@dot-gov-news/inventory-sync",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "tsx src/index.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1090.0",
+    "@supabase/supabase-js": "2.110.7",
+    "csv-parse": "7.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "tsx": "4.23.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}
