@@ -1,2 +1,5 @@
 # Copy to .dev.vars for local Worker development. Never commit real values.
 SUPABASE_SECRET_KEY=
+# Required before setting DISCOVERY_ENABLED=true. Use a monitored project URL
+# or email address so government operators can identify discovery traffic.
+DISCOVERY_CONTACT=

@@ -2,7 +2,7 @@
 
 **Architecture snapshot:** 2026-07-17
 **Repository:** `dot-gov-news-pipeline`
-**Status:** Infrastructure and GSA inventory reconciliation implemented and hosted-verified; feed discovery, polling, and news processing remain planned work
+**Status:** Infrastructure and GSA inventory reconciliation hosted-verified; bounded feed discovery implemented locally and provisioned disabled; polling and news processing remain planned work
 **Primary design context:** Codex tasks `019f7117-db3b-7eb2-bf27-dda5fae1cf23` and `019f7129-622b-7bf3-93f1-f5de84d2e559`
 
 This document is the architectural handoff for a new implementation session. It combines the proposed end-state design with the infrastructure that exists in this working tree. Where an older plan conflicts with code, migrations, or the hosted verification record, the repository and hosted evidence in `docs/infrastructure/runbook.md` are authoritative.
@@ -33,10 +33,10 @@ TypeScript is the default implementation language for inventory, discovery, and 
 | Cloudflare R2                            | Provisioned and smoke-tested | Deterministic heartbeat artifact was retrieved remotely                         |
 | Supabase                                 | Provisioned and migrated     | Event and GSA inventory schemas are hosted with service-role-only access        |
 | End-to-end heartbeat                     | Implemented and verified     | `Cron -> Queue -> Worker -> R2 + Supabase`, including replay idempotency        |
-| CI                                       | Implemented                  | App verification plus migration reset and 35 database assertions                |
+| CI                                       | Implemented                  | App verification plus migration reset and database assertions                   |
 | Chroma                                   | Local-only bootstrap         | Docker Compose with persistent named volume; not part of hosted ingestion       |
 | GSA inventory sync                       | Implemented and hosted       | 29,569 rows reconciled; 25,367 usable sites; checksum replay verified unchanged |
-| Site feed discovery                      | Database primitives only     | Due-state claim/recovery RPCs exist; dispatcher and discovery Worker do not     |
+| Site feed discovery                      | Implemented, disabled        | Lease RPCs, dedicated Queue/DLQ, bounded Worker, provenance, and canary tooling |
 | Feed polling                             | Architected, not implemented | Add adaptive due-feed scheduler and stateless TypeScript pollers                |
 | Entry normalization/deduplication        | Architected, not implemented | Add durable entry model and idempotent new-entry events                         |
 | Clustering, ranking, API, UI             | Future                       | Keep downstream from collection and serve materialized ranked results           |
@@ -142,9 +142,9 @@ docs/infrastructure/        Access, operations, and teardown procedures
 Node 24 is pinned with `mise`. The root package uses pnpm 11.9.0. An empty Python 3.12+ `uv` environment is retained for later workloads but is not required by the infrastructure bootstrap.
 
 CI runs on pushes to `main` and pull requests. The application job installs the
-locked pnpm dependencies and runs formatting, linting, typechecking, 32 Vitest
-tests, and `wrangler deploy --dry-run`. A separate database job starts local
-Supabase, reapplies every migration from scratch, and runs 35 pgTAP assertions.
+locked pnpm dependencies and runs formatting, linting, typechecking, Vitest,
+and `wrangler deploy --dry-run`. A separate database job starts local Supabase,
+reapplies every migration from scratch, and runs the pgTAP suites.
 
 ### Deployed development resources
 
@@ -771,30 +771,14 @@ Backups are also a production gate. The current runbook uses manual Supabase dum
 
 ## Next implementation sequence
 
-The infrastructure and inventory phases are complete in this working tree. The
-next implementation session should follow this order:
-
-1. Commit and merge `codex/gsa-inventory-sync`, correct the GitHub environment
-   scope for `R2_ACCESS_KEY_ID`, and manually dispatch the first Action run.
-2. Convert the generic event parser into typed event routing and add the
-   discovery dispatch contract.
-3. Add the `...00400` feed migration with `feeds`,
-   `government_site_feeds`, `feed_fetch_state`, and complete/fail discovery
-   RPCs.
-4. Implement bounded discovery with SSRF, redirect, response-size, and XML
-   protections in the Worker.
-5. Route Cron schedules explicitly, then add the one-minute discovery tick
-   without changing the hourly heartbeat behavior.
-6. Run discovery fixtures followed by 25-site and 250-site canaries before
-   expanding the backlog.
-7. Design and benchmark the feed-polling runtime/paid capacity before consuming
-   `feed_fetch_state` at scale.
-8. Add entry normalization/deduplication, then clustering/ranking, then the
-   materialized API/UI.
-
-The current scheduled handler emits a heartbeat for every Cron invocation. Do not simply add a second one-minute Cron to `wrangler.jsonc`; first route `ScheduledController.cron` or otherwise produce an explicit discovery event so both schedules do not execute heartbeat behavior.
-
-The current queue handler also writes every schema-valid event under `health/<id>.json`. Add event-type dispatch before introducing discovery events.
+The infrastructure and inventory phases are complete. Bounded feed discovery,
+typed routing, dedicated Queue bindings, and lease-aware persistence are
+implemented behind `DISCOVERY_ENABLED=false`. The next step is the controlled
+hosted rollout documented in `docs/operations/site-feed-discovery.md`: one
+reviewed site, then 25 and 250 sites, with review between each gate. Feed polling
+must be designed and benchmarked separately before consuming
+`feed_fetch_state` at scale. Entry normalization, clustering/ranking, and the
+materialized API/UI follow polling.
 
 ## Rollout gates
 

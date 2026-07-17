@@ -1,14 +1,20 @@
 import {
   PIPELINE_EVENT_SCHEMA_VERSION,
-  type PipelineEvent,
+  type HeartbeatEvent,
 } from "@dot-gov-news/contracts";
 
+import { createSiteDiscoveryRepository } from "../clients/site-discovery-repository";
+import { dispatchDueSites } from "../discovery/dispatch-due-sites";
+import { parseDiscoveryConfig } from "../discovery/discovery-config";
 import type { WorkerEnv } from "../env";
+
+export const HEARTBEAT_CRON = "0 * * * *";
+export const SITE_DISCOVERY_CRON = "* * * * *";
 
 export function createHeartbeatEvent(
   scheduledTime: number,
   id: string,
-): PipelineEvent {
+): HeartbeatEvent {
   const occurredAt = new Date(scheduledTime).toISOString();
 
   return {
@@ -39,7 +45,7 @@ function formatUuid(bytes: Uint8Array): string {
 
 export async function createScheduledHeartbeatEvent(
   scheduledTime: number,
-): Promise<PipelineEvent> {
+): Promise<HeartbeatEvent> {
   const occurredAt = new Date(scheduledTime).toISOString();
   const idempotencyKey = `infra.heartbeat:${occurredAt}`;
   const digest = new Uint8Array(
@@ -68,6 +74,27 @@ export async function handleScheduled(
   controller: ScheduledController,
   env: WorkerEnv,
 ): Promise<void> {
+  if (controller.cron === SITE_DISCOVERY_CRON) {
+    const config = parseDiscoveryConfig(env);
+    const outcome = await dispatchDueSites(
+      controller.scheduledTime,
+      env,
+      config,
+      createSiteDiscoveryRepository(env),
+    );
+    console.log(
+      JSON.stringify({
+        cron: SITE_DISCOVERY_CRON,
+        ...outcome,
+      }),
+    );
+    return;
+  }
+
+  if (controller.cron !== HEARTBEAT_CRON) {
+    throw new Error(`Unsupported Cron expression: ${controller.cron}`);
+  }
+
   const event = await createScheduledHeartbeatEvent(controller.scheduledTime);
 
   await env.PIPELINE_EVENTS_QUEUE.send(event, { contentType: "json" });

@@ -8,6 +8,10 @@ import {
   type PipelineEventStore,
 } from "../clients/supabase";
 import type { WorkerEnv } from "../env";
+import { handleSiteDiscoveryQueue } from "./site-discovery-queue";
+
+export const PIPELINE_EVENTS_QUEUE_NAME = "dot-gov-news-events-dev";
+export const SITE_DISCOVERY_QUEUE_NAME = "dot-gov-site-discovery-dev";
 
 export function artifactKeyForEvent(event: PipelineEvent): string {
   return `health/${event.id}.json`;
@@ -42,6 +46,11 @@ export async function processQueueMessage(
 
   try {
     event = parsePipelineEvent(message.body);
+    if (event.type !== "infra.heartbeat") {
+      throw new Error(
+        "Event type does not belong on the pipeline events Queue",
+      );
+    }
     const artifactKey = artifactKeyForEvent(event);
 
     await writeArtifact(env.ARTIFACTS, event, artifactKey);
@@ -73,6 +82,24 @@ export async function handleQueue(
   batch: MessageBatch<unknown>,
   env: WorkerEnv,
 ): Promise<void> {
+  if (batch.queue === SITE_DISCOVERY_QUEUE_NAME) {
+    await handleSiteDiscoveryQueue(batch, env);
+    return;
+  }
+
+  if (batch.queue !== PIPELINE_EVENTS_QUEUE_NAME) {
+    for (const message of batch.messages) {
+      message.retry({ delaySeconds: retryDelaySeconds(message.attempts) });
+    }
+    console.error(
+      JSON.stringify({
+        outcome: "retrying_unknown_queue",
+        queue: batch.queue,
+      }),
+    );
+    return;
+  }
+
   const eventStore = createSupabaseEventStore(env);
 
   await Promise.all(

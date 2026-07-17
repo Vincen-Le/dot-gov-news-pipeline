@@ -58,11 +58,24 @@ function makeEnv(): WorkerEnv & {
       put: vi.fn().mockResolvedValue({}),
     } as unknown as R2Bucket & { put: ReturnType<typeof vi.fn> },
     BUILD_VERSION: "test-build",
+    DISCOVERY_CLAIM_LIMIT: "1",
+    DISCOVERY_CONTACT: "",
+    DISCOVERY_ENABLED: "false",
+    DISCOVERY_LEASE_SECONDS: "900",
+    DISCOVERY_MAX_DELAY_SECONDS: "30",
+    DISCOVERY_MAX_PUBLISHER_REQUESTS: "36",
+    DISCOVERY_POLICY_VERSION: "1",
+    DISCOVERY_QUEUE_HIGH_WATER: "1",
+    DISCOVERY_SITE_DEADLINE_SECONDS: "600",
     PIPELINE_EVENTS_QUEUE: {
       send: vi.fn().mockResolvedValue(undefined),
     } as unknown as Queue<PipelineEvent> & {
       send: ReturnType<typeof vi.fn>;
     },
+    SITE_DISCOVERY_QUEUE: {
+      metrics: vi.fn().mockResolvedValue({ backlogCount: 0 }),
+      sendBatch: vi.fn().mockResolvedValue({}),
+    } as unknown as Queue,
     SUPABASE_SECRET_KEY: "sb_secret_test_value",
     SUPABASE_URL: "https://project.supabase.co",
   };
@@ -123,6 +136,32 @@ describe("infrastructure heartbeat", () => {
         type: "infra.heartbeat",
       }),
       { contentType: "json" },
+    );
+  });
+
+  it("routes the minute Cron to a disabled discovery dispatcher", async () => {
+    const env = makeEnv();
+    const controller = {
+      cron: "* * * * *",
+      noRetry: vi.fn(),
+      scheduledTime,
+      type: "scheduled",
+    } as unknown as ScheduledController;
+
+    await handleScheduled(controller, env);
+
+    expect(env.PIPELINE_EVENTS_QUEUE.send).not.toHaveBeenCalled();
+  });
+
+  it("rejects unconfigured Cron expressions", async () => {
+    const controller = {
+      cron: "17 4 * * *",
+      noRetry: vi.fn(),
+      scheduledTime,
+      type: "scheduled",
+    } as unknown as ScheduledController;
+    await expect(handleScheduled(controller, makeEnv())).rejects.toThrow(
+      /Unsupported Cron/,
     );
   });
 
@@ -215,6 +254,9 @@ describe("infrastructure heartbeat", () => {
     expect(response.status).toBe(200);
     expect(body).toContain('"status":"ok"');
     expect(body).toContain('"buildVersion":"test-build"');
+    expect(body).toContain(
+      '"discovery":{"configValid":true,"contactConfigured":false,"enabled":false}',
+    );
     expect(body).not.toContain(env.SUPABASE_SECRET_KEY);
     expect(body).not.toContain(env.SUPABASE_URL);
   });

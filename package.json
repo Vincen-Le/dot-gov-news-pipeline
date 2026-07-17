@@ -10,6 +10,7 @@
     "dev:chroma": "docker compose -f infra/chroma/compose.yaml up -d",
     "dev:chroma:down": "docker compose -f infra/chroma/compose.yaml down",
     "dev:worker": "pnpm --filter @dot-gov-news/pipeline-worker dev",
+    "discovery:dispatch-canary": "node scripts/dispatch-discovery-canary.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "inventory:sync": "pnpm --filter @dot-gov-news/inventory-sync sync",
