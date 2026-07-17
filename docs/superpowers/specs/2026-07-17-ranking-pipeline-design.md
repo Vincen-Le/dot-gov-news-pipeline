@@ -73,15 +73,22 @@ Loop: claim batch → process → mark `processed_at` → repeat until empty →
 
 For each claimed entry:
 
-1. **Embed.** Workers AI REST `@cf/baai/bge-large-en-v1.5` on `title + "\n" + summary`. 1024 dims. Batch inputs while draining. Store fp16 bytea in Postgres; upsert into Chroma with metadata `{entry_id, feed_id, agency, published_at}`.
-2. **Near-dup check.** Chroma query against entries from the last 72 h. Cosine ≥ `NEAR_DUP_THRESHOLD` → syndicated duplicate: attach to the matched entry's cluster, mark `is_syndicated = true`, skip steps 3–4. Duplicate is kept as a cluster source record, never deleted.
-3. **Cluster assign.** Compare against active cluster centroids (clusters with `newest_entry_at` in last 72 h; a few hundred max; held in worker memory as a numpy matrix, persisted as fp16 bytea on `story_clusters.centroid`). Cosine ≥ `CLUSTER_JOIN_THRESHOLD` → join best match, update centroid (running mean); else create new cluster.
-4. **Facets.**
+1. **Exact dedupe (deterministic, zero-cost).** Before any embedding:
+   - **Canonical URL match:** lookup `feed_entries.url_canonical` (indexed) among already-processed entries in the active window. Two feeds pointing at the same canonicalized article URL = same article, no inference needed.
+   - **Content hash match:** lookup `content_hash = sha256(normalized(title) || normalized(summary))` (indexed). Catches verbatim syndication where URLs differ.
+   - Hit on either → attach as syndicated duplicate (`attach_method = 'exact_url'` or `'content_hash'`), skip steps 2–4.
+   - Both values are computed **at ingest** in the TS normalization stage (cheap, deterministic, language-neutral); the dedupe *decision* lives here because it needs cross-feed scope and cluster attachment. Per-feed idempotency (`UNIQUE(feed_id, external_entry_id)`) remains upstream and unchanged.
+2. **Embed.** Workers AI REST `@cf/baai/bge-large-en-v1.5` on `title + "\n" + summary`. 1024 dims. Batch inputs while draining. Store fp16 bytea in Postgres; upsert into Chroma with metadata `{entry_id, feed_id, agency, published_at}`.
+3. **Near-dup check (fuzzy).** Chroma query against entries from the last 72 h. Cosine ≥ `NEAR_DUP_THRESHOLD` → syndicated duplicate (edited/reformatted copies the exact checks miss): attach to the matched entry's cluster with `attach_method = 'near_dup'`, skip step 4. Duplicate is kept as a cluster source record, never deleted.
+4. **Cluster assign.** Compare against active cluster centroids (clusters with `newest_entry_at` in last 72 h; a few hundred max; held in worker memory as a numpy matrix, persisted as fp16 bytea on `story_clusters.centroid`). Cosine ≥ `CLUSTER_JOIN_THRESHOLD` → join best match (`attach_method = 'centroid_join'`), update centroid (running mean); else create new cluster (`attach_method = 'new_cluster'`).
+5. **Facets.**
    - `agency`: from feed provenance. Zero inference.
    - `topic`: cosine against ~15 fixed-taxonomy label embeddings (precomputed once per taxonomy version). Assign argmax above a floor; else `null`.
    - `cluster_topic`: left null; filled by the nightly labeling pass (emergent topics).
-5. **Attach + rank.** One RPC transaction (below) updates cluster aggregates and `rank_key`.
-6. **Judge trigger.** If cluster is new or `entry_count` just crossed a power of two (1, 2, 4, 8, 16 …), enqueue an in-process judge task (async; never blocks the attach transaction).
+6. **Attach + rank.** One RPC transaction (below) updates cluster aggregates and `rank_key`, and records the attach decision evidence (method, similarity, matched entry, threshold) on the junction row.
+7. **Judge trigger.** If cluster is new or `entry_count` just crossed a power of two (1, 2, 4, 8, 16 …), enqueue an in-process judge task (async; never blocks the attach transaction).
+
+**Dedupe layering rationale.** Exact checks are free and unarguable, so they run first and catch the bulk of verbatim syndication; embedding similarity is reserved for the fuzzy remainder. Every exact hit is also a skipped Workers AI embedding call and a skipped Chroma query.
 
 **Threshold calibration.** `NEAR_DUP_THRESHOLD` and `CLUSTER_JOIN_THRESHOLD` were intuition-calibrated for OpenAI embedding space (≈0.93 / ≈0.80). BGE cosine distributions sit differently (compressed high range). Both are config values, not constants; calibrate against the first real corpus sample before locking, and store alongside `embedding_model` so a model swap forces recalibration.
 
@@ -191,23 +198,37 @@ CREATE INDEX ON story_clusters USING gin (agency_ids);
 CREATE INDEX ON story_clusters (newest_entry_at);
 
 CREATE TABLE public.story_cluster_entries (
-  cluster_id    uuid NOT NULL REFERENCES story_clusters(id),
-  entry_id      uuid NOT NULL REFERENCES feed_entries(id),
-  is_syndicated boolean NOT NULL DEFAULT false,
-  attached_at   timestamptz NOT NULL DEFAULT now(),
+  cluster_id       uuid NOT NULL REFERENCES story_clusters(id),
+  entry_id         uuid NOT NULL REFERENCES feed_entries(id),
+  is_syndicated    boolean NOT NULL DEFAULT false,
+  -- attach decision evidence (auditability/QA):
+  attach_method    text NOT NULL,        -- exact_url | content_hash | near_dup
+                                         -- | centroid_join | new_cluster | consolidation_merge
+  similarity       real,                 -- cosine at decision time (null for exact/new)
+  matched_entry_id uuid REFERENCES feed_entries(id),  -- what it matched (dups)
+  threshold_used   real,                 -- config value in force at decision time
+  embedding_model  text,                 -- model that produced the similarity
+  attached_at      timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (cluster_id, entry_id)
 );
+
+CREATE INDEX ON story_cluster_entries (entry_id);   -- entry → cluster reverse lookup
 ```
+
+`feed_entries` additionally carries a denormalized `cluster_id` (set by the attach RPC), so both directions are one FK hop: cluster → members via the junction, entry → cluster directly. The junction row is the **audit record**: every membership decision stores what method made it, against what, at what similarity, under which threshold and model. Clustering QA becomes plain SQL, and threshold recalibration can be evaluated retroactively against recorded decisions.
 
 RLS enabled; anon gets read-only `SELECT` on serving columns at most; writes via service-role RPCs following the existing `SECURITY DEFINER` conventions (empty `search_path`, qualified relations, bounded args, `EXECUTE` revoked from `PUBLIC`/`anon`/`authenticated`).
 
 **Path 1 — entry attach (synchronous, per entry):**
 
 ```sql
--- attach_entry_to_cluster(entry_id, cluster_id, agency, feed_id, published_at, source_weight)
+-- attach_entry_to_cluster(entry_id, cluster_id, agency, feed_id, published_at, source_weight,
+--                         attach_method, similarity, matched_entry_id, threshold_used, embedding_model)
 BEGIN;
-  INSERT INTO story_cluster_entries (cluster_id, entry_id, is_syndicated)
-  VALUES ($cluster_id, $entry_id, $is_syndicated)
+  INSERT INTO story_cluster_entries (cluster_id, entry_id, is_syndicated,
+                                     attach_method, similarity, matched_entry_id,
+                                     threshold_used, embedding_model)
+  VALUES (...)
   ON CONFLICT DO NOTHING;                       -- replay-safe
 
   UPDATE story_clusters SET
@@ -245,6 +266,21 @@ LIMIT 50;
 
 The time term dominates `rank_key`, so index order is roughly recent-first and the 7-day filter discards almost nothing during the scan. Milliseconds at this scale. Facets: add `WHERE topic = $1` or `WHERE agency_ids @> ARRAY[$1]`.
 
+**Cluster detail (story page / "what's in this cluster"):** one FK join through the junction:
+
+```sql
+SELECT e.id, e.title, e.summary, e.url, e.published_at,
+       f.canonical_url AS feed_url,
+       sce.is_syndicated, sce.attach_method, sce.similarity, sce.attached_at
+FROM story_cluster_entries sce
+JOIN feed_entries e ON e.id = sce.entry_id
+JOIN feeds f        ON f.id = e.feed_id
+WHERE sce.cluster_id = $1
+ORDER BY sce.attached_at;
+```
+
+Powers both the public story page (sources list) and the internal QA view (same rows plus decision evidence).
+
 - **API:** JSON endpoints for pages; SSE for one-way live updates (per `architecture.md`). The SSE server holds one direct Postgres connection (Supabase transaction-mode pooler drops `LISTEN` — use session mode or a direct connection), listens on `rank_changed`, pushes cluster diffs. Fallback: 5 s in-memory top-N snapshot diff.
 - **OpenGraph:** a low-priority worker loop fetches OG tags (og:title/image/description) only for clusters entering the top ~200 without `og` populated. Bounded per-URL metadata fetch with the same SSRF protections as discovery; never full-corpus crawling. Frontend renders cards from `og` jsonb with zero client-side fetching.
 
@@ -261,10 +297,31 @@ Cold-start honesty: if the container is asleep, first semantic search pays boot 
 
 Online greedy clustering drifts. One nightly job:
 
-1. **Merge:** pairwise centroid similarity over active clusters (~300²/2 comparisons, trivial). Pairs ≥ merge threshold: winner keeps id; aggregates recomputed once from junction rows (the only full recompute anywhere, scoped to merged clusters).
+1. **Merge:** pairwise centroid similarity over active clusters (~300²/2 comparisons, trivial). Pairs ≥ merge threshold: winner keeps id; aggregates recomputed once from junction rows (the only full recompute anywhere, scoped to merged clusters). Moved entries get `attach_method = 'consolidation_merge'`.
 2. **Label:** `cluster_topic` for unlabeled clusters ≥ 2 entries — c-TF-IDF over member titles, or one cheap judge-model call. Emergent topics surface here.
-3. **Retry:** failed judge calls.
-4. **Snapshot hygiene:** verify latest R2 Chroma snapshot; prune expired-window Chroma entries.
+3. **Cohesion scoring:** compute mean pairwise member-to-centroid similarity per active multi-entry cluster; store as `story_clusters.cohesion real`. Cheap (embeddings already in memory), and the primary automated cluster-quality signal.
+4. **Retry:** failed judge calls.
+5. **Snapshot hygiene:** verify latest R2 Chroma snapshot; prune expired-window Chroma entries.
+
+## Clustering QA and auditability
+
+Every attach decision is recorded (junction audit columns above), so QA is queryable rather than instrumented after the fact.
+
+**Automated signals (dashboards/alerts from plain SQL):**
+
+- Attach-method mix over time: `exact_url` / `content_hash` / `near_dup` / `centroid_join` / `new_cluster` ratios. Sudden shifts = threshold drift, feed anomalies, or an embedding-model change.
+- Similarity distributions per method: histogram of `similarity` for joins and near-dups. Healthy setup shows clear separation from the thresholds; mass piling up just above a threshold means it is doing real work and deserves human review of borderline cases.
+- `cohesion` distribution and worst-N clusters by cohesion: low-cohesion multi-entry clusters are merge mistakes to eyeball.
+- Singleton rate (clusters with 1 entry after 72 h): too high → join threshold too strict; too low → over-merging.
+- Nightly merge count: persistent high merge volume means the online join threshold is too strict (consolidation is compensating).
+
+**Human review loop (MVP-cheap):**
+
+- Internal QA endpoint on the container (service-auth only): paginated clusters with the cluster-detail join above plus decision evidence — title list, per-member `attach_method`/`similarity`, cohesion, rubric bits, `interest_reason`. This is the "visualize the clustering" surface; a plain HTML table is enough at MVP.
+- Borderline sampler: `SELECT` junction rows where `similarity` is within ε of `threshold_used`, sample ~20/day for human yes/no labels into a `cluster_qa_labels` table (`entry_id, cluster_id, verdict, labeled_by, labeled_at`). These labels are exactly what threshold recalibration and any future learned ranker need.
+- Retro-evaluation: because every row stores `threshold_used` and `embedding_model`, a proposed new threshold can be evaluated against historical decisions ("would we have split/merged differently?") without reprocessing anything.
+
+Deferred (not MVP): 2-D embedding projection (UMAP) scatter of the active window colored by cluster — nice for eyeballing structure, not needed to ship.
 
 ## Configuration (not constants)
 
@@ -309,3 +366,4 @@ Beyond the existing pipeline metrics: outbox depth and oldest-unprocessed age; e
 4. Decide SSE host: same container (simple) vs thin Worker with DO fan-out (scales better). MVP: same container.
 5. A/B judge models (70B vs 8B) on stored rubric bits before locking `JUDGE_MODEL`.
 6. Validate Workers AI `response_format` json_schema support for the chosen judge model version.
+7. Ingest-side dependency: `feed_entries` must carry indexed `url_canonical` and `content_hash` columns, computed in the TS normalization stage (URL canonicalization rules must respect the architecture doc's feed-canonicalization caution — preserve path/query semantics).
