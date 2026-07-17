@@ -1,0 +1,47 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "dot-gov-news-pipeline-dev",
+  "main": "src/index.ts",
+  "account_id": "a2d6c849c1770d0e7e4fc042db14de25",
+  "compatibility_date": "2026-07-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "BUILD_VERSION": "bootstrap-v1",
+    "SUPABASE_URL": "https://qdqmahimrnwhzdjlcont.supabase.co",
+  },
+  "secrets": {
+    "required": ["SUPABASE_SECRET_KEY"],
+  },
+  "triggers": {
+    "crons": ["0 * * * *"],
+  },
+  "r2_buckets": [
+    {
+      "binding": "ARTIFACTS",
+      "bucket_name": "dot-gov-news-artifacts-dev",
+    },
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "PIPELINE_EVENTS_QUEUE",
+        "queue": "dot-gov-news-events-dev",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "dot-gov-news-events-dev",
+        "max_batch_size": 5,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "dot-gov-news-events-dlq-dev",
+      },
+    ],
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+}

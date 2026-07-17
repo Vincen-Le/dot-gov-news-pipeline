@@ -1,0 +1,1 @@
+-- The infrastructure bootstrap does not require seed data.

@@ -1,0 +1,10 @@
+.claude/
+.venv/
+.wrangler/
+apps/pipeline-worker/worker-configuration.d.ts
+coverage/
+dist/
+node_modules/
+pnpm-lock.yaml
+supabase/.temp/
+uv.lock
