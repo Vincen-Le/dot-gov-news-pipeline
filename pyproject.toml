@@ -1,0 +1,10 @@
+[project]
+name = "dot-gov-news-pipeline"
+version = "0.1.0"
+description = "A pipeline for collecting and processing news from U.S. government websites."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false

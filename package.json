@@ -1,0 +1,31 @@
+{
+  "name": "dot-gov-news-pipeline",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev:chroma": "docker compose -f infra/chroma/compose.yaml up -d",
+    "dev:chroma:down": "docker compose -f infra/chroma/compose.yaml down",
+    "dev:worker": "pnpm --filter @dot-gov-news/pipeline-worker dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "supabase": "supabase",
+    "test": "pnpm --recursive --if-present test",
+    "typecheck": "pnpm --recursive --if-present typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.3",
+    "eslint": "10.7.0",
+    "globals": "17.7.0",
+    "prettier": "3.9.5",
+    "supabase": "2.109.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.64.0",
+    "vitest": "4.1.10"
+  }
+}

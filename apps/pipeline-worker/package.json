@@ -1,0 +1,25 @@
+{
+  "name": "@dot-gov-news/pipeline-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:deploy": "wrangler deploy --dry-run --outdir ../../dist/worker",
+    "check:types": "wrangler types --strict-vars=false --check",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "generate-types": "wrangler types --strict-vars=false",
+    "test": "SUPABASE_SECRET_KEY=test-only-placeholder vitest run",
+    "typecheck": "pnpm check:types && tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@dot-gov-news/contracts": "workspace:*",
+    "@supabase/supabase-js": "2.110.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.18.6",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10",
+    "wrangler": "4.112.0"
+  }
+}
