@@ -351,12 +351,12 @@ recovery commands.
 ### Scheduling model
 
 `site_discovery_state` is a one-to-zero-or-one operational child of
-`government_sites`. The inventory migration already creates and updates these
-rows and implements row-level lease-safe `claim_due_site_discoveries` and
-`recover_expired_site_discovery_leases` RPCs. A single claim call selects at
-most one site per base domain. Cross-invocation domain serialization is an
-explicit prerequisite in the discovery implementation plan and must be added
-before consumer concurrency is raised above one.
+`government_sites`. The inventory and discovery migrations create and update
+these rows and implement lease-safe `claim_due_site_discoveries` and
+`recover_expired_site_discovery_leases` RPCs. A claim selects at most one site
+per base domain. A transaction-scoped advisory lock serializes concurrent claim
+calls, and the predicate excludes base domains with an active lease; the
+database concurrency suite verifies this behavior.
 
 No Cloudflare handler invokes those RPCs yet. The next Worker phase will add a
 lightweight Cron tick that places one small `site.discovery.dispatch.requested`
@@ -371,15 +371,20 @@ Cron tick -> one small queue message -> claim due database rows -> process -> co
 
 Do not enqueue all 25,000-plus sites. If a control message expires or is retried, the due rows remain in Supabase.
 
-Initial settings:
+Measured canary settings after the 1-site and 25-site gates:
 
-- Claim at most one site per tick.
+- Claim at most 10 distinct-base-domain sites per tick.
 - Queue-consumer batch size one.
-- Queue-consumer concurrency one.
+- Queue-consumer concurrency 10.
+- Stop dispatching at a 20-message Queue high-water mark.
 - Add random jitter before contacting the site.
 - Prefer the oldest due site while avoiding repeated claims from the same base domain.
 
-At one site per minute, the maximum is 1,440 sites/day, so a full initial backfill takes roughly three weeks before retries. This rate is intentionally conservative and can be raised only after measuring domain impact, CPU, subrequests, errors, and queue cost.
+At 10 sites per minute, the theoretical full-backlog drain is about 42 hours
+before retries. That rate uses about 43,200 Queue operations/day, so it is a
+Workers Paid setting; the Free-plan 10,000-operation daily allowance cannot
+sustain it for the full backlog. Discovery remains disabled after the canary
+until the account tier or lower steady-state rate is explicitly selected.
 
 ### Discovery cadence
 
@@ -811,7 +816,7 @@ Keeping these out of the first domain phase prevents discovery reliability and i
 1. **Full polling runtime and budget:** Cloudflare Paid versus async TypeScript containers requires a load/cost benchmark.
 2. **Production vector store:** local Chroma is scaffolding, not a committed production choice. Supabase `pgvector`, hosted Chroma, or another service can be evaluated with the ranking workload.
 3. **GSA Site Scanning enrichment:** useful for final URL/CMS hints, but not required for first inventory/discovery delivery.
-4. **Domain-wide rate limiting across concurrent invocations:** selecting distinct base domains within one SQL claim is not sufficient across simultaneous claims. Keep discovery concurrency one until a cross-invocation domain lease/token design is tested.
+4. **Domain-wide rate limiting across concurrent invocations:** addressed for discovery claims by a global advisory lock, active-domain lease exclusion, and a concurrent pgTAP test. Publisher-specific rate limits beyond one active site per base domain remain future work.
 5. **Feed canonicalization:** preserve path/query semantics. Do not remove trailing slashes or tracking-looking parameters without evidence that two feeds are equivalent.
 6. **No-feed coverage:** sitemap and HTML change detection are separate, slower adapters, not behavior to hide inside RSS polling.
 7. **Backups and data retention:** define R2 raw-payload retention and automated Supabase backup/restore before production.

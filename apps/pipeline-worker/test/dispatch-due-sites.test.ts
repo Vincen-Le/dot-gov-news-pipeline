@@ -9,14 +9,14 @@ import {
 import type { DiscoveryConfig } from "../src/discovery/discovery-config";
 
 const config: DiscoveryConfig = {
-  claimLimit: 1,
+  claimLimit: 10,
   contact: "ops@example.gov",
   enabled: true,
   leaseSeconds: 900,
   maxDelaySeconds: 30,
   maxPublisherRequests: 36,
   policyVersion: 1,
-  queueHighWater: 1,
+  queueHighWater: 20,
   siteDeadlineMs: 600_000,
   userAgent: "dot-gov-news-pipeline/1 (+ops@example.gov)",
 };
@@ -71,11 +71,11 @@ describe("discovery dispatcher", () => {
     await expect(
       dispatchDueSites(
         Date.parse("2026-07-17T16:00:00.000Z"),
-        { SITE_DISCOVERY_QUEUE: makeQueue(1) },
+        { SITE_DISCOVERY_QUEUE: makeQueue(20) },
         config,
         repository,
       ),
-    ).resolves.toEqual({ backlogCount: 1, outcome: "backpressure" });
+    ).resolves.toEqual({ backlogCount: 20, outcome: "backpressure" });
     expect(repository.claim).not.toHaveBeenCalled();
   });
 
@@ -106,6 +106,7 @@ describe("discovery dispatcher", () => {
     );
     expect(requests[0]?.delaySeconds).toBeGreaterThanOrEqual(0);
     expect(requests[0]?.delaySeconds).toBeLessThanOrEqual(30);
+    expect(repository.claim).toHaveBeenCalledWith(expect.any(String), 10, 900);
   });
 
   it("releases matching leases after ambiguous enqueue failure", async () => {
