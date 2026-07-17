@@ -7,6 +7,7 @@ before changing or operating the pipeline.
 
 | Goal                                                           | Read first                                                                                      | Then inspect                                                                                          |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Orient to the project, status, and architecture diagram        | [NDS project hub](https://app.notion.com/p/3a02b47c562f80458178c5134d15dab3)                    | [Architecture](../architecture.md) and the current live provider state                                |
 | Understand the architecture, current state, and planned phases | [Architecture](../architecture.md)                                                              | [Repository README](../README.md)                                                                     |
 | Authenticate to Supabase or Cloudflare                         | [Provider access](infrastructure/access.md)                                                     | The relevant provider CLI output                                                                      |
 | Install dependencies or verify the repository                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`package.json`](../package.json), [`mise.toml`](../mise.toml), and CI configuration                  |
@@ -32,6 +33,18 @@ before changing or operating the pipeline.
   destructive removal process.
 - [Implementation plan](../.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)
   records the completed bootstrap scope and acceptance criteria.
+
+## Notion project hub
+
+The [NDS project hub](https://app.notion.com/p/3a02b47c562f80458178c5134d15dab3)
+is the agent- and human-friendly orientation layer for project status,
+decisions, and visual architecture. Update it in the same body of work when a
+material architecture decision, infrastructure resource, implementation
+milestone, or project diagram changes.
+
+Keep executable configuration, schemas, migrations, tests, operational
+commands, and detailed designs in this repository. Summarize and link those
+changes from NDS; do not make Notion the only record of a technical decision.
 
 ## Sources of truth
 
