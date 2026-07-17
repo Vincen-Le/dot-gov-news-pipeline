@@ -15,9 +15,17 @@ Keep `DISCOVERY_ENABLED=false` until all of these are true:
 4. A single manually selected site has been measured in hosted Worker logs.
 5. The 25-site canary passes before preparing 250 sites.
 
-The initial settings claim one site per minute, consume one message per
-invocation, and allow one concurrent consumer. Do not raise those values in the
-same change that enables discovery.
+After the 1-site and 25-site gates, the measured settings claim up to 10 sites
+per minute, consume one message per invocation, allow 10 concurrent consumers,
+and stop dispatching at a 20-message Queue high-water mark. Each claim contains
+distinct base domains, and the database advisory lock prevents simultaneous
+claim calls from bypassing an active same-domain lease.
+
+The scaled settings are suitable for the 250-site canary. They require Workers
+Paid before the full 25,367-site backlog is enabled: 10 sites/minute would use
+about 43,200 Queue operations/day, above the Free plan's 10,000-operation daily
+allowance. Keep discovery disabled after the canary until the account tier or
+steady-state rate is explicitly selected.
 
 ## Observe
 

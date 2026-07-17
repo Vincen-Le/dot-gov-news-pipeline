@@ -87,22 +87,25 @@ the new Worker bindings. Configure `DISCOVERY_CONTACT` before enabling dispatch;
 the Worker refuses to claim sites when enabled without a valid email address or
 HTTPS contact page.
 
-Initial safety settings are one claim per minute, Queue batch size one, and
-consumer concurrency one. `supabase/queries/prepare-discovery-canary.sql`
+After the 1-site and 25-site gates, the measured canary settings are 10 claims
+per minute, Queue batch size one, consumer concurrency 10, and a 20-message
+high-water mark. `supabase/queries/prepare-discovery-canary.sql`
 provides a reversible, full-schedule fence for the 1/25/250-site review gates.
 The one-site gate uses `pnpm discovery:dispatch-canary <site-id>` while Cron is
 disabled; the command compensates the database lease if direct Queue HTTP
 publication fails. Pause inventory synchronization for every active canary.
 `docs/operations/site-feed-discovery.md` is the pause/recovery runbook.
 
-Current Cloudflare documentation (verified 2026-07-17) lists these Free-plan
-constraints: 10 ms CPU per Queue/Cron invocation, 50 external subrequests, 128
-MiB memory, 10,000 Queue operations included per day, and non-configurable
-24-hour Queue retention. Queue consumers have a 15-minute wall-time limit, but
-this implementation uses a 10-minute site deadline and a 15-minute database
-lease. Keep discovery disabled until a hosted single-site run measures XML/JSON
-parsing CPU with reliable headroom; Workers Paid is the expected runtime if the
-10 ms limit cannot be met.
+Current Cloudflare documentation (verified 2026-07-17) lists 50 external
+subrequests, 128 MiB memory, 10,000 Queue operations/day, and 24-hour Queue
+retention for Workers Free. Queue consumers default to 30 seconds of CPU and a
+15-minute wall-time limit on both Free and Paid; this implementation uses a
+10-minute site deadline and a 15-minute database lease. The hosted 25-site run
+peaked at 308 ms CPU and 1.83 MiB per response.
+
+Do not enable the full backlog on Workers Free at 10 sites/minute. That rate
+uses about 43,200 Queue operations/day. Upgrade Workers or lower the
+steady-state claim rate before full rollout.
 
 Validate without deploying:
 

@@ -31,8 +31,9 @@ export async function handleSiteDiscoveryQueue(
     return;
   }
 
-  // The production binding has max_batch_size=1. Keep this sequential so a
-  // future configuration mistake cannot fan out publisher requests.
+  // Production keeps max_batch_size=1 and scales with independent
+  // invocations. Keep this sequential so a future batch-size mistake cannot
+  // fan out publisher requests inside one invocation.
   for (const message of batch.messages) {
     try {
       const event = parsePipelineEvent(message.body);

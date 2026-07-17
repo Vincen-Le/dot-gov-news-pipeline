@@ -3,28 +3,28 @@ import { describe, expect, it } from "vitest";
 import { parseDiscoveryConfig } from "../src/discovery/discovery-config";
 
 const validEnv = {
-  DISCOVERY_CLAIM_LIMIT: "1",
+  DISCOVERY_CLAIM_LIMIT: "10",
   DISCOVERY_CONTACT: "https://example.gov/contact",
   DISCOVERY_ENABLED: "true",
   DISCOVERY_LEASE_SECONDS: "900",
   DISCOVERY_MAX_DELAY_SECONDS: "30",
   DISCOVERY_MAX_PUBLISHER_REQUESTS: "36",
   DISCOVERY_POLICY_VERSION: "1",
-  DISCOVERY_QUEUE_HIGH_WATER: "1",
+  DISCOVERY_QUEUE_HIGH_WATER: "20",
   DISCOVERY_SITE_DEADLINE_SECONDS: "600",
 };
 
 describe("parseDiscoveryConfig", () => {
   it("parses bounded production defaults once per invocation", () => {
     expect(parseDiscoveryConfig(validEnv)).toEqual({
-      claimLimit: 1,
+      claimLimit: 10,
       contact: "https://example.gov/contact",
       enabled: true,
       leaseSeconds: 900,
       maxDelaySeconds: 30,
       maxPublisherRequests: 36,
       policyVersion: 1,
-      queueHighWater: 1,
+      queueHighWater: 20,
       siteDeadlineMs: 600_000,
       userAgent: "dot-gov-news-pipeline/1 (+https://example.gov/contact)",
     });
