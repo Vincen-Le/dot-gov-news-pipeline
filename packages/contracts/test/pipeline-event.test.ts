@@ -15,7 +15,7 @@ describe("parsePipelineEvent", () => {
     payload: { source: "test" },
   };
 
-  it("accepts a valid versioned event", () => {
+  it("accepts a valid strict heartbeat event", () => {
     expect(parsePipelineEvent(event)).toEqual(event);
   });
 
@@ -31,5 +31,14 @@ describe("parsePipelineEvent", () => {
 
   it("rejects unsupported schema versions", () => {
     expect(() => parsePipelineEvent({ ...event, schemaVersion: 2 })).toThrow();
+  });
+
+  it("rejects unknown heartbeat payload fields", () => {
+    expect(() =>
+      parsePipelineEvent({
+        ...event,
+        payload: { source: "test", unexpected: true },
+      }),
+    ).toThrow();
   });
 });

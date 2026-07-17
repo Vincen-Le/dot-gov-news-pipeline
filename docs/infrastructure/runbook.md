@@ -2,14 +2,16 @@
 
 ## Resource inventory
 
-| Resource                     | Name                          |
-| ---------------------------- | ----------------------------- |
-| Supabase project             | `qdqmahimrnwhzdjlcont`        |
-| Cloudflare Worker            | `dot-gov-news-pipeline-dev`   |
-| Cloudflare Queue             | `dot-gov-news-events-dev`     |
-| Cloudflare dead-letter queue | `dot-gov-news-events-dlq-dev` |
-| Cloudflare R2 bucket         | `dot-gov-news-artifacts-dev`  |
-| Local Chroma container       | `dot-gov-news-chroma`         |
+| Resource                     | Name                             |
+| ---------------------------- | -------------------------------- |
+| Supabase project             | `qdqmahimrnwhzdjlcont`           |
+| Cloudflare Worker            | `dot-gov-news-pipeline-dev`      |
+| Cloudflare Queue             | `dot-gov-news-events-dev`        |
+| Cloudflare dead-letter queue | `dot-gov-news-events-dlq-dev`    |
+| Discovery Queue              | `dot-gov-site-discovery-dev`     |
+| Discovery dead-letter queue  | `dot-gov-site-discovery-dlq-dev` |
+| Cloudflare R2 bucket         | `dot-gov-news-artifacts-dev`     |
+| Local Chroma container       | `dot-gov-news-chroma`            |
 
 Verified Cloudflare identifiers:
 
@@ -18,6 +20,12 @@ Verified Cloudflare identifiers:
 | Account           | `a2d6c849c1770d0e7e4fc042db14de25` |
 | Main queue        | `876468b58ff94eccb37059575e2cc831` |
 | Dead-letter queue | `8e03befacac24593b0ace47310373467` |
+| Discovery Queue   | `8a5a339bee9d467791dd3679233fed9a` |
+| Discovery DLQ     | `ab38d22f2cfc45f88fa8c60910f048ae` |
+
+The discovery Queue and DLQ were provisioned on 2026-07-17. They have no
+producer or consumer until the updated Worker configuration is deployed.
+`DISCOVERY_ENABLED` remains `false`, so deployment alone cannot claim sites.
 
 ## Install dependencies
 
@@ -70,6 +78,38 @@ mise exec -- pnpm supabase db dump --linked --file pipeline-backup.sql
 ```
 
 `pipeline-backup.sql` matches the ignored `*-backup.sql` pattern. Still move the dump outside the repository immediately. Automated backups to R2 are required before production use.
+
+## Site feed discovery
+
+Discovery uses `site_discovery_state` as its durable backlog and the dedicated
+Queue only for leased near-term work. Apply migration `00400` before deploying
+the new Worker bindings. Configure `DISCOVERY_CONTACT` before enabling dispatch;
+the Worker refuses to claim sites when enabled without a valid email address or
+HTTPS contact page.
+
+Initial safety settings are one claim per minute, Queue batch size one, and
+consumer concurrency one. `supabase/queries/prepare-discovery-canary.sql`
+provides a reversible, full-schedule fence for the 1/25/250-site review gates.
+The one-site gate uses `pnpm discovery:dispatch-canary <site-id>` while Cron is
+disabled; the command compensates the database lease if direct Queue HTTP
+publication fails. Pause inventory synchronization for every active canary.
+`docs/operations/site-feed-discovery.md` is the pause/recovery runbook.
+
+Current Cloudflare documentation (verified 2026-07-17) lists these Free-plan
+constraints: 10 ms CPU per Queue/Cron invocation, 50 external subrequests, 128
+MiB memory, 10,000 Queue operations included per day, and non-configurable
+24-hour Queue retention. Queue consumers have a 15-minute wall-time limit, but
+this implementation uses a 10-minute site deadline and a 15-minute database
+lease. Keep discovery disabled until a hosted single-site run measures XML/JSON
+parsing CPU with reliable headroom; Workers Paid is the expected runtime if the
+10 ms limit cannot be met.
+
+Validate without deploying:
+
+```sh
+mise exec -- pnpm --filter @dot-gov-news/pipeline-worker generate-types
+mise exec -- pnpm --filter @dot-gov-news/pipeline-worker check:deploy
+```
 
 ## GSA government-site inventory
 

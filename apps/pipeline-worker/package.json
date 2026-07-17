@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@dot-gov-news/contracts": "workspace:*",
-    "@supabase/supabase-js": "2.110.7"
+    "@supabase/supabase-js": "2.110.7",
+    "fast-xml-parser": "5.10.1"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.18.6",

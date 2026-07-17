@@ -9,13 +9,22 @@
   "preview_urls": false,
   "vars": {
     "BUILD_VERSION": "bootstrap-v1",
+    "DISCOVERY_CLAIM_LIMIT": "1",
+    "DISCOVERY_CONTACT": "vincen_le@berkeley.edu",
+    "DISCOVERY_ENABLED": "false",
+    "DISCOVERY_LEASE_SECONDS": "900",
+    "DISCOVERY_MAX_DELAY_SECONDS": "30",
+    "DISCOVERY_MAX_PUBLISHER_REQUESTS": "36",
+    "DISCOVERY_POLICY_VERSION": "1",
+    "DISCOVERY_QUEUE_HIGH_WATER": "1",
+    "DISCOVERY_SITE_DEADLINE_SECONDS": "600",
     "SUPABASE_URL": "https://qdqmahimrnwhzdjlcont.supabase.co",
   },
   "secrets": {
     "required": ["SUPABASE_SECRET_KEY"],
   },
   "triggers": {
-    "crons": ["0 * * * *"],
+    "crons": ["0 * * * *", "* * * * *"],
   },
   "r2_buckets": [
     {
@@ -29,6 +38,10 @@
         "binding": "PIPELINE_EVENTS_QUEUE",
         "queue": "dot-gov-news-events-dev",
       },
+      {
+        "binding": "SITE_DISCOVERY_QUEUE",
+        "queue": "dot-gov-site-discovery-dev",
+      },
     ],
     "consumers": [
       {
@@ -37,6 +50,14 @@
         "max_batch_timeout": 5,
         "max_retries": 3,
         "dead_letter_queue": "dot-gov-news-events-dlq-dev",
+      },
+      {
+        "queue": "dot-gov-site-discovery-dev",
+        "max_batch_size": 1,
+        "max_batch_timeout": 1,
+        "max_retries": 3,
+        "max_concurrency": 1,
+        "dead_letter_queue": "dot-gov-site-discovery-dlq-dev",
       },
     ],
   },

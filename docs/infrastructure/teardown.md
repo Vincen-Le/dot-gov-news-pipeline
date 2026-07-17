@@ -4,7 +4,10 @@ Teardown is destructive. Resolve exact resource names with list commands, disabl
 
 ## 1. Disable new work
 
-Remove or disable the Cron Trigger in `apps/pipeline-worker/wrangler.jsonc`, deploy that version, and wait for the main queue to drain.
+Set `DISCOVERY_ENABLED=false`, remove or disable Cron Triggers in
+`apps/pipeline-worker/wrangler.jsonc`, deploy that version, and wait for both
+consumer queues to drain. Pause `dot-gov-site-discovery-dev` first if publisher
+traffic must stop immediately.
 
 ## 2. Export durable data
 
@@ -18,6 +21,8 @@ After verifying the exact account and names:
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler delete dot-gov-news-pipeline-dev
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler queues delete dot-gov-news-events-dev
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler queues delete dot-gov-news-events-dlq-dev
+mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler queues delete dot-gov-site-discovery-dev
+mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler queues delete dot-gov-site-discovery-dlq-dev
 ```
 
 ## 4. Remove R2 only after emptying it
@@ -44,4 +49,8 @@ docker volume rm dot-gov-news-chroma-data
 
 ## 6. Supabase rollback
 
-Do not automatically drop `public.pipeline_events`. Retain it for diagnostics unless the project owner explicitly approves data deletion. The initial migration is additive and leaving the table in place is the safe rollback.
+Do not automatically drop `public.pipeline_events`, `public.feeds`,
+`public.government_site_feeds`, or `public.feed_fetch_state`. Retain them for
+diagnostics unless the project owner explicitly approves data deletion. The
+discovery migration is additive and leaving its tables in place is the safe
+Worker rollback.
