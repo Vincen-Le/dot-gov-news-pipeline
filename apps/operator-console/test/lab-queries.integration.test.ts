@@ -72,6 +72,26 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
       queries.storylines({ entity: "tulsa" }),
     );
     expect(byEntity).toHaveLength(1);
+    // sort=episodes: the two-episode Valsatrex chain outranks the newer Tulsa one
+    const byEpisodes = await withFixture((queries) =>
+      queries.storylines({ sort: "episodes" }),
+    );
+    expect(byEpisodes.map((item) => item.headline)).toEqual([
+      "Valsatrex recall chain",
+      null,
+    ]);
+    // the quick-filter dropdown lists exactly the filterable agency ids
+    const agencies = await withFixture((queries) =>
+      queries.storylineAgencies(),
+    );
+    expect(agencies).toEqual(["fda.gov", "hhs.gov"]);
+    // offset pages past the newest chain to the older Valsatrex one
+    const paged = await withFixture((queries) =>
+      queries.storylines({ limit: 1, offset: 1 }),
+    );
+    expect(paged.map((item) => item.headline)).toEqual([
+      "Valsatrex recall chain",
+    ]);
   });
 
   it("returns the full chain with attach evidence and citation flags", async () => {

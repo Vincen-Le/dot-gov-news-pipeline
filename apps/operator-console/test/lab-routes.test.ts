@@ -101,6 +101,7 @@ describe("lab routes", () => {
         corpusSummary: async () => summary,
         experimentRun: async () => null,
         experimentRuns: async () => [RUN_ROW],
+        storylineAgencies: async () => ["fda.gov"],
         storylineDetail: async () => null,
         storylines: async () => [],
       } as never,
@@ -108,6 +109,12 @@ describe("lab routes", () => {
     const corpus = await fetch(`${base}/corpus`);
     expect(corpus.status).toBe(200);
     expect(((await corpus.json()) as { data: unknown }).data).toEqual(summary);
+
+    const agencies = await fetch(`${base}/agencies`);
+    expect(agencies.status).toBe(200);
+    expect(((await agencies.json()) as { data: unknown }).data).toEqual({
+      agencies: ["fda.gov"],
+    });
 
     const experiments = await fetch(`${base}/experiments`);
     const payload = (await experiments.json()) as {
@@ -122,6 +129,63 @@ describe("lab routes", () => {
       `${base}/storylines/00000000-0000-4000-8000-00000000dead`,
     );
     expect(missingStoryline.status).toBe(404);
+  });
+
+  it("passes validated storyline filters to queries", async () => {
+    let captured: unknown;
+    const base = await listen({
+      capability: async () => ({
+        experimentsEnabled: true,
+        status: "available",
+      }),
+      queries: {
+        storylines: async (filter: unknown) => {
+          captured = filter;
+          return [];
+        },
+      } as never,
+    });
+    const ok = await fetch(
+      `${base}/storylines?agency=fda.gov&minEpisodes=2&sort=episodes&offset=50`,
+    );
+    expect(ok.status).toBe(200);
+    // the route asks for one extra row to detect whether more pages exist
+    expect(captured).toEqual({
+      agency: "fda.gov",
+      entity: undefined,
+      limit: 51,
+      minEpisodes: 2,
+      offset: 50,
+      sort: "episodes",
+    });
+    await fetch(`${base}/storylines?sort=bogus`);
+    expect((captured as { offset?: number; sort?: string }).sort).toBeUndefined();
+    expect((captured as { offset?: number }).offset).toBe(0);
+  });
+
+  it("reports hasMore and trims the page to the requested limit", async () => {
+    const row = (index: number): { id: string } => ({ id: `row-${index}` });
+    const base = await listen({
+      capability: async () => ({
+        experimentsEnabled: true,
+        status: "available",
+      }),
+      queries: {
+        storylines: async (filter: { limit: number; offset: number }) =>
+          Array.from({ length: filter.limit }, (_, index) =>
+            row(filter.offset + index),
+          ),
+      } as never,
+    });
+    const first = await fetch(`${base}/storylines?limit=2`);
+    const firstBody = (await first.json()) as {
+      data: { hasMore: boolean; items: { id: string }[] };
+    };
+    expect(firstBody.data.items.map((item) => item.id)).toEqual([
+      "row-0",
+      "row-1",
+    ]);
+    expect(firstBody.data.hasMore).toBe(true);
   });
 
   it("validates and appends labels", async () => {

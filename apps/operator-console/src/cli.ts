@@ -535,7 +535,9 @@ lab
   .option("--entity <entity>", "filter by extracted entity")
   .option("--agency <host>", "filter by agency host, e.g. fda.gov")
   .option("--min-episodes <n>", "only chains with at least n episodes")
+  .option("--sort <field>", "episodes: most episodes first")
   .option("--limit <n>", "maximum rows", "50")
+  .option("--offset <n>", "skip the first n rows", "0")
   .option("--json", "print JSON only")
   .action(
     (
@@ -544,6 +546,8 @@ lab
         entity?: string;
         limit: string;
         minEpisodes?: string;
+        offset: string;
+        sort?: string;
       },
     ) =>
       runAction(() =>
@@ -556,6 +560,8 @@ lab
               options.minEpisodes === undefined
                 ? undefined
                 : Number(options.minEpisodes),
+            offset: Number(options.offset),
+            sort: options.sort === "episodes" ? "episodes" : undefined,
           });
           if (options.json) {
             printJson(items);

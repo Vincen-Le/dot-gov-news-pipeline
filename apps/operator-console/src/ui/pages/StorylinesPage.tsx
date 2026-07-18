@@ -16,11 +16,17 @@ import {
   relativeTime,
 } from "../components";
 
+const PAGE_SIZE = 50;
+
 export function StorylinesPage() {
   const [params, setParams] = useSearchParams();
   const entity = params.get("entity") ?? "";
   const agency = params.get("agency") ?? "";
   const minEpisodes = params.get("minEpisodes") ?? "";
+  const sort = params.get("sort") ?? "";
+  const parsedPage = Number(params.get("page") ?? "1");
+  const page = Number.isInteger(parsedPage) && parsedPage > 1 ? parsedPage : 1;
+  const offset = (page - 1) * PAGE_SIZE;
 
   const capability = useQuery({
     queryFn: () => fetchLab("/capability", LabCapabilitySchema),
@@ -32,18 +38,29 @@ export function StorylinesPage() {
     queryKey: ["lab-metrics"],
     refetchInterval: 60_000,
   });
+  const agencies = useQuery({
+    enabled: capability.data?.status === "available",
+    queryFn: () =>
+      fetchLab("/agencies", z.object({ agencies: z.string().array() })),
+    queryKey: ["lab-agencies"],
+  });
   const query = new URLSearchParams();
   if (entity !== "") query.set("entity", entity);
   if (agency !== "") query.set("agency", agency);
   if (minEpisodes !== "") query.set("minEpisodes", minEpisodes);
+  if (sort !== "") query.set("sort", sort);
+  if (offset > 0) query.set("offset", String(offset));
   const storylines = useQuery({
     enabled: capability.data?.status === "available",
     queryFn: () =>
       fetchLab(
         `/storylines?${query.toString()}`,
-        z.object({ items: StorylineListItemSchema.array() }),
+        z.object({
+          hasMore: z.boolean(),
+          items: StorylineListItemSchema.array(),
+        }),
       ),
-    queryKey: ["lab-storylines", entity, agency, minEpisodes],
+    queryKey: ["lab-storylines", entity, agency, minEpisodes, sort, page],
   });
 
   if (capability.data?.status === "not_enabled") {
@@ -61,7 +78,20 @@ export function StorylinesPage() {
     entity === "" ? "" : ` --entity ${entity}`,
     agency === "" ? "" : ` --agency ${agency}`,
     minEpisodes === "" ? "" : ` --min-episodes ${minEpisodes}`,
+    sort === "" ? "" : ` --sort ${sort}`,
+    offset === 0 ? "" : ` --offset ${offset}`,
   ].join("");
+  const goToPage = (next: number): void => {
+    const nextParams = new URLSearchParams(params);
+    if (next <= 1) nextParams.delete("page");
+    else nextParams.set("page", String(next));
+    setParams(nextParams);
+  };
+  const knownAgencies = agencies.data?.agencies ?? [];
+  const agencyOptions =
+    agency === "" || knownAgencies.includes(agency)
+      ? knownAgencies
+      : [agency, ...knownAgencies];
 
   return (
     <div className="page-stack">
@@ -134,7 +164,7 @@ export function StorylinesPage() {
             event.preventDefault();
             const data = new FormData(event.currentTarget);
             const next: Record<string, string> = {};
-            for (const key of ["entity", "agency", "minEpisodes"]) {
+            for (const key of ["entity", "agency", "minEpisodes", "sort"]) {
               const value = data.get(key);
               if (typeof value === "string" && value !== "") next[key] = value;
             }
@@ -142,52 +172,108 @@ export function StorylinesPage() {
           }}
         >
           <label htmlFor="entity">Entity</label>
-          <input defaultValue={entity} id="entity" name="entity" placeholder="valsatrex" />
+          <input
+            defaultValue={entity}
+            id="entity"
+            name="entity"
+            placeholder="valsatrex"
+          />
           <label htmlFor="agency">Agency</label>
-          <input defaultValue={agency} id="agency" name="agency" placeholder="fda.gov" />
+          {/* remount once options load so defaultValue selects the URL's agency */}
+          <select
+            defaultValue={agency}
+            id="agency"
+            key={agencies.data === undefined ? "loading" : "loaded"}
+            name="agency"
+          >
+            <option value="">All agencies</option>
+            {agencyOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
           <label htmlFor="minEpisodes">Min episodes</label>
-          <input defaultValue={minEpisodes} id="minEpisodes" inputMode="numeric" name="minEpisodes" placeholder="2" />
+          <input
+            defaultValue={minEpisodes}
+            id="minEpisodes"
+            inputMode="numeric"
+            name="minEpisodes"
+            placeholder="2"
+          />
+          <label htmlFor="sort">Sort</label>
+          <select defaultValue={sort} id="sort" name="sort">
+            <option value="">Newest first</option>
+            <option value="episodes">Most episodes</option>
+          </select>
           <button type="submit">Apply filter</button>
         </form>
         {storylines.isLoading ? (
           <LoadingState />
         ) : storylines.error ? (
           <ErrorState error={storylines.error} />
-        ) : storylines.data?.items.length === 0 ? (
+        ) : storylines.data?.items.length === 0 && page === 1 ? (
           <p className="empty-row">No storylines match this filter.</p>
         ) : (
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Storyline</th>
-                  <th>Episodes</th>
-                  <th>Entries</th>
-                  <th>Feeds</th>
-                  <th>Agencies</th>
-                  <th>Event keys</th>
-                  <th>Newest</th>
-                </tr>
-              </thead>
-              <tbody>
-                {storylines.data?.items.map((item) => (
-                  <tr key={item.id}>
-                    <th scope="row">
-                      <Link className="row-button" to={`/storylines/${item.id}`}>
-                        {item.headline ?? "(no card yet)"}
-                      </Link>
-                    </th>
-                    <td className="numeric">{item.episodeCount}</td>
-                    <td className="numeric">{item.entryCount}</td>
-                    <td className="numeric">{item.distinctFeeds}</td>
-                    <td>{item.agencies.join(", ") || "—"}</td>
-                    <td className="mono">{item.eventKeys.join(" ") || "—"}</td>
-                    <td>{relativeTime(item.newestEntryAt)}</td>
+          <>
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Storyline</th>
+                    <th>Episodes</th>
+                    <th>Entries</th>
+                    <th>Feeds</th>
+                    <th>Agencies</th>
+                    <th>Event keys</th>
+                    <th>Newest</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {storylines.data?.items.map((item) => (
+                    <tr key={item.id}>
+                      <th scope="row">
+                        <Link
+                          className="row-button"
+                          to={`/storylines/${item.id}`}
+                        >
+                          {item.headline ?? "(no card yet)"}
+                        </Link>
+                      </th>
+                      <td className="numeric">{item.episodeCount}</td>
+                      <td className="numeric">{item.entryCount}</td>
+                      <td className="numeric">{item.distinctFeeds}</td>
+                      <td>{item.agencies.join(", ") || "—"}</td>
+                      <td className="mono">
+                        {item.eventKeys.join(" ") || "—"}
+                      </td>
+                      <td>{relativeTime(item.newestEntryAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {storylines.data?.items.length === 0 ? (
+              <p className="empty-row">Nothing on this page.</p>
+            ) : null}
+            <div className="pagination">
+              <button
+                disabled={page <= 1}
+                onClick={() => goToPage(page - 1)}
+                type="button"
+              >
+                Previous
+              </button>
+              <span>Page {page}</span>
+              <button
+                disabled={storylines.data?.hasMore !== true}
+                onClick={() => goToPage(page + 1)}
+                type="button"
+              >
+                Next
+              </button>
+            </div>
+          </>
         )}
       </section>
     </div>

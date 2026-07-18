@@ -105,6 +105,8 @@ export class LabQueries {
     entity?: string;
     limit?: number;
     minEpisodes?: number;
+    offset?: number;
+    sort?: "episodes";
   }): Promise<StorylineListItem[]> {
     const { sql } = this;
     const rows = await sql`
@@ -117,8 +119,13 @@ export class LabQueries {
         ${filter.entity === undefined ? sql`` : sql`and ${filter.entity} = any(s.entity_set)`}
         ${filter.agency === undefined ? sql`` : sql`and ${filter.agency} = any(s.agency_ids)`}
         ${filter.minEpisodes === undefined ? sql`` : sql`and s.episode_count >= ${filter.minEpisodes}`}
-      order by s.newest_entry_at desc, s.entry_count desc
+      ${
+        filter.sort === "episodes"
+          ? sql`order by s.episode_count desc, s.newest_entry_at desc`
+          : sql`order by s.newest_entry_at desc, s.entry_count desc`
+      }
       limit ${Math.min(filter.limit ?? 50, 500)}
+      offset ${Math.max(filter.offset ?? 0, 0)}
     `;
     return rows.map((row) => ({
       agencies: row.agency_ids as string[],
@@ -132,6 +139,16 @@ export class LabQueries {
       id: String(row.id),
       newestEntryAt: (row.newest_entry_at as Date).toISOString(),
     }));
+  }
+
+  async storylineAgencies(): Promise<string[]> {
+    const rows = await this.sql`
+      select distinct unnest(agency_ids) as agency
+      from public.storylines
+      where merged_into is null
+      order by 1
+    `;
+    return rows.map((row) => String(row.agency));
   }
 
   async storylineDetail(id: string): Promise<StorylineDetail | null> {

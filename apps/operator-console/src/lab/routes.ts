@@ -122,16 +122,31 @@ export function createLabRouter(deps: LabRouteDeps): Router {
         const parsed = Number(asString(value));
         return Number.isFinite(parsed) ? parsed : undefined;
       };
+      // fetch one row past the page so hasMore is exact without a count query
+      const requested = Math.min(asNumber(request.query.limit) ?? 50, 500);
+      const rows = await queries.storylines({
+        agency: asString(request.query.agency),
+        entity: asString(request.query.entity),
+        limit: requested + 1,
+        minEpisodes: asNumber(request.query.minEpisodes),
+        offset: Math.max(asNumber(request.query.offset) ?? 0, 0),
+        sort: request.query.sort === "episodes" ? "episodes" : undefined,
+      });
       response.json({
         data: {
-          items: await queries.storylines({
-            agency: asString(request.query.agency),
-            entity: asString(request.query.entity),
-            limit: asNumber(request.query.limit),
-            minEpisodes: asNumber(request.query.minEpisodes),
-          }),
+          hasMore: rows.length > requested,
+          items: rows.slice(0, requested),
         },
       });
+    }),
+  );
+
+  router.get(
+    "/agencies",
+    handle(async (_request, response) => {
+      const queries = await requireQueries(response);
+      if (queries === null) return;
+      response.json({ data: { agencies: await queries.storylineAgencies() } });
     }),
   );
 
