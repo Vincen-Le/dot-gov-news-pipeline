@@ -40,6 +40,9 @@ RPCs and the same bounded discovery implementation as the Worker. The only
 runtime-specific component is a Node HTML link extractor. Supabase is the
 checkpoint: completed sites advance their next schedule, publisher failures
 enter backoff, and an interrupted run resumes the remaining due rows.
+The runner requests pending-only claims, so a long seed does not retry failures
+whose backoff expires before the untouched inventory is exhausted. Recurring
+Worker claims continue to include due refreshes and backoffs.
 
 Keep `DISCOVERY_ENABLED=false` for the direct run. Dry-run first; it reads the
 summary but makes no claims, publisher requests, or database writes:
