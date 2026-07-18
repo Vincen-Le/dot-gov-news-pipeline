@@ -17,6 +17,8 @@ class FakeStore:
         self.attaches: list[dict] = []
         self.cards: list[dict] = []
         self.emas: dict[str, float] = {}
+        self.themes: dict[str, dict] = {}
+        self.categories: dict[str, dict] = {}
 
     def entity_emas(self, entities):
         return {e: self.emas.get(e, 0.0) for e in entities}
@@ -84,6 +86,69 @@ class FakeStore:
     def open_episodes(self):
         return [dict(e, centroid=unpack_fp16(e["centroid"]) if e["centroid"] is not None else None)
                 for e in self.episodes.values() if e["status"] == "open"]
+
+    # -- topics ----------------------------------------------------------
+    def all_themes(self):
+        return [dict(t, centroid=unpack_fp16(t["centroid"]) if t["centroid"] is not None else None)
+                for t in self.themes.values()]
+
+    def theme_headlines(self, theme_id, limit=5):
+        return [s.get("headline", "") for s in self.storylines.values()
+                if s.get("theme_id") == theme_id][:limit]
+
+    def theme_member_centroids(self, theme_id):
+        return [unpack_fp16(s["centroid"]) for s in self.storylines.values()
+                if s.get("theme_id") == theme_id and s.get("centroid") is not None]
+
+    def storyline_theme_state(self, storyline_id):
+        s = self.storylines.get(storyline_id)
+        if s is None:
+            return None
+        return {"centroid": unpack_fp16(s["centroid"]) if s.get("centroid") is not None else None,
+                "theme_id": s.get("theme_id"),
+                "headline": s.get("headline", ""), "summary": s.get("summary", "")}
+
+    def all_categories(self):
+        return list(self.categories.values())
+
+    def create_theme(self, display_name, centroid, category_id, name_model):
+        theme_id = str(uuid.uuid4())
+        self.themes[theme_id] = {"id": theme_id, "display_name": display_name,
+                                 "centroid": centroid, "category_id": category_id,
+                                 "storyline_count": 0}
+        return theme_id
+
+    def assign_theme(self, storyline_id, theme_id, method, similarity, reason,
+                     theme_centroid, theme_display_name):
+        s = self.storylines[storyline_id]
+        s.update(theme_id=theme_id, theme_attach_method=method,
+                 theme_similarity=similarity, theme_reason=reason)
+        theme = self.themes[theme_id]
+        if theme_display_name is not None:
+            theme["display_name"] = theme_display_name
+        if theme_centroid is not None:
+            theme["centroid"] = theme_centroid
+        for t in self.themes.values():
+            t["storyline_count"] = sum(
+                1 for x in self.storylines.values() if x.get("theme_id") == t["id"])
+
+    def update_theme(self, theme_id, display_name=None, centroid=None, category_id=None):
+        theme = self.themes[theme_id]
+        if display_name is not None:
+            theme["display_name"] = display_name
+        if centroid is not None:
+            theme["centroid"] = centroid
+        if category_id is not None:
+            theme["category_id"] = category_id
+
+    def upsert_category(self, display_name, origin, proposal_reason):
+        for cat in self.categories.values():
+            if cat["display_name"].casefold() == display_name.casefold():
+                return cat["id"]
+        cat_id = str(uuid.uuid4())
+        self.categories[cat_id] = {"id": cat_id, "display_name": display_name,
+                                   "origin": origin}
+        return cat_id
 
     # -- test helpers ----------------------------------------------------
     def add_entry(self, **kw: Any) -> dict:

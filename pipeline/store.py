@@ -227,3 +227,84 @@ class Store:
             """,
             {"limit": limit, "until": until},
         )
+        return _require_publisher_attribution(rows)
+
+    # -- topics (stage 4) ----------------------------------------------
+    def all_themes(self) -> list[dict]:
+        rows = self.db.all(
+            """
+            select id, display_name, centroid, category_id, storyline_count
+            from public.topic_themes where merged_into is null
+            """
+        )
+        return [dict(r, centroid=unpack_fp16(r["centroid"]) if r["centroid"] is not None else None)
+                for r in rows]
+
+    def theme_headlines(self, theme_id: str, limit: int = 5) -> list[str]:
+        rows = self.db.all(
+            """
+            select c.headline from public.storylines s
+            join public.event_cards c on c.id = s.latest_card_id
+            where s.theme_id = %(t)s
+            order by s.newest_entry_at desc limit %(limit)s
+            """,
+            {"t": theme_id, "limit": limit},
+        )
+        return [r["headline"] for r in rows]
+
+    def theme_member_centroids(self, theme_id: str) -> list:
+        rows = self.db.all(
+            "select centroid from public.storylines "
+            "where theme_id = %(t)s and centroid is not null",
+            {"t": theme_id},
+        )
+        return [unpack_fp16(r["centroid"]) for r in rows]
+
+    def storyline_theme_state(self, storyline_id: str) -> dict | None:
+        row = self.db.one(
+            """
+            select s.centroid, s.theme_id, c.headline, c.summary
+            from public.storylines s
+            left join public.event_cards c on c.id = s.latest_card_id
+            where s.id = %(s)s
+            """,
+            {"s": storyline_id},
+        )
+        if row is None:
+            return None
+        return dict(row, centroid=unpack_fp16(row["centroid"])
+                    if row["centroid"] is not None else None,
+                    theme_id=str(row["theme_id"]) if row["theme_id"] else None)
+
+    def all_categories(self) -> list[dict]:
+        return [dict(r, id=str(r["id"]))
+                for r in self.db.all(
+                    "select id, display_name, origin from public.topic_categories")]
+
+    def create_theme(self, display_name: str, centroid: bytes,
+                     category_id: str | None, name_model: str | None) -> str:
+        return str(self.db.rpc("create_topic_theme", p_display_name=display_name,
+                               p_centroid=centroid, p_category_id=category_id,
+                               p_name_model=name_model))
+
+    def assign_theme(self, storyline_id: str, theme_id: str, method: str,
+                     similarity: float | None, reason: str | None,
+                     theme_centroid: bytes | None,
+                     theme_display_name: str | None) -> None:
+        self.db.rpc("assign_storyline_theme", p_storyline_id=storyline_id,
+                    p_theme_id=theme_id, p_method=method,
+                    p_similarity=Float4(similarity) if similarity is not None else None,
+                    p_reason=reason, p_theme_centroid=theme_centroid,
+                    p_theme_display_name=theme_display_name)
+
+    def update_theme(self, theme_id: str, display_name: str | None = None,
+                     centroid: bytes | None = None,
+                     category_id: str | None = None) -> None:
+        self.db.rpc("update_topic_theme", p_theme_id=theme_id,
+                    p_display_name=display_name, p_centroid=centroid,
+                    p_category_id=category_id)
+
+    def upsert_category(self, display_name: str, origin: str,
+                        proposal_reason: str | None) -> str:
+        return str(self.db.rpc("upsert_topic_category", p_display_name=display_name,
+                               p_origin=origin, p_proposal_reason=proposal_reason))
