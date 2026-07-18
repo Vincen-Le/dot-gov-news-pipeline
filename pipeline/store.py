@@ -194,3 +194,34 @@ class Store:
         row = self.db.one("select episode_count from public.storylines where id = %(s)s",
                           {"s": storyline_id})
         return int(row["episode_count"]) if row else 0
+
+    def entries_needing_features(self, limit: int | None = None) -> list[dict]:
+        return self.db.all(
+            """
+            select id, title, summary, published_at, enriched_text, enricher_version,
+                   entity_set, event_keys
+            from public.news_entries
+            where embedding is null and published_at is not null
+            order by published_at, id
+            limit %(limit)s
+            """,
+            {"limit": limit},
+        )
+
+    def prepared_unclustered(self, limit: int | None = None,
+                             until: "datetime | None" = None) -> list[dict]:
+        return self.db.all(
+            """
+            select ne.id, ne.news_source_id, ne.title, ne.summary, ne.published_at,
+                   ne.content_hash, ne.entity_set, ne.event_keys, ne.embedding,
+                   split_part(ns.canonical_url, '/', 3) as agency
+            from public.news_entries ne
+            join public.news_sources ns on ns.id = ne.news_source_id
+            where ne.embedding is not null and ne.episode_id is null
+              and ne.published_at is not null
+              and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)
+            order by ne.published_at, ne.id
+            limit %(limit)s
+            """,
+            {"limit": limit, "until": until},
+        )
