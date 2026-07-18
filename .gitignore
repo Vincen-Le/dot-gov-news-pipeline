@@ -33,6 +33,7 @@ supabase/.temp/
 
 # Local service data
 chroma-data/
+.data/
 
 # Test and coverage output
 coverage/

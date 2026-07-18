@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "inventory:sync": "pnpm --filter @dot-gov-news/inventory-sync sync",
+    "news:backfill": "pnpm --filter @dot-gov-news/news-backfill backfill",
     "lint": "eslint .",
     "ops": "pnpm --filter @dot-gov-news/operator-console ops",
     "ops:setup": "pnpm --filter @dot-gov-news/operator-console run setup",

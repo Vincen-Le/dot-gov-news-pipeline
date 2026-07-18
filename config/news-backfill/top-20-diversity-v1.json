@@ -1,0 +1,421 @@
+{
+  "cohortId": "top-20-diversity-v1",
+  "version": 1,
+  "windowStart": "2025-07-18T00:00:00.000Z",
+  "windowEnd": "2026-07-18T00:00:00.000Z",
+  "publishers": [
+    {
+      "publisherKey": "usps",
+      "displayName": "United States Postal Service",
+      "trafficVisits": 409766643,
+      "sources": [
+        {
+          "sourceKey": "about-usps-rss",
+          "title": "USPS News",
+          "sourceUrl": "https://about.usps.com/news/latestnews.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["about.usps.com"],
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "ncbi",
+      "displayName": "National Center for Biotechnology Information",
+      "trafficVisits": 310364315,
+      "sources": [
+        {
+          "sourceKey": "ncbi-insights-feed-pages",
+          "title": "NCBI Insights",
+          "sourceUrl": "https://ncbiinsights.ncbi.nlm.nih.gov/feed/",
+          "urlTemplate": "https://ncbiinsights.ncbi.nlm.nih.gov/feed/?paged={page}",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["ncbiinsights.ncbi.nlm.nih.gov"],
+          "maxPages": 80
+        }
+      ]
+    },
+    {
+      "publisherKey": "nws",
+      "displayName": "National Weather Service",
+      "trafficVisits": 113029034,
+      "sources": [
+        {
+          "sourceKey": "nws-news-archive",
+          "title": "National Weather Service News",
+          "sourceUrl": "https://www.weather.gov/news/",
+          "urlTemplate": "https://www.weather.gov/news/?page={page}",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["weather.gov", "noaa.gov"],
+          "includeUrlPattern": "https://www\\.(?:weather\\.gov/news/[^?#]+|noaa\\.gov/news-release/[^?#]+)$",
+          "hydrate": true,
+          "pageStart": 0,
+          "maxPages": 24
+        }
+      ]
+    },
+    {
+      "publisherKey": "uscis",
+      "displayName": "U.S. Citizenship and Immigration Services",
+      "trafficVisits": 49972576,
+      "sources": [
+        {
+          "sourceKey": "uscis-all-news-rss",
+          "title": "USCIS All News",
+          "sourceUrl": "https://www.uscis.gov/news/rss-feed/59144",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["uscis.gov"],
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "va",
+      "displayName": "Department of Veterans Affairs",
+      "trafficVisits": 49063770,
+      "sources": [
+        {
+          "sourceKey": "va-news-wordpress",
+          "title": "VA News",
+          "sourceUrl": "https://news.va.gov/wp-json/wp/v2/posts",
+          "sourceType": "publisher_api",
+          "adapter": "wordpress",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["news.va.gov"],
+          "maxPages": 60
+        }
+      ]
+    },
+    {
+      "publisherKey": "ssa",
+      "displayName": "Social Security Administration",
+      "trafficVisits": 49021309,
+      "sources": [
+        {
+          "sourceKey": "ssa-press-wayback",
+          "title": "SSA Press Releases Archive",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.ssa.gov/news/press/releases/*",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "ssa_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["web.archive.org", "ssa.gov"],
+          "includeUrlPattern": "ssa\\.gov/news/press/releases/",
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "irs",
+      "displayName": "Internal Revenue Service",
+      "trafficVisits": 47561491,
+      "sources": [
+        {
+          "sourceKey": "irs-newsroom-sitemap",
+          "title": "IRS Newsroom",
+          "sourceUrl": "https://www.irs.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["irs.gov"],
+          "includeUrlPattern": "https://www\\.irs\\.gov/newsroom/(?!news-releases-for-current-month$)[^?#]+$",
+          "hydrate": true,
+          "maxPages": 1000
+        }
+      ]
+    },
+    {
+      "publisherKey": "nasa",
+      "displayName": "National Aeronautics and Space Administration",
+      "trafficVisits": 46465719,
+      "sources": [
+        {
+          "sourceKey": "nasa-wordpress",
+          "title": "NASA News",
+          "sourceUrl": "https://www.nasa.gov/wp-json/wp/v2/posts",
+          "sourceType": "publisher_api",
+          "adapter": "wordpress",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["nasa.gov"],
+          "maxPages": 80
+        }
+      ]
+    },
+    {
+      "publisherKey": "noaa",
+      "displayName": "National Oceanic and Atmospheric Administration",
+      "trafficVisits": 31957053,
+      "sources": [
+        {
+          "sourceKey": "noaa-news-pages",
+          "title": "NOAA News",
+          "sourceUrl": "https://www.noaa.gov/news",
+          "urlTemplate": "https://www.noaa.gov/news?page={page}",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["noaa.gov"],
+          "includeUrlPattern": "https://www\\.noaa\\.gov/(?:news|news-release)/[^?#]+$",
+          "hydrate": true,
+          "pageStart": 0,
+          "maxPages": 100
+        }
+      ]
+    },
+    {
+      "publisherKey": "doj",
+      "displayName": "Department of Justice",
+      "trafficVisits": 28397575,
+      "sources": [
+        {
+          "sourceKey": "doj-press-release-wayback-listings",
+          "title": "Department of Justice Press Releases",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.justice.gov/news/press-releases",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "wayback_listing",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["web.archive.org", "justice.gov"],
+          "includeUrlPattern": "https://www\\.justice\\.gov/(?:opa/)?(?:pr|media|news/press-releases)/[^?#]+$",
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "fsa",
+      "displayName": "Federal Student Aid",
+      "trafficVisits": 26766499,
+      "sources": [
+        {
+          "sourceKey": "fsa-library-sitemap",
+          "title": "FSA Partner Knowledge Center",
+          "sourceUrl": "https://fsapartners.ed.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fsapartners.ed.gov"],
+          "includeUrlPattern": "fsapartners\\.ed\\.gov/knowledge-center/library/(?:electronic-announcements|dear-colleague-letters|federal-register-notices|operational-announcements)/",
+          "hydrate": true,
+          "maxPages": 20
+        }
+      ]
+    },
+    {
+      "publisherKey": "cdc",
+      "displayName": "Centers for Disease Control and Prevention",
+      "trafficVisits": 25560037,
+      "sources": [
+        {
+          "sourceKey": "cdc-syndication-api",
+          "title": "CDC Media Releases",
+          "sourceUrl": "https://tools.cdc.gov/api/v2/resources/media",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "cdc",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["tools.cdc.gov", "cdc.gov"],
+          "includeUrlPattern": "cdc\\.gov/(?:media/releases|media/pressroom)/",
+          "maxPages": 100
+        }
+      ]
+    },
+    {
+      "publisherKey": "state",
+      "displayName": "Department of State",
+      "trafficVisits": 24779567,
+      "sources": [
+        {
+          "sourceKey": "state-press-pages",
+          "title": "State Department Press Releases",
+          "sourceUrl": "https://www.state.gov/press-releases/",
+          "urlTemplate": "https://www.state.gov/press-releases/page/{page}/",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["state.gov"],
+          "includeUrlPattern": "https://www\\.state\\.gov/releases/[^?#]+$",
+          "hydrate": true,
+          "pageStart": 1,
+          "maxPages": 100
+        }
+      ]
+    },
+    {
+      "publisherKey": "usgs",
+      "displayName": "U.S. Geological Survey",
+      "trafficVisits": 22531455,
+      "sources": [
+        {
+          "sourceKey": "usgs-all-news-feed",
+          "title": "USGS All News",
+          "sourceUrl": "https://www.usgs.gov/news/all/feed",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["usgs.gov"],
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "nps",
+      "displayName": "National Park Service",
+      "trafficVisits": 20768640,
+      "sources": [
+        {
+          "sourceKey": "nps-news-sitemap",
+          "title": "National Park Service News",
+          "sourceUrl": "https://www.nps.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["nps.gov"],
+          "includeUrlPattern": "https://www\\.nps\\.gov/[^/]+/learn/news/[^?#]+\\.htm$",
+          "hydrate": true,
+          "maxPages": 10
+        }
+      ]
+    },
+    {
+      "publisherKey": "treasury",
+      "displayName": "Department of the Treasury",
+      "trafficVisits": 14883463,
+      "sources": [
+        {
+          "sourceKey": "treasury-press-pages",
+          "title": "Treasury Press Releases",
+          "sourceUrl": "https://home.treasury.gov/news/press-releases",
+          "urlTemplate": "https://home.treasury.gov/news/press-releases?page={page}",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["home.treasury.gov"],
+          "includeUrlPattern": "https://home\\.treasury\\.gov/news/press-releases/[^?#]+$",
+          "hydrate": true,
+          "pageStart": 0,
+          "maxPages": 160
+        }
+      ]
+    },
+    {
+      "publisherKey": "fda",
+      "displayName": "Food and Drug Administration",
+      "trafficVisits": 14281197,
+      "sources": [
+        {
+          "sourceKey": "fda-sitemap",
+          "title": "FDA Press Announcements",
+          "sourceUrl": "https://www.fda.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["fda.gov"],
+          "includeUrlPattern": "https://www\\.fda\\.gov/news-events/press-announcements/[^?#]+$",
+          "hydrate": true,
+          "maxPages": 1000
+        }
+      ]
+    },
+    {
+      "publisherKey": "usda",
+      "displayName": "Department of Agriculture",
+      "trafficVisits": 14169055,
+      "sources": [
+        {
+          "sourceKey": "usda-legacy-press-wayback",
+          "title": "USDA Legacy Press Releases",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.usda.gov/media/press-releases/*",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "wayback",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["web.archive.org", "usda.gov"],
+          "includeUrlPattern": "usda\\.gov/media/press-releases/",
+          "hydrate": true,
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "usda-current-press-wayback",
+          "title": "USDA Current Press Releases",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.usda.gov/about-usda/news/press-releases/*",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "wayback",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["web.archive.org", "usda.gov"],
+          "includeUrlPattern": "usda\\.gov/about-usda/news/press-releases/",
+          "hydrate": true,
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "sec",
+      "displayName": "Securities and Exchange Commission",
+      "trafficVisits": 11422466,
+      "sources": [
+        {
+          "sourceKey": "sec-press-rss",
+          "title": "SEC Press Releases",
+          "sourceUrl": "https://www.sec.gov/news/pressreleases.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["sec.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "sec-press-wayback",
+          "title": "SEC Historical Press Releases",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.sec.gov/newsroom/press-releases/*",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "wayback",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["web.archive.org", "sec.gov"],
+          "includeUrlPattern": "sec\\.gov/newsroom/press-releases/",
+          "hydrate": true,
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "bls",
+      "displayName": "Bureau of Labor Statistics",
+      "trafficVisits": 6059243,
+      "sources": [
+        {
+          "sourceKey": "bls-latest-rss",
+          "title": "BLS Latest Releases",
+          "sourceUrl": "https://www.bls.gov/feed/bls_latest.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "release",
+          "allowedHosts": ["bls.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "bls-archives-wayback",
+          "title": "BLS News Release Archives",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.bls.gov/news.release/archives/*",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "wayback",
+          "newsSubtype": "release",
+          "allowedHosts": ["web.archive.org", "bls.gov"],
+          "includeUrlPattern": "bls\\.gov/news\\.release/archives/",
+          "hydrate": true,
+          "maxPages": 1
+        }
+      ]
+    }
+  ]
+}
