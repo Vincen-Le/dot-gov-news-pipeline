@@ -48,7 +48,7 @@ The loader consumes JSONL, one object per scraped item:
 
 - SQL house style (from the data-model plan, applies to Tasks 3–4): single `begin; … commit;` per migration, lowercase SQL, `public.`-qualified relations, `text` + `check` never enums, bounded `length()`/`cardinality()` checks, `comment on` everything non-obvious, `timestamptz`, pgTAP tests in `supabase/tests/database/<name>.test.sql`.
 - RPCs: `security definer`, `set search_path = ''`, `revoke execute … from public, anon, authenticated`, `grant execute … to service_role`.
-- Migration filenames continue the sequence: `20260718001000`, `20260718001100` (`20260718000900` is taken by news-backfill-control from the seeding workstream).
+- Migration filenames use the `202607181000xx` band (`20260718100000`, `20260718100100`) — the seeding workstream is actively claiming the `+100` sequence (000900, 001000 taken mid-execution).
 - SQL tests: `pnpm supabase db reset && pnpm supabase test db` (local stack via `pnpm supabase start`).
 - Python: package dir `pipeline/` at repo root, tests in `tests/`, run `uv run pytest` (unit) and `uv run pytest -m integration` (needs local Supabase + applied migrations). Type hints everywhere; no framework, plain modules.
 - Python env keys (read from `.env` via python-dotenv): `DATABASE_URL` (local default `postgresql://postgres:postgres@127.0.0.1:54322/postgres`), `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, plus optional overrides for every config default in Task 1.
@@ -571,7 +571,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 Ranking math in SQL, single source of truth. Cards are write-once, so this fires exactly once per card.
 
 **Files:**
-- Create: `supabase/migrations/20260718001000_create_compute_rank_key.sql`
+- Create: `supabase/migrations/20260718100000_create_compute_rank_key.sql`
 - Test: `supabase/tests/database/compute_rank_key.test.sql`
 
 **Interfaces:**
@@ -649,7 +649,7 @@ Expected: FAIL — `compute_rank_key exists with expected signature`.
 - [ ] **Step 3: Write the migration**
 
 ```sql
--- supabase/migrations/20260718001000_create_compute_rank_key.sql
+-- supabase/migrations/20260718100000_create_compute_rank_key.sql
 begin;
 
 insert into public.rubric_weights (rubric_version, criterion, weight)
@@ -718,7 +718,7 @@ Expected: PASS — 7 assertions green; all prior suites green.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add supabase/migrations/20260718001000_create_compute_rank_key.sql supabase/tests/database/compute_rank_key.test.sql
+git add supabase/migrations/20260718100000_create_compute_rank_key.sql supabase/tests/database/compute_rank_key.test.sql
 git commit -m "feat: add compute_rank_key function and rubric v1 weights
 
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
@@ -731,7 +731,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 The only write path into the clustering tables (data-model plan grants `select` only). Six `security definer` functions; every aggregate is recomputed from junction rows inside the transaction, so replays converge (idempotent by construction).
 
 **Files:**
-- Create: `supabase/migrations/20260718001100_create_clustering_write_rpcs.sql`
+- Create: `supabase/migrations/20260718100100_create_clustering_write_rpcs.sql`
 - Test: `supabase/tests/database/clustering_write_rpcs.test.sql`
 
 **Interfaces:**
@@ -852,7 +852,7 @@ Expected: FAIL — `upsert_news_source exists`.
 - [ ] **Step 3: Write the migration**
 
 ```sql
--- supabase/migrations/20260718001100_create_clustering_write_rpcs.sql
+-- supabase/migrations/20260718100100_create_clustering_write_rpcs.sql
 begin;
 
 create or replace function public.upsert_news_source(
@@ -1213,7 +1213,7 @@ Expected: PASS — 12 assertions green; all prior suites green.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add supabase/migrations/20260718001100_create_clustering_write_rpcs.sql supabase/tests/database/clustering_write_rpcs.test.sql
+git add supabase/migrations/20260718100100_create_clustering_write_rpcs.sql supabase/tests/database/clustering_write_rpcs.test.sql
 git commit -m "feat: add security definer write RPCs for clustering pipeline
 
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
