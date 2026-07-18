@@ -56,8 +56,15 @@ class FakeRepository implements SiteDiscoveryRepository {
     limit: number,
     leaseSeconds: number,
     pendingOnly = false,
+    maxPerBaseDomain = 1,
   ): Promise<SiteDiscoveryClaim[]> {
-    this.claimCalls(workerId, limit, leaseSeconds, pendingOnly);
+    this.claimCalls(
+      workerId,
+      limit,
+      leaseSeconds,
+      pendingOnly,
+      maxPerBaseDomain,
+    );
     return this.claims.splice(0, limit);
   }
 }
@@ -69,6 +76,7 @@ function options(
     concurrency: 2,
     dryRun: false,
     leaseSeconds: 900,
+    maxPerBaseDomain: 10,
     maxPublisherRequests: 36,
     maxSites: 0,
     policyVersion: 1,
@@ -86,11 +94,24 @@ describe("parseBackfillArguments", () => {
       parseBackfillArguments([
         "--concurrency",
         "120",
+        "--max-per-base-domain",
+        "7",
         "--max-sites",
         "250",
         "--dry-run",
       ]),
-    ).toMatchObject({ concurrency: 120, dryRun: true, maxSites: 250 });
+    ).toMatchObject({
+      concurrency: 120,
+      dryRun: true,
+      maxPerBaseDomain: 7,
+      maxSites: 250,
+    });
+  });
+
+  it("bounds per-domain backfill lanes", () => {
+    expect(() =>
+      parseBackfillArguments(["--max-per-base-domain", "26"]),
+    ).toThrow("between 1 and 25");
   });
 
   it("requires lease cleanup headroom", () => {
@@ -161,6 +182,7 @@ describe("runBackfill", () => {
       expect.any(Number),
       900,
       true,
+      10,
     );
     expect(repository.claims).toHaveLength(1);
   });

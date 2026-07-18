@@ -32,6 +32,7 @@ describe("site discovery repository", () => {
     expect(rpc).toHaveBeenCalledWith("claim_due_site_discoveries", {
       p_claim_limit: 1,
       p_lease_seconds: 900,
+      p_max_per_base_domain: 1,
       p_pending_only: false,
       p_worker_id: "30000000-0000-4000-8000-000000000001",
     });
