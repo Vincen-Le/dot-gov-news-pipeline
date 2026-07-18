@@ -72,6 +72,16 @@ crawler uses 120 global connections with two connections per exact host; the
 10-lane seed remains more conservative at the global level. Set
 `--max-per-base-domain 1` to recover recurring-mode publisher isolation.
 
+The hosted initial seed completed on 2026-07-18. All 25,367 eligible rows were
+processed at policy version 1 within a 5-hour, 20-minute, 49-second observed
+window. Final state was 1,661 succeeded sites, 9,603 complete no-feed sites,
+14,103 bounded publisher backoffs, zero pending sites, and zero leases. The
+database contained 1,372 canonical feeds and 3,446 active provenance
+relationships. The discovery Queue and DLQ were both empty, and the recurring
+Worker remained disabled after deployment. Due backoffs were intentionally not
+included in the one-time seed; a post-restore pending-only proof run observed
+12,771 due rows and claimed zero.
+
 ## Observe
 
 Run `supabase/queries/discovery-health.sql` with an operator database role. It
