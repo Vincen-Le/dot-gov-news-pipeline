@@ -8,9 +8,11 @@ export default tseslint.config(
       ".claude/",
       ".venv/",
       ".wrangler/",
+      "apps/operator-api/worker-configuration.d.ts",
       "apps/pipeline-worker/worker-configuration.d.ts",
       "coverage/",
       "dist/",
+      "**/dist/",
       "node_modules/",
       "supabase/.temp/",
     ],
@@ -28,6 +30,7 @@ export default tseslint.config(
     languageOptions: {
       globals: {
         ...globals.node,
+        ...globals.browser,
         ...globals.serviceworker,
       },
     },

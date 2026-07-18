@@ -91,3 +91,30 @@ cp apps/pipeline-worker/.dev.vars.example apps/pipeline-worker/.dev.vars
 ```
 
 Populate the ignored `.dev.vars` file locally. Never put real credentials in `.dev.vars.example`.
+
+## Operator API and local console
+
+The preferred setup reads `SUPABASE_SECRET_KEY` from the ignored root `.env`,
+generates a high-entropy Operator API token, supplies both secrets to the first
+deployment through a permission-restricted temporary JSON file, deletes that
+file after setup, and atomically writes the Operator API URL and token to a
+mode-`0600` `.env` before enabling remote reads:
+
+```sh
+pnpm ops:setup
+```
+
+The resulting ignored local configuration contains:
+
+```text
+OPS_API_URL=https://dot-gov-news-operator-api-dev.<workers-subdomain>.workers.dev
+OPS_API_TOKEN=<random value of at least 32 characters>
+OPS_WORKER_NAME=dot-gov-news-pipeline-dev
+```
+
+The bearer token protects a single-user read-only endpoint. Rotate it before
+sharing the environment or if it may have appeared in logs. The local browser
+receives neither this token nor the Supabase service key; it calls only the
+loopback proxy through a one-time local bootstrap URL and an HttpOnly session
+cookie. Run `pnpm ops:setup --rotate-token` to rotate the token without putting
+it in shell history.

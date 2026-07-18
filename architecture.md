@@ -738,6 +738,22 @@ Track at minimum:
 
 Structured logs should include event/site/feed IDs and outcomes without source payloads, credentials, or full malformed CSV rows.
 
+The operator surface has three deliberately separate layers:
+
+1. `pipeline-worker` emits versioned, bounded lifecycle objects and continues to
+   own Cron and Queue processing.
+2. `operator-api` is a separately deployable, token-protected, read-only Worker.
+   It reads bounded Supabase models, Queue metrics, R2 metadata, and the pipeline
+   Worker's health endpoint through a Service Binding. It has no mutation route.
+3. `operator-console` is a localhost-only Node process containing the CLI,
+   browser credential boundary, React dashboard, query recipes, and optional
+   Wrangler tail adapter. Closing it does not stop hosted processing.
+
+Durable Supabase state answers what is due, leased, or complete. Queue metrics
+describe transient provider pressure. Sampled real-time logs explain recent
+activity but never override durable health or lease labels. Unimplemented stages
+return `not_enabled` with a prerequisite rather than a fabricated zero.
+
 ## Capacity and provider constraints
 
 As of this architecture snapshot, official provider documentation reports:

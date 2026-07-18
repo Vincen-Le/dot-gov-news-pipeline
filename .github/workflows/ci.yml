@@ -43,8 +43,19 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Build operator dashboard
+        run: pnpm --filter @dot-gov-news/operator-console build
+
+      - name: Check generated CLI cheatsheet
+        run: |
+          pnpm --filter @dot-gov-news/operator-console docs:generate
+          git diff --exit-code -- docs/operations/cli-cheatsheet.md
+
       - name: Validate Worker bundle
         run: pnpm --filter @dot-gov-news/pipeline-worker check:deploy
+
+      - name: Validate Operator API bundle
+        run: pnpm --filter @dot-gov-news/operator-api check:deploy
 
   database:
     runs-on: ubuntu-latest
