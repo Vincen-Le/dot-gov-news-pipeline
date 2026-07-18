@@ -9,10 +9,15 @@ experiments iterate on.
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 
+from pipeline.cards import CardEngine
 from pipeline.config import Config
+from pipeline.episodes import EpisodeEngine
 from pipeline.extraction import EXTRACTOR_VERSION, extract
-from pipeline.vectors import pack_fp16
+from pipeline.storylines import StorylineEngine
+from pipeline.vectors import pack_fp16, unpack_fp16
+from pipeline.window import ReplayStore, ReplayWindow
 
 
 def _fallback_text(row: dict) -> str:
@@ -64,3 +69,56 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
                 extractor_version=EXTRACTOR_VERSION if needs_anchors else None)
             prepared += 1
     return {"prepared": prepared, "failed": failed}
+
+
+def cluster(store, models, cfg: Config, limit: int | None = None,
+            until: "datetime | None" = None) -> dict:
+    window = ReplayWindow(cfg.dedupe_window_hours)
+    replay = store
+    if hasattr(store, "db"):  # real Store -> wrap window reads; fakes serve their own
+        replay = ReplayStore(store.db, window)
+    else:
+        replay = _WindowedFake(store, window)
+
+    storyline_engine = StorylineEngine(replay, models, cfg)
+    card_engine = CardEngine(replay, models, cfg)
+    episode_engine = EpisodeEngine(replay, models, cfg, storyline_engine.resolve)
+
+    rows = store.prepared_unclustered(limit=limit, until=until)
+    processed = closed_count = 0
+    for row in rows:
+        t = row["published_at"]
+        window.advance(t)
+        for closed in episode_engine.close_due(t):
+            card_engine.on_episode_closed(closed)
+            closed_count += 1
+        vec = unpack_fp16(row["embedding"])
+        decision = episode_engine.process_entry(row, vec)
+        window.add(row["id"], decision["episode_id"], row["content_hash"], t, vec)
+        processed += 1
+
+    # finalize: close every remaining open episode so the run is complete/comparable
+    for episode in list(episode_engine._open_episodes()):
+        if replay.close_episode(str(episode["id"])):
+            card_engine.on_episode_closed(episode)
+            closed_count += 1
+    episode_engine._open = []
+
+    return {"processed": processed, "episodes_closed": closed_count}
+
+
+class _WindowedFake:
+    """Test shim: route the two window reads through ReplayWindow, delegate the rest."""
+
+    def __init__(self, inner, window: ReplayWindow) -> None:
+        self._inner = inner
+        self._window = window
+
+    def content_hash_dup(self, hash_, t, window_hours):
+        return self._window.content_hash_dup(hash_, t, window_hours)
+
+    def recent_embedded(self, t, window_hours):
+        return self._window.recent_embedded(t, window_hours)
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
