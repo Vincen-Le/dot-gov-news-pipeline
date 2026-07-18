@@ -21,6 +21,7 @@ describe("publisher fetcher", () => {
     );
     const fetchDocument = createFetcher({
       minimumHostIntervalMs: 0,
+      nativeWayback: false,
       timeoutMs: 1_000,
       userAgent: "test",
     });
@@ -75,6 +76,7 @@ describe("publisher fetcher", () => {
     vi.stubGlobal("fetch", mockedFetch);
     const fetchDocument = createFetcher({
       minimumHostIntervalMs: 0,
+      nativeWayback: false,
       timeoutMs: 1_000,
       userAgent: "test",
     });
