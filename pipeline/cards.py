@@ -45,7 +45,20 @@ class CardEngine:
 
     def _regenerate_overview(self, storyline_id: str, representative_entry_id: str) -> None:
         episode_cards = self.store.episode_cards_for(storyline_id)
-        card = self.models.compress_overview({"id": storyline_id}, episode_cards)
+        try:
+            card = self.models.compress_overview({"id": storyline_id}, episode_cards)
+        except Exception as exc:
+            # LLM failure never blocks a close (spec: judge failure -> prior points).
+            # Deterministic fallback: latest headline, concatenated chain, cited bullets,
+            # rubric None so the card scores the unjudged prior until a future rejudge.
+            card = {
+                "headline": episode_cards[-1]["headline"],
+                "summary": " / ".join(c["headline"] for c in episode_cards),
+                "timeline": [{"episode_id": str(c["episode_id"]), "date": c["date"],
+                              "text": c["headline"]} for c in episode_cards],
+                "rubric": None,
+                "reason": f"compressor_error: {exc}",
+            }
         card["headline"] = card["headline"][:_MAX_HEADLINE]
         card["summary"] = card["summary"][:_MAX_SUMMARY]
         valid_ids = {str(c["episode_id"]) for c in episode_cards}
@@ -56,7 +69,7 @@ class CardEngine:
             storyline_id=storyline_id, episode_id=None, kind="overview",
             headline=card["headline"], summary=card["summary"], timeline=timeline,
             rubric=card["rubric"], rubric_version=self.cfg.rubric_version,
-            interest_reason=card.get("reason"),
+            interest_reason=(card.get("reason") or "")[:2048] or None,
             representative_entry_id=representative_entry_id,
             judge_model=self.cfg.judge_model, prompt_version=self.cfg.prompt_version,
             overview_embedding=pack_fp16(overview_vec), tau=self.cfg.tau_seconds)
