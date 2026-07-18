@@ -6,6 +6,8 @@ import { CapabilityPage } from "./pages/CapabilityPage";
 import { EventsPage } from "./pages/EventsPage";
 import { InventoryPage } from "./pages/InventoryPage";
 import { OverviewPage } from "./pages/OverviewPage";
+import { StorylineDetailPage } from "./pages/StorylineDetailPage";
+import { StorylinesPage } from "./pages/StorylinesPage";
 import { SystemPage } from "./pages/SystemPage";
 
 const navigation = [
@@ -13,6 +15,7 @@ const navigation = [
   ["/inventory", "Inventory"],
   ["/discovery", "Discovery"],
   ["/feeds", "Feeds"],
+  ["/storylines", "Storylines"],
   ["/events", "Events"],
   ["/system", "System"],
 ] as const;
@@ -167,6 +170,8 @@ export function App() {
             element={<CapabilityPage capability="feeds" title="Feeds" />}
             path="/feeds"
           />
+          <Route element={<StorylinesPage />} path="/storylines" />
+          <Route element={<StorylineDetailPage />} path="/storylines/:id" />
           <Route element={<EventsPage />} path="/events" />
           <Route element={<SystemPage />} path="/system" />
           <Route element={<OverviewPage />} path="*" />

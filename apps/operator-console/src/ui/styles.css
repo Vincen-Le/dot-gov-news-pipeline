@@ -869,3 +869,183 @@ footer {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Clustering lab */
+.chain-rail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.chain-rail > li {
+  padding: 1.25rem 0 1.5rem 1.25rem;
+  border-top: 1px solid var(--rule);
+  border-left: 2px solid var(--rule);
+}
+.chain-rail > li:target {
+  border-left-color: var(--live);
+}
+.chain-rail header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+.chain-rail h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+.attach-tag {
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  font:
+    500 0.68rem/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+.card-stack {
+  display: grid;
+  gap: 0;
+}
+.card-block {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--rule);
+}
+.card-block header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+.card-block h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+.card-block p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+.timeline-list {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  font-size: 0.8rem;
+}
+.timeline-list li {
+  display: grid;
+  grid-template-columns: 95px 1fr;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--rule);
+}
+.timeline-list .mono {
+  color: var(--muted);
+}
+.cite-link {
+  color: var(--live);
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
+.meter {
+  display: inline-block;
+  height: 8px;
+  background: color-mix(in srgb, var(--live) 55%, transparent);
+  vertical-align: middle;
+}
+.meter-track {
+  display: inline-block;
+  width: 120px;
+  background: var(--raised);
+  border: 1px solid var(--rule);
+  line-height: 0;
+}
+.lab-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 1rem 1.5rem;
+  padding-bottom: 1.25rem;
+}
+.lab-form label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.lab-form input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--canvas);
+  color: var(--text);
+}
+.lab-form .lab-form-actions {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.lab-form button[type="submit"] {
+  padding: 0.58rem 0.95rem;
+  border: 0;
+  background: var(--text);
+  color: var(--canvas);
+  cursor: pointer;
+}
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.4rem;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+.checkbox-row label {
+  display: inline;
+  margin: 0;
+  color: var(--text);
+  font-size: 0.82rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.stage-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 0;
+}
+.delta-up {
+  color: var(--healthy);
+}
+.delta-down {
+  color: var(--failure);
+}
+.label-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.label-actions button {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+.label-actions button:hover {
+  background: var(--raised);
+}
+@media (max-width: 900px) {
+  .lab-form {
+    grid-template-columns: 1fr;
+  }
+}
