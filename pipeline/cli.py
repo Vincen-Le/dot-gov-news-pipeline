@@ -81,10 +81,9 @@ def main() -> None:
         out = {"reset": "features" if args.features else "clusters"}
     elif args.command == "experiment":
         from pipeline.experiment import run_experiment
-        path = run_experiment(db, store, _models(cfg, args.stub, args.no_cache), cfg,
-                              args.name, limit=args.limit, until=_until(args.until),
-                              out_dir=args.out)
-        out = {"report": path}
+        out = run_experiment(db, store, _models(cfg, args.stub, args.no_cache), cfg,
+                             args.name, limit=args.limit, until=_until(args.until),
+                             out_dir=args.out)
     print(json.dumps(out, default=str))
 
 

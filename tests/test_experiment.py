@@ -32,3 +32,36 @@ def test_render_report_empty_run():
                             "multi_episode_storylines": 0, "top_chains": []},
                            {"hits": 0, "misses": 0}, duration_s=0.1)
     assert "# Experiment: empty" in report
+
+
+def test_record_run_inserts_redacted_config():
+    from pipeline.experiment import record_run
+
+    class RecordingConn:
+        def __init__(self):
+            self.executed = []
+            class Info:  # local DSN so nothing guards against it
+                dsn = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+            self.info = Info()
+
+        def execute(self, sql, params=None):
+            self.executed.append((" ".join(sql.split()), params))
+            class Cursor:
+                def fetchone(_self):
+                    return {"id": "run-1"}
+            return Cursor()
+
+    class RecordingDb:
+        def __init__(self):
+            self.conn = RecordingConn()
+
+    from datetime import datetime, timezone
+    t = datetime(2026, 5, 14, tzinfo=timezone.utc)
+    db = RecordingDb()
+    run_id = record_run(db, "baseline", CFG, {"processed": 10, "episodes_closed": 4},
+                        {"episodes": 4}, {"hits": 1, "misses": 2}, t, t)
+    assert run_id == "run-1"
+    sql, params = db.conn.executed[0]
+    assert sql.startswith("insert into public.experiment_runs")
+    assert "cf_api_token" not in params["config"]
+    assert '"near_dup_threshold": 0.9' in params["config"]

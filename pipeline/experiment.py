@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import json
 import os
-import time
 from dataclasses import asdict
+from datetime import datetime, timezone
 
 from pipeline.bench import reset_clusters
 from pipeline.config import Config
@@ -54,10 +54,14 @@ def summarize(db) -> dict:
     }
 
 
+def _redacted_config(cfg: Config) -> dict:
+    return {k: v for k, v in asdict(cfg).items()
+            if k not in ("database_url", "cf_account_id", "cf_api_token")}
+
+
 def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
                   cache_stats: dict, duration_s: float) -> str:
-    redacted = {k: v for k, v in asdict(cfg).items()
-                if k not in ("database_url", "cf_account_id", "cf_api_token")}
+    redacted = _redacted_config(cfg)
     lines = [
         f"# Experiment: {name}", "",
         f"Duration: {duration_s}s — processed {cluster_report['processed']}, "
@@ -80,19 +84,37 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
     return "\n".join(lines)
 
 
+def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
+               cache_stats: dict, started_at, finished_at) -> str:
+    cursor = db.conn.execute(
+        "insert into public.experiment_runs "
+        "(name, started_at, finished_at, config, cluster_report, summary, "
+        " cache_hits, cache_misses) "
+        "values (%(name)s, %(started_at)s, %(finished_at)s, %(config)s::jsonb, "
+        "        %(cluster_report)s::jsonb, %(summary)s::jsonb, %(hits)s, %(misses)s) "
+        "returning id",
+        {"name": name, "started_at": started_at, "finished_at": finished_at,
+         "config": json.dumps(_redacted_config(cfg), sort_keys=True),
+         "cluster_report": json.dumps(cluster_report, default=str),
+         "summary": json.dumps(summary, default=str),
+         "hits": cache_stats.get("hits", 0), "misses": cache_stats.get("misses", 0)})
+    return str(cursor.fetchone()["id"])
+
+
 def run_experiment(db, store, models, cfg: Config, name: str,
                    limit: int | None = None, until=None,
-                   out_dir: str = "docs/eval") -> str:
-    started = time.monotonic()
+                   out_dir: str = "docs/eval") -> dict:
+    started = datetime.now(timezone.utc)
     reset_clusters(db)
     cluster_report = cluster(store, models, cfg, limit=limit, until=until)
-    duration = round(time.monotonic() - started, 1)
-    report = render_report(
-        name, cfg, cluster_report, summarize(db),
-        {"hits": getattr(models, "hits", 0), "misses": getattr(models, "misses", 0)},
-        duration)
+    finished = datetime.now(timezone.utc)
+    duration = round((finished - started).total_seconds(), 1)
+    summary = summarize(db)
+    cache_stats = {"hits": getattr(models, "hits", 0), "misses": getattr(models, "misses", 0)}
+    report = render_report(name, cfg, cluster_report, summary, cache_stats, duration)
     path = os.path.join(out_dir, name, "report.md")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as handle:
         handle.write(report)
-    return path
+    run_id = record_run(db, name, cfg, cluster_report, summary, cache_stats, started, finished)
+    return {"report": path, "run_id": run_id}
