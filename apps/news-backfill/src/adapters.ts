@@ -87,14 +87,21 @@ async function* syndicationBatches(
   windowEnd: string,
   cursor: Record<string, unknown>,
 ): AsyncGenerator<CandidateBatch> {
+  const isPagedUsgsFeed =
+    profile.sourceUrl === "https://www.usgs.gov/news/all/feed" &&
+    profile.urlTemplate === undefined;
+  const pageStart = profile.pageStart ?? (isPagedUsgsFeed ? 0 : 1);
   const firstPage = Math.max(
-    profile.pageStart ?? 1,
+    pageStart,
     typeof cursor.page === "number"
       ? cursor.page + 1
-      : (profile.pageStart ?? 1),
+      : pageStart,
   );
-  for (let page = firstPage; page < firstPage + profile.maxPages; page += 1) {
-    const url = templateUrl(profile, page, windowStart, windowEnd);
+  const maxPages = isPagedUsgsFeed ? 40 : profile.maxPages;
+  for (let page = firstPage; page < firstPage + maxPages; page += 1) {
+    const url = isPagedUsgsFeed
+      ? `${profile.sourceUrl}?page=${page}`
+      : templateUrl(profile, page, windowStart, windowEnd);
     const document = await fetchDocument(url, profile.allowedHosts);
     const candidates = feedCandidates(document).filter((candidate) =>
       includeUrl(profile, candidate.url),
@@ -113,12 +120,12 @@ async function* syndicationBatches(
       stopReason:
         oldest !== null && oldest < windowStart
           ? "window_boundary_reached"
-          : profile.urlTemplate === undefined
+          : profile.urlTemplate === undefined && !isPagedUsgsFeed
             ? "source_exhausted"
             : undefined,
     };
     if (oldest !== null && oldest < windowStart) return;
-    if (profile.urlTemplate === undefined) return;
+    if (profile.urlTemplate === undefined && !isPagedUsgsFeed) return;
   }
 }
 
@@ -634,12 +641,17 @@ function cdxUrl(
   windowEnd: string,
   collapse: string,
   mimetype: string | null = "text/html",
+  filterToWindowYears = false,
 ): string {
   const from = windowStart.slice(0, 10).replaceAll("-", "");
   const to = windowEnd.slice(0, 10).replaceAll("-", "");
   const mimeFilter =
     mimetype === null ? "" : `&filter=mimetype:${encodeURIComponent(mimetype)}`;
-  return `${profile.sourceUrl}&from=${from}&to=${to}&output=json&filter=statuscode:200${mimeFilter}&collapse=${encodeURIComponent(collapse)}&fl=timestamp,original,statuscode,digest`;
+  const years = [...new Set([windowStart.slice(0, 4), windowEnd.slice(0, 4)])];
+  const yearFilter = filterToWindowYears
+    ? `&filter=${encodeURIComponent(`original:.*(${years.join("|")}).*`)}`
+    : "";
+  return `${profile.sourceUrl}&from=${from}&to=${to}&output=json&filter=statuscode:200${mimeFilter}${yearFilter}&collapse=${encodeURIComponent(collapse)}&fl=timestamp,original,statuscode,digest`;
 }
 
 function archivedUrl(row: WaybackRow, original = row.original): string {
@@ -665,25 +677,77 @@ function originalUrl(input: string): string | null {
   }
 }
 
+function dateHintFromUrl(input: string): string | null {
+  try {
+    const path = new URL(input).pathname;
+    const pathDate =
+      /\/(20\d{2})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(
+        path,
+      );
+    if (pathDate !== null)
+      return isoDate(`${pathDate[1]}-${pathDate[2]}-${pathDate[3]}`);
+    const segmentDate =
+      /\/(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(
+        path,
+      );
+    if (segmentDate !== null)
+      return isoDate(`${segmentDate[1]}-${segmentDate[2]}-${segmentDate[3]}`);
+    const compactDate =
+      /_(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(20\d{2})\.[a-z0-9]+$/i.exec(
+        path,
+      );
+    if (compactDate !== null)
+      return isoDate(`${compactDate[3]}-${compactDate[1]}-${compactDate[2]}`);
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function yearHintFromUrl(input: string): string | null {
+  try {
+    return /(?:\/|_)(20\d{2})(?:[-_/]|$)/.exec(new URL(input).pathname)?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function* waybackBatches(
   profile: SourceProfile,
   fetchDocument: FetchDocument,
   windowStart: string,
   windowEnd: string,
 ): AsyncGenerator<CandidateBatch> {
-  const url = cdxUrl(profile, windowStart, windowEnd, "urlkey");
+  const url = cdxUrl(
+    profile,
+    windowStart,
+    windowEnd,
+    "urlkey",
+    "text/html",
+    true,
+  );
   const document = await fetchDocument(url, profile.allowedHosts);
   const latest = new Map<string, WaybackRow>();
   for (const row of waybackRows(document.body)) {
     const original = originalUrl(row.original);
-    if (original !== null && includeUrl(profile, original))
+    const dateHint = original === null ? null : dateHintFromUrl(original);
+    const yearHint = original === null ? null : yearHintFromUrl(original);
+    if (
+      original !== null &&
+      includeUrl(profile, original) &&
+      (dateHint === null ||
+        (dateHint >= windowStart && dateHint < windowEnd)) &&
+      (yearHint === null ||
+        (yearHint >= windowStart.slice(0, 4) &&
+          yearHint <= windowEnd.slice(0, 4)))
+    )
       latest.set(original, row);
   }
   const candidates = [...latest.entries()].map(
     ([original, row]): Candidate => ({
       externalItemId: row.digest ?? `${row.timestamp}:${original}`,
       fetchUrl: archivedUrl(row, original),
-      publishedAt: null,
+      publishedAt: dateHintFromUrl(original),
       rawBody: document.body,
       rawContentType: document.contentType,
       sourceUrl: document.finalUrl,
@@ -850,13 +914,46 @@ async function* ssaArchiveBatches(
       });
     }
   }
+
+  const blogProfile: SourceProfile = {
+    ...profile,
+    sourceUrl:
+      "https://web.archive.org/cdx/search/cdx?url=blog.ssa.gov/feed/",
+  };
+  const blogCdx = await fetchDocument(
+    cdxUrl(blogProfile, windowStart, windowEnd, "timestamp:6", null),
+    profile.allowedHosts,
+  );
+  const blogCandidates = new Map<string, Candidate>();
+  for (const row of waybackRows(blogCdx.body)) {
+    const feed = await fetchDocument(archivedUrl(row), profile.allowedHosts);
+    for (const candidate of feedCandidates(feed)) {
+      const original = originalUrl(candidate.url);
+      if (original === null) continue;
+      try {
+        if (new URL(original).hostname !== "blog.ssa.gov") continue;
+      } catch {
+        continue;
+      }
+      blogCandidates.set(original, {
+        ...candidate,
+        newsSubtype: "agency_news",
+        url: original,
+      });
+    }
+  }
+  candidates.push(...blogCandidates.values());
+
   if (candidates.length === 0) {
     throw new Error("SSA archive yielded no press-release articles");
   }
   yield {
     candidates,
     coverageReachedAt: windowStart,
-    cursor: { archivedYears: [...latestByYear.keys()] },
+    cursor: {
+      archivedYears: [...latestByYear.keys()],
+      blogSnapshots: waybackRows(blogCdx.body).length,
+    },
     evidenceBody,
     evidenceContentType: "text/html",
     evidenceUrl,

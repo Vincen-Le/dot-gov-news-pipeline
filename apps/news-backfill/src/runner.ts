@@ -75,6 +75,8 @@ async function normalizeOne(input: {
   windowStart: string;
 }): Promise<NormalizedEntry> {
   const fetchedAt = new Date().toISOString();
+  const newsSubtype =
+    input.candidate.newsSubtype ?? input.profile.newsSubtype;
   let artifactKey = await input.artifactStore.archive(
     input.publisherKey,
     input.candidate.rawBody,
@@ -123,14 +125,14 @@ async function normalizeOne(input: {
       candidate: input.candidate,
       fetchedAt,
       metadata,
-      newsSubtype: input.profile.newsSubtype,
+      newsSubtype,
       windowEnd: input.windowEnd,
       windowStart: input.windowStart,
     }) ??
     rejectedEntry({
       artifactKey,
       candidate: input.candidate,
-      newsSubtype: input.profile.newsSubtype,
+      newsSubtype,
       windowStart: input.windowStart,
     })
   );

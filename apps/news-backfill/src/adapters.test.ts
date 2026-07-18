@@ -103,15 +103,39 @@ describe("source adapters", () => {
         <h3>Benefit update</h3><p>Social Security announced an update.</p>
       </article>
     </article>`;
+    const blogCdx = JSON.stringify([
+      ["timestamp", "original", "statuscode", "digest"],
+      [
+        "20260103040506",
+        "https://blog.ssa.gov/feed/",
+        "200",
+        "blog-digest",
+      ],
+    ]);
+    const blogFeed = `<rss><channel><item>
+      <guid>blog-1</guid>
+      <link>https://blog.ssa.gov/service-update/</link>
+      <title>Service update</title>
+      <pubDate>Mon, 01 Jun 2026 12:00:00 GMT</pubDate>
+      <description>Social Security published a service update.</description>
+    </item></channel></rss>`;
     const batches = await collect(
       enumerateBatches({
         cursor: {},
-        fetchDocument: async (url) => ({
-          body: url.includes("/cdx/") ? cdx : page,
-          contentType: url.includes("/cdx/") ? "application/json" : "text/html",
-          finalUrl: url,
-          status: 200,
-        }),
+        fetchDocument: async (url) => {
+          const isCdx = url.includes("/cdx/");
+          const isBlog = url.includes("blog.ssa.gov");
+          return {
+            body: isCdx ? (isBlog ? blogCdx : cdx) : isBlog ? blogFeed : page,
+            contentType: isCdx
+              ? "application/json"
+              : isBlog
+                ? "application/rss+xml"
+                : "text/html",
+            finalUrl: url,
+            status: 200,
+          };
+        },
         profile: profile({
           adapter: "publisher_api",
           adapterVariant: "ssa_archive",
@@ -131,7 +155,52 @@ describe("source adapters", () => {
         title: "Benefit update",
         url: "https://www.ssa.gov/news/press/releases/2025/#2025-08-01",
       },
+      {
+        newsSubtype: "agency_news",
+        title: "Service update",
+        url: "https://blog.ssa.gov/service-update/",
+      },
     ]);
+  });
+
+  it("paginates the live USGS feed until it crosses the window boundary", async () => {
+    const requested: string[] = [];
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => {
+          requested.push(url);
+          const old = url.endsWith("page=1");
+          return {
+            body: `<rss><channel><item>
+              <guid>${old ? "old" : "current"}</guid>
+              <link>https://www.usgs.gov/news/${old ? "old" : "current"}</link>
+              <title>${old ? "Old" : "Current"} science update</title>
+              <pubDate>${old ? "Tue, 01 Jul 2025" : "Mon, 01 Jun 2026"} 12:00:00 GMT</pubDate>
+              <description>USGS update.</description>
+            </item></channel></rss>`,
+            contentType: "application/rss+xml",
+            finalUrl: url,
+            status: 200,
+          };
+        },
+        profile: profile({
+          adapter: "syndication",
+          allowedHosts: ["usgs.gov"],
+          maxPages: 1,
+          sourceType: "rss",
+          sourceUrl: "https://www.usgs.gov/news/all/feed",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(requested).toEqual([
+      "https://www.usgs.gov/news/all/feed?page=0",
+      "https://www.usgs.gov/news/all/feed?page=1",
+    ]);
+    expect(batches.at(-1)?.stopReason).toBe("window_boundary_reached");
   });
 
   it("accepts archived RSS snapshots regardless of their captured MIME type", async () => {
@@ -188,5 +257,62 @@ describe("source adapters", () => {
         url: "https://www.usgs.gov/news/national-news-release/example",
       },
     ]);
+  });
+
+  it("filters visibly old dated URLs from generic archive captures", async () => {
+    const cdx = JSON.stringify([
+      ["timestamp", "original", "statuscode", "digest"],
+      [
+        "20260102030405",
+        "https://agency.gov/news/2012-old-release",
+        "200",
+        "old-digest",
+      ],
+      [
+        "20260102030406",
+        "https://agency.gov/news/2026-current-release",
+        "200",
+        "current-digest",
+      ],
+      [
+        "20260102030407",
+        "https://agency.gov/news/archives/report_07152025.htm",
+        "200",
+        "dated-digest",
+      ],
+    ]);
+    const requested: string[] = [];
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => {
+          requested.push(url);
+          return {
+            body: cdx,
+            contentType: "application/json",
+            finalUrl: url,
+            status: 200,
+          };
+        },
+        profile: profile({
+          adapter: "publisher_api",
+          adapterVariant: "wayback",
+          allowedHosts: ["web.archive.org", "agency.gov"],
+          includeUrlPattern: "agency\\.gov/news/",
+          sourceType: "publisher_api",
+          sourceUrl:
+            "https://web.archive.org/cdx/search/cdx?url=agency.gov/news/*",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(batches[0]?.candidates).toMatchObject([
+      { url: "https://agency.gov/news/2026-current-release" },
+    ]);
+    expect(decodeURIComponent(requested[0] ?? "")).toContain(
+      "filter=original:.*(2025|2026).*",
+    );
   });
 });

@@ -1,6 +1,6 @@
 begin;
 
-select plan(46);
+select plan(50);
 
 select is(
     (
@@ -137,6 +137,11 @@ select ok(
         'service_role',
         'public.purge_cancelled_backfill_target_entries(uuid)',
         'execute'
+    )
+    and has_function_privilege(
+        'service_role',
+        'public.reopen_news_backfill_target(uuid,text)',
+        'execute'
     ),
     'service role can execute corrective backfill maintenance functions'
 );
@@ -150,6 +155,11 @@ select ok(
     and not has_function_privilege(
         'authenticated',
         'public.purge_cancelled_backfill_target_entries(uuid)',
+        'execute'
+    )
+    and not has_function_privilege(
+        'authenticated',
+        'public.reopen_news_backfill_target(uuid,text)',
         'execute'
     ),
     'client roles cannot execute corrective backfill maintenance functions'
@@ -657,6 +667,76 @@ select throws_ok(
     '55000',
     'only cancelled target entries can be purged',
     'refuses to purge a target that was not cancelled'
+);
+
+create temporary table reopen_run_fixture as
+select public.begin_news_backfill_run(
+    'top-20-reopen-test-2026',
+    'top-20-diversity-v2',
+    repeat('6', 64),
+    '2025-07-18 00:00:00+00'::timestamptz,
+    '2026-07-18 00:00:00+00'::timestamptz
+) as run_id;
+
+create temporary table reopen_target_fixture as
+select public.ensure_news_backfill_target(
+    (select run_id from reopen_run_fixture),
+    'example',
+    'failed-feed',
+    (select source_id from source_fixture),
+    'syndication'
+) as target_id;
+
+create temporary table reopen_active_target_fixture as
+select public.ensure_news_backfill_target(
+    (select run_id from reopen_run_fixture),
+    'other',
+    'active-feed',
+    (select source_id from source_two_fixture),
+    'syndication'
+) as target_id;
+
+select ok(
+    public.complete_news_backfill_target(
+        (select target_id from reopen_target_fixture),
+        'failed',
+        '{"page":2}'::jsonb,
+        'publisher_failure',
+        null,
+        null,
+        'publisher_failure',
+        'Timed out before corrective filtering.'
+    ),
+    'creates a terminal failed target in an otherwise active run'
+);
+
+select ok(
+    public.reopen_news_backfill_target(
+        (select target_id from reopen_target_fixture),
+        'Corrected archive filtering is ready.'
+    ),
+    'reopens a terminal target while its run remains active'
+);
+
+select is(
+    (
+        select status
+        from public.news_backfill_targets
+        where id = (select target_id from reopen_target_fixture)
+    ),
+    'running',
+    'marks the corrected target running again'
+);
+
+select throws_ok(
+    format(
+        'select public.reopen_news_backfill_target(%L, %L)',
+        (select target_id from target_one_fixture),
+        'Completed run cannot be reopened.'
+    ),
+    '55000',
+    'target run is already terminal',
+    'refuses to reopen a target from a terminal run'
 );
 
 select * from finish();

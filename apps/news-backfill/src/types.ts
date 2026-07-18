@@ -49,6 +49,7 @@ export interface BackfillManifest {
 export interface Candidate {
   externalItemId: string | null;
   fetchUrl?: string;
+  newsSubtype?: NewsSubtype;
   publishedAt: string | null;
   rawBody: string;
   rawContentType: string;
