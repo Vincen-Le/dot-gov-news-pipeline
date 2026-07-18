@@ -476,6 +476,7 @@ export async function runBackfill(
               workerId,
               claimLimit,
               options.leaseSeconds,
+              true,
             ),
         );
         if (claims.length === 0) {

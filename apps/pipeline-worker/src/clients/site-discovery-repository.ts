@@ -53,6 +53,7 @@ export interface SiteDiscoveryRepository {
     workerId: string,
     limit: number,
     leaseSeconds: number,
+    pendingOnly?: boolean,
   ): Promise<SiteDiscoveryClaim[]>;
   complete(input: {
     feeds: DiscoveredFeed[];
@@ -207,10 +208,11 @@ export function createSiteDiscoveryRepositoryForRpc(
   rpc: Rpc,
 ): SiteDiscoveryRepository {
   return {
-    async claim(workerId, limit, leaseSeconds) {
+    async claim(workerId, limit, leaseSeconds, pendingOnly = false) {
       const data = await callRpc(rpc, "claim_due_site_discoveries", {
         p_claim_limit: limit,
         p_lease_seconds: leaseSeconds,
+        p_pending_only: pendingOnly,
         p_worker_id: workerId,
       });
       if (!Array.isArray(data) || data.length > limit) {

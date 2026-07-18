@@ -55,8 +55,9 @@ class FakeRepository implements SiteDiscoveryRepository {
     workerId: string,
     limit: number,
     leaseSeconds: number,
+    pendingOnly = false,
   ): Promise<SiteDiscoveryClaim[]> {
-    this.claimCalls(workerId, limit, leaseSeconds);
+    this.claimCalls(workerId, limit, leaseSeconds, pendingOnly);
     return this.claims.splice(0, limit);
   }
 }
@@ -155,6 +156,12 @@ describe("runBackfill", () => {
     });
     expect(maximumActive).toBe(2);
     expect(repository.complete).toHaveBeenCalledTimes(3);
+    expect(repository.claimCalls).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Number),
+      900,
+      true,
+    );
     expect(repository.claims).toHaveLength(1);
   });
 
