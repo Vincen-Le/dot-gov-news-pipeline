@@ -8,6 +8,7 @@ import {
   type PipelineEventStore,
 } from "../clients/supabase";
 import type { WorkerEnv } from "../env";
+import { logLifecycle } from "../observability/lifecycle-log";
 import { handleSiteDiscoveryQueue } from "./site-discovery-queue";
 
 export const PIPELINE_EVENTS_QUEUE_NAME = "dot-gov-news-events-dev";
@@ -43,6 +44,7 @@ export async function processQueueMessage(
   eventStore: PipelineEventStore,
 ): Promise<void> {
   let event: PipelineEvent | undefined;
+  const startedAt = Date.now();
 
   try {
     event = parsePipelineEvent(message.body);
@@ -57,24 +59,30 @@ export async function processQueueMessage(
     await eventStore.upsert(event, artifactKey);
     message.ack();
 
-    console.log(
-      JSON.stringify({
-        event_id: event.id,
-        event_type: event.type,
-        outcome: "persisted",
-      }),
-    );
+    logLifecycle({
+      action: "persist_event",
+      attempt: message.attempts,
+      correlationId: event.id,
+      durationMs: Date.now() - startedAt,
+      entityId: event.id,
+      entityType: "event",
+      outcome: "succeeded",
+      stage: "storage",
+    });
   } catch (error) {
     message.retry({ delaySeconds: retryDelaySeconds(message.attempts) });
 
-    console.error(
-      JSON.stringify({
-        error_name: error instanceof Error ? error.name : "UnknownError",
-        event_id: event?.id ?? message.id,
-        event_type: event?.type ?? "unknown",
-        outcome: "retrying",
-      }),
-    );
+    logLifecycle({
+      action: "persist_event",
+      attempt: message.attempts,
+      correlationId: event?.id ?? message.id,
+      detail: error instanceof Error ? error.name : "UnknownError",
+      durationMs: Date.now() - startedAt,
+      entityId: event?.id ?? message.id,
+      entityType: "event",
+      outcome: "retried",
+      stage: "storage",
+    });
   }
 }
 

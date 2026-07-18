@@ -5,21 +5,22 @@ before changing or operating the pipeline.
 
 ## Find the right source
 
-| Goal                                                           | Read first                                                                                      | Then inspect                                                                                                                        |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Orient to the project, status, and architecture diagram        | [NDS project hub](https://app.notion.com/p/3a02b47c562f80458178c5134d15dab3)                    | [Architecture](../architecture.md) and the current live provider state                                                              |
-| Understand the architecture, current state, and planned phases | [Architecture](../architecture.md)                                                              | [Repository README](../README.md)                                                                                                   |
-| Authenticate to Supabase or Cloudflare                         | [Provider access](infrastructure/access.md)                                                     | The relevant provider CLI output                                                                                                    |
-| Install dependencies or verify the repository                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`package.json`](../package.json), [`mise.toml`](../mise.toml), and CI configuration                                                |
-| Inspect, run, or recover the GSA inventory sync                | [GSA inventory runbook](infrastructure/runbook.md#gsa-government-site-inventory)                | [`apps/inventory-sync`](../apps/inventory-sync) and the inventory migration                                                         |
-| Query government sites or discovery due state                  | [Service-only inventory API](infrastructure/runbook.md#service-only-inventory-api)              | [`20260717000300_create_government_site_inventory.sql`](../supabase/migrations/20260717000300_create_government_site_inventory.sql) |
-| Run or deploy the Worker                                       | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`wrangler.jsonc`](../apps/pipeline-worker/wrangler.jsonc) and Worker source                                                        |
-| Add or change durable database state                           | [Architecture](../architecture.md)                                                              | [`supabase/migrations`](../supabase/migrations) and [`supabase/config.toml`](../supabase/config.toml)                               |
-| Work with the event envelope                                   | [`pipeline-event.ts`](../packages/contracts/src/pipeline-event.ts)                              | Contract and Worker tests                                                                                                           |
-| Start or recover local Chroma                                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`infra/chroma/compose.yaml`](../infra/chroma/compose.yaml)                                                                         |
-| Rotate credentials or investigate failures                     | [Infrastructure runbook](infrastructure/runbook.md)                                             | [Provider access](infrastructure/access.md)                                                                                         |
-| Remove infrastructure                                          | [Teardown procedure](infrastructure/teardown.md)                                                | Live provider inventory before taking action                                                                                        |
-| Understand the original bootstrap decisions                    | [Implementation plan](../.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md) | Current configuration and runbook for implemented state                                                                             |
+| Goal                                                           | Read first                                                                                      | Then inspect                                                                                                                                       |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Orient to the project, status, and architecture diagram        | [NDS project hub](https://app.notion.com/p/3a02b47c562f80458178c5134d15dab3)                    | [Architecture](../architecture.md) and the current live provider state                                                                             |
+| Understand the architecture, current state, and planned phases | [Architecture](../architecture.md)                                                              | [Repository README](../README.md)                                                                                                                  |
+| Authenticate to Supabase or Cloudflare                         | [Provider access](infrastructure/access.md)                                                     | The relevant provider CLI output                                                                                                                   |
+| Install dependencies or verify the repository                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`package.json`](../package.json), [`mise.toml`](../mise.toml), and CI configuration                                                               |
+| Inspect, run, or recover the GSA inventory sync                | [GSA inventory runbook](infrastructure/runbook.md#gsa-government-site-inventory)                | [`apps/inventory-sync`](../apps/inventory-sync) and the inventory migration                                                                        |
+| Query government sites or discovery due state                  | [Service-only inventory API](infrastructure/runbook.md#service-only-inventory-api)              | [`20260717000300_create_government_site_inventory.sql`](../supabase/migrations/20260717000300_create_government_site_inventory.sql)                |
+| Monitor health, inventory, queues, or Worker activity          | [Operator CLI cheatsheet](operations/cli-cheatsheet.md)                                         | [Operator dashboard design](superpowers/specs/2026-07-17-operator-dashboard-nds-design.md) and [`apps/operator-console`](../apps/operator-console) |
+| Run or deploy the Worker                                       | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`wrangler.jsonc`](../apps/pipeline-worker/wrangler.jsonc) and Worker source                                                                       |
+| Add or change durable database state                           | [Architecture](../architecture.md)                                                              | [`supabase/migrations`](../supabase/migrations) and [`supabase/config.toml`](../supabase/config.toml)                                              |
+| Work with the event envelope                                   | [`pipeline-event.ts`](../packages/contracts/src/pipeline-event.ts)                              | Contract and Worker tests                                                                                                                          |
+| Start or recover local Chroma                                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`infra/chroma/compose.yaml`](../infra/chroma/compose.yaml)                                                                                        |
+| Rotate credentials or investigate failures                     | [Infrastructure runbook](infrastructure/runbook.md)                                             | [Provider access](infrastructure/access.md)                                                                                                        |
+| Remove infrastructure                                          | [Teardown procedure](infrastructure/teardown.md)                                                | Live provider inventory before taking action                                                                                                       |
+| Understand the original bootstrap decisions                    | [Implementation plan](../.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md) | Current configuration and runbook for implemented state                                                                                            |
 
 ## Core documents
 
@@ -37,6 +38,13 @@ before changing or operating the pipeline.
   records the completed bootstrap scope and acceptance criteria.
 - [Inventory and feed-discovery plan](../.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md)
   records the detailed inventory decisions and the remaining discovery work.
+- [Operator CLI cheatsheet](operations/cli-cheatsheet.md) is the generated
+  command catalog for health, inventory, queue, event, and Worker-tail queries.
+- [Operator dashboard design](superpowers/specs/2026-07-17-operator-dashboard-nds-design.md)
+  records the private local console's interaction and visual design, with a
+  linked browser preview.
+- [Ranking pipeline design](superpowers/specs/2026-07-17-ranking-pipeline-design.md)
+  records the proposed downstream clustering, ranking, and serving system.
 
 ## Notion project hub
 
@@ -86,6 +94,9 @@ The repository currently provides:
   state populated transactionally by discovery completion.
 - A Thursday `04:17 UTC` GitHub Actions workflow with manual dispatch and a
   reviewed large-decrease override.
+- A separately deployable, token-protected read-only Operator API plus an ad
+  hoc CLI and loopback-only dashboard for health, inventory, queue, event, and
+  sampled Worker lifecycle visibility.
 - Local persistent Chroma development service, shared event contracts, unit
   and database tests, CI verification, and operations guidance.
 

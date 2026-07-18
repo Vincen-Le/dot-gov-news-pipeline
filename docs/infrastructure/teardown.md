@@ -9,6 +9,10 @@ Set `DISCOVERY_ENABLED=false`, remove or disable Cron Triggers in
 consumer queues to drain. Pause `dot-gov-site-discovery-dev` first if publisher
 traffic must stop immediately.
 
+Disable operator reads independently by setting `OPS_API_ENABLED=false` and
+deploying `operator-api`, or delete/rotate `OPS_API_TOKEN`. Stopping the local
+dashboard does not affect pipeline work.
+
 ## 2. Export durable data
 
 Create a Supabase dump and download any R2 artifacts that must be retained. Store exports outside this repository.
@@ -19,6 +23,7 @@ After verifying the exact account and names:
 
 ```sh
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler delete dot-gov-news-pipeline-dev
+mise exec -- pnpm --filter @dot-gov-news/operator-api exec wrangler delete dot-gov-news-operator-api-dev
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler queues delete dot-gov-news-events-dev
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler queues delete dot-gov-news-events-dlq-dev
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker exec wrangler queues delete dot-gov-site-discovery-dev

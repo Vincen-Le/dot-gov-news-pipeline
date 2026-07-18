@@ -7,6 +7,7 @@ import { createSiteDiscoveryRepository } from "../clients/site-discovery-reposit
 import { dispatchDueSites } from "../discovery/dispatch-due-sites";
 import { parseDiscoveryConfig } from "../discovery/discovery-config";
 import type { WorkerEnv } from "../env";
+import { logLifecycle } from "../observability/lifecycle-log";
 
 export const HEARTBEAT_CRON = "0 * * * *";
 export const SITE_DISCOVERY_CRON = "* * * * *";
@@ -74,6 +75,8 @@ export async function handleScheduled(
   controller: ScheduledController,
   env: WorkerEnv,
 ): Promise<void> {
+  const startedAt = Date.now();
+
   if (controller.cron === SITE_DISCOVERY_CRON) {
     const config = parseDiscoveryConfig(env);
     const outcome = await dispatchDueSites(
@@ -88,22 +91,32 @@ export async function handleScheduled(
         ...outcome,
       }),
     );
+    logLifecycle({
+      action: "dispatch_site_discovery",
+      correlationId: `site-discovery:${String(controller.scheduledTime)}`,
+      detail: outcome.outcome,
+      durationMs: Date.now() - startedAt,
+      entityType: "system",
+      outcome: outcome.outcome === "dispatched" ? "succeeded" : "skipped",
+      stage: "discovery",
+    });
     return;
   }
 
   if (controller.cron !== HEARTBEAT_CRON) {
     throw new Error(`Unsupported Cron expression: ${controller.cron}`);
   }
-
   const event = await createScheduledHeartbeatEvent(controller.scheduledTime);
 
   await env.PIPELINE_EVENTS_QUEUE.send(event, { contentType: "json" });
 
-  console.log(
-    JSON.stringify({
-      event_id: event.id,
-      event_type: event.type,
-      outcome: "enqueued",
-    }),
-  );
+  logLifecycle({
+    action: "enqueue_heartbeat",
+    correlationId: event.id,
+    durationMs: Date.now() - startedAt,
+    entityId: event.id,
+    entityType: "event",
+    outcome: "succeeded",
+    stage: "cron",
+  });
 }

@@ -6,6 +6,7 @@
 | ---------------------------- | -------------------------------- |
 | Supabase project             | `qdqmahimrnwhzdjlcont`           |
 | Cloudflare Worker            | `dot-gov-news-pipeline-dev`      |
+| Cloudflare Operator API      | `dot-gov-news-operator-api-dev`  |
 | Cloudflare Queue             | `dot-gov-news-events-dev`        |
 | Cloudflare dead-letter queue | `dot-gov-news-events-dlq-dev`    |
 | Discovery Queue              | `dot-gov-site-discovery-dev`     |
@@ -44,6 +45,8 @@ mise exec -- pnpm lint
 mise exec -- pnpm typecheck
 mise exec -- pnpm test
 mise exec -- pnpm --filter @dot-gov-news/pipeline-worker check:deploy
+mise exec -- pnpm --filter @dot-gov-news/operator-api check:deploy
+mise exec -- pnpm --filter @dot-gov-news/operator-console build
 ```
 
 ## Supabase development
@@ -290,6 +293,61 @@ had not yet been merged into the default branch; additionally,
 `R2_ACCESS_KEY_ID` existed as a GitHub environment variable while the workflow
 reads it as a secret. Correct that scope mismatch before the first controlled
 dispatch.
+
+## Operator CLI and dashboard
+
+The Operator API is a separate read-only Worker. It can be deployed without
+changing the pipeline Worker, Cron, or Queue consumers. Add
+`SUPABASE_SECRET_KEY` to the ignored root `.env`, then use the one-time
+bootstrap:
+
+```sh
+pnpm ops:setup --dry-run
+pnpm ops:setup
+```
+
+The command validates the bundle, checks Cloudflare authentication, deploys with
+`OPS_API_ENABLED=false` while supplying both required Worker secrets from a
+permission-restricted temporary file, records the detected API URL and token
+with an atomic mode-`0600` write, and then deploys the enabled version. It
+performs an authenticated deep health check and restores the disabled deployment
+if enablement or verification fails. Temporary secret directories are removed
+on success, failure, and termination, with stale owned directories swept on the
+next setup. The tracked Wrangler configuration remains disabled as a
+kill-switch-safe default.
+Use `--rotate-token` when the token must be replaced and `--yes` only for an
+already-authorized non-interactive run.
+
+An unauthenticated request, wrong token, mutation method, and unknown route must
+all fail without provider details. Then verify individual queries as needed:
+
+```sh
+pnpm ops health --deep
+pnpm ops queues --json
+pnpm ops inventory summary
+pnpm ops events list --since 30m
+```
+
+Start the local dashboard with:
+
+```sh
+pnpm ops:start
+```
+
+The server binds only to `127.0.0.1`. The browser calls the loopback proxy and
+does not receive `OPS_API_TOKEN` or the Supabase service key. A one-time local
+bootstrap URL establishes an HttpOnly session; strict Host and Origin checks
+reject cross-site and DNS-rebinding requests. The optional live ledger launches
+`wrangler tail --format json` with a lifecycle-log filter and a sampling rate.
+Tail state is transient and sampled; Supabase leases and records remain
+authoritative.
+
+Discovery, feeds, and polling remain `not_enabled` until their durable schemas,
+read models, Worker versions, and Queue bindings are present. Do not interpret
+that state as a zero count.
+
+To disable observation without touching processing, set
+`OPS_API_ENABLED=false`, redeploy `operator-api`, and stop the local dashboard.
 
 ## Local Chroma
 

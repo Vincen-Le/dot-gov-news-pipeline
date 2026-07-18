@@ -1,0 +1,2 @@
+SUPABASE_SECRET_KEY=sb_secret_replace_me
+OPS_API_TOKEN=replace-with-a-random-token-of-at-least-32-characters

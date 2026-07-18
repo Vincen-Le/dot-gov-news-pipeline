@@ -159,6 +159,38 @@ cp .env.example .env
 
 Never add real credentials to `.env.example` or commit `.env`. Worker-local secrets belong in the ignored `apps/pipeline-worker/.dev.vars`, copied from its adjacent example file.
 
+## Operator CLI and dashboard
+
+The operator surface is read-only. Cloudflare continues running the pipeline
+when the local console is closed; the local process only protects credentials,
+proxies bounded reads, and optionally follows sampled Worker logs.
+
+For the one-time setup, add `SUPABASE_SECRET_KEY` to the ignored root `.env`,
+then let the bootstrap validate and deploy the Operator API, generate its token,
+and write the remaining local configuration:
+
+```sh
+pnpm ops:setup --dry-run
+pnpm ops:setup
+```
+
+After that, everyday startup is one command:
+
+```sh
+pnpm ops:start
+```
+
+The individual CLI queries remain available without Mise:
+
+```sh
+pnpm ops health --deep
+pnpm ops queues
+pnpm ops inventory summary
+```
+
+See [the generated CLI cheatsheet](docs/operations/cli-cheatsheet.md) for the
+complete read-only command catalog.
+
 ## Infrastructure documentation
 
 - [Documentation index](docs/index.md)
@@ -166,5 +198,9 @@ Never add real credentials to `.env.example` or commit `.env`. Worker-local secr
 - [Provider access](docs/infrastructure/access.md)
 - [Operations runbook](docs/infrastructure/runbook.md)
 - [Teardown procedure](docs/infrastructure/teardown.md)
+- [Operator CLI cheatsheet](docs/operations/cli-cheatsheet.md)
+- [Operator dashboard design proposal](docs/superpowers/specs/2026-07-17-operator-dashboard-nds-design.md)
+- [Ranking pipeline design proposal](docs/superpowers/specs/2026-07-17-ranking-pipeline-design.md)
+- [Operator observability implementation plan](.claude/plans/operator-cli-dashboard-observability-implementation-plan.md)
 - [Implementation plan](.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)
 - [Inventory and feed-discovery plan](.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md)

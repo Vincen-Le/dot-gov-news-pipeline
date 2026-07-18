@@ -37,15 +37,10 @@ TypeScript is the default implementation language for inventory, discovery, and 
 | Chroma                                   | Local-only bootstrap         | Docker Compose with persistent named volume; not part of hosted ingestion       |
 | GSA inventory sync                       | Implemented and hosted       | 29,569 rows reconciled; 25,367 usable sites; checksum replay verified unchanged |
 | Site feed discovery                      | Implemented, disabled        | Lease RPCs, dedicated Queue/DLQ, bounded Worker, provenance, and canary tooling |
+| Operator observability                   | Implemented                  | Read-only Worker API, CLI, local dashboard, and sampled lifecycle log tail      |
 | Feed polling                             | Architected, not implemented | Add adaptive due-feed scheduler and stateless TypeScript pollers                |
 | Entry normalization/deduplication        | Architected, not implemented | Add durable entry model and idempotent new-entry events                         |
 | Clustering, ranking, API, UI             | Future                       | Keep downstream from collection and serve materialized ranked results           |
-
-Important repository-state caveat: this snapshot includes uncommitted inventory
-work on `codex/gsa-inventory-sync`, based on `origin/main`. The hosted inventory
-migration and manual verification are complete, but the GitHub workflow will
-not become scheduled until this branch is committed and merged into the default
-branch. A new session must inspect `git status` and preserve the working tree.
 
 ## System context and end-state flow
 
@@ -248,11 +243,8 @@ local: pnpm inventory:sync
 
 The off-minute schedule reduces exposure to GitHub Actions' top-of-hour congestion. Scheduled Actions can be delayed or dropped, so an operator query must flag a last successful import older than eight days and `workflow_dispatch` is the recovery path.
 
-The workflow exists only in this branch at the current snapshot. GitHub will
-start evaluating its schedule after it reaches the default branch. Its
-`development` environment must expose the exact variables and secrets listed in
-the runbook; at the recorded verification point, `R2_ACCESS_KEY_ID` still needed
-to be moved from variable scope to the secret scope consumed by the workflow.
+The workflow is present on the default branch. Its `development` environment
+must expose the exact variables and secrets listed in the runbook.
 
 Do not configure this same import in Cloudflare Cron or Supabase Cron. One workflow gets one scheduler.
 
@@ -737,6 +729,22 @@ Track at minimum:
 - Supabase database size and R2 storage/operation usage.
 
 Structured logs should include event/site/feed IDs and outcomes without source payloads, credentials, or full malformed CSV rows.
+
+The operator surface has three deliberately separate layers:
+
+1. `pipeline-worker` emits versioned, bounded lifecycle objects and continues to
+   own Cron and Queue processing.
+2. `operator-api` is a separately deployable, token-protected, read-only Worker.
+   It reads bounded Supabase models, Queue metrics, R2 metadata, and the pipeline
+   Worker's health endpoint through a Service Binding. It has no mutation route.
+3. `operator-console` is a localhost-only Node process containing the CLI,
+   browser credential boundary, React dashboard, query recipes, and optional
+   Wrangler tail adapter. Closing it does not stop hosted processing.
+
+Durable Supabase state answers what is due, leased, or complete. Queue metrics
+describe transient provider pressure. Sampled real-time logs explain recent
+activity but never override durable health or lease labels. Unimplemented stages
+return `not_enabled` with a prerequisite rather than a fabricated zero.
 
 ## Capacity and provider constraints
 
