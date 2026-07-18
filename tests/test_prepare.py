@@ -30,6 +30,7 @@ class PrepFakeStore:
 class PrepModels:
     def __init__(self, fail_enrich_for=()):
         self.embed_batches = []
+        self.embed_texts = []
         self.fail_enrich_for = fail_enrich_for
 
     def enrich(self, title, summary):
@@ -39,6 +40,7 @@ class PrepModels:
 
     def embed(self, texts):
         self.embed_batches.append(len(texts))
+        self.embed_texts.extend(texts)
         return [np.ones(4, dtype=np.float32) for _ in texts]
 
 
@@ -95,3 +97,22 @@ def test_prepare_batches_embeddings():
     models = PrepModels()
     prepare(store, models, CFG, embed_batch=4)
     assert models.embed_batches == [4, 4, 2]
+
+
+class StubStyleModels(PrepModels):
+    """Mimics StubModels.enrich: title + '. ' + summary, no truncation."""
+
+    def enrich(self, title, summary):
+        return f"{title}. {summary or ''}"
+
+
+def test_prepare_clamps_enriched_text_over_db_bound_before_embed_and_store():
+    long_summary = "x" * 16380
+    store = PrepFakeStore([row(1, summary=long_summary)])
+    models = StubStyleModels()
+    report = prepare(store, models, CFG)
+    assert report == {"prepared": 1, "failed": 0}
+    feat = store.features["n1"]
+    assert len(feat["enriched_text"]) <= 16384
+    assert len(models.embed_texts[0]) <= 16384
+    assert models.embed_texts[0] == feat["enriched_text"]

@@ -19,9 +19,12 @@ from pipeline.storylines import StorylineEngine
 from pipeline.vectors import pack_fp16, unpack_fp16
 from pipeline.window import ReplayStore, ReplayWindow
 
+# DB constraint news_entries_enriched_text_bounded caps enriched_text at this length.
+_MAX_ENRICHED_LEN = 16384
+
 
 def _fallback_text(row: dict) -> str:
-    return f"{row['title']}. {row.get('summary') or ''}".strip()
+    return f"{row['title']}. {row.get('summary') or ''}".strip()[:_MAX_ENRICHED_LEN]
 
 
 def prepare(store, models, cfg: Config, limit: int | None = None,
@@ -35,7 +38,7 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
         if not cfg.enrichment_enabled or row.get("enriched_text"):
             return None
         try:
-            return models.enrich(row["title"], row.get("summary"))
+            return models.enrich(row["title"], row.get("summary"))[:_MAX_ENRICHED_LEN]
         except Exception:
             return None  # fall back to raw text; never block the batch
 
