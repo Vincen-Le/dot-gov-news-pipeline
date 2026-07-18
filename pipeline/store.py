@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from psycopg.types.numeric import Float4
+
 from pipeline.db import Db
 from pipeline.vectors import unpack_fp16
 
@@ -39,20 +41,25 @@ class Store:
 
     def create_episode(self, storyline_id: str | None, method: str, similarity: float | None,
                        reason: str | None, model: str | None, t: datetime) -> tuple[str, str]:
-        row = self.db.rpc_row("create_episode_with_storyline", p_storyline_id=storyline_id,
-                              p_attach_method=method, p_attach_similarity=similarity,
-                              p_attach_reason=reason, p_adjudicator_model=model, p_event_time=t)
+        row = self.db.rpc_row(
+            "create_episode_with_storyline", p_storyline_id=storyline_id,
+            p_attach_method=method,
+            p_attach_similarity=Float4(similarity) if similarity is not None else None,
+            p_attach_reason=reason, p_adjudicator_model=model, p_event_time=t)
         return str(row["episode_id"]), str(row["storyline_id"])
 
     def attach_entry(self, entry_id: str, episode_id: str, agency: str, is_syndicated: bool,
                      method: str, similarity: float | None, matched_entry_id: str | None,
                      threshold: float | None, embedding_model: str | None,
                      episode_centroid: bytes | None, published_at: datetime) -> None:
-        self.db.rpc("attach_entry_to_episode", p_entry_id=entry_id, p_episode_id=episode_id,
-                    p_agency=agency, p_is_syndicated=is_syndicated, p_attach_method=method,
-                    p_similarity=similarity, p_matched_entry_id=matched_entry_id,
-                    p_threshold_used=threshold, p_embedding_model=embedding_model,
-                    p_episode_centroid=episode_centroid, p_published_at=published_at)
+        self.db.rpc(
+            "attach_entry_to_episode", p_entry_id=entry_id, p_episode_id=episode_id,
+            p_agency=agency, p_is_syndicated=is_syndicated, p_attach_method=method,
+            p_similarity=Float4(similarity) if similarity is not None else None,
+            p_matched_entry_id=matched_entry_id,
+            p_threshold_used=Float4(threshold) if threshold is not None else None,
+            p_embedding_model=embedding_model,
+            p_episode_centroid=episode_centroid, p_published_at=published_at)
 
     def close_episode(self, episode_id: str) -> bool:
         return bool(self.db.rpc("close_episode", p_episode_id=episode_id))
