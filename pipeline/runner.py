@@ -16,6 +16,7 @@ from pipeline.config import Config
 from pipeline.episodes import EpisodeEngine
 from pipeline.extraction import EXTRACTOR_VERSION, extract
 from pipeline.storylines import StorylineEngine
+from pipeline.topics import ThemeEngine
 from pipeline.vectors import pack_fp16, unpack_fp16
 from pipeline.window import ReplayStore, ReplayWindow
 
@@ -86,6 +87,7 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     storyline_engine = StorylineEngine(replay, models, cfg)
     card_engine = CardEngine(replay, models, cfg)
     episode_engine = EpisodeEngine(replay, models, cfg, storyline_engine.resolve)
+    theme_engine = ThemeEngine(replay, models, cfg) if cfg.topics_enabled else None
 
     rows = store.prepared_unclustered(limit=limit, until=until)
     processed = closed_count = 0
@@ -94,6 +96,8 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
         window.advance(t)
         for closed in episode_engine.close_due(t):
             card_engine.on_episode_closed(closed)
+            if theme_engine is not None:
+                theme_engine.sync(str(closed["storyline_id"]))
             closed_count += 1
         vec = unpack_fp16(row["embedding"])
         decision = episode_engine.process_entry(row, vec)
@@ -104,6 +108,8 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     for episode in list(episode_engine._open_episodes()):
         if replay.close_episode(str(episode["id"])):
             card_engine.on_episode_closed(episode)
+            if theme_engine is not None:
+                theme_engine.sync(str(episode["storyline_id"]))
             closed_count += 1
     episode_engine._open = []
 

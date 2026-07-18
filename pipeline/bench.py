@@ -39,6 +39,8 @@ def reset_clusters(db) -> None:
     db.conn.execute("delete from public.episodes")
     db.conn.execute("delete from public.storylines")
     db.conn.execute("delete from public.entity_stats")
+    db.conn.execute("delete from public.topic_themes")
+    db.conn.execute("delete from public.topic_categories where origin = 'llm'")
 
 
 def reset_features(db) -> None:

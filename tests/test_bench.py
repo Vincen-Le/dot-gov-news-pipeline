@@ -114,3 +114,15 @@ def test_sync_copies_pages_and_preserves_ids():
     entry_insert = next(p for s, p in db.conn.executed
                         if s.startswith("insert into public.news_entries"))
     assert entry_insert["id"] == "e-0"     # hosted id preserved
+
+
+def test_reset_clusters_wipes_topics_but_keeps_seed_categories():
+    db = FakeDb()
+    reset_clusters(db)
+    statements = [s for s, _ in db.conn.executed]
+    executed = " ; ".join(statements)
+    assert "delete from public.topic_themes" in executed
+    assert "delete from public.topic_categories where origin = 'llm'" in executed
+    # FK: theme deletes must run after the storylines delete
+    assert statements.index("delete from public.topic_themes") > \
+        statements.index("delete from public.storylines")

@@ -40,6 +40,36 @@ def summarize(db) -> dict:
         where s.merged_into is null
         order by s.episode_count desc, s.entry_count desc limit 10
     """)
+    topics_totals = db.one("""
+        select
+          (select count(*) from public.topic_themes where merged_into is null) as themes,
+          (select count(*) from public.topic_categories where origin = 'seed') as categories_seed,
+          (select count(*) from public.topic_categories where origin = 'llm') as categories_llm
+    """)
+    singleton_theme = db.one("""
+        select round(avg((storyline_count = 1)::int)::numeric, 3) as rate
+        from public.topic_themes where merged_into is null
+    """)
+    top_themes = db.all("""
+        select t.display_name as theme, coalesce(c.display_name, '(uncategorized)') as category,
+               t.storyline_count as storylines
+        from public.topic_themes t
+        left join public.topic_categories c on c.id = t.category_id
+        where t.merged_into is null
+        order by t.storyline_count desc, t.display_name limit 10
+    """)
+    topics = {
+        "themes": topics_totals["themes"],
+        "categories_seed": topics_totals["categories_seed"],
+        "categories_llm": topics_totals["categories_llm"],
+        "theme_attach_mix": mix(
+            "select theme_attach_method as attach_method, count(*) as n "
+            "from public.storylines where theme_attach_method is not null "
+            "group by 1 order by n desc"),
+        "top_themes": top_themes,
+        "singleton_theme_rate": (
+            float(singleton_theme["rate"]) if singleton_theme["rate"] is not None else None),
+    }
     return {
         **totals,
         "entry_attach_mix": mix(
@@ -51,6 +81,7 @@ def summarize(db) -> dict:
         "singleton_episode_rate": float(singleton["rate"]) if singleton["rate"] is not None else None,
         "multi_episode_storylines": multi["n"],
         "top_chains": chains,
+        "topics": topics,
     }
 
 
@@ -78,6 +109,16 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
         *[f"- {m}: {n}" for m, n in summary["episode_attach_mix"].items()],
         "", "## Top chains", "",
         *[f"- [{c['episodes']} episodes] {c['headline']}" for c in summary["top_chains"]],
+        "", "## Topics", "",
+        f"- themes: {summary['topics']['themes']}  "
+        f"categories: {summary['topics']['categories_seed']} seed "
+        f"+ {summary['topics']['categories_llm']} llm",
+        f"- singleton-theme rate: {summary['topics']['singleton_theme_rate']}",
+        "", "## Theme attach mix (storyline -> theme)", "",
+        *[f"- {m}: {n}" for m, n in summary["topics"]["theme_attach_mix"].items()],
+        "", "## Top themes", "",
+        *[f"- [{t['storylines']} storylines] {t['theme']} ({t['category']})"
+          for t in summary["topics"]["top_themes"]],
         "", "## Config", "",
         "```json", json.dumps(redacted, indent=2, sort_keys=True), "```", "",
     ]

@@ -4,6 +4,7 @@ import numpy as np
 
 from pipeline.config import Config
 from pipeline.runner import cluster
+from pipeline.stub import StubModels
 from pipeline.vectors import pack_fp16
 from tests.fakes import FakeStore
 
@@ -103,3 +104,42 @@ def test_cluster_until_and_limit():
     add(store, 2, 100, 1, entities=("other",))
     report = cluster(store, NoModels(), CFG, until=T0 + timedelta(hours=1))
     assert report["processed"] == 1
+
+
+class TopicClusterFakeStore(ClusterFakeStore):
+    """Mirror insert_event_card's storyline refresh: overview cards set the
+    storyline centroid/headline the ThemeEngine reads."""
+
+    def insert_card(self, **kw):
+        card_id = super().insert_card(**kw)
+        if kw["kind"] == "overview":
+            story = self.storylines[kw["storyline_id"]]
+            story["centroid"] = kw["overview_embedding"]
+            story["headline"] = kw["headline"]
+            story["summary"] = kw["summary"]
+        return card_id
+
+
+def make_harness(topics_enabled):
+    cfg = Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                 topics_enabled=topics_enabled)
+    return TopicClusterFakeStore(), StubModels(), cfg
+
+
+def test_cluster_with_topics_enabled_assigns_every_storyline_a_theme():
+    store, models, cfg = make_harness(topics_enabled=True)
+    add(store, 1, 0, 0)
+    add(store, 2, 30, 3, entities=("oxprenol",))
+    cluster(store, models, cfg)
+    themed = [s for s in store.storylines.values() if s.get("theme_id")]
+    assert len(themed) == len(store.storylines)
+    assert len(store.themes) >= 1
+
+
+def test_cluster_with_topics_disabled_never_touches_themes():
+    store, models, cfg = make_harness(topics_enabled=False)
+    add(store, 1, 0, 0)
+    add(store, 2, 30, 3, entities=("oxprenol",))
+    cluster(store, models, cfg)
+    assert store.themes == {}
+    assert all(s.get("theme_id") is None for s in store.storylines.values())
