@@ -199,6 +199,8 @@ complete read-only command catalog.
 - [Operations runbook](docs/infrastructure/runbook.md)
 - [Teardown procedure](docs/infrastructure/teardown.md)
 - [Operator CLI cheatsheet](docs/operations/cli-cheatsheet.md)
+- [Operator dashboard design proposal](docs/superpowers/specs/2026-07-17-operator-dashboard-nds-design.md)
+- [Ranking pipeline design proposal](docs/superpowers/specs/2026-07-17-ranking-pipeline-design.md)
 - [Operator observability implementation plan](.claude/plans/operator-cli-dashboard-observability-implementation-plan.md)
 - [Implementation plan](.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)
 - [Inventory and feed-discovery plan](.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md)
