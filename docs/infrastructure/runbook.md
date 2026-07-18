@@ -120,6 +120,35 @@ crawls per base domain. Recurring Worker claims continue to default to one
 active crawl per base domain. Full operating and recovery guidance is in
 `docs/operations/site-feed-discovery.md`.
 
+### Hosted rollout record (2026-07-18)
+
+Hosted migrations match local history through
+`20260718000200_add_backfill_domain_lanes.sql`. The 1-, 25-, and 250-site gates
+passed before the direct seed. All 25,367 eligible inventory rows received
+policy-version-1 discovery between `2026-07-17T23:03:05Z` and
+`2026-07-18T04:23:54Z`, an observed processing window of 5 hours, 20 minutes,
+and 49 seconds. The final 698-site, single-parent-domain tail settled in 339.7
+seconds at 60 global lanes and 10 lanes per base domain, with no stale writes or
+system failures.
+
+Final hosted state at handoff:
+
+- 1,661 `succeeded`, 9,603 `no_feed`, 14,103 `backoff`, 4,202 `disabled`, and
+  zero `pending` or `leased` rows across all 29,569 inventory rows.
+- 1,372 active canonical feeds (1,300 RSS and 72 Atom), 3,446 active
+  site-to-feed relationships, and 200 feeds shared by more than one site.
+- 1,372 pending `feed_fetch_state` rows; feed polling remains out of scope and
+  no polling consumer is enabled.
+- Zero expired leases, zero future-fence residue, and zero discovery Queue or
+  DLQ backlog. Restoring the temporary schedule fence made 12,771 refresh or
+  backoff rows legitimately due; a pending-only proof run claimed zero of them.
+
+Worker deployment `d175f696-0f40-493c-8781-9c188f35d175` has valid bindings and
+contact configuration with `DISCOVERY_ENABLED=false`. Both Cron triggers and
+the dedicated Queue consumer remain provisioned for a deliberate future
+trigger. Do not enable recurring discovery until its steady-state rate and
+Workers tier are selected; recurring claims retain one base-domain lane.
+
 Validate without deploying:
 
 ```sh
