@@ -37,3 +37,5 @@ chroma-data/
 # Test and coverage output
 coverage/
 *-backup.sql
+
+.cache/

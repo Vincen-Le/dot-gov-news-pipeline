@@ -40,7 +40,8 @@ def _b(key: str, default: bool) -> bool:
 def load_config() -> Config:
     load_dotenv()
     return Config(
-        database_url=os.environ["DATABASE_URL"],
+        database_url=os.environ.get(
+            "DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres"),
         cf_account_id=os.environ["CLOUDFLARE_ACCOUNT_ID"],
         cf_api_token=os.environ["CLOUDFLARE_API_TOKEN"],
         embedding_model=os.environ.get("EMBEDDING_MODEL", Config.embedding_model),
