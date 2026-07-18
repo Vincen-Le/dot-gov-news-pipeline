@@ -91,6 +91,17 @@ describe("article extraction", () => {
     expect(sec.publishedAt?.slice(0, 10)).toBe("2026-03-25");
   });
 
+  it("reads Dublin Core creation dates from National Weather Service pages", () => {
+    const metadata = extractArticleMetadata(
+      `<html><head>
+        <meta name="DC.date.created" scheme="ISO8601" content="March 31st 2026 11:30 AM" />
+      </head><body><h1>Service update</h1></body></html>`,
+      "https://www.weather.gov/news/service-update",
+    );
+
+    expect(metadata.publishedAt?.slice(0, 10)).toBe("2026-03-31");
+  });
+
   it("reads IRS JSON dates and compact BLS archive dates", () => {
     const irs = extractArticleMetadata(
       `<h1>Tax update</h1><script type="application/ld+json">{

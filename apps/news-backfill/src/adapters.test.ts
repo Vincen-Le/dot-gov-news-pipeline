@@ -26,6 +26,80 @@ function profile(overrides: Partial<SourceProfile>): SourceProfile {
 }
 
 describe("source adapters", () => {
+  it("continues WordPress pagination when a short page advertises more pages", async () => {
+    const requested: string[] = [];
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => {
+          requested.push(url);
+          const page = Number(new URL(url).searchParams.get("page"));
+          return {
+            body: JSON.stringify([
+              {
+                id: page,
+                link: `https://agency.gov/news/page-${page}`,
+                date_gmt:
+                  page === 1 ? "2026-07-01T12:00:00" : "2025-08-01T12:00:00",
+                title: { rendered: `Page ${page}` },
+                excerpt: { rendered: "Summary" },
+              },
+            ]),
+            contentType: "application/json",
+            finalUrl: url,
+            status: 200,
+            totalPages: 2,
+          };
+        },
+        profile: profile({
+          adapter: "wordpress",
+          maxPages: 10,
+          pageSize: 100,
+          sourceType: "publisher_api",
+          sourceUrl: "https://agency.gov/wp-json/wp/v2/posts",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(requested).toHaveLength(2);
+    expect(batches).toHaveLength(2);
+    expect(batches[0]?.stopReason).toBeUndefined();
+    expect(batches[1]?.stopReason).toBe("source_exhausted");
+  });
+
+  it("extracts dates from archive listing link text before hydration", async () => {
+    const body = `<p class="archive"><a href="https://agency.gov/news/update">
+      <strong>March 31st, 2026 - Service update</strong>
+    </a></p>`;
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => ({
+          body,
+          contentType: "text/html",
+          finalUrl: url,
+          status: 200,
+        }),
+        profile: profile({
+          adapter: "html_archive",
+          includeUrlPattern: "/news/",
+          maxPages: 1,
+          sourceType: "html_archive",
+          urlTemplate: "https://agency.gov/news/?page={page}",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(batches[0]?.candidates[0]).toMatchObject({
+      publishedAt: "2026-03-31T00:00:00.000Z",
+      title: "Service update",
+    });
+  });
+
   it("uses sitemap last-modified dates to avoid hydrating known-old pages", async () => {
     const body = `<urlset>
       <url><loc>https://agency.gov/news/old</loc><lastmod>2024-01-01</lastmod></url>
@@ -105,12 +179,7 @@ describe("source adapters", () => {
     </article>`;
     const blogCdx = JSON.stringify([
       ["timestamp", "original", "statuscode", "digest"],
-      [
-        "20260103040506",
-        "https://blog.ssa.gov/feed/",
-        "200",
-        "blog-digest",
-      ],
+      ["20260103040506", "https://blog.ssa.gov/feed/", "200", "blog-digest"],
     ]);
     const blogFeed = `<rss><channel><item>
       <guid>blog-1</guid>
@@ -159,6 +228,51 @@ describe("source adapters", () => {
         newsSubtype: "agency_news",
         title: "Service update",
         url: "https://blog.ssa.gov/service-update/",
+      },
+    ]);
+  });
+
+  it("prefers SSA's individually addressable press-release archive", async () => {
+    const emptyCdx = JSON.stringify([
+      ["timestamp", "original", "statuscode", "digest"],
+    ]);
+    const individualCdx = JSON.stringify([
+      ["timestamp", "original", "statuscode", "digest"],
+      [
+        "20260302030405",
+        "https://www.ssa.gov/news/en/press/releases/2026-03-01.html",
+        "200",
+        "release-digest",
+      ],
+    ]);
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => ({
+          body: url.includes("news/en/press") ? individualCdx : emptyCdx,
+          contentType: "application/json",
+          finalUrl: url,
+          status: 200,
+        }),
+        profile: profile({
+          adapter: "publisher_api",
+          adapterVariant: "ssa_archive",
+          allowedHosts: ["web.archive.org", "ssa.gov"],
+          sourceType: "publisher_api",
+          sourceUrl:
+            "https://web.archive.org/cdx/search/cdx?url=www.ssa.gov/news/press/releases/*",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(batches[0]?.candidates).toMatchObject([
+      {
+        fetchUrl:
+          "https://web.archive.org/web/20260302030405id_/https://www.ssa.gov/news/en/press/releases/2026-03-01.html",
+        publishedAt: "2026-03-01T00:00:00.000Z",
+        url: "https://www.ssa.gov/news/en/press/releases/2026-03-01.html",
       },
     ]);
   });

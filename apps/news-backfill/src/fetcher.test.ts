@@ -5,6 +5,31 @@ import { createFetcher } from "./fetcher";
 afterEach(() => vi.unstubAllGlobals());
 
 describe("publisher fetcher", () => {
+  it("exposes WordPress pagination metadata", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        const response = new Response("[]", {
+          headers: { "x-wp-totalpages": "13" },
+          status: 200,
+        });
+        Object.defineProperty(response, "url", {
+          value: "https://agency.gov/wp-json/wp/v2/posts",
+        });
+        return response;
+      }),
+    );
+    const fetchDocument = createFetcher({
+      minimumHostIntervalMs: 0,
+      timeoutMs: 1_000,
+      userAgent: "test",
+    });
+
+    await expect(
+      fetchDocument("https://agency.gov/wp-json/wp/v2/posts", ["agency.gov"]),
+    ).resolves.toMatchObject({ totalPages: 13 });
+  });
+
   it("rejects successful-looking anti-bot challenge pages", async () => {
     vi.stubGlobal(
       "fetch",
@@ -82,9 +107,7 @@ describe("publisher fetcher", () => {
     });
 
     await expect(
-      fetchDocument("https://web.archive.org/web/example", [
-        "web.archive.org",
-      ]),
+      fetchDocument("https://web.archive.org/web/example", ["web.archive.org"]),
     ).resolves.toMatchObject({ body: "archived article", status: 200 });
     expect(mockedFetch).toHaveBeenCalledTimes(2);
   });

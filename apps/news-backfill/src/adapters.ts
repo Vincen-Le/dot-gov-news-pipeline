@@ -35,6 +35,42 @@ function oldestIso(inputs: Array<string | null>): string | null {
   );
 }
 
+function listingMetadata(input: string): {
+  publishedAt: string | null;
+  title: string | null;
+} {
+  const text = textFromHtml(input);
+  if (text === null) return { publishedAt: null, title: null };
+  const match =
+    /^(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?[,]?\s+(20\d{2})\s*[-–—:]\s*(.+)$/i.exec(
+      text,
+    );
+  if (match === null) return { publishedAt: null, title: text };
+  const month = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+  ].indexOf(match[1]?.toLowerCase() ?? "");
+  return {
+    publishedAt:
+      month < 0
+        ? null
+        : isoDate(
+            `${match[3]}-${String(month + 1).padStart(2, "0")}-${match[2]?.padStart(2, "0")}`,
+          ),
+    title: textFromHtml(match[4]),
+  };
+}
+
 function feedCandidates(document: FetchedDocument): Candidate[] {
   const rawItems = blocks(document.body, "item");
   if (rawItems.length === 0) rawItems.push(...blocks(document.body, "entry"));
@@ -93,9 +129,7 @@ async function* syndicationBatches(
   const pageStart = profile.pageStart ?? (isPagedUsgsFeed ? 0 : 1);
   const firstPage = Math.max(
     pageStart,
-    typeof cursor.page === "number"
-      ? cursor.page + 1
-      : pageStart,
+    typeof cursor.page === "number" ? cursor.page + 1 : pageStart,
   );
   const maxPages = isPagedUsgsFeed ? 40 : profile.maxPages;
   for (let page = firstPage; page < firstPage + maxPages; page += 1) {
@@ -177,7 +211,14 @@ async function* wordpressBatches(
     });
     const oldest = oldestIso(candidates.map(({ publishedAt }) => publishedAt));
     const reachedBoundary = oldest !== null && oldest < windowStart;
-    const sourceExhausted = posts.length < pageSize;
+    // Some WordPress installations advertise a complete page while returning
+    // fewer rows than requested (NASA does this for large post bodies). Prefer
+    // the authoritative pagination header so a short response cannot silently
+    // truncate the historical window.
+    const sourceExhausted =
+      document.totalPages !== undefined
+        ? page >= document.totalPages
+        : posts.length < pageSize;
     yield {
       candidates,
       coverageReachedAt: reachedBoundary
@@ -218,14 +259,15 @@ async function* htmlArchiveBatches(
     for (const link of htmlLinks(document.body, document.finalUrl)) {
       if (!includeUrl(profile, link.url) || seen.has(link.url)) continue;
       seen.add(link.url);
+      const listing = listingMetadata(link.text);
       candidates.push({
         externalItemId: link.url,
-        publishedAt: null,
+        publishedAt: listing.publishedAt,
         rawBody: document.body,
         rawContentType: document.contentType,
         sourceUrl: document.finalUrl,
         summary: null,
-        title: textFromHtml(link.text),
+        title: listing.title,
         url: link.url,
       });
     }
@@ -338,9 +380,7 @@ async function* sitemapBatches(
   cursor: Record<string, unknown>,
 ): AsyncGenerator<CandidateBatch> {
   const processedCursor =
-    typeof cursor.processedSitemaps === "number"
-      ? cursor.processedSitemaps
-      : 0;
+    typeof cursor.processedSitemaps === "number" ? cursor.processedSitemaps : 0;
   const savedQueue = Array.isArray(cursor.remainingSitemaps)
     ? cursor.remainingSitemaps.filter(
         (url): url is string => typeof url === "string",
@@ -673,21 +713,15 @@ function dateHintFromUrl(input: string): string | null {
   try {
     const path = new URL(input).pathname;
     const pathDate =
-      /\/(20\d{2})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(
-        path,
-      );
+      /\/(20\d{2})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(path);
     if (pathDate !== null)
       return isoDate(`${pathDate[1]}-${pathDate[2]}-${pathDate[3]}`);
     const segmentDate =
-      /\/(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(
-        path,
-      );
+      /\/(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:[./]|$)/.exec(path);
     if (segmentDate !== null)
       return isoDate(`${segmentDate[1]}-${segmentDate[2]}-${segmentDate[3]}`);
     const compactDate =
-      /_(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(20\d{2})\.[a-z0-9]+$/i.exec(
-        path,
-      );
+      /_(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(20\d{2})\.[a-z0-9]+$/i.exec(path);
     if (compactDate !== null)
       return isoDate(`${compactDate[3]}-${compactDate[1]}-${compactDate[2]}`);
   } catch {
@@ -698,7 +732,9 @@ function dateHintFromUrl(input: string): string | null {
 
 function yearHintFromUrl(input: string): string | null {
   try {
-    return /(?:\/|_)(20\d{2})(?:[-_/]|$)/.exec(new URL(input).pathname)?.[1] ?? null;
+    return (
+      /(?:\/|_)(20\d{2})(?:[-_/]|$)/.exec(new URL(input).pathname)?.[1] ?? null
+    );
   } catch {
     return null;
   }
@@ -859,6 +895,58 @@ async function* ssaArchiveBatches(
   windowStart: string,
   windowEnd: string,
 ): AsyncGenerator<CandidateBatch> {
+  const individualProfile: SourceProfile = {
+    ...profile,
+    sourceUrl:
+      "https://web.archive.org/cdx/search/cdx?url=www.ssa.gov/news/en/press/releases/*",
+  };
+  const individualCdx = await fetchDocument(
+    cdxUrl(
+      individualProfile,
+      windowStart,
+      windowEnd,
+      "urlkey",
+      "text/html",
+      true,
+    ),
+    profile.allowedHosts,
+  );
+  const candidates: Candidate[] = [];
+  const individualRows = new Map<string, WaybackRow>();
+  for (const row of waybackRows(individualCdx.body)) {
+    const original = originalUrl(row.original);
+    const publishedAt = original === null ? null : dateHintFromUrl(original);
+    if (
+      original !== null &&
+      /\/news\/en\/press\/releases\/20\d{2}-\d{2}-\d{2}(?:-[a-z])?\.html$/i.test(
+        new URL(original).pathname,
+      ) &&
+      publishedAt !== null &&
+      publishedAt >= windowStart &&
+      publishedAt < windowEnd
+    ) {
+      const previous = individualRows.get(original);
+      if (previous === undefined || row.timestamp > previous.timestamp)
+        individualRows.set(original, row);
+    }
+  }
+  for (const [original, row] of individualRows) {
+    candidates.push({
+      externalItemId: row.digest ?? `${row.timestamp}:${original}`,
+      fetchUrl: archivedUrl(row, original),
+      publishedAt: dateHintFromUrl(original),
+      rawBody: individualCdx.body,
+      rawContentType: individualCdx.contentType,
+      sourceUrl: individualCdx.finalUrl,
+      summary: null,
+      title: null,
+      url: original,
+    });
+  }
+
+  let evidenceBody = individualCdx.body;
+  let evidenceContentType = individualCdx.contentType;
+  let evidenceUrl = individualCdx.finalUrl;
   const cdx = await fetchDocument(
     cdxUrl(profile, windowStart, windowEnd, "digest"),
     profile.allowedHosts,
@@ -874,43 +962,45 @@ async function* ssaArchiveBatches(
       match[1] >= firstYear &&
       match[1] <= lastYear
     ) {
-      latestByYear.set(match[1], row);
+      const previous = latestByYear.get(match[1]);
+      if (previous === undefined || row.timestamp > previous.timestamp)
+        latestByYear.set(match[1], row);
     }
   }
-  const candidates: Candidate[] = [];
-  let evidenceBody = cdx.body;
-  let evidenceUrl = cdx.finalUrl;
-  for (const [year, row] of latestByYear) {
-    const page = await fetchDocument(archivedUrl(row), profile.allowedHosts);
-    evidenceBody = page.body;
-    evidenceUrl = page.finalUrl;
-    for (const match of page.body.matchAll(
-      /<article\b([^>]*\bid=["'][^"']+["'][^>]*)>([\s\S]*?)<\/article>/gi,
-    )) {
-      const id = attributeValue(match[1] ?? "", "id");
-      const body = match[2] ?? "";
-      if (id === null || !/^20\d{2}-\d{2}-\d{2}(?:-[a-z])?$/.test(id)) continue;
-      const publishedAt = isoDate(id.slice(0, 10));
-      const title = tagText(body, ["h3", "h2"]);
-      if (publishedAt === null || title === null) continue;
-      const url = `${row.original.split("?")[0]}#${id}`;
-      candidates.push({
-        externalItemId: `${year}:${id}`,
-        publishedAt,
-        rawBody: page.body,
-        rawContentType: page.contentType,
-        sourceUrl: page.finalUrl,
-        summary: stripMarkup(body).slice(0, 16_384),
-        title,
-        url,
-      });
+  if (candidates.length === 0) {
+    for (const [year, row] of latestByYear) {
+      const page = await fetchDocument(archivedUrl(row), profile.allowedHosts);
+      evidenceBody = page.body;
+      evidenceContentType = page.contentType;
+      evidenceUrl = page.finalUrl;
+      for (const match of page.body.matchAll(
+        /<article\b([^>]*\bid=["'][^"']+["'][^>]*)>([\s\S]*?)<\/article>/gi,
+      )) {
+        const id = attributeValue(match[1] ?? "", "id");
+        const body = match[2] ?? "";
+        if (id === null || !/^20\d{2}-\d{2}-\d{2}(?:-[a-z])?$/.test(id))
+          continue;
+        const publishedAt = isoDate(id.slice(0, 10));
+        const title = tagText(body, ["h3", "h2"]);
+        if (publishedAt === null || title === null) continue;
+        const url = `${row.original.split("?")[0]}#${id}`;
+        candidates.push({
+          externalItemId: `${year}:${id}`,
+          publishedAt,
+          rawBody: page.body,
+          rawContentType: page.contentType,
+          sourceUrl: page.finalUrl,
+          summary: stripMarkup(body).slice(0, 16_384),
+          title,
+          url,
+        });
+      }
     }
   }
 
   const blogProfile: SourceProfile = {
     ...profile,
-    sourceUrl:
-      "https://web.archive.org/cdx/search/cdx?url=blog.ssa.gov/feed/",
+    sourceUrl: "https://web.archive.org/cdx/search/cdx?url=blog.ssa.gov/feed/",
   };
   const blogCdx = await fetchDocument(
     cdxUrl(blogProfile, windowStart, windowEnd, "timestamp:6", null),
@@ -945,9 +1035,10 @@ async function* ssaArchiveBatches(
     cursor: {
       archivedYears: [...latestByYear.keys()],
       blogSnapshots: waybackRows(blogCdx.body).length,
+      individualReleases: individualRows.size,
     },
     evidenceBody,
-    evidenceContentType: "text/html",
+    evidenceContentType,
     evidenceUrl,
     stopReason: "source_exhausted",
   };

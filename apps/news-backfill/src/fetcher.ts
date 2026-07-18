@@ -6,6 +6,7 @@ export interface FetchedDocument {
   contentType: string;
   finalUrl: string;
   status: number;
+  totalPages?: number;
 }
 
 export interface FetcherOptions {
@@ -83,10 +84,7 @@ function fetchViaHttps(
       }
 
       const declaredLength = Number(response.headers["content-length"]);
-      if (
-        Number.isFinite(declaredLength) &&
-        declaredLength > MAX_BODY_BYTES
-      ) {
+      if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
         response.destroy();
         reject(new Error(`publisher body exceeds ${MAX_BODY_BYTES} bytes`));
         return;
@@ -123,7 +121,9 @@ function fetchViaHttps(
       });
     });
     request.on("timeout", () => {
-      request.destroy(new Error(`publisher request timed out after ${timeoutMs}ms`));
+      request.destroy(
+        new Error(`publisher request timed out after ${timeoutMs}ms`),
+      );
     });
     request.on("error", reject);
   });
@@ -186,6 +186,10 @@ export function createFetcher(options: FetcherOptions) {
             finalUrl: response.url,
             retryAfter: Number(response.headers.get("retry-after")),
             status: response.status,
+            totalPages: (() => {
+              const value = Number(response.headers.get("x-wp-totalpages"));
+              return Number.isInteger(value) && value >= 0 ? value : undefined;
+            })(),
           };
         }
         const finalUrl = new URL(document.finalUrl);
@@ -222,6 +226,7 @@ export function createFetcher(options: FetcherOptions) {
           contentType: document.contentType,
           finalUrl: finalUrl.href,
           status: document.status,
+          totalPages: document.totalPages,
         };
       } catch (error) {
         lastError = error;

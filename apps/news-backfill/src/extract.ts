@@ -25,7 +25,7 @@ function cleanText(value: string | null | undefined): string | null {
 
 function isoDate(value: unknown): string | null {
   if (typeof value !== "string") return null;
-  const parsed = Date.parse(value);
+  const parsed = Date.parse(value.replace(/(\d)(?:st|nd|rd|th)\b/gi, "$1"));
   return Number.isFinite(parsed) ? new Date(parsed).toISOString() : null;
 }
 
@@ -99,7 +99,7 @@ function dateFromUrl(pageUrl: string): string | null {
       return isoDate(`${pathDate[1]}-${pathDate[2]}-${pathDate[3]}`);
     }
     const segmentDate =
-      /\/(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(path);
+      /\/(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:[./]|$)/.exec(path);
     if (segmentDate !== null) {
       return isoDate(`${segmentDate[1]}-${segmentDate[2]}-${segmentDate[3]}`);
     }
@@ -158,6 +158,7 @@ export function extractArticleMetadata(
     isoDate(metaContent(html, "date")) ??
     isoDate(metaContent(html, "dcterms.created")) ??
     isoDate(metaContent(html, "dcterms.date")) ??
+    isoDate(metaContent(html, "dc.date.created")) ??
     isoDate(metaContent(html, "datePublished")) ??
     dateFromMarkedField(html) ??
     dateFromUrl(pageUrl) ??
