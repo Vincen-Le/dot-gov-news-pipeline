@@ -11,6 +11,11 @@ import { randomBytes, timingSafeEqual } from "node:crypto";
 import { createServer as createViteServer, type ViteDevServer } from "vite";
 
 import { repositoryRoot, type RequiredOperatorConsoleConfig } from "./config";
+import { createLabDb, isLocalDsn, labCapability } from "./lab/db";
+import { ExperimentHarness, defaultSpawner } from "./lab/harness";
+import { LabelStore } from "./lab/labels";
+import { LabQueries } from "./lab/queries";
+import { createLabRouter } from "./lab/routes";
 import { WorkerTail, type TailEvent, type TailState } from "./tail-process";
 
 export interface DashboardOptions {
@@ -222,6 +227,30 @@ export async function startDashboard(
       }
     });
   });
+  const labDb =
+    config.databaseUrl === undefined ? null : createLabDb(config.databaseUrl);
+  const labQueries = labDb === null ? null : new LabQueries(labDb.read);
+  const labHarness =
+    labQueries !== null &&
+    config.databaseUrl !== undefined &&
+    isLocalDsn(config.databaseUrl)
+      ? new ExperimentHarness({
+          needsPrepare: () =>
+            labQueries.corpusSummary().then((summary) => summary.needsPrepare),
+          spawnStage: defaultSpawner(repositoryRoot),
+        })
+      : null;
+  app.use(
+    "/api/lab",
+    createLabRouter({
+      capability: () => labCapability(labDb, config.databaseUrl),
+      harness: labHarness,
+      labels: new LabelStore(resolve(repositoryRoot, "docs/eval")),
+      queries: labQueries,
+      repoRoot: repositoryRoot,
+    }),
+  );
+
   const stopTail = attachTailEndpoint(app, config);
 
   const consoleRoot = resolve(repositoryRoot, "apps/operator-console");
@@ -261,6 +290,7 @@ export async function startDashboard(
 
   return {
     async close() {
+      await labDb?.close();
       await stopTail();
       await vite?.close();
       await new Promise<void>((resolveClose, reject) => {
