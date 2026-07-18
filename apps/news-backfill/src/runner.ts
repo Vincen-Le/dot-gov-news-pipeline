@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 
 import { enumerateBatches } from "./adapters";
-import { ArtifactStore } from "./artifact-store";
+import type { ArtifactStore } from "./artifact-store";
 import { extractArticleMetadata, normalizeCandidate } from "./extract";
 import type { createFetcher } from "./fetcher";
-import { BackfillRepository } from "./repository";
+import type { BackfillRepository } from "./repository";
 import type {
   BackfillManifest,
   Candidate,
@@ -75,8 +75,7 @@ async function normalizeOne(input: {
   windowStart: string;
 }): Promise<NormalizedEntry> {
   const fetchedAt = new Date().toISOString();
-  const newsSubtype =
-    input.candidate.newsSubtype ?? input.profile.newsSubtype;
+  const newsSubtype = input.candidate.newsSubtype ?? input.profile.newsSubtype;
   let artifactKey = await input.artifactStore.archive(
     input.publisherKey,
     input.candidate.rawBody,

@@ -669,7 +669,7 @@ interface WaybackRow {
 function waybackRows(body: string): WaybackRow[] {
   const rows = JSON.parse(body) as string[][];
   return rows.slice(1).flatMap((row): WaybackRow[] => {
-    const [timestamp, original, _status, digest] = row;
+    const [timestamp, original, , digest] = row;
     if (timestamp === undefined || original === undefined) return [];
     return [{ digest: digest ?? null, original, timestamp }];
   });

@@ -139,7 +139,7 @@ export function extractArticleMetadata(
   const article = jsonArticle as Record<string, unknown> | null;
 
   const canonicalHref = linkHref(html, "canonical");
-  let canonicalUrl: string | null = null;
+  let canonicalUrl: string;
   try {
     canonicalUrl = new URL(canonicalHref ?? pageUrl, pageUrl).href;
   } catch {
