@@ -30,6 +30,11 @@ describe("article extraction", () => {
     expect(
       canonicalizeUrl("https://AGENCY.gov/news/example/?utm_source=test#top"),
     ).toBe("https://agency.gov/news/example");
+    expect(
+      canonicalizeUrl(
+        "https://agency.gov/news/example?_hsenc=tracking&_hsmi=123&_kx=token",
+      ),
+    ).toBe("https://agency.gov/news/example");
   });
 
   it("rejects entries outside the fixed backfill window", () => {

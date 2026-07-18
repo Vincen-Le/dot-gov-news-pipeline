@@ -182,7 +182,11 @@ export function canonicalizeUrl(input: string): string {
   url.hash = "";
   url.hostname = url.hostname.toLowerCase();
   for (const key of [...url.searchParams.keys()]) {
-    if (/^(utm_|fbclid$|gclid$|mc_cid$|mc_eid$)/i.test(key)) {
+    if (
+      /^(utm_|fbclid$|gclid$|mc_cid$|mc_eid$|ref$|os$|hss_meta$|_hsenc$|_hsmi$|_kx$)/i.test(
+        key,
+      )
+    ) {
       url.searchParams.delete(key);
     }
   }

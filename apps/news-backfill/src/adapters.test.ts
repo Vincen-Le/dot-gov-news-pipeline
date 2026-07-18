@@ -52,6 +52,42 @@ describe("source adapters", () => {
     ]);
   });
 
+  it("reconstructs an older sitemap checkpoint without replaying completed children", async () => {
+    const requested: string[] = [];
+    const root = `<sitemapindex>
+      <sitemap><loc>https://agency.gov/child-1.xml</loc></sitemap>
+      <sitemap><loc>https://agency.gov/child-2.xml</loc></sitemap>
+    </sitemapindex>`;
+    const child = `<urlset><url>
+      <loc>https://agency.gov/news/resumed</loc><lastmod>2026-01-01</lastmod>
+    </url></urlset>`;
+    const batches = await collect(
+      enumerateBatches({
+        cursor: { processedSitemaps: 2, queuedSitemaps: 1 },
+        fetchDocument: async (url) => {
+          requested.push(url);
+          return {
+            body: url.endsWith("sitemap.xml") ? root : child,
+            contentType: "application/xml",
+            finalUrl: url,
+            status: 200,
+          };
+        },
+        profile: profile({ includeUrlPattern: "/news/" }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(requested).toEqual([
+      "https://agency.gov/sitemap.xml",
+      "https://agency.gov/child-2.xml",
+    ]);
+    expect(batches[0]?.candidates[0]?.url).toBe(
+      "https://agency.gov/news/resumed",
+    );
+  });
+
   it("extracts individual releases from an archived SSA yearly page", async () => {
     const cdx = JSON.stringify([
       ["timestamp", "original", "statuscode", "digest"],
@@ -62,8 +98,10 @@ describe("source adapters", () => {
         "digest",
       ],
     ]);
-    const page = `<article class="post" id="2025-08-01">
-      <h3>Benefit update</h3><p>Social Security announced an update.</p>
+    const page = `<article class="page-shell">
+      <article class="post" id="2025-08-01">
+        <h3>Benefit update</h3><p>Social Security announced an update.</p>
+      </article>
     </article>`;
     const batches = await collect(
       enumerateBatches({

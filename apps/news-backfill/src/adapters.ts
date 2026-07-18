@@ -328,10 +328,58 @@ async function* sitemapBatches(
   profile: SourceProfile,
   fetchDocument: FetchDocument,
   windowStart: string,
+  cursor: Record<string, unknown>,
 ): AsyncGenerator<CandidateBatch> {
-  const queue = [profile.sourceUrl];
-  const visited = new Set<string>();
-  let processed = 0;
+  const processedCursor =
+    typeof cursor.processedSitemaps === "number"
+      ? cursor.processedSitemaps
+      : 0;
+  const savedQueue = Array.isArray(cursor.remainingSitemaps)
+    ? cursor.remainingSitemaps.filter(
+        (url): url is string => typeof url === "string",
+      )
+    : [];
+  const savedVisited = Array.isArray(cursor.visitedSitemaps)
+    ? cursor.visitedSitemaps.filter(
+        (url): url is string => typeof url === "string",
+      )
+    : [];
+  const queue = [...savedQueue];
+  const visited = new Set<string>(savedVisited);
+  let processed = processedCursor;
+
+  if (queue.length === 0 && processed === 0) {
+    queue.push(profile.sourceUrl);
+  } else if (queue.length === 0 && processed > 0) {
+    const root = await fetchDocument(profile.sourceUrl, profile.allowedHosts);
+    const rootRows = sitemapRows(root.body);
+    visited.add(profile.sourceUrl);
+    if (rootRows.indexes.length === 0) {
+      yield {
+        candidates: [],
+        coverageReachedAt: windowStart,
+        cursor: {
+          processedSitemaps: processed,
+          queuedSitemaps: 0,
+          remainingSitemaps: [],
+          visitedSitemaps: [...visited],
+        },
+        evidenceBody: root.body,
+        evidenceContentType: root.contentType,
+        evidenceUrl: root.finalUrl,
+        stopReason: "source_exhausted",
+      };
+      return;
+    }
+    const completedChildren = Math.max(0, processed - 1);
+    for (const child of rootRows.indexes.slice(0, completedChildren)) {
+      visited.add(child.loc);
+    }
+    queue.push(
+      ...rootRows.indexes.slice(completedChildren).map(({ loc }) => loc),
+    );
+  }
+
   while (queue.length > 0 && processed < profile.maxPages) {
     const url = queue.shift();
     if (url === undefined || visited.has(url)) continue;
@@ -362,7 +410,12 @@ async function* sitemapBatches(
     yield {
       candidates,
       coverageReachedAt: queue.length === 0 ? windowStart : null,
-      cursor: { processedSitemaps: processed, queuedSitemaps: queue.length },
+      cursor: {
+        processedSitemaps: processed,
+        queuedSitemaps: queue.length,
+        remainingSitemaps: [...queue],
+        visitedSitemaps: [...visited],
+      },
       evidenceBody: document.body,
       evidenceContentType: document.contentType,
       evidenceUrl: document.finalUrl,
@@ -598,7 +651,11 @@ function originalUrl(input: string): string | null {
     const url = new URL(input);
     url.hash = "";
     for (const key of [...url.searchParams.keys()]) {
-      if (/^(utm_|fbclid$|gclid$|ref$|os$|hss_meta$)/i.test(key))
+      if (
+        /^(utm_|fbclid$|gclid$|ref$|os$|hss_meta$|_hsenc$|_hsmi$|_kx$)/i.test(
+          key,
+        )
+      )
         url.searchParams.delete(key);
     }
     url.searchParams.sort();
@@ -772,7 +829,7 @@ async function* ssaArchiveBatches(
     evidenceBody = page.body;
     evidenceUrl = page.finalUrl;
     for (const match of page.body.matchAll(
-      /<article\b([^>]*)>([\s\S]*?)<\/article>/gi,
+      /<article\b([^>]*\bid=["'][^"']+["'][^>]*)>([\s\S]*?)<\/article>/gi,
     )) {
       const id = attributeValue(match[1] ?? "", "id");
       const body = match[2] ?? "";
@@ -843,7 +900,7 @@ export function enumerateBatches(input: {
     );
   }
   if (profile.adapter === "sitemap") {
-    return sitemapBatches(profile, fetchDocument, windowStart);
+    return sitemapBatches(profile, fetchDocument, windowStart, cursor);
   }
   if (profile.adapter === "html_archive") {
     return htmlArchiveBatches(
