@@ -403,16 +403,10 @@ export async function runBackfill(
   const workerId = options.workerId ?? randomUUID();
   const active = new Set<Promise<void>>();
   let fatalError: unknown;
-  let noClaimsAvailable = false;
   const shouldStop = options.shouldStop ?? (() => false);
 
   const logProgress = (outcome: SiteOutcome): void => {
-    if (
-      counters.completed % options.progressEvery !== 0 &&
-      counters.completed !== counters.claimed
-    ) {
-      return;
-    }
+    if (counters.completed % options.progressEvery !== 0) return;
     const elapsedSeconds = Math.max(0.001, (Date.now() - startedAt) / 1_000);
     dependencies.log({
       ...counters,
@@ -480,17 +474,14 @@ export async function runBackfill(
             ),
         );
         if (claims.length === 0) {
-          noClaimsAvailable = true;
           break;
         }
-        noClaimsAvailable = false;
         counters.claimed += claims.length;
         for (const claim of claims) launch(claim);
       }
 
       if (active.size === 0) break;
       await Promise.race(active);
-      if (noClaimsAvailable && active.size === 0) break;
     }
   } catch (error) {
     fatalError ??= error;

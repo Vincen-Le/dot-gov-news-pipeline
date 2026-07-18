@@ -165,6 +165,34 @@ describe("runBackfill", () => {
     expect(repository.claims).toHaveLength(1);
   });
 
+  it("claims again after an active same-domain lane drains", async () => {
+    const repository = new FakeRepository([]);
+    const first = claim(1);
+    const second = claim(2);
+    repository.claim = vi
+      .fn<SiteDiscoveryRepository["claim"]>()
+      .mockResolvedValueOnce([first])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([second])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+
+    const result = await runBackfill(options({ concurrency: 2 }), {
+      discover: async () => ({
+        feeds: [],
+        health: { durationMs: 1 },
+        peakResponseBytes: 0,
+        requestCount: 1,
+        result: "no_feed",
+      }),
+      log: vi.fn(),
+      repository,
+    });
+
+    expect(result.counters).toMatchObject({ claimed: 2, completed: 2 });
+    expect(repository.complete).toHaveBeenCalledTimes(2);
+  });
+
   it("persists publisher failures as backoff", async () => {
     const repository = new FakeRepository([claim(1)]);
 
