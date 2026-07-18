@@ -1,16 +1,13 @@
 import postgres from "postgres";
 
+import type { LabCapability } from "./contracts";
+
 export interface LabDb {
   read: postgres.Sql;
   close(): Promise<void>;
 }
 
-export interface LabCapability {
-  experimentsEnabled: boolean;
-  experimentsReason?: string;
-  reason?: string;
-  status: "available" | "not_enabled";
-}
+export type { LabCapability };
 
 export function createLabDb(databaseUrl: string): LabDb {
   const read = postgres(databaseUrl, {
