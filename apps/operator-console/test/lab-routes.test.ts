@@ -101,7 +101,7 @@ describe("lab routes", () => {
         corpusSummary: async () => summary,
         experimentRun: async () => null,
         experimentRuns: async () => [RUN_ROW],
-        storylineAgencies: async () => ["fda.gov"],
+        storylineAgencies: async () => ["fda"],
         storylineDetail: async () => null,
         storylines: async () => [],
       } as never,
@@ -113,7 +113,7 @@ describe("lab routes", () => {
     const agencies = await fetch(`${base}/agencies`);
     expect(agencies.status).toBe(200);
     expect(((await agencies.json()) as { data: unknown }).data).toEqual({
-      agencies: ["fda.gov"],
+      agencies: ["fda"],
     });
 
     const experiments = await fetch(`${base}/experiments`);
@@ -146,12 +146,12 @@ describe("lab routes", () => {
       } as never,
     });
     const ok = await fetch(
-      `${base}/storylines?agency=fda.gov&minEpisodes=2&sort=episodes&offset=50`,
+      `${base}/storylines?agency=fda&minEpisodes=2&sort=episodes&offset=50`,
     );
     expect(ok.status).toBe(200);
     // the route asks for one extra row to detect whether more pages exist
     expect(captured).toEqual({
-      agency: "fda.gov",
+      agency: "fda",
       entity: undefined,
       limit: 51,
       minEpisodes: 2,
@@ -186,6 +186,47 @@ describe("lab routes", () => {
       "row-1",
     ]);
     expect(firstBody.data.hasMore).toBe(true);
+  });
+
+  it("serves topic themes and categories and passes storyline topic filters", async () => {
+    const seen: Record<string, unknown>[] = [];
+    const base = await listen({
+      capability: async () => ({
+        experimentsEnabled: false,
+        status: "available" as const,
+      }),
+      queries: {
+        storylines: async (filter: Record<string, unknown>) => {
+          seen.push(filter);
+          return [];
+        },
+        topicCategories: async () => [
+          {
+            displayName: "Test LLM Category",
+            id: "00000000-0000-4000-8000-0000000000c9",
+            origin: "llm",
+            proposalReason: "fixture",
+            themeCount: 1,
+          },
+        ],
+        topicThemes: async () => [],
+      } as never,
+    });
+
+    const categories = await fetch(`${base}/topics/categories`);
+    expect(categories.status).toBe(200);
+    const body = (await categories.json()) as {
+      data: { categories: { origin: string }[] };
+    };
+    expect(body.data.categories[0]!.origin).toBe("llm");
+
+    const themes = await fetch(`${base}/topics/themes?category=x`);
+    expect(themes.status).toBe(200);
+
+    await fetch(
+      `${base}/storylines?theme=t-1&category=c-1`,
+    );
+    expect(seen[0]).toMatchObject({ category: "c-1", theme: "t-1" });
   });
 
   it("validates and appends labels", async () => {

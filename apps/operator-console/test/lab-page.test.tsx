@@ -80,7 +80,7 @@ describe("LabPage", () => {
         if (url.includes("/corpus"))
           return jsonResponse({
             data: {
-              agencies: [{ agency: "fda.gov", entries: 8 }],
+              agencies: [{ agency: "fda", entries: 8 }],
               clustered: 10,
               embedded: 11,
               enriched: 11,

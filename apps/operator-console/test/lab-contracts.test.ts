@@ -13,7 +13,7 @@ import {
 describe("lab contracts", () => {
   it("parses a corpus summary with prepare coverage", () => {
     const parsed = CorpusSummarySchema.parse({
-      agencies: [{ agency: "fda.gov", entries: 120 }],
+      agencies: [{ agency: "fda", entries: 120 }],
       clustered: 100,
       embedded: 120,
       enriched: 110,
@@ -29,7 +29,8 @@ describe("lab contracts", () => {
 
   it("parses a storyline list item and detail with cited timeline", () => {
     const item = StorylineListItemSchema.parse({
-      agencies: ["fda.gov"],
+      agencies: ["fda"],
+      categoryName: "Food & Drug Safety",
       distinctFeeds: 2,
       entities: ["valsatrex"],
       entryCount: 5,
@@ -39,9 +40,15 @@ describe("lab contracts", () => {
       headline: "FDA recalls Valsatrex",
       id: "00000000-0000-4000-8000-000000000021",
       newestEntryAt: "2026-05-17T15:00:00.000Z",
+      themeId: "00000000-0000-4000-8000-0000000000d1",
+      themeName: "Valsatrex recall fallout",
     });
     const detail = StorylineDetailSchema.parse({
       ...item,
+      categoryId: "00000000-0000-4000-8000-0000000000c1",
+      themeAttachMethod: "adjudicated_join",
+      themeReason: "fixture join",
+      themeSimilarity: 0.81,
       episodes: [
         {
           adjudicatorModel: null,
@@ -52,7 +59,7 @@ describe("lab contracts", () => {
           entitySet: ["valsatrex"],
           entries: [
             {
-              agency: "fda.gov",
+              agency: "fda",
               attachMethod: "new_cluster",
               entitySet: ["valsatrex"],
               eventKeys: [],

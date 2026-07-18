@@ -126,11 +126,13 @@ export function createLabRouter(deps: LabRouteDeps): Router {
       const requested = Math.min(asNumber(request.query.limit) ?? 50, 500);
       const rows = await queries.storylines({
         agency: asString(request.query.agency),
+        category: asString(request.query.category),
         entity: asString(request.query.entity),
         limit: requested + 1,
         minEpisodes: asNumber(request.query.minEpisodes),
         offset: Math.max(asNumber(request.query.offset) ?? 0, 0),
         sort: request.query.sort === "episodes" ? "episodes" : undefined,
+        theme: asString(request.query.theme),
       });
       response.json({
         data: {
@@ -147,6 +149,31 @@ export function createLabRouter(deps: LabRouteDeps): Router {
       const queries = await requireQueries(response);
       if (queries === null) return;
       response.json({ data: { agencies: await queries.storylineAgencies() } });
+    }),
+  );
+
+  router.get(
+    "/topics/themes",
+    handle(async (request, response) => {
+      const queries = await requireQueries(response);
+      if (queries === null) return;
+      const category =
+        typeof request.query.category === "string" &&
+        request.query.category.length > 0
+          ? request.query.category
+          : undefined;
+      response.json({ data: { themes: await queries.topicThemes({ category }) } });
+    }),
+  );
+
+  router.get(
+    "/topics/categories",
+    handle(async (_request, response) => {
+      const queries = await requireQueries(response);
+      if (queries === null) return;
+      response.json({
+        data: { categories: await queries.topicCategories() },
+      });
     }),
   );
 

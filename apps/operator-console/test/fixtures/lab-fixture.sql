@@ -4,6 +4,10 @@ insert into public.news_sources (id, canonical_url, source_type, title) values
   ('00000000-0000-4000-8000-000000000001', 'https://fda.gov/press.xml', 'rss', 'FDA Press'),
   ('00000000-0000-4000-8000-000000000002', 'https://hhs.gov/news.xml', 'rss', 'HHS News');
 
+insert into public.news_source_publishers (news_source_id, publisher_key) values
+  ('00000000-0000-4000-8000-000000000001', 'fda'),
+  ('00000000-0000-4000-8000-000000000002', 'hhs');
+
 -- fp16 embeddings: '\x003c003c' = [1,1]; '\x003c0000' = [1,0]
 insert into public.news_entries
   (id, news_source_id, url, url_canonical, title, summary, published_at, content_hash,
@@ -25,8 +29,8 @@ insert into public.storylines
   (id, entity_set, event_keys, agency_ids, distinct_feeds, entry_count, episode_count,
    first_entry_at, newest_entry_at) values
   ('00000000-0000-4000-8000-000000000021', array['valsatrex'], array['z-2026-0143'],
-   array['fda.gov', 'hhs.gov'], 2, 3, 2, '2026-05-14T14:00:00Z', '2026-05-17T15:00:00Z'),
-  ('00000000-0000-4000-8000-000000000022', array['tulsa'], '{}', array['fda.gov'], 1, 1, 1,
+   array['fda', 'hhs'], 2, 3, 2, '2026-05-14T14:00:00Z', '2026-05-17T15:00:00Z'),
+  ('00000000-0000-4000-8000-000000000022', array['tulsa'], '{}', array['fda'], 1, 1, 1,
    '2026-05-18T09:00:00Z', '2026-05-18T09:00:00Z');
 
 insert into public.episodes
@@ -107,3 +111,24 @@ insert into public.experiment_runs
      "singleton_episode_rate": 0.667, "multi_episode_storylines": 1,
      "top_chains": [{"episodes": 2, "headline": "Valsatrex recall chain"}]}',
    2, 0, '2026-07-18T11:00:22Z');
+
+-- topics fixture: one llm category (seed rows come from the migration),
+-- one theme, the Valsatrex storyline assigned to it
+insert into public.topic_categories (id, display_name, origin, proposal_reason)
+values ('00000000-0000-4000-8000-0000000000c9', 'Test LLM Category', 'llm', 'fixture');
+
+insert into public.topic_themes
+    (id, display_name, category_id, storyline_count, first_storyline_at, newest_storyline_at)
+values
+    ('00000000-0000-4000-8000-0000000000d1', 'Valsatrex recall fallout',
+     (select id from public.topic_categories where display_name = 'Food & Drug Safety'),
+     1, '2026-05-14T14:00:00Z', '2026-05-17T15:00:00Z'),
+    ('00000000-0000-4000-8000-0000000000d2', 'Field office access',
+     '00000000-0000-4000-8000-0000000000c9', 0, null, null);
+
+update public.storylines
+set theme_id = '00000000-0000-4000-8000-0000000000d1',
+    theme_attach_method = 'adjudicated_join',
+    theme_similarity = 0.81,
+    theme_reason = 'fixture join'
+where 'valsatrex' = any(entity_set);

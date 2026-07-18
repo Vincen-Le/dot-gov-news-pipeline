@@ -10,6 +10,8 @@ import {
   type ExperimentRun,
   type StorylineDetail,
   type StorylineListItem,
+  type TopicCategory,
+  type TopicTheme,
 } from "./contracts";
 import { cosine, unpackFp16 } from "./vectors";
 
@@ -77,12 +79,16 @@ export class LabQueries {
           where embedding is null and published_at is not null) as needs_prepare
     `;
     const agencies = await this.sql`
-      select split_part(ns.canonical_url, '/', 3) as agency, count(*)::integer as entries
+      select nsp.publisher_key as agency, count(*)::integer as entries
       from public.news_entries ne
-      join public.news_sources ns on ns.id = ne.news_source_id
+      left join public.news_source_publishers nsp
+        on nsp.news_source_id = ne.news_source_id
       group by 1 order by 2 desc, 1 limit 50
     `;
     if (row === undefined) throw new Error("corpusSummary: no aggregate row");
+    if (agencies.some((item) => item.agency === null)) {
+      throw new Error("corpusSummary: publisher attribution is incomplete");
+    }
     return {
       agencies: agencies.map((item) => ({
         agency: String(item.agency),
@@ -102,23 +108,30 @@ export class LabQueries {
 
   async storylines(filter: {
     agency?: string;
+    category?: string;
     entity?: string;
     limit?: number;
     minEpisodes?: number;
     offset?: number;
     sort?: "episodes";
+    theme?: string;
   }): Promise<StorylineListItem[]> {
     const { sql } = this;
     const rows = await sql`
       select s.id, s.entity_set, s.event_keys, s.agency_ids, s.distinct_feeds,
              s.entry_count, s.episode_count, s.first_entry_at, s.newest_entry_at,
+             s.theme_id, tt.display_name as theme_name, tc.display_name as category_name,
              c.headline
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
+      left join public.topic_themes tt on tt.id = s.theme_id
+      left join public.topic_categories tc on tc.id = tt.category_id
       where s.merged_into is null
         ${filter.entity === undefined ? sql`` : sql`and ${filter.entity} = any(s.entity_set)`}
         ${filter.agency === undefined ? sql`` : sql`and ${filter.agency} = any(s.agency_ids)`}
         ${filter.minEpisodes === undefined ? sql`` : sql`and s.episode_count >= ${filter.minEpisodes}`}
+        ${filter.theme === undefined ? sql`` : sql`and s.theme_id = ${filter.theme}`}
+        ${filter.category === undefined ? sql`` : sql`and tt.category_id = ${filter.category}`}
       ${
         filter.sort === "episodes"
           ? sql`order by s.episode_count desc, s.newest_entry_at desc`
@@ -129,6 +142,7 @@ export class LabQueries {
     `;
     return rows.map((row) => ({
       agencies: row.agency_ids as string[],
+      categoryName: (row.category_name as string | null) ?? null,
       distinctFeeds: Number(row.distinct_feeds),
       entities: row.entity_set as string[],
       entryCount: Number(row.entry_count),
@@ -138,6 +152,8 @@ export class LabQueries {
       headline: (row.headline as string | null) ?? null,
       id: String(row.id),
       newestEntryAt: (row.newest_entry_at as Date).toISOString(),
+      themeId: row.theme_id === null ? null : String(row.theme_id),
+      themeName: (row.theme_name as string | null) ?? null,
     }));
   }
 
@@ -151,13 +167,61 @@ export class LabQueries {
     return rows.map((row) => String(row.agency));
   }
 
+  async topicThemes(filter: { category?: string }): Promise<TopicTheme[]> {
+    const { sql } = this;
+    const rows = await sql`
+      select t.id, t.display_name, t.category_id, t.storyline_count,
+             t.newest_storyline_at, c.display_name as category_name,
+             c.origin as category_origin
+      from public.topic_themes t
+      left join public.topic_categories c on c.id = t.category_id
+      where t.merged_into is null
+        ${filter.category === undefined ? sql`` : sql`and t.category_id = ${filter.category}`}
+      order by t.storyline_count desc, t.display_name
+    `;
+    return rows.map((row) => ({
+      categoryId: row.category_id === null ? null : String(row.category_id),
+      categoryName: (row.category_name as string | null) ?? null,
+      categoryOrigin:
+        row.category_origin === null
+          ? null
+          : (String(row.category_origin) as "seed" | "llm"),
+      displayName: String(row.display_name),
+      id: String(row.id),
+      newestStorylineAt: iso(row.newest_storyline_at),
+      storylineCount: Number(row.storyline_count),
+    }));
+  }
+
+  async topicCategories(): Promise<TopicCategory[]> {
+    const rows = await this.sql`
+      select c.id, c.display_name, c.origin, c.proposal_reason,
+             (select count(*)::integer from public.topic_themes t
+              where t.category_id = c.id and t.merged_into is null) as theme_count
+      from public.topic_categories c
+      order by c.display_name
+    `;
+    return rows.map((row) => ({
+      displayName: String(row.display_name),
+      id: String(row.id),
+      origin: String(row.origin) as "seed" | "llm",
+      proposalReason: (row.proposal_reason as string | null) ?? null,
+      themeCount: Number(row.theme_count),
+    }));
+  }
+
   async storylineDetail(id: string): Promise<StorylineDetail | null> {
     const [storyline] = await this.sql`
       select s.id, s.entity_set, s.event_keys, s.agency_ids, s.distinct_feeds,
              s.entry_count, s.episode_count, s.first_entry_at, s.newest_entry_at,
+             s.theme_id, s.theme_attach_method, s.theme_similarity, s.theme_reason,
+             tt.display_name as theme_name, tt.category_id,
+             tc.display_name as category_name,
              c.headline
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
+      left join public.topic_themes tt on tt.id = s.theme_id
+      left join public.topic_categories tc on tc.id = tt.category_id
       where s.id = ${id}
     `;
     if (storyline === undefined) return null;
@@ -175,11 +239,12 @@ export class LabQueries {
       select ee.episode_id, ee.entry_id, ee.is_syndicated, ee.attach_method,
              ee.similarity, ee.matched_entry_id, ee.threshold_used,
              ne.title, ne.url, ne.published_at, ne.entity_set, ne.event_keys,
-             split_part(ns.canonical_url, '/', 3) as agency
+             nsp.publisher_key as agency
       from public.episode_entries ee
       join public.episodes ep on ep.id = ee.episode_id
       join public.news_entries ne on ne.id = ee.entry_id
-      join public.news_sources ns on ns.id = ne.news_source_id
+      left join public.news_source_publishers nsp
+        on nsp.news_source_id = ne.news_source_id
       where ep.storyline_id = ${id}
       order by ne.published_at, ne.id
     `;
@@ -193,6 +258,11 @@ export class LabQueries {
 
     const entriesByEpisode = new Map<string, EntryEvidence[]>();
     for (const row of entries) {
+      if (row.agency === null) {
+        throw new Error(
+          `storylineDetail: publisher attribution is missing for ${String(row.entry_id)}`,
+        );
+      }
       const list = entriesByEpisode.get(String(row.episode_id)) ?? [];
       list.push({
         agency: String(row.agency),
@@ -226,6 +296,9 @@ export class LabQueries {
 
     return {
       agencies: storyline.agency_ids as string[],
+      categoryId:
+        storyline.category_id === null ? null : String(storyline.category_id),
+      categoryName: (storyline.category_name as string | null) ?? null,
       distinctFeeds: Number(storyline.distinct_feeds),
       entities: storyline.entity_set as string[],
       entryCount: Number(storyline.entry_count),
@@ -258,6 +331,18 @@ export class LabQueries {
       id: String(storyline.id),
       newestEntryAt: (storyline.newest_entry_at as Date).toISOString(),
       overviewCards,
+      themeAttachMethod:
+        storyline.theme_attach_method === null
+          ? null
+          : String(storyline.theme_attach_method),
+      themeId: storyline.theme_id === null ? null : String(storyline.theme_id),
+      themeName: (storyline.theme_name as string | null) ?? null,
+      themeReason:
+        storyline.theme_reason === null ? null : String(storyline.theme_reason),
+      themeSimilarity:
+        storyline.theme_similarity === null
+          ? null
+          : Number(storyline.theme_similarity),
     };
   }
 

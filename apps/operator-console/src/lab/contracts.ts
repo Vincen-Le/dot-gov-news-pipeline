@@ -22,6 +22,7 @@ export const CorpusSummarySchema = z.object({
 
 export const StorylineListItemSchema = z.object({
   agencies: z.array(z.string()),
+  categoryName: z.string().nullable(),
   distinctFeeds: z.number(),
   entities: z.array(z.string()),
   entryCount: z.number(),
@@ -31,6 +32,8 @@ export const StorylineListItemSchema = z.object({
   headline: z.string().nullable(),
   id: z.string(),
   newestEntryAt: z.string(),
+  themeId: z.string().nullable(),
+  themeName: z.string().nullable(),
 });
 
 export const EntryEvidenceSchema = z.object({
@@ -89,8 +92,30 @@ export const EpisodeDetailSchema = z.object({
 });
 
 export const StorylineDetailSchema = StorylineListItemSchema.extend({
+  categoryId: z.string().nullable(),
   episodes: z.array(EpisodeDetailSchema),
   overviewCards: z.array(EventCardSchema),
+  themeAttachMethod: z.string().nullable(),
+  themeReason: z.string().nullable(),
+  themeSimilarity: z.number().nullable(),
+});
+
+export const TopicCategorySchema = z.object({
+  displayName: z.string(),
+  id: z.string(),
+  origin: z.enum(["seed", "llm"]),
+  proposalReason: z.string().nullable(),
+  themeCount: z.number(),
+});
+
+export const TopicThemeSchema = z.object({
+  categoryId: z.string().nullable(),
+  categoryName: z.string().nullable(),
+  categoryOrigin: z.enum(["seed", "llm"]).nullable(),
+  displayName: z.string(),
+  id: z.string(),
+  newestStorylineAt: z.string().nullable(),
+  storylineCount: z.number(),
 });
 
 export const BorderlinePairSchema = z.object({
@@ -149,3 +174,5 @@ export type StorylineDetail = z.infer<typeof StorylineDetailSchema>;
 export type BorderlinePair = z.infer<typeof BorderlinePairSchema>;
 export type ExperimentSummary = z.infer<typeof ExperimentSummarySchema>;
 export type ExperimentRun = z.infer<typeof ExperimentRunSchema>;
+export type TopicCategory = z.infer<typeof TopicCategorySchema>;
+export type TopicTheme = z.infer<typeof TopicThemeSchema>;

@@ -63,7 +63,8 @@ const STORYLINES_PAYLOAD = {
     hasMore: false,
     items: [
       {
-        agencies: ["fda.gov"],
+        agencies: ["fda"],
+        categoryName: "Food & Drug Safety",
         distinctFeeds: 2,
         entities: ["valsatrex"],
         entryCount: 5,
@@ -73,6 +74,8 @@ const STORYLINES_PAYLOAD = {
         headline: "Valsatrex recall chain",
         id: "00000000-0000-4000-8000-000000000021",
         newestEntryAt: "2026-05-17T15:00:00.000Z",
+        themeId: "00000000-0000-4000-8000-0000000000d1",
+        themeName: "Valsatrex recall fallout",
       },
     ],
   },
@@ -84,6 +87,7 @@ const STORYLINES_PAGE_2_PAYLOAD = {
     items: [
       {
         agencies: ["ssa.gov"],
+        categoryName: null,
         distinctFeeds: 1,
         entities: ["tulsa"],
         entryCount: 1,
@@ -93,13 +97,15 @@ const STORYLINES_PAGE_2_PAYLOAD = {
         headline: "SSA opens Tulsa office",
         id: "00000000-0000-4000-8000-000000000022",
         newestEntryAt: "2026-05-18T09:00:00.000Z",
+        themeId: null,
+        themeName: null,
       },
     ],
   },
 };
 
 const AGENCIES_PAYLOAD = {
-  data: { agencies: ["cdc.gov", "fda.gov"] },
+  data: { agencies: ["cdc", "fda"] },
 };
 
 describe("StorylinesPage", () => {
@@ -149,9 +155,9 @@ describe("StorylinesPage", () => {
     renderPage("/storylines?sort=episodes");
     // agency dropdown lists the filterable agency ids
     expect(
-      await screen.findByRole("option", { name: "fda.gov" }),
+      await screen.findByRole("option", { name: "fda" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "cdc.gov" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "cdc" })).toBeInTheDocument();
     expect(screen.getByLabelText("Agency")).toHaveValue("");
     // sort param round-trips: select reflects it, the api call carries it
     expect(screen.getByLabelText("Sort")).toHaveValue("episodes");

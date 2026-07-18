@@ -533,7 +533,9 @@ lab
   .command("storylines")
   .description("List storylines (newest first)")
   .option("--entity <entity>", "filter by extracted entity")
-  .option("--agency <host>", "filter by agency host, e.g. fda.gov")
+  .option("--agency <publisher-key>", "filter by publisher key, e.g. fda")
+  .option("--category <id>", "filter by topic category id")
+  .option("--theme <id>", "filter by topic theme id")
   .option("--min-episodes <n>", "only chains with at least n episodes")
   .option("--sort <field>", "episodes: most episodes first")
   .option("--limit <n>", "maximum rows", "50")
@@ -543,17 +545,20 @@ lab
     (
       options: JsonOption & {
         agency?: string;
+        category?: string;
         entity?: string;
         limit: string;
         minEpisodes?: string;
         offset: string;
         sort?: string;
+        theme?: string;
       },
     ) =>
       runAction(() =>
         withLab(async ({ queries }) => {
           const items = await queries.storylines({
             agency: options.agency,
+            category: options.category,
             entity: options.entity,
             limit: Number(options.limit),
             minEpisodes:
@@ -562,6 +567,7 @@ lab
                 : Number(options.minEpisodes),
             offset: Number(options.offset),
             sort: options.sort === "episodes" ? "episodes" : undefined,
+            theme: options.theme,
           });
           if (options.json) {
             printJson(items);
@@ -575,10 +581,37 @@ lab
               headline: item.headline ?? "(no card)",
               id: item.id,
               newest: item.newestEntryAt,
+              theme: item.themeName ?? "—",
             })),
           );
         }),
       ),
+  );
+
+lab
+  .command("themes")
+  .description("List topic themes (largest first)")
+  .option("--category <id>", "filter by topic category id")
+  .option("--json", "print JSON only")
+  .action((options: JsonOption & { category?: string }) =>
+    runAction(() =>
+      withLab(async ({ queries }) => {
+        const themes = await queries.topicThemes({ category: options.category });
+        if (options.json) {
+          printJson(themes);
+          return;
+        }
+        printRows(
+          themes.map((theme) => ({
+            category: theme.categoryName ?? "(uncategorized)",
+            id: theme.id,
+            name: theme.displayName,
+            origin: theme.categoryOrigin ?? "—",
+            storylines: theme.storylineCount,
+          })),
+        );
+      }),
+    ),
   );
 
 lab
