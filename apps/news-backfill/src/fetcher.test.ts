@@ -51,4 +51,39 @@ describe("publisher fetcher", () => {
       fetchDocument("https://agency.gov/news", ["agency.gov"]),
     ).rejects.toThrow("redirect escaped approved hosts");
   });
+
+  it("retries transient Wayback 403 responses", async () => {
+    const mockedFetch = vi
+      .fn<typeof fetch>()
+      .mockImplementationOnce(async () => {
+        const response = new Response("temporarily throttled", {
+          headers: { "retry-after": "0.001" },
+          status: 403,
+        });
+        Object.defineProperty(response, "url", {
+          value: "https://web.archive.org/web/example",
+        });
+        return response;
+      })
+      .mockImplementationOnce(async () => {
+        const response = new Response("archived article", { status: 200 });
+        Object.defineProperty(response, "url", {
+          value: "https://web.archive.org/web/example",
+        });
+        return response;
+      });
+    vi.stubGlobal("fetch", mockedFetch);
+    const fetchDocument = createFetcher({
+      minimumHostIntervalMs: 0,
+      timeoutMs: 1_000,
+      userAgent: "test",
+    });
+
+    await expect(
+      fetchDocument("https://web.archive.org/web/example", [
+        "web.archive.org",
+      ]),
+    ).resolves.toMatchObject({ body: "archived article", status: 200 });
+    expect(mockedFetch).toHaveBeenCalledTimes(2);
+  });
 });

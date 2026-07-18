@@ -79,11 +79,16 @@ describe("article extraction", () => {
       `<h1>Diplomatic update</h1><p class="article-meta__publish-date">July 17, 2026</p>`,
       "https://www.state.gov/releases/office-of-the-spokesperson/2026/07/diplomatic-update/",
     );
+    const sec = extractArticleMetadata(
+      `<h1>Market update</h1><div class="field--name-dynamic-twig-fieldnode-press-release-lead-in field__item"><p>Washington D.C., March 25, 2026 — </p></div>`,
+      "https://www.sec.gov/newsroom/press-releases/2026-57",
+    );
 
     expect(treasury.publishedAt).toBe("2026-07-15T20:15:00.000Z");
     expect(fsa.publishedAt?.slice(0, 10)).toBe("2025-07-18");
     expect(nps.publishedAt?.slice(0, 10)).toBe("2026-06-24");
     expect(state.publishedAt?.slice(0, 10)).toBe("2026-07-17");
+    expect(sec.publishedAt?.slice(0, 10)).toBe("2026-03-25");
   });
 
   it("reads IRS JSON dates and compact BLS archive dates", () => {

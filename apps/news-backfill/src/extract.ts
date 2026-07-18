@@ -81,6 +81,7 @@ function dateFromMarkedField(html: string): string | null {
     /field--name-field-publication-date-for-dis[\s\S]{0,500}?field__item["'][^>]*>([^<]+)/i,
     /<strong\b[^>]*>\s*News Release Date:\s*<\/strong>\s*([^<\r\n]+)/i,
     /article-meta__publish-date["'][^>]*>\s*([^<\r\n]+)/i,
+    /field--name-dynamic-twig-fieldnode-press-release-lead-in[\s\S]{0,500}?<p\b[^>]*>[^<]*?,\s*([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s+20\d{2})/i,
   ];
   for (const pattern of patterns) {
     const normalized = isoDate(pattern.exec(html)?.[1]);

@@ -76,7 +76,11 @@ export function createFetcher(options: FetcherOptions) {
         if (!hostAllowed(finalUrl, allowedHosts)) {
           throw new Error(`redirect escaped approved hosts: ${finalUrl.href}`);
         }
-        const retryable = response.status === 429 || response.status >= 500;
+        const retryable =
+          response.status === 429 ||
+          response.status >= 500 ||
+          (response.status === 403 &&
+            requestedUrl.hostname === "web.archive.org");
         if (!response.ok && !retryable) {
           throw new Error(`publisher returned HTTP ${response.status}`);
         }

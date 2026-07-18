@@ -1,6 +1,6 @@
 begin;
 
-select plan(50);
+select plan(53);
 
 select is(
     (
@@ -142,6 +142,11 @@ select ok(
         'service_role',
         'public.reopen_news_backfill_target(uuid,text)',
         'execute'
+    )
+    and has_function_privilege(
+        'service_role',
+        'public.resume_news_backfill_run(uuid,text)',
+        'execute'
     ),
     'service role can execute corrective backfill maintenance functions'
 );
@@ -160,6 +165,11 @@ select ok(
     and not has_function_privilege(
         'authenticated',
         'public.reopen_news_backfill_target(uuid,text)',
+        'execute'
+    )
+    and not has_function_privilege(
+        'authenticated',
+        'public.resume_news_backfill_run(uuid,text)',
         'execute'
     ),
     'client roles cannot execute corrective backfill maintenance functions'
@@ -737,6 +747,32 @@ select throws_ok(
     '55000',
     'target run is already terminal',
     'refuses to reopen a target from a terminal run'
+);
+
+select ok(
+    public.resume_news_backfill_run(
+        (select run_id from run_fixture),
+        'A publisher-specific extraction defect was corrected.'
+    ),
+    'resumes a non-cancelled terminal run for corrective replay'
+);
+
+select is(
+    (
+        select status
+        from public.news_backfill_runs
+        where id = (select run_id from run_fixture)
+    ),
+    'running',
+    'marks the corrected run running again'
+);
+
+select ok(
+    public.reopen_news_backfill_target(
+        (select target_id from target_one_fixture),
+        'Publisher-specific date extraction is corrected.'
+    ),
+    'reopens a terminal target after its run is resumed'
 );
 
 select * from finish();
