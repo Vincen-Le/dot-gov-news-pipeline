@@ -17,6 +17,7 @@ before changing or operating the pipeline.
 | Run or deploy the Worker                                       | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`wrangler.jsonc`](../apps/pipeline-worker/wrangler.jsonc) and Worker source                                                                       |
 | Add or change durable database state                           | [Architecture](../architecture.md)                                                              | [`supabase/migrations`](../supabase/migrations) and [`supabase/config.toml`](../supabase/config.toml)                                              |
 | Work with the event envelope                                   | [`pipeline-event.ts`](../packages/contracts/src/pipeline-event.ts)                              | Contract and Worker tests                                                                                                                          |
+| Work with generalized news-source contracts                    | [`news-source.ts`](../packages/contracts/src/news-source.ts)                                   | Generalized schema migration and database tests                                                                                                    |
 | Start or recover local Chroma                                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`infra/chroma/compose.yaml`](../infra/chroma/compose.yaml)                                                                                        |
 | Rotate credentials or investigate failures                     | [Infrastructure runbook](infrastructure/runbook.md)                                             | [Provider access](infrastructure/access.md)                                                                                                        |
 | Remove infrastructure                                          | [Teardown procedure](infrastructure/teardown.md)                                                | Live provider inventory before taking action                                                                                                       |
@@ -36,7 +37,7 @@ before changing or operating the pipeline.
   destructive removal process.
 - [Implementation plan](../.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)
   records the completed bootstrap scope and acceptance criteria.
-- [Inventory and feed-discovery plan](../.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md)
+- [Inventory and news-source-discovery plan](../.claude/plans/gsa-inventory-and-news-source-discovery-implementation-plan.md)
   records the detailed inventory decisions and the remaining discovery work.
 - [Operator CLI cheatsheet](operations/cli-cheatsheet.md) is the generated
   command catalog for health, inventory, queue, event, and Worker-tail queries.
@@ -90,8 +91,9 @@ The repository currently provides:
 - `site_discovery_state` due rows plus lease-safe claim and expired-lease
   recovery RPCs, an active bounded discovery Worker, and a resumable direct
   backfill operator path.
-- Canonical feeds, site-to-feed provenance, and durable feed-fetch handoff
-  state populated transactionally by discovery completion.
+- Generalized `news_sources`, many-to-many site provenance, and per-source
+  fetch state for syndication, publisher API, HTML archive, and sitemap
+  adapters, populated transactionally by discovery completion.
 - A Thursday `04:17 UTC` GitHub Actions workflow with manual dispatch and a
   reviewed large-decrease override.
 - A separately deployable, token-protected read-only Operator API plus an ad
@@ -100,9 +102,9 @@ The repository currently provides:
 - Local persistent Chroma development service, shared event contracts, unit
   and database tests, CI verification, and operations guidance.
 
-Feed polling, article parsing, embeddings, search, ranking, public APIs, and the
-user interface remain follow-up work. Do not infer that they exist from their
-architectural designs or from seeded feed records.
+News-source fetching, news-item parsing, embeddings, search, ranking, public
+APIs, and the user interface remain follow-up work. Do not infer that they
+exist from their architectural designs or from seeded source records.
 
 ## Safety for agents
 

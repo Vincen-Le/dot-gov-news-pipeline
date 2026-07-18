@@ -22,7 +22,7 @@ Create one development environment containing:
 5. One local-only Chroma service running through Docker Compose.
 6. One idempotent infrastructure heartbeat that proves the path `Cron -> Queue -> Worker -> R2 + Supabase`.
 
-The heartbeat is deliberately the only functional workflow. Feed inventory reconciliation, feed discovery, polling, parsing, embeddings, clustering, ranking, search, and UI work are reserved for subsequent sessions.
+The heartbeat is deliberately the only functional workflow. News source inventory reconciliation, source discovery, polling, parsing, embeddings, clustering, ranking, search, and UI work are reserved for subsequent sessions.
 
 ## Minimal Resource Inventory
 
@@ -66,7 +66,7 @@ Do not create staging or production variants during this bootstrap.
 ## Constraints and Dependencies
 
 - Supabase Free has a 500 MB database limit and no included automatic backups or point-in-time recovery.
-- Cloudflare Queues Free includes 10,000 operations per day and 24-hour message retention. Queue every meaningful change, not every eventual feed poll.
+- Cloudflare Queues Free includes 10,000 operations per day and 24-hour message retention. Queue every meaningful change, not every eventual source poll.
 - Cloudflare Workers Free has strict CPU limits. The bootstrap performs only small JSON operations.
 - Chroma open source requires persistent compute when hosted. This plan intentionally keeps it local.
 - R2 must be activated in the target Cloudflare account before bucket creation.
@@ -291,7 +291,7 @@ SUPABASE_URL           -> non-secret Worker variable
 SUPABASE_SECRET_KEY    -> Wrangler secret
 ```
 
-Configure one hourly Cron Trigger (`0 * * * *`) for smoke testing. Do not switch to every-minute scheduling until feed polling is implemented.
+Configure one hourly Cron Trigger (`0 * * * *`) for smoke testing. Do not switch to every-minute scheduling until source polling is implemented.
 
 Provision explicitly and record the exact commands in the runbook:
 
@@ -399,8 +399,8 @@ Only `public.pipeline_events` is created during this bootstrap. It is a transpor
 Explicitly defer these tables:
 
 - `sites`
-- `feeds`
-- `feed_fetch_state`
+- `news_sources`
+- `news_source_fetch_state`
 - `entries`
 - `story_clusters`
 - `cluster_entries`
@@ -532,8 +532,8 @@ The initial database migration is additive. Do not drop the table as an automati
 
 - Crawling the GSA inventory.
 - Discovering RSS or Atom endpoints.
-- Adaptive feed scheduling.
-- Fetching or parsing feeds.
+- Adaptive source scheduling.
+- Fetching or parsing news sources.
 - WebSub subscriptions.
 - Embedding generation.
 - Hosted Chroma.
@@ -552,9 +552,9 @@ The initial database migration is additive. Do not drop the table as an automati
 Once this bootstrap passes, separate sessions can build in this order:
 
 1. GSA inventory ingestion and `sites` schema.
-2. Feed discovery and `feeds` schema.
-3. Due-feed claiming and conditional fetch logic.
-4. Feed parsing, normalization, and entry deduplication.
+2. News source discovery and `news_sources` schema.
+3. Due-source claiming and conditional fetch logic.
+4. News source parsing, normalization, and entry deduplication.
 5. Embedding generation and a hosted vector-store decision.
 6. Story clustering and ranking.
 7. Public API and user interface.

@@ -1,9 +1,10 @@
-# Implementation Plan: GSA Inventory and Feed Discovery
+# Implementation Plan: GSA Inventory and News-Source Discovery
 
 **Date:** 2026-07-17
 **Owner:** Vincent Le / independent project
 **Type:** Backend, infrastructure, and external-data integration
-**Status:** Inventory reconciliation implemented and hosted-verified; feed discovery pending
+**Status:** Inventory reconciliation and generalized news-source persistence
+implemented; source-discovery Worker pending
 
 ## Implementation checkpoint
 
@@ -26,23 +27,23 @@ As of 2026-07-17, the inventory half of this plan is implemented in
 - Local verification passes 32 Vitest tests and 35 pgTAP assertions; the new CI
   jobs still need their first remote run after the branch is pushed.
 
-The discovery event contract, feed tables, discovery Worker, and feed polling
+The discovery event contract, source tables, discovery Worker, and source polling
 remain unimplemented. Step 3 was deliberately deferred because the standalone
 inventory batch does not use the Worker event envelope; it is the first task of
 the discovery phase.
 
 ## Problem Statement
 
-The pipeline needs a trustworthy, continuously maintained inventory of federal websites before it can discover and poll government news feeds. The GSA Federal Website Index is a changing source snapshot rather than an RSS catalog: it identifies government website hostnames, includes filtered and inactive-looking records, and can add, remove, or reclassify sites between releases.
+The pipeline needs a trustworthy, continuously maintained inventory of federal websites before it can discover and fetch government news sources. The GSA Federal Website Index is a changing source snapshot rather than an RSS catalog: it identifies government website hostnames, includes filtered and inactive-looking records, and can add, remove, or reclassify sites between releases.
 
-The system must ingest that source without corrupting the last known-good inventory, schedule feed discovery independently from inventory metadata, preserve the provenance between websites and canonical feeds, and hand newly discovered feeds to a later polling implementation. It must also remain polite to concentrated government domains and operate within the initial Supabase and Cloudflare resource constraints.
+The system must ingest that source without corrupting the last known-good inventory, schedule source discovery independently from inventory metadata, preserve the provenance between websites and canonical news sources, and hand newly discovered news sources to a later polling implementation. It must also remain polite to concentrated government domains and operate within the initial Supabase and Cloudflare resource constraints.
 
 ## Proposed Solution
 
 Extend the infrastructure bootstrap with two connected workflows:
 
 1. **Inventory reconciliation:** a weekly scheduled GitHub Actions job runs a Node batch application. It downloads the CSV, archives the raw snapshot in R2, loads every source row into a Supabase staging table, validates the complete snapshot, and atomically reconciles `government_sites`.
-2. **Feed discovery:** reconciliation makes new, reactivated, and materially changed sites due in `site_discovery_state`. A lightweight recurring dispatcher claims a small number of due sites, discovers and validates feeds, canonicalizes them into `feeds`, records provenance through `government_site_feeds`, and seeds `feed_fetch_state` for the later polling phase.
+2. **News source discovery:** reconciliation makes new, reactivated, and materially changed sites due in `site_discovery_state`. A lightweight recurring dispatcher claims a small number of due sites, discovers and validates news sources, canonicalizes them into `news_sources`, records provenance through `government_site_news_sources`, and seeds `news_source_fetch_state` for the later polling phase.
 
 Supabase is the durable source of truth. GitHub Actions owns only the weekly batch schedule. Cloudflare Cron and Queue own only bounded site-discovery dispatch and are not the authoritative backlog. If a discovery message expires or is retried, due state and leases in Supabase allow work to resume safely.
 
@@ -54,21 +55,21 @@ This intentionally resolves an earlier architecture option: do not add Supabase 
 2. Never replace the last known-good inventory with a partial or malformed upstream snapshot.
 3. Make synchronization and discovery idempotent and safe to retry.
 4. Discover RSS, Atom, and optionally JSON Feed endpoints without crawling entire sites.
-5. Represent the real cardinality: a website may expose many feeds and one canonical feed may be advertised by many website records.
-6. Separate website rediscovery scheduling from future feed-fetch scheduling.
+5. Represent the real cardinality: a website may expose many news sources and one canonical source may be advertised by many website records.
+6. Separate website rediscovery scheduling from future source-fetch scheduling.
 7. Complete the initial discovery backfill gradually without overwhelming shared government infrastructure.
 8. Produce enough operational evidence to diagnose source changes, failed discoveries, and stale leases.
 
 ## Non-Goals
 
-- Polling discovered feeds for new entries.
-- Parsing and storing feed entries.
+- Polling discovered news sources for new entries.
+- Parsing and storing news items.
 - Article-body crawling or full-site crawling.
 - WebSub subscription delivery.
 - Embeddings, clustering, ranking, search, or a public news API.
 - A dashboard or administrative UI.
 - Replacing the GSA list with an independently maintained government-domain registry.
-- Automatically scraping news listing pages when a site has no valid feed.
+- Automatically scraping news listing pages when a site has no valid source.
 - Production-scale multi-region deployment.
 
 ## Foundation Branch Contract
@@ -101,14 +102,14 @@ The current GSA CSV is approximately 8.2 MB (7.8 MiB) and 29,500 rows. Unlike th
 8. The sync makes new, reactivated, and newly eligible sites due immediately without resetting unrelated discovery history.
 9. Agency, bureau, analytics, or source-list-only changes do not by themselves trigger rediscovery.
 10. Site discovery is lease-based and safe across retries or concurrent consumers.
-11. Discovery starts with standards-based HTML feed autodiscovery and applies only bounded fallbacks.
+11. Discovery starts with standards-based HTML source autodiscovery and applies only bounded fallbacks.
 12. Every redirect and candidate URL is validated for allowed scheme, host, port, response size, and redirect count.
-13. Canonical feed URLs are globally unique, while website-to-feed relationships retain discovery method and first/last-seen timestamps.
+13. Canonical source URLs are globally unique, while website-to-source relationships retain discovery method and first/last-seen timestamps.
 14. Successful discovery schedules the next site rediscovery; transient failures use exponential backoff; permanent ineligibility disables discovery.
-15. Newly discovered feeds receive `feed_fetch_state` with `next_fetch_at = now()`, but no feed-fetch worker is implemented in this phase.
+15. Newly discovered news sources receive `news_source_fetch_state` with `next_fetch_at = now()`, but no source-fetch worker is implemented in this phase.
 16. The initial 25,000-plus-site backfill is rate-limited and can be paused without losing due work.
 17. Backend tables expose no anonymous write path and service-only RPC functions are not executable by public roles.
-18. Metrics distinguish inventory-sync failures, discovery failures, no-feed results, feed candidates rejected, canonical feeds created, and existing feeds reused.
+18. Metrics distinguish inventory-sync failures, discovery failures, no-source results, source candidates rejected, canonical news sources created, and existing news sources reused.
 
 ## Technical Approach
 
@@ -126,9 +127,9 @@ flowchart LR
     DS[("site_discovery_state")]
     DC["Discovery dispatcher Cron"]
     DW["Discovery consumer"]
-    F[("feeds")]
-    J[("government_site_feeds")]
-    FS[("feed_fetch_state")]
+    F[("news sources")]
+    J[("government_site_news_sources")]
+    FS[("news_source_fetch_state")]
 
     GA --> IW
     IW --> GC
@@ -148,14 +149,14 @@ flowchart LR
 
 - Run `.github/workflows/gsa-inventory-sync.yml` on Thursday at `04:17 UTC`, after the documented Wednesday evening GSA publication window and away from GitHub's busiest top-of-hour scheduling window.
 - Support `workflow_dispatch` and `pnpm inventory:sync` so the same batch can be run manually. The workflow uses `concurrency` to prevent overlapping syncs; the database advisory lock remains the final protection.
-- Run a lightweight discovery-dispatch Cron every minute initially. Each event causes the consumer to claim at most one due site from Supabase, keeping landing-page requests, redirect hops, feed candidates, and Supabase RPC calls within one Worker's subrequest budget.
+- Run a lightweight discovery-dispatch Cron every minute initially. Each event causes the consumer to claim at most one due site from Supabase, keeping landing-page requests, redirect hops, source candidates, and Supabase RPC calls within one Worker's subrequest budget.
 - Configure conservative queue-consumer concurrency during the initial backfill. The database remains the durable backlog, so the dispatcher should not pre-enqueue all sites.
 - Set initial rediscovery cadence to:
   - New/reactivated site: immediately.
-  - Successful discovery with at least one healthy feed: 90 days.
-  - Successful discovery with no feed: 30 days for the first retry, then 90 days.
+  - Successful discovery with at least one healthy source: 90 days.
+  - Successful discovery with no source: 30 days for the first retry, then 90 days.
   - Transient network or server failure: exponential backoff from 1 hour to 7 days.
-  - Feed later becomes invalid: make associated eligible sites due immediately.
+  - News source later becomes invalid: make associated eligible sites due immediately.
   - Filtered, inactive, or manually suppressed site: disabled until eligibility changes.
 
 The discovery dispatcher is separate from the weekly inventory trigger because failure-driven rediscovery should not wait up to seven days. It still uses the same `site_discovery_state` populated by the inventory reconciliation.
@@ -167,17 +168,17 @@ Create two additive migrations after the bootstrap migration:
 - `supabase/migrations/20260717000300_create_government_site_inventory.sql`
 - `supabase/migrations/20260717000400_create_feed_discovery.sql`
 
-The first migration owns inventory reconciliation and due-site scheduling. The second owns canonical feeds, website-to-feed provenance, and the polling handoff. Splitting them keeps the weekly inventory usable even if feed discovery needs additional iteration. Use `TIMESTAMPTZ`, database-generated UUIDs, explicit check constraints, and additive indexes.
+The first migration owns inventory reconciliation and due-site scheduling. The second owns canonical news sources, website-to-source provenance, and the polling handoff. Splitting them keeps the weekly inventory usable even if source discovery needs additional iteration. Use `TIMESTAMPTZ`, database-generated UUIDs, explicit check constraints, and additive indexes.
 
 Enforce these ownership boundaries throughout the code:
 
 ```text
 government_sites 1 -> 0..1 site_discovery_state
-government_sites M <-> N feeds through government_site_feeds
-feeds 1 -> 1 feed_fetch_state
+government_sites M <-> N news sources through government_site_news_sources
+news sources 1 -> 1 news_source_fetch_state
 ```
 
-Inventory reconciliation writes `government_sites` and eligibility-driven discovery state. Discovery writes feeds, provenance, and initial fetch state. Only the later polling scheduler may claim `feed_fetch_state`; this branch never treats `government_site_feeds` as a polling queue.
+Inventory reconciliation writes `government_sites` and eligibility-driven discovery state. Discovery writes news sources, provenance, and initial fetch state. Only the later polling scheduler may claim `news_source_fetch_state`; this branch never treats `government_site_news_sources` as a polling queue.
 
 ### `public.inventory_sync_runs`
 
@@ -263,7 +264,7 @@ One-to-zero-or-one operational child of `government_sites`:
 
 ```text
 site_id UUID PRIMARY KEY REFERENCES government_sites(id) ON DELETE CASCADE
-status TEXT NOT NULL CHECK (status IN ('pending', 'leased', 'succeeded', 'no_feed', 'backoff', 'disabled'))
+status TEXT NOT NULL CHECK (status IN ('pending', 'leased', 'succeeded', 'no_news_source', 'backoff', 'disabled'))
 next_discovery_at TIMESTAMPTZ NULL
 lease_token UUID NULL
 lease_until TIMESTAMPTZ NULL
@@ -279,12 +280,12 @@ updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 
 Index `(next_discovery_at)` for due rows and `(lease_until)` for stale-lease recovery.
 
-### `public.feeds`
+### `public.news_sources`
 
 ```text
 id UUID PRIMARY KEY
 canonical_url TEXT NOT NULL UNIQUE
-feed_type TEXT NOT NULL CHECK (feed_type IN ('rss', 'atom', 'json_feed'))
+source_type TEXT NOT NULL CHECK (source_type IN ('rss', 'atom', 'json_feed', 'publisher_api', 'html_archive', 'sitemap'))
 title TEXT NULL
 site_url TEXT NULL
 status TEXT NOT NULL CHECK (status IN ('active', 'invalid', 'gone', 'suppressed'))
@@ -294,30 +295,30 @@ created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 ```
 
-### `public.government_site_feeds`
+### `public.government_site_news_sources`
 
 Many-to-many provenance table:
 
 ```text
 site_id UUID NOT NULL REFERENCES government_sites(id) ON DELETE CASCADE
-feed_id UUID NOT NULL REFERENCES feeds(id) ON DELETE CASCADE
+news_source_id UUID NOT NULL REFERENCES news_sources(id) ON DELETE CASCADE
 discovery_method TEXT NOT NULL
 discovery_url TEXT NOT NULL
 active BOOLEAN NOT NULL DEFAULT true
 first_seen_at TIMESTAMPTZ NOT NULL DEFAULT now()
 last_seen_at TIMESTAMPTZ NOT NULL DEFAULT now()
 missing_success_count INTEGER NOT NULL DEFAULT 0
-PRIMARY KEY (site_id, feed_id)
+PRIMARY KEY (site_id, news_source_id)
 ```
 
 Do not deactivate an unseen relationship after a failed or partial discovery. After a complete successful discovery, increment `missing_success_count` for previously active unseen relationships and deactivate only after two consecutive misses.
 
-### `public.feed_fetch_state`
+### `public.news_source_fetch_state`
 
 Create the polling handoff without implementing its consumer:
 
 ```text
-feed_id UUID PRIMARY KEY REFERENCES feeds(id) ON DELETE CASCADE
+news_source_id UUID PRIMARY KEY REFERENCES news_sources(id) ON DELETE CASCADE
 status TEXT NOT NULL CHECK (status IN ('pending', 'active', 'backoff', 'disabled'))
 next_fetch_at TIMESTAMPTZ NULL
 lease_token UUID NULL
@@ -330,7 +331,7 @@ failure_count INTEGER NOT NULL DEFAULT 0
 updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 ```
 
-The discovery transaction inserts this row with `status = 'pending'` and `next_fetch_at = now()` for a new feed. Feed polling is a follow-up plan.
+The discovery transaction inserts this row with `status = 'pending'` and `next_fetch_at = now()` for a new source. News source polling is a follow-up plan.
 
 ### Database Functions
 
@@ -339,7 +340,7 @@ Add service-only functions in the owning migration:
 - `stage_gsa_inventory_batch(sync_run_id UUID, rows JSONB)` inserts a bounded batch into the private staging table.
 - `finalize_gsa_inventory_sync(sync_run_id UUID)` validates and atomically reconciles a fully staged snapshot.
 - `claim_due_site_discoveries(worker_id UUID, claim_limit INTEGER, lease_seconds INTEGER)` uses `FOR UPDATE SKIP LOCKED`, excludes ineligible sites, prefers oldest-due rows, and selects no more than one site per base domain per claim.
-- `complete_site_discovery(...)` atomically upserts canonical feeds and relationships, seeds fetch state, releases the lease, and calculates the next discovery time.
+- `complete_site_discovery(...)` atomically upserts canonical news sources and relationships, seeds fetch state, releases the lease, and calculates the next discovery time.
 - `fail_site_discovery(...)` validates the lease token, increments failure state, and applies bounded backoff.
 - `recover_expired_site_discovery_leases()` returns expired leases to a due/backoff state.
 
@@ -503,39 +504,39 @@ Do not configure a Cloudflare or Supabase schedule for this workflow. GitHub doc
 
 **Deliverable:** Inventory maintenance runs unattended in a batch-capable runtime but remains safe to inspect and retry.
 
-### 7. Implement feed candidate discovery and validation
+### 7. Implement source candidate discovery and validation
 
 **Complexity:** Large
 **Dependencies:** Steps 2 and 3
 
-Create the feed persistence migration and its tests first:
+Create the source persistence migration and its tests first:
 
 - `supabase/migrations/20260717000400_create_feed_discovery.sql`
 - `supabase/tests/database/feed_discovery.test.sql`
 
-This migration implements `feeds`, `government_site_feeds`, `feed_fetch_state`, `complete_site_discovery`, and `fail_site_discovery` before Worker discovery code can write results.
+This migration implements `news_sources`, `government_site_news_sources`, `news_source_fetch_state`, `complete_site_discovery`, and `fail_site_discovery` before Worker discovery code can write results.
 
 Then create:
 
-- `apps/pipeline-worker/src/discovery/discover-site-feeds.ts`
-- `apps/pipeline-worker/src/discovery/extract-feed-links.ts`
-- `apps/pipeline-worker/src/discovery/generate-feed-candidates.ts`
-- `apps/pipeline-worker/src/discovery/validate-feed.ts`
-- `apps/pipeline-worker/src/discovery/canonicalize-feed-url.ts`
+- `apps/pipeline-worker/src/discovery/discover-site-news-sources.ts`
+- `apps/pipeline-worker/src/discovery/extract-source-links.ts`
+- `apps/pipeline-worker/src/discovery/generate-source-candidates.ts`
+- `apps/pipeline-worker/src/discovery/validate-source.ts`
+- `apps/pipeline-worker/src/discovery/canonicalize-source-url.ts`
 - `apps/pipeline-worker/src/discovery/discovery-policy.ts`
-- `apps/pipeline-worker/test/feed-autodiscovery.test.ts`
-- `apps/pipeline-worker/test/feed-validation.test.ts`
-- `apps/pipeline-worker/test/feed-canonicalization.test.ts`
+- `apps/pipeline-worker/test/source-autodiscovery.test.ts`
+- `apps/pipeline-worker/test/source-validation.test.ts`
+- `apps/pipeline-worker/test/source-canonicalization.test.ts`
 
 Discovery order:
 
 1. Request `https://<initial_url>/`, following only bounded validated redirects.
 2. Parse `<link rel="alternate">` entries for RSS, Atom, and JSON Feed media types.
-3. Inspect explicit same-page anchor links labeled RSS, Atom, feed, news, press releases, newsroom, alerts, or blog.
+3. Inspect explicit same-page anchor links labeled RSS, Atom, source, news, press releases, newsroom, alerts, or blog.
 4. Visit a bounded number of high-confidence same-site news landing pages and repeat autodiscovery.
 5. Apply a small versioned list of CMS/path heuristics only after standards-based discovery.
 6. Fetch each candidate with conditional size, redirect, timeout, content-type, and XML/JSON parsing limits.
-7. Accept only candidates with a valid feed structure and at least one plausible item or explicit empty-feed metadata.
+7. Accept only candidates with a valid source structure and at least one plausible item or explicit empty-source metadata.
 
 Safety limits for the first release:
 
@@ -543,16 +544,16 @@ Safety limits for the first release:
 - Reject credentials, fragments, non-default ports unless explicitly allowed, IP literals, loopback/private/link-local targets, and cloud metadata hosts.
 - Revalidate every redirect target.
 - Maximum five landing/news pages per site.
-- Maximum ten feed candidates per site.
+- Maximum ten source candidates per site.
 - Maximum five redirects per request.
 - Maximum 40 external subrequests for the entire queue-consumer invocation, including Supabase RPCs and every redirect hop, leaving 20% headroom under the Workers Free limit of 50. Stop discovery cleanly when the budget is exhausted.
-- Maximum two MiB per HTML or feed response after decompression.
+- Maximum two MiB per HTML or source response after decompression.
 - Disable XML external entities and DTD processing.
 - Use a descriptive User-Agent with project contact information.
 
-Canonicalization lowercases scheme and host, removes fragments and default ports, follows permanent redirects, and preserves path/query semantics. Do not strip trailing slashes or tracking-looking query parameters without evidence that the feed contents are identical.
+Canonicalization lowercases scheme and host, removes fragments and default ports, follows permanent redirects, and preserves path/query semantics. Do not strip trailing slashes or tracking-looking query parameters without evidence that the source contents are identical.
 
-**Deliverable:** Fixture-backed discovery returns validated, canonical feed records without unbounded crawling.
+**Deliverable:** Fixture-backed discovery returns validated, canonical source records without unbounded crawling.
 
 ### 8. Implement due-site claiming and discovery persistence
 
@@ -577,9 +578,9 @@ For each dispatch message:
 4. Call `fail_site_discovery` for a site-level failure instead of failing the whole queue message.
 5. Retry the whole queue message only for systemic failures such as Supabase unavailability.
 
-The completion RPC must upsert a canonical feed once, link it to every discovering website, mark relationships observed, apply the two-successful-misses rule, and seed `feed_fetch_state` for new feeds.
+The completion RPC must upsert a canonical source once, link it to every discovering website, mark relationships observed, apply the two-successful-misses rule, and seed `news_source_fetch_state` for new news sources.
 
-**Deliverable:** Duplicate discovery attempts converge on the same feed and relationship rows, while individual site failures do not poison unrelated work.
+**Deliverable:** Duplicate discovery attempts converge on the same source and relationship rows, while individual site failures do not poison unrelated work.
 
 ### 9. Schedule and throttle discovery dispatch
 
@@ -621,17 +622,17 @@ Update structured Worker logs and `pipeline_events` usage to expose:
 - Last successful inventory sync age.
 - Source row count and week-over-week delta.
 - Active, filtered, and inactive site counts.
-- Due, leased, backoff, no-feed, and disabled discovery counts.
+- Due, leased, backoff, no-source, and disabled discovery counts.
 - Oldest due-site age and expired leases.
-- Discovery success/no-feed/failure rates.
+- Discovery success/no-source/failure rates.
 - Candidates discovered, rejected, and canonicalized.
-- Number of feeds reused across multiple website records.
+- Number of news sources reused across multiple website records.
 - Latency from a new inventory record to first completed discovery.
 - Supabase database size and staging-table size, with a warning threshold below the Free plan's 500 MB read-only limit.
 
 Do not use `pipeline_events` as the source of truth for current state; it is diagnostic history.
 
-**Deliverable:** An operator can distinguish a stale source sync, stuck dispatcher, publisher failures, and genuine no-feed results.
+**Deliverable:** An operator can distinguish a stale source sync, stuck dispatcher, publisher failures, and genuine no-source results.
 
 ### 11. Add end-to-end tests and perform a bounded canary
 
@@ -655,10 +656,10 @@ Test:
 6. Filtered rows remain stored but are not claimable.
 7. Concurrent claims do not return the same site.
 8. Expired leases are recoverable.
-9. Autodiscovery, relative URLs, redirects, malformed XML, oversized responses, and duplicate canonical feeds behave correctly.
-10. Two websites advertising one feed create one feed and two provenance rows.
-11. One website advertising multiple feeds creates multiple relationships.
-12. New feeds receive pending fetch state without being polled.
+9. Autodiscovery, relative URLs, redirects, malformed XML, oversized responses, and duplicate canonical news sources behave correctly.
+10. Two websites advertising one source create one source and two provenance rows.
+11. One website advertising multiple news sources creates multiple relationships.
+12. New news sources receive pending fetch state without being polled.
 
 Use local fixtures and mocked network calls for CI. The hosted canary should:
 
@@ -679,7 +680,7 @@ Use local fixtures and mocked network calls for CI. The hosted canary should:
 - CSV header, quoting, newline, boolean, and malformed-row handling.
 - URL/hostname normalization and discovery-input hashing.
 - Event-envelope validation.
-- Feed-link extraction and relative URL resolution.
+- News source-link extraction and relative URL resolution.
 - RSS, Atom, and JSON Feed structural validation.
 - Canonicalization behavior and redirect handling.
 - Backoff and next-discovery calculations.
@@ -692,7 +693,7 @@ Use local fixtures and mocked network calls for CI. The hosted canary should:
 - Discovery eligibility transitions.
 - Concurrent `SKIP LOCKED` claiming and lease-token enforcement.
 - Expired-lease recovery.
-- Canonical-feed uniqueness and many-to-many provenance.
+- Canonical-source uniqueness and many-to-many provenance.
 - Relationship missing-count behavior.
 - RLS and function-execution grants.
 
@@ -734,8 +735,8 @@ CI runs the first five commands. The fixture command must never contact GSA, R2,
 2. Apply both additive schema migrations with the GitHub schedule and discovery Cron disabled.
 3. Deploy the Worker code and run every required verification command.
 4. **Inventory gate:** manually run one real inventory sync. Require a stored R2 artifact, matching checksum, expected row count, zero duplicate normalized keys, successful finalization, and a sampled comparison with the source before enabling the weekly GitHub schedule.
-5. **25-site gate:** select diverse base domains and CMSs. Require every attempt to reach a recorded terminal state, zero unsafe or unbounded requests, no duplicate canonical feeds, and inspected failure categories before expanding.
-6. **250-site gate:** require stable subrequest headroom, no expired/stuck leases, acceptable no-feed/error categorization, and Queue usage consistent with estimates.
+5. **25-site gate:** select diverse base domains and CMSs. Require every attempt to reach a recorded terminal state, zero unsafe or unbounded requests, no duplicate canonical news sources, and inspected failure categories before expanding.
+6. **250-site gate:** require stable subrequest headroom, no expired/stuck leases, acceptable no-source/error categorization, and Queue usage consistent with estimates.
 7. Enable the weekly GitHub Actions inventory schedule.
 8. Enable the one-minute discovery dispatcher with claim limit one and concurrency one.
 9. Review metrics daily during the initial backfill.
@@ -749,7 +750,7 @@ No feature flag is required for user-facing behavior, but both Cron triggers are
 2. Pause the queue consumer if systemic retries continue.
 3. Revert the Worker deployment to the foundation version.
 4. Clear or expire active leases through the documented recovery function.
-5. Preserve inventory, feeds, relationships, sync runs, and R2 snapshots for diagnosis.
+5. Preserve inventory, news sources, relationships, sync runs, and R2 snapshots for diagnosis.
 6. Do not automatically reverse the additive migration or delete discovered data.
 
 If a bad snapshot was finalized despite validation, restore active flags and metadata from the previous archived R2 snapshot through a new corrective sync run rather than manually editing individual rows.
@@ -763,13 +764,13 @@ If a bad snapshot was finalized despite validation, restore active flags and met
 - [x] Only active, unfiltered, ingestion-usable sites can be claimed for discovery.
 - [x] New and reactivated sites become immediately due.
 - [x] Discovery claims are lease-safe and recover after worker failure.
-- [ ] The discovery implementation finds standard HTML-advertised RSS and Atom feeds.
+- [ ] The discovery implementation finds standard HTML-advertised RSS and Atom news sources.
 - [ ] Invalid, unsafe, oversized, or redirecting candidates are handled within policy.
-- [ ] Multiple websites can reference one canonical feed without duplicate polling state.
-- [ ] One website can reference multiple feeds.
-- [ ] New feeds receive pending `feed_fetch_state` but are not polled in this phase.
+- [ ] Multiple websites can reference one canonical source without duplicate polling state.
+- [ ] One website can reference multiple news sources.
+- [ ] New news sources receive pending `news_source_fetch_state` but are not polled in this phase.
 - [ ] The initial backfill can be paused and resumed from database state.
-- [ ] Operator queries expose source freshness, backlog age, failures, and feed counts.
+- [ ] Operator queries expose source freshness, backlog age, failures, and source counts.
 - [ ] CI lint, typecheck, unit, database, and integration tests pass remotely.
 - [x] No anonymous client can mutate inventory or scheduling state.
 
@@ -781,8 +782,8 @@ If a bad snapshot was finalized despite validation, restore active flags and met
 | Cloudflare retry duplicates work | Stable sync IDs, unique constraints, database leases, and idempotent RPCs. |
 | Queue retention loses a dispatch message | Keep authoritative due work in Supabase and emit recurring dispatch ticks. |
 | Large initial backfill overwhelms publishers | Low claim limit, one consumer initially, distinct base domains per claim, jitter, and bounded requests. |
-| Many GSA records converge on one website/feed | Canonical feed uniqueness plus many-to-many provenance. |
-| Feed disappears temporarily | Backoff and rediscover; do not remove relationships after one miss. |
+| Many GSA records converge on one website/source | Canonical source uniqueness plus many-to-many provenance. |
+| News source disappears temporarily | Backoff and rediscover; do not remove relationships after one miss. |
 | The scheduled GitHub job is delayed, dropped, or disabled | Schedule off the top of the hour, alert when the last success is older than eight days, and retain `workflow_dispatch` plus the local command. |
 | Free Queue operations constrain throughput | Use database backlog plus small recurring dispatch messages; measure before raising cadence. |
 | Government site redirects to an unsafe target | Validate every redirect and enforce scheme, host, port, size, and XML protections. |
@@ -795,8 +796,8 @@ If a bad snapshot was finalized despite validation, restore active flags and met
 2. Should `.mil`, `.com`, and `.edu` records currently present in the GSA index be included? Recommendation: retain and discover every active, unfiltered row supplied by GSA, while preserving the top-level domain for filtering.
 3. What project contact URL or email should appear in the discovery User-Agent?
 4. How long should raw GSA snapshots and successful staging rows be retained? Recommendation: keep immutable R2 snapshots indefinitely during development and clean successful staging rows after 30 days.
-5. Is a multi-week first discovery backfill acceptable on the free plan? Recommendation: begin slowly and only pay for higher throughput after observing real feed yield and resource use.
-6. Should an immediately discovered feed remain `pending` until the polling branch is deployed, or should it be `disabled` to avoid accidental early consumption? Recommendation: use `pending` with no active fetch dispatcher.
+5. Is a multi-week first discovery backfill acceptable on the free plan? Recommendation: begin slowly and only pay for higher throughput after observing real source yield and resource use.
+6. Should an immediately discovered source remain `pending` until the polling branch is deployed, or should it be `disabled` to avoid accidental early consumption? Recommendation: use `pending` with no active fetch dispatcher.
 
 None of these questions blocks schema and local implementation. Question 3 must be resolved before crawling real government sites.
 
@@ -806,7 +807,7 @@ None of these questions blocks schema and local implementation. Question 3 must 
 - [GSA index creation process](https://github.com/GSA/federal-website-index/blob/main/process/index-creation.md)
 - [GSA target URL CSV](https://github.com/GSA/federal-website-index/blob/main/data/site-scanning-target-url-list.csv)
 - [GSA Site Scanning API](https://open.gsa.gov/api/site-scanning-api/)
-- [HTML feed autodiscovery](https://html.spec.whatwg.org/multipage/links.html#link-type-alternate)
+- [HTML source autodiscovery](https://html.spec.whatwg.org/multipage/links.html#link-type-alternate)
 - [RSS 2.0 specification](https://www.rssboard.org/rss-specification)
 - [Cloudflare Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/)
 - [Cloudflare Queues limits](https://developers.cloudflare.com/queues/platform/limits/)

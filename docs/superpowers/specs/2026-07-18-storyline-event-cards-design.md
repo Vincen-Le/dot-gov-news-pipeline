@@ -159,13 +159,13 @@ CREATE INDEX ON event_cards (storyline_id, version);
 
 ## Windows (v2)
 
-| Key                  | Default | Governs                                                        |
-| -------------------- | ------- | -------------------------------------------------------------- |
-| `EPISODE_DORMANCY`   | 4 h     | rolling quiet gap that closes an episode                        |
-| `DEDUPE_WINDOW`      | 72 h    | exact + near-dup scope — decoupled from dormancy (syndication tails) |
-| `ACTIVE_WINDOW`      | 72 h    | hot Chroma collection; nightly episode-level scan scope          |
-| `SERVING_WINDOW`     | 7 d     | feed filter on cards                                            |
-| Storyline lifetime   | ∞       | unbounded by design; candidates via entity index, never scans    |
+| Key                | Default | Governs                                                              |
+| ------------------ | ------- | -------------------------------------------------------------------- |
+| `EPISODE_DORMANCY` | 4 h     | rolling quiet gap that closes an episode                             |
+| `DEDUPE_WINDOW`    | 72 h    | exact + near-dup scope — decoupled from dormancy (syndication tails) |
+| `ACTIVE_WINDOW`    | 72 h    | hot Chroma collection; nightly episode-level scan scope              |
+| `SERVING_WINDOW`   | 7 d     | serving filter on cards                                              |
+| Storyline lifetime | ∞       | unbounded by design; candidates via entity index, never scans        |
 
 `CLUSTER_GROWTH_WINDOW` / sealing: removed. Sealing solved v1's objective (burst dedupe); v2's chain objective replaces it with episode dormancy + entity-anchored threading.
 

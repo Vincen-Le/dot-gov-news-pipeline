@@ -84,6 +84,9 @@ jobs:
       - name: Apply migrations from scratch
         run: pnpm supabase db reset
 
+      - name: Test legacy data migration
+        run: pnpm test:migration
+
       - name: Test database functions and grants
         run: pnpm supabase test db
 

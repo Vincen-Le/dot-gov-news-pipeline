@@ -3,12 +3,12 @@
 **Date:** 2026-07-17
 **Status:** Approved design, pre-implementation
 **Scope:** Phase 4 of `architecture.md` — entry processing after normalization/deduplication: embeddings, semantic clustering, cross-source deduplication, rubric-based ranking, materialized serving, and semantic search.
-**Assumes:** Feed polling and durable `feed_entries` persistence (Phases 1–3) are stable and functioning.
+**Assumes:** News-source fetching and durable `news_items` persistence (Phases 1–3) are stable and functioning.
 
 ## Goals
 
-1. Cluster related entries from different agencies/feeds into real-world stories.
-2. Detect cross-feed syndicated duplicates without deleting provenance.
+1. Cluster related items from different agencies/news sources into real-world stories.
+2. Detect cross-source syndicated duplicates without deleting provenance.
 3. Rank stories globally and per facet (`topic`, `agency`, emergent `cluster_topic`) with an explainable, tunable formula.
 4. Serve a materialized ranked result the frontend reads and streams (JSON + SSE); frontend renders OpenGraph cards.
 5. Persist embeddings for semantic search via ChromaDB.
@@ -18,14 +18,14 @@
 ## Non-goals
 
 - Learned/trained ranker (rubric bits + human feedback collection come first).
-- Article-body crawling (titles/summaries from feeds only; OG fetch is bounded per-URL metadata, not crawling).
+- Article-body crawling (titles/summaries from source adapters only; OG fetch is bounded per-URL metadata, not crawling).
 - Personalization, user accounts, multi-region.
 
 ## Runtime topology
 
 ```text
 TS poller (existing Phase 3)
-  inserts feed_entries
+  inserts news_items
   └─ fire-and-forget fetch → ranking Durable Object   (contentless wake ping)
                                   │
 Cloudflare Cron (*/5) ────────────┤ safety wake
@@ -46,11 +46,11 @@ Cloudflare Cron (*/5) ────────────┤ safety wake
 
 ### Durability split
 
-| Store                   | Holds                                                                        | Durable?               |
-| ----------------------- | ---------------------------------------------------------------------------- | ---------------------- |
-| Supabase Postgres       | Entries, embeddings (fp16 bytea), clusters, rubric bits, rank_key, FTS index | Yes — source of truth  |
+| Store                   | Holds                                                                                                                                           | Durable?               |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| Supabase Postgres       | Entries, embeddings (fp16 bytea), clusters, rubric bits, rank_key, FTS index                                                                    | Yes — source of truth  |
 | ChromaDB (in container) | Two collections: `hot` (72 h working set — near-dup + centroid ops, pruned nightly) and `search` (append-only full history for semantic search) | No — rebuilt on boot   |
-| R2                      | Hourly Chroma snapshot                                                       | Yes — boot accelerator |
+| R2                      | Hourly Chroma snapshot                                                                                                                          | Yes — boot accelerator |
 
 Boot sequence: load latest R2 snapshot → top-up from Postgres rows newer than snapshot watermark → serve. Seconds, not minutes.
 
@@ -59,8 +59,8 @@ Boot sequence: load latest R2 snapshot → top-up from Postgres rows newer than 
 Python worker claims unprocessed entries with the same lease pattern used elsewhere in the pipeline:
 
 ```sql
-SELECT id, feed_id, title, summary, url, published_at
-FROM feed_entries
+SELECT id, news_source_id, title, summary, url, published_at
+FROM news_items
 WHERE processed_at IS NULL
 ORDER BY id
 FOR UPDATE SKIP LOCKED
@@ -74,26 +74,26 @@ Loop: claim batch → process → mark `processed_at` → repeat until empty →
 For each claimed entry:
 
 1. **Exact dedupe (deterministic, zero-cost).** Before any embedding:
-   - **Canonical URL match:** lookup `feed_entries.url_canonical` (indexed) among already-processed entries whose clusters are still unsealed (growth window, below). Two feeds pointing at the same canonicalized article URL = same article, no inference needed.
+   - **Canonical URL match:** lookup `news_items.url_canonical` (indexed) among already-processed entries whose clusters are still unsealed (growth window, below). Two sources pointing at the same canonicalized article URL = same article, no inference needed.
    - **Content hash match:** lookup `content_hash = sha256(normalized(title) || normalized(summary))` (indexed), same unsealed scope. Catches verbatim syndication where URLs differ. (Republished old content past the seal becomes a new single-source cluster with old/clamped timestamps — born ranked low, sinks immediately.)
    - Hit on either → attach as syndicated duplicate (`attach_method = 'exact_url'` or `'content_hash'`), skip steps 2–4.
-   - Both values are computed **at ingest** in the TS normalization stage (cheap, deterministic, language-neutral); the dedupe *decision* lives here because it needs cross-feed scope and cluster attachment. Per-feed idempotency (`UNIQUE(feed_id, external_entry_id)`) remains upstream and unchanged.
-2. **Embed.** Workers AI REST `@cf/baai/bge-large-en-v1.5` on `title + "\n" + summary`. 1024 dims. Batch inputs while draining. Store fp16 bytea in Postgres; upsert into Chroma with metadata `{entry_id, feed_id, agency, published_at}`.
+   - Both values are computed **at ingest** in the TS normalization stage (cheap, deterministic, language-neutral); the dedupe _decision_ lives here because it needs cross-source scope and cluster attachment. Per-source idempotency (`UNIQUE(news_source_id, external_item_id)`) remains upstream and unchanged.
+2. **Embed.** Workers AI REST `@cf/baai/bge-large-en-v1.5` on `title + "\n" + summary`. 1024 dims. Batch inputs while draining. Store fp16 bytea in Postgres; upsert into Chroma with metadata `{entry_id, news_source_id, agency, published_at}`.
 3. **Near-dup check (fuzzy).** Chroma query against entries from the last 72 h. Cosine ≥ `NEAR_DUP_THRESHOLD` → syndicated duplicate (edited/reformatted copies the exact checks miss): attach to the matched entry's cluster with `attach_method = 'near_dup'`, skip step 4. Duplicate is kept as a cluster source record, never deleted.
 4. **Cluster assign — cosine nominates, entities gate, LLM arbitrates.** Compare against **unsealed** cluster centroids (clusters with `first_entry_at > now() - CLUSTER_GROWTH_WINDOW`; a couple hundred max; held in worker memory as a numpy matrix, persisted as fp16 bytea on `story_clusters.centroid`). Clusters accept members only within the growth window of their **birth** — birth-anchored, so eligibility cannot roll forward on new attaches; after the window a cluster is **sealed** (membership frozen; ranking/serving/decay unaffected). A similar event days later structurally cannot join — it gets its own card at any cosine value. Dedupe exists to absorb the echo burst (release → same-day syndication → next-day statements), not multi-day event aliasing; sealing also structurally bounds drip-feed stories (post-seal developments become their own cards with their own clocks). Cosine ≥ `CLUSTER_JOIN_THRESHOLD` produces a **merge candidate**, not a decision — same-template distinct events (two different drug recalls in one week) embed nearly identically, so no cosine threshold alone can separate them. Candidate resolution:
 
-   | Candidate state | Decision |
-   | --- | --- |
-   | Entity sets overlap | Auto-join, `attach_method = 'centroid_join'` (fast path, no LLM) |
-   | Entity sets disjoint (both non-empty) | LLM arbitrates (split-biased) |
-   | Entity sets inconclusive (an empty side) | LLM arbitrates (split-biased) |
-   | LLM timeout/error | Split — safe default, nightly pass re-merges if wrong |
-
-   - **Entity evidence.** Salient discriminators extracted from title + first summary sentence (see extraction algorithm below). Disjoint sets are *evidence of distinct events* (two different drugs/companies), but not final authority — the same event can surface different discriminators per source (FDA names the drug, HHS names the manufacturer), so conflicts go to arbitration rather than auto-veto. Extracted entities stored as attach evidence; cluster keeps a union `entity_set` for future comparisons.
-   - **LLM adjudicator.** One `ADJUDICATOR_MODEL` call with both titles/summaries *and* both entity sets: "same specific real-world event? {same_event, reason}". Prompt is split-biased ("true only if clearly the same specific event; different products, companies, cases, or locations = different events"); defaults to false. `attach_method = 'adjudicated_join'` / `'adjudicated_new'`, reason recorded. Fires only on conflicted/inconclusive candidates — single-digit calls/day.
+   | Candidate state                          | Decision                                                         |
+   | ---------------------------------------- | ---------------------------------------------------------------- |
+   | Entity sets overlap                      | Auto-join, `attach_method = 'centroid_join'` (fast path, no LLM) |
+   | Entity sets disjoint (both non-empty)    | LLM arbitrates (split-biased)                                    |
+   | Entity sets inconclusive (an empty side) | LLM arbitrates (split-biased)                                    |
+   | LLM timeout/error                        | Split — safe default, nightly pass re-merges if wrong            |
+   - **Entity evidence.** Salient discriminators extracted from title + first summary sentence (see extraction algorithm below). Disjoint sets are _evidence of distinct events_ (two different drugs/companies), but not final authority — the same event can surface different discriminators per source (FDA names the drug, HHS names the manufacturer), so conflicts go to arbitration rather than auto-veto. Extracted entities stored as attach evidence; cluster keeps a union `entity_set` for future comparisons.
+   - **LLM adjudicator.** One `ADJUDICATOR_MODEL` call with both titles/summaries _and_ both entity sets: "same specific real-world event? {same_event, reason}". Prompt is split-biased ("true only if clearly the same specific event; different products, companies, cases, or locations = different events"); defaults to false. `attach_method = 'adjudicated_join'` / `'adjudicated_new'`, reason recorded. Fires only on conflicted/inconclusive candidates — single-digit calls/day.
    - **`adjudicated_join` is the riskiest decision type in the pipeline** — the only path where inference can put two events on one card. Contained three ways: split-biased prompt, QA sampler reviews 100% of adjudicated joins at MVP volume, and nightly split detection backstops.
    - Join updates the centroid (running mean); any no-join outcome creates a new cluster.
    - **Bias is deliberate:** over-merge puts two events on one card (user-visible correctness bug); under-merge shows duplicate cards (cosmetic). Ambiguity resolves toward split; the nightly consolidation pass re-merges false splits later with fuller context (more members, richer entity sets).
+
 5. **Facets.**
    - `agency`: from feed provenance. Zero inference.
    - `topic`: cosine against ~15 fixed-taxonomy label embeddings (precomputed once per taxonomy version). Assign argmax above a floor; else `null`.
@@ -122,7 +122,7 @@ Subtractive by design: Title Case gov headlines capitalize nearly everything, so
 
 Rules of the guard:
 
-- **Precision over recall.** Empty/weak extraction never vetoes — it returns *inconclusive* and defers to the LLM adjudicator (e.g. ALL-CAPS titles destroy the capitalization signal; they fall through safely).
+- **Precision over recall.** Empty/weak extraction never vetoes — it returns _inconclusive_ and defers to the LLM adjudicator (e.g. ALL-CAPS titles destroy the capitalization signal; they fall through safely).
 - **Config is versioned data.** Lexicons + regex list live in a Postgres table keyed by `extractor_version` (same pattern as `rubric_version`); versions are immutable — edits create a new version. Attach evidence records `extractor_version`, so every historical decision is exactly reproducible and proposed extractor changes can be retro-evaluated against recorded history without reprocessing.
 - **One implementation site.** Extraction runs only in the Python worker — never duplicated in TS — so cross-language drift is impossible. (`url_canonical`/`content_hash` are the mirror case: computed only in TS at ingest.)
 - **Failure asymmetry is safe.** Spurious veto → duplicate cards → nightly consolidation re-merges with fuller entity unions (self-healing). No extraction failure mode can merge two distinct events onto one card — the guard only ever blocks merges.
@@ -219,7 +219,7 @@ CREATE TABLE public.story_clusters (
   cohesion               real,                           -- nightly mean member↔centroid similarity
   entity_set             text[] NOT NULL DEFAULT '{}',   -- union of member salient discriminators (entity guard)
   merged_into            uuid REFERENCES story_clusters(id),  -- set by consolidation; excluded from serving, permalink 301s to winner
-  representative_entry_id uuid REFERENCES feed_entries(id),  -- owns card click + OG fetch
+  representative_entry_id uuid REFERENCES news_items(id),  -- owns card click + OG fetch
   rubric                 jsonb,
   rubric_version         int,
   judge_model            text,
@@ -240,14 +240,14 @@ CREATE INDEX ON story_clusters (newest_entry_at);
 
 CREATE TABLE public.story_cluster_entries (
   cluster_id       uuid NOT NULL REFERENCES story_clusters(id),
-  entry_id         uuid NOT NULL REFERENCES feed_entries(id),
+  entry_id         uuid NOT NULL REFERENCES news_items(id),
   is_syndicated    boolean NOT NULL DEFAULT false,
   -- attach decision evidence (auditability/QA):
   attach_method    text NOT NULL,        -- exact_url | content_hash | near_dup | centroid_join
                                          -- | adjudicated_join | adjudicated_new | new_cluster
                                          -- | consolidation_merge | consolidation_split
   similarity       real,                 -- cosine at decision time (null for exact/new)
-  matched_entry_id uuid REFERENCES feed_entries(id),  -- what it matched (dups)
+  matched_entry_id uuid REFERENCES news_items(id),  -- what it matched (dups)
   threshold_used   real,                 -- config value in force at decision time
   embedding_model  text,                 -- model that produced the similarity
   attached_at      timestamptz NOT NULL DEFAULT now(),
@@ -257,14 +257,14 @@ CREATE TABLE public.story_cluster_entries (
 CREATE INDEX ON story_cluster_entries (entry_id);   -- entry → cluster reverse lookup
 ```
 
-`feed_entries` additionally carries a denormalized `cluster_id` (set by the attach RPC), so both directions are one FK hop: cluster → members via the junction, entry → cluster directly. The junction row is the **audit record**: every membership decision stores what method made it, against what, at what similarity, under which threshold and model. Clustering QA becomes plain SQL, and threshold recalibration can be evaluated retroactively against recorded decisions.
+`news_items` additionally carries a denormalized `cluster_id` (set by the attach RPC), so both directions are one FK hop: cluster → members via the junction, entry → cluster directly. The junction row is the **audit record**: every membership decision stores what method made it, against what, at what similarity, under which threshold and model. Clustering QA becomes plain SQL, and threshold recalibration can be evaluated retroactively against recorded decisions.
 
 RLS enabled; anon gets read-only `SELECT` on serving columns at most; writes via service-role RPCs following the existing `SECURITY DEFINER` conventions (empty `search_path`, qualified relations, bounded args, `EXECUTE` revoked from `PUBLIC`/`anon`/`authenticated`).
 
 **Path 1 — entry attach (synchronous, per entry):**
 
 ```sql
--- attach_entry_to_cluster(entry_id, cluster_id, agency, feed_id, published_at, source_weight,
+-- attach_entry_to_cluster(entry_id, cluster_id, agency, news_source_id, published_at, source_weight,
 --                         attach_method, similarity, matched_entry_id, threshold_used, embedding_model)
 BEGIN;
   INSERT INTO story_cluster_entries (cluster_id, entry_id, is_syndicated,
@@ -285,7 +285,7 @@ BEGIN;
     updated_at        = now()
   WHERE id = $cluster_id;
 
-  UPDATE feed_entries SET processed_at = now(), cluster_id = $cluster_id
+  UPDATE news_items SET processed_at = now(), cluster_id = $cluster_id
   WHERE id = $entry_id AND processed_at IS NULL;  -- idempotency guard
 
   PERFORM pg_notify('rank_changed', $cluster_id::text);
@@ -313,11 +313,11 @@ The time term dominates `rank_key`, so index order is roughly recent-first and t
 
 ```sql
 SELECT e.id, e.title, e.summary, e.url, e.published_at,
-       f.canonical_url AS feed_url,
+       source.canonical_url AS source_url,
        sce.is_syndicated, sce.attach_method, sce.similarity, sce.attached_at
 FROM story_cluster_entries sce
-JOIN feed_entries e ON e.id = sce.entry_id
-JOIN feeds f        ON f.id = e.feed_id
+JOIN news_items e ON e.id = sce.entry_id
+JOIN news_sources source ON source.id = e.news_source_id
 WHERE sce.cluster_id = $1
 ORDER BY sce.attached_at;
 ```
@@ -381,21 +381,21 @@ Deferred (not MVP): 2-D embedding projection (UMAP) scatter of the active window
 
 ## Configuration (not constants)
 
-| Key                      | Initial                                    | Notes                                                     |
-| ------------------------ | ------------------------------------------ | --------------------------------------------------------- |
-| `EMBEDDING_MODEL`        | `@cf/baai/bge-large-en-v1.5`               | 1024 dims; `bge-base` (768) is the DB-size pressure valve |
-| `JUDGE_MODEL`            | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | via AI Gateway                                            |
-| `ADJUDICATOR_MODEL`      | same as `JUDGE_MODEL`                      | same-event arbitration; separate key so it can diverge    |
-| `NEAR_DUP_THRESHOLD`     | calibrate on real corpus                   | BGE-space, not OpenAI-space                               |
-| `CLUSTER_JOIN_THRESHOLD` | calibrate on real corpus                   | ditto                                                     |
-| `MERGE_THRESHOLD`        | calibrate on real corpus                   | nightly cluster-pair candidate gate                       |
-| `SPLIT_COHESION_FLOOR`   | calibrate on real corpus                   | nightly over-merge suspect gate                           |
-| `HALF_LIFE`              | 24 h                                       | τ = half_life/ln(2)                                       |
+| Key                      | Initial                                    | Notes                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EMBEDDING_MODEL`        | `@cf/baai/bge-large-en-v1.5`               | 1024 dims; `bge-base` (768) is the DB-size pressure valve                                                                                                                                                                                                                                                                                                  |
+| `JUDGE_MODEL`            | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | via AI Gateway                                                                                                                                                                                                                                                                                                                                             |
+| `ADJUDICATOR_MODEL`      | same as `JUDGE_MODEL`                      | same-event arbitration; separate key so it can diverge                                                                                                                                                                                                                                                                                                     |
+| `NEAR_DUP_THRESHOLD`     | calibrate on real corpus                   | BGE-space, not OpenAI-space                                                                                                                                                                                                                                                                                                                                |
+| `CLUSTER_JOIN_THRESHOLD` | calibrate on real corpus                   | ditto                                                                                                                                                                                                                                                                                                                                                      |
+| `MERGE_THRESHOLD`        | calibrate on real corpus                   | nightly cluster-pair candidate gate                                                                                                                                                                                                                                                                                                                        |
+| `SPLIT_COHESION_FLOOR`   | calibrate on real corpus                   | nightly over-merge suspect gate                                                                                                                                                                                                                                                                                                                            |
+| `HALF_LIFE`              | 24 h                                       | τ = half_life/ln(2)                                                                                                                                                                                                                                                                                                                                        |
 | `CLUSTER_GROWTH_WINDOW`  | 48 h                                       | membership horizon from `first_entry_at` (birth-anchored); cluster sealed after. **Decision:** post-seal late corroboration creating a duplicate card is accepted — time decay separates the two cards by ~2+ log units, so they never render adjacently; the late card reads as a follow-up. Same-week event separation wins over weekend-echo absorption |
-| `ACTIVE_WINDOW`          | 72 h                                       | hot Chroma collection + consolidation scan scope          |
-| `SERVING_WINDOW`         | 7 days                                     | query filter                                              |
-| `PRIOR_POINTS`           | ½ Σ rubric weights                         | unjudged default                                          |
-| Rubric weights           | table-driven                               | retune without LLM calls                                  |
+| `ACTIVE_WINDOW`          | 72 h                                       | hot Chroma collection + consolidation scan scope                                                                                                                                                                                                                                                                                                           |
+| `SERVING_WINDOW`         | 7 days                                     | query filter                                                                                                                                                                                                                                                                                                                                               |
+| `PRIOR_POINTS`           | ½ Σ rubric weights                         | unjudged default                                                                                                                                                                                                                                                                                                                                           |
+| Rubric weights           | table-driven                               | retune without LLM calls                                                                                                                                                                                                                                                                                                                                   |
 
 ## Failure semantics
 
@@ -426,5 +426,5 @@ Beyond the existing pipeline metrics: outbox depth and oldest-unprocessed age; e
 4. Decide SSE host: same container (simple) vs thin Worker with DO fan-out (scales better). MVP: same container.
 5. A/B judge models (70B vs 8B) on stored rubric bits before locking `JUDGE_MODEL`.
 6. Validate Workers AI `response_format` json_schema support for the chosen judge model version.
-7. Ingest-side dependency: `feed_entries` must carry indexed `url_canonical` and `content_hash` columns, computed in the TS normalization stage (URL canonicalization rules must respect the architecture doc's feed-canonicalization caution — preserve path/query semantics).
+7. Ingest-side dependency: `news_items` must carry indexed `url_canonical` and `content_hash` columns, computed in the TS normalization stage (URL canonicalization rules must respect the architecture doc's feed-canonicalization caution — preserve path/query semantics).
 8. Embedding retention policy: when Supabase DB size warrants, evict old `embedding` bytea to R2 parquet (rows/text/FTS/Chroma-search remain). Decide from real growth data, not upfront.

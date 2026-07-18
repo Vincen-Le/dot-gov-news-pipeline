@@ -63,3 +63,14 @@ export {
   parseWorkerLifecycleLog,
   type WorkerLifecycleLog,
 } from "./operator-log";
+export {
+  CompleteNewsSourceDiscoverySchema,
+  DiscoveredNewsSourceSchema,
+  NEWS_SOURCE_DISCOVERY_METHODS,
+  NEWS_SOURCE_TYPES,
+  NewsSourceDiscoveryMethodSchema,
+  NewsSourceTypeSchema,
+  type CompleteNewsSourceDiscovery,
+  type DiscoveredNewsSource,
+  type NewsSourceType,
+} from "./news-source";

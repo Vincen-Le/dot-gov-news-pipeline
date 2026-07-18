@@ -21,6 +21,7 @@
     "ops:start": "pnpm ops dashboard",
     "supabase": "supabase",
     "test": "pnpm --recursive --if-present test && vitest run scripts",
+    "test:migration": "bash scripts/test-news-source-migration.sh",
     "typecheck": "pnpm --recursive --if-present typecheck && tsc --project tsconfig.scripts.json"
   },
   "devDependencies": {

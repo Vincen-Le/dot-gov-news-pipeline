@@ -1,9 +1,10 @@
-# Implementation Plan: Cloudflare Site Feed Discovery
+# Implementation Plan: Cloudflare Site News-Source Discovery
 
 **Date:** 2026-07-17
 **Team:** Dot-Gov News Pipeline
 **Type:** New feature / infrastructure integration
-**Status:** Ready for handoff after the inventory branch is committed or merged
+**Status:** Superseded in part by the generalized news-source schema; retained
+for the remaining Worker discovery design
 
 ## Handoff Snapshot
 
@@ -29,19 +30,20 @@ Already implemented and hosted:
 Not implemented:
 
 - The discovery Queue/DLQ and dispatcher.
-- Site fetching, HTML feed autodiscovery, candidate validation, or URL safety.
-- Canonical feed persistence and site-to-feed relationships.
+- Site fetching, HTML source autodiscovery, candidate validation, or URL safety.
+- Canonical source persistence and site-to-source relationships.
 - Discovery completion/failure/lease-release RPCs.
 - Cross-invocation serialization for `claim_due_site_discoveries`; this is
   required before the database can guarantee one active lease per base domain.
-- Feed polling. This plan only creates its durable handoff state.
+- News source polling. This plan only creates its durable handoff state.
 
 ## Problem Statement
 
 The hosted inventory correctly marks 25,367 eligible government sites as
 `pending`, but no process currently claims or examines those sites. We need a
-polite, bounded Cloudflare execution path that discovers RSS, Atom, and JSON
-Feed endpoints without attempting to crawl the entire inventory at once.
+polite, bounded Cloudflare execution path that discovers RSS, Atom, JSON Feed,
+publisher API, HTML archive, and sitemap sources without attempting to crawl
+the entire inventory at once.
 
 The system must remain safe under at-least-once Queue delivery, Worker failure,
 publisher timeouts, concentrated government subdomains, malformed or oversized
@@ -58,10 +60,10 @@ are all one.
 
 The `00400` migration first replaces the existing claim RPC with a serialized
 version using a transaction-scoped advisory lock. The Queue consumer validates
-and renews the lease, performs bounded site/feed
+and renews the lease, performs bounded site/source
 discovery, and commits one atomic completion or failure RPC. Successful
-completion upserts globally canonical feeds, records the many-to-many
-site/feed provenance, and creates pending `feed_fetch_state` rows for the later
+completion upserts globally canonical news sources, records the many-to-many
+site/source provenance, and creates pending `news_source_fetch_state` rows for the later
 polling phase.
 
 ```mermaid
@@ -71,7 +73,7 @@ flowchart LR
     CLAIM["Supabase claim_due_site_discoveries"]
     DQ["Dedicated discovery Queue"]
     WORK["Queue consumer: one leased site"]
-    WEB["Government site and feed candidates"]
+    WEB["Government site and source candidates"]
     DONE["complete/fail discovery RPC"]
     DB[("Supabase authoritative state")]
 
@@ -100,24 +102,24 @@ flowchart LR
    `base_domain`, including across simultaneous dispatcher invocations.
 6. Queue delivery and database completion are idempotent. Stale lease tokens
    cannot update current state.
-7. The Worker discovers and validates RSS, Atom, and JSON Feed candidates using
-   bounded standards-first behavior.
+7. The Worker discovers and validates syndication, publisher API, bounded HTML
+   archive, and sitemap candidates using adapter-specific behavior.
 8. Every request and redirect is subject to URL, timeout, redirect, response
    size, and total subrequest budgets.
 9. Site-level network/parse failures update only that site's backoff and are
    acknowledged. Systemic Supabase failures retry the Queue message.
-10. Discovery completion atomically persists feeds, provenance, polling
+10. Discovery completion atomically persists news sources, provenance, polling
     handoff state, and the site's next rediscovery time.
 11. A failed or partial discovery never deactivates a previously valid
-    site/feed relationship. Deactivation requires two complete successful
+    site/source relationship. Deactivation requires two complete successful
     discoveries in which the relationship is absent.
-12. `anon` and `authenticated` roles cannot read or mutate discovery/feed
+12. `anon` and `authenticated` roles cannot read or mutate discovery/source
     operational tables or execute service RPCs.
 13. Structured logs contain IDs, bounded status fields, timings, and counts;
     they never contain secrets or full remote response bodies.
 14. Discovery can be disabled before claiming new work, and expired leases
     recover through ordinary dispatcher traffic.
-15. Feed polling itself is explicitly out of scope.
+15. News source polling itself is explicitly out of scope.
 
 ## Constraints and Dependencies
 
@@ -136,7 +138,7 @@ flowchart LR
 - The current Workers Free plan allows only 10 milliseconds of CPU time per
   invocation. HTML/XML/JSON parsing may not fit that budget even though network
   wait time does not count. Hosted discovery must remain disabled until CPU is
-  measured on representative feeds; Workers Paid is the default recommendation
+  measured on representative news sources; Workers Paid is the default recommendation
   if the 10 ms gate cannot be proven reliably.
 - A contact value for the discovery `User-Agent` must be configured before the
   hosted dispatcher is enabled.
@@ -226,7 +228,7 @@ Add a discriminated, versioned event:
 }
 ```
 
-The payload is deliberately small. It contains no HTML, feed bodies, lists of
+The payload is deliberately small. It contains no HTML, source bodies, lists of
 sites, database credentials, or arbitrary metadata.
 
 Evolve the current open-ended `PipelineEventSchema` into a discriminated union
@@ -245,10 +247,10 @@ End states:
 
 | Outcome | Queue action | Database action |
 | --- | --- | --- |
-| Valid feeds found | Acknowledge | Atomic completion; `succeeded`; schedule rediscovery |
-| Complete scan, no feed | Acknowledge | Atomic completion; `no_feed`; schedule rediscovery |
+| Valid news sources found | Acknowledge | Atomic completion; `succeeded`; schedule rediscovery |
+| Complete generalized scan, no source | Acknowledge | Atomic completion; `no_news_source`; schedule rediscovery |
 | Required/root request timeout, `429`, `5xx`, or oversized body | Acknowledge after persistence | `fail_site_discovery`; bounded `backoff` |
-| Individual malformed/unsafe feed candidate | Continue, then acknowledge | Reject candidate; complete only if the bounded scan otherwise finishes |
+| Individual malformed/unsafe source candidate | Continue, then acknowledge | Reject candidate; complete only if the bounded scan otherwise finishes |
 | Root URL rejected by safety policy | Acknowledge after persistence | Non-retryable failure with a long bounded retry |
 | Deadline/request budget exhausted before the scan finishes | Acknowledge after persistence | `fail_site_discovery`; never age out prior relationships |
 | Supabase unavailable before result persistence | Retry message | Leave lease to retry/expiry recovery |
@@ -272,15 +274,15 @@ For one valid lease:
 3. Inspect the response `Link` header and HTML `<link rel="alternate">`
    elements for RSS, Atom, and JSON Feed media types.
 4. Inspect same-page anchors whose URL or bounded text indicates RSS, Atom,
-   feed, news, press releases, newsroom, alerts, or blog.
+   source, news, press releases, newsroom, alerts, or blog.
 5. Visit at most three high-confidence landing pages on the same base domain
    and repeat standards-based autodiscovery.
 6. Only then try a small versioned conventional-path list on the official
-   hostname, such as `/feed`, `/rss`, `/rss.xml`, `/feed.xml`, and `/atom.xml`.
+   hostname, such as `/source`, `/rss`, `/rss.xml`, `/source.xml`, and `/atom.xml`.
 7. Deduplicate candidate URLs before fetching and validate at most ten.
 8. Validate the final bounded body as RSS, Atom, or JSON Feed. Content type is
    evidence, not proof.
-9. Canonicalize accepted final URLs and return bounded feed metadata plus the
+9. Canonicalize accepted final URLs and return bounded source metadata plus the
    discovery method.
 10. Commit exactly one completion or failure RPC.
 
@@ -288,26 +290,26 @@ A scan is complete only when every candidate selected by the bounded policy has
 reached a terminal accepted/rejected result. A transient candidate-fetch error,
 deadline, or request-budget exhaustion makes the scan partial: call the failure
 RPC, do not increment relationship-miss counters, and do not deactivate prior
-relationships. The first implementation may discard newly found feeds from a
+relationships. The first implementation may discard newly found news sources from a
 partial scan and rediscover them on retry rather than adding a second partial
 persistence path.
 
 Initial per-site policy:
 
 - One root page and at most three additional HTML landing pages.
-- At most ten distinct feed candidates.
+- At most ten distinct source candidates.
 - At most five redirects per request.
 - At most 36 publisher `fetch()` attempts total, counting every redirect hop and
   HTTPS-to-HTTP fallback. Reserve at least four external subrequests for the
   Supabase renew/result RPCs and overhead, keeping the invocation at or below 40
   against the current Workers Free limit of 50.
-- Two MiB maximum buffered body after decompression for HTML or feed
+- Two MiB maximum buffered body after decompression for HTML or source
   validation; lower the bound if hosted measurements justify it.
 - Per-request timeout plus an overall site-discovery deadline shorter than the
   renewed lease.
-- External feed URLs are accepted only when explicitly linked by an official
+- External source URLs are accepted only when explicitly linked by an official
   page; conventional-path guessing stays on the official hostname/base domain.
-- Request chains and feed candidates are processed sequentially; do not use
+- Request chains and source candidates are processed sequentially; do not use
   unbounded or candidate-wide `Promise.all` calls.
 
 Use native `HTMLRewriter` for HTML extraction. Buffer XML/JSON only through a
@@ -329,12 +331,12 @@ Every root URL, candidate, and redirect target must pass the same policy:
   non-public ranges for both IPv4 and IPv6.
 - Resolve relative URLs only against the validated final page URL.
 - Do not visit discovered landing pages outside the GSA site's base domain.
-- Allow an explicit cross-origin feed candidate only when it came from the
+- Allow an explicit cross-origin source candidate only when it came from the
   official page's `Link`, alternate link, or explicit anchor—not from guessed
   paths.
 - Revalidate all manual redirect locations.
 
-Canonical feed URLs lowercase scheme/host, convert the hostname through the
+Canonical source URLs lowercase scheme/host, convert the hostname through the
 URL implementation, remove fragments and default ports, and preserve path,
 trailing slash, and query semantics. The final validated redirect URL is the
 canonical candidate; the originally advertised URL remains in relationship
@@ -346,9 +348,9 @@ Database-owned initial policy:
 
 | Result | Next state and due time |
 | --- | --- |
-| At least one validated feed | `succeeded`, approximately 90 days |
-| Complete scan with no feed, first occurrence | `no_feed`, 30 days |
-| Repeated complete no-feed result | `no_feed`, approximately 90 days |
+| At least one validated source | `succeeded`, approximately 90 days |
+| Complete generalized scan with no source, first occurrence | `no_news_source`, 30 days |
+| Repeated complete generalized no-source result | `no_news_source`, approximately 90 days |
 | Transient timeout, `429`, or `5xx` | `backoff`, exponential 1 hour to 7 days |
 | Non-retryable URL/safety failure | `backoff` with long bounded retry for inspection |
 | Inventory URL/eligibility input changes | Existing inventory finalizer resets to `pending` immediately |
@@ -362,11 +364,11 @@ the same instant after a fixed interval.
 Create `supabase/migrations/20260717000400_create_feed_discovery.sql`. Do not
 edit the hosted `00300` migration.
 
-### `public.feeds`
+### `public.news_sources`
 
 - `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`
 - `canonical_url TEXT NOT NULL UNIQUE CHECK (length(canonical_url) BETWEEN 1 AND 2048)`
-- `feed_type TEXT NOT NULL CHECK IN ('rss', 'atom', 'json_feed')`
+- `source_type TEXT NOT NULL CHECK IN ('rss', 'atom', 'json_feed', 'publisher_api', 'html_archive', 'sitemap')`
 - `title TEXT NULL CHECK (length(title) <= 512)`
 - `home_page_url TEXT NULL CHECK (length(home_page_url) <= 2048)`
 - `status TEXT NOT NULL CHECK IN ('active', 'invalid', 'gone', 'suppressed')`
@@ -374,25 +376,25 @@ edit the hosted `00300` migration.
 - `first_seen_at`, `last_seen_at`, `last_validated_at`, `created_at`, and
   `updated_at TIMESTAMPTZ NOT NULL DEFAULT now()`
 
-### `public.government_site_feeds`
+### `public.government_site_news_sources`
 
 - `site_id UUID REFERENCES government_sites(id) ON DELETE CASCADE`
-- `feed_id UUID REFERENCES feeds(id) ON DELETE CASCADE`
+- `news_source_id UUID REFERENCES news_sources(id) ON DELETE CASCADE`
 - `discovery_method TEXT NOT NULL` with a versioned allowed-value check
 - `discovery_url TEXT NOT NULL CHECK (length(discovery_url) BETWEEN 1 AND 2048)`
 - `active BOOLEAN NOT NULL DEFAULT true`
 - `missing_success_count INTEGER NOT NULL DEFAULT 0`
 - `first_seen_at`, `last_seen_at`, `updated_at TIMESTAMPTZ`
-- `PRIMARY KEY (site_id, feed_id)`
+- `PRIMARY KEY (site_id, news_source_id)`
 
 This is the many-to-many provenance layer. One site can advertise multiple
-feeds, and multiple GSA sites can converge on one canonical feed.
+news sources, and multiple GSA sites can converge on one canonical source.
 
-### `public.feed_fetch_state`
+### `public.news_source_fetch_state`
 
 Create the polling handoff but no polling consumer:
 
-- `feed_id UUID PRIMARY KEY REFERENCES feeds(id) ON DELETE CASCADE`
+- `news_source_id UUID PRIMARY KEY REFERENCES news_sources(id) ON DELETE CASCADE`
 - `status TEXT NOT NULL CHECK IN ('pending', 'leased', 'active', 'backoff', 'disabled')`
 - `next_fetch_at TIMESTAMPTZ NULL`
 - `lease_token UUID NULL`, `lease_owner UUID NULL`, and
@@ -405,8 +407,8 @@ Create the polling handoff but no polling consumer:
 - `failure_count INTEGER NOT NULL DEFAULT 0`
 - `updated_at TIMESTAMPTZ NOT NULL DEFAULT now()`
 
-New feeds receive `status = 'pending'` and `next_fetch_at = now()`. Only a later
-feed-polling implementation may claim or mutate polling state.
+New news sources receive `status = 'pending'` and `next_fetch_at = now()`. Only a later
+source-polling implementation may claim or mutate polling state.
 
 ### `public.site_discovery_state` additions
 
@@ -436,7 +438,7 @@ Add and test:
   p_reason_code TEXT) RETURNS BOOLEAN`; matching enqueue compensation returns
   the row to immediately due `pending` without incrementing failures.
 - `complete_site_discovery(p_site_id UUID, p_lease_token UUID, p_result TEXT,
-  p_site_health JSONB, p_feeds JSONB, p_policy_version INTEGER) RETURNS BOOLEAN`.
+  p_site_health JSONB, p_sources JSONB, p_policy_version INTEGER) RETURNS BOOLEAN`.
 - `fail_site_discovery(p_site_id UUID, p_lease_token UUID, p_error_code TEXT,
   p_error_detail TEXT, p_retry_after_seconds INTEGER,
   p_policy_version INTEGER) RETURNS BOOLEAN`.
@@ -446,12 +448,12 @@ Add and test:
 All mutating RPCs validate lease ownership, current eligibility, bounded JSON
 shape/count/string lengths, unique canonical URLs within the input, and allowed
 enum values. A stale token returns no mutation rather than raising a retryable
-error. Completion accepts only `succeeded` or `no_feed` after a complete scan and
+error. Completion accepts only `succeeded` or `no_news_source` after a complete scan and
 atomically:
 
-1. Upserts each canonical feed.
-2. Upserts and reactivates observed site/feed relationships.
-3. Creates missing `feed_fetch_state` rows without overwriting poller-owned
+1. Upserts each canonical source.
+2. Upserts and reactivates observed site/source relationships.
+3. Creates missing `news_source_fetch_state` rows without overwriting poller-owned
    fields.
 4. Increments `missing_success_count` only after a complete successful scan;
    deactivates a relationship after two consecutive complete misses.
@@ -499,13 +501,13 @@ Verify the branch includes:
 - Hosted inventory counts recorded in `docs/infrastructure/runbook.md`
 
 Create the new discovery branch from that commit. Treat this document as the
-scope contract: discovery plus polling handoff, but no feed polling or entry
+scope contract: discovery plus polling handoff, but no source polling or entry
 processing.
 
 **Deliverable:** A clean dependent branch with the inventory foundation and no
 edits to applied migrations.
 
-### 2. Add feed persistence and lease lifecycle migration
+### 2. Add source persistence and lease lifecycle migration
 
 **Complexity:** Large
 **Dependencies:** Step 1
@@ -522,9 +524,9 @@ return types, adding the transaction-scoped claim lock before its current
 expired-lease recovery and base-domain filtering. Revoke and re-grant its exact
 signature explicitly in `00400`.
 
-Database tests must cover canonical URL uniqueness, site/feed many-to-many
+Database tests must cover canonical URL uniqueness, site/source many-to-many
 relationships, new polling handoff rows, lease-token mismatch, lease renewal,
-enqueue release, success/no-feed cadence, backoff caps, retry-after clamping,
+enqueue release, success/no-source cadence, backoff caps, retry-after clamping,
 two-successful-misses deactivation, failed-scan preservation, ineligible-site
 rejection, and anonymous denial. Add a two-client integration test that invokes
 the claim RPC concurrently and proves that committed active leases never share a
@@ -622,26 +624,26 @@ the 36-publisher-request cap and the 40-total-external-subrequest design bound.
 **Deliverable:** No discovery path can issue an unbounded number of requests,
 follow an unvalidated redirect, or buffer an unbounded response.
 
-### 7. Implement standards-first feed extraction and validation
+### 7. Implement standards-first source extraction and validation
 
 **Complexity:** Large
 **Dependencies:** Step 6
 
 Create:
 
-- `apps/pipeline-worker/src/discovery/extract-feed-links.ts`
-- `apps/pipeline-worker/src/discovery/generate-feed-candidates.ts`
-- `apps/pipeline-worker/src/discovery/validate-feed.ts`
-- `apps/pipeline-worker/src/discovery/canonicalize-feed-url.ts`
-- `apps/pipeline-worker/src/discovery/discover-site-feeds.ts`
-- `apps/pipeline-worker/test/feed-autodiscovery.test.ts`
-- `apps/pipeline-worker/test/feed-validation.test.ts`
-- `apps/pipeline-worker/test/feed-canonicalization.test.ts`
+- `apps/pipeline-worker/src/discovery/extract-source-links.ts`
+- `apps/pipeline-worker/src/discovery/generate-source-candidates.ts`
+- `apps/pipeline-worker/src/discovery/validate-source.ts`
+- `apps/pipeline-worker/src/discovery/canonicalize-source-url.ts`
+- `apps/pipeline-worker/src/discovery/discover-site-news-sources.ts`
+- `apps/pipeline-worker/test/source-autodiscovery.test.ts`
+- `apps/pipeline-worker/test/source-validation.test.ts`
+- `apps/pipeline-worker/test/source-canonicalization.test.ts`
 - `apps/pipeline-worker/test/fixtures/discovery/`
 
 Implement the ordered algorithm and bounds above. Add fixture coverage for
-RSS 2.0, RSS 1.0/RDF, Atom, JSON Feed, empty-but-valid feeds, relative links,
-HTTP `Link` headers, multiple feeds, external explicitly linked feeds,
+RSS 2.0, RSS 1.0/RDF, Atom, JSON Feed, empty-but-valid news sources, relative links,
+HTTP `Link` headers, multiple news sources, external explicitly linked news sources,
 redirects, malformed XML/JSON, DTD/entity input, huge content-length, streamed
 oversize bodies, unsupported schemes, unsafe IPs, and duplicate canonical URLs.
 
@@ -713,7 +715,7 @@ Create:
 
 - `supabase/queries/discovery-health.sql`
 - `supabase/queries/prepare-discovery-canary.sql`
-- `docs/operations/site-feed-discovery.md`
+- `docs/operations/site-source-discovery.md`
 
 Update:
 
@@ -723,16 +725,16 @@ Update:
 
 Expose only secret-safe binding/config status through `/health`. Document
 queries for status counts, oldest due age, lease age/expiry, completion rates,
-error codes, feeds created, relationships reused, and Queue/DLQ inspection.
+error codes, news sources created, relationships reused, and Queue/DLQ inspection.
 The canary query must run transactionally as an operator: defer non-cohort due
 rows, make exactly the selected 25 or 250 site IDs due, and include the inverse
 restore statement. This prevents a minute Cron from silently draining beyond a
 review gate while Cloudflare trigger/config changes propagate.
 Do not write every discovery event into `pipeline_events`; current state lives
-in discovery/feed tables and event detail lives in structured Worker logs.
+in discovery/source tables and event detail lives in structured Worker logs.
 
 **Deliverable:** An operator can distinguish a paused dispatcher, Queue
-backlog, stuck leases, publisher failures, and valid no-feed outcomes.
+backlog, stuck leases, publisher failures, and valid no-source outcomes.
 
 ### 11. Verify locally and execute a staged hosted canary
 
@@ -768,7 +770,7 @@ Hosted rollout:
    and upgrade or redesign the execution runtime before continuing.
 4. Use the transactional canary query to make exactly 25 reviewed sites due and
    defer the rest, then enable claim limit one and concurrency one.
-5. Inspect every error class, redirect, candidate rejection, created feed, lease
+5. Inspect every error class, redirect, candidate rejection, created source, lease
    transition, Queue retry, and DLQ result. Require no stuck leases, no
    unbounded-body errors, and no cross-base-domain overlap.
 6. Disable dispatch, restore/defer with the canary query, and expose exactly 250
@@ -801,11 +803,11 @@ canary; scaling is an explicit later decision.
 - RLS and function execution grants.
 - Lease renewal, expiry, release, and stale-token rejection.
 - Atomic completion and failure transitions.
-- Canonical feed uniqueness and many-to-many provenance.
+- Canonical source uniqueness and many-to-many provenance.
 - Duplicate completion and duplicate Queue delivery.
 - Two successful misses before relationship deactivation.
 - Failed/partial discovery preserving known relationships.
-- Feed polling state seeded once and not overwritten.
+- News source polling state seeded once and not overwritten.
 - Rediscovery cadence, jitter, and backoff caps.
 
 ### Integration tests
@@ -815,7 +817,7 @@ canary; scaling is an explicit later decision.
 - Site failure -> backoff -> acknowledgement.
 - Supabase failure -> Queue retry -> lease recovery.
 - Inventory change invalidating an outstanding lease.
-- Two different sites discovering one canonical feed.
+- Two different sites discovering one canonical source.
 
 ### Required quality gates
 
@@ -846,7 +848,7 @@ canary; scaling is an explicit later decision.
 - Allow active leases to expire or run the token-aware release/recovery path.
 - Roll back Worker code without rolling back `00400`; additive unused tables
   and RPCs are safe to retain.
-- Do not delete feeds or relationships during rollback.
+- Do not delete news sources or relationships during rollback.
 
 ## Acceptance Criteria
 
@@ -854,15 +856,15 @@ canary; scaling is an explicit later decision.
   site without scanning all pending rows.
 - Queue backlog pressure prevents additional claims.
 - No two active leases share one base domain.
-- A valid site transitions `pending -> leased -> succeeded|no_feed` and receives
+- A valid site transitions `pending -> leased -> succeeded|no_news_source` and receives
   a future `next_discovery_at`.
 - A transient site failure transitions to bounded `backoff` without retrying or
   poisoning unrelated sites.
 - A stale or duplicate Queue message cannot overwrite a newer lease/result.
 - Valid RSS, Atom, and JSON Feed candidates are persisted and related to their
   source sites.
-- Shared canonical feeds produce one `feeds` row and multiple provenance rows.
-- Newly discovered feeds receive pending polling state, but no polling occurs.
+- Shared canonical news sources produce one `news_sources` row and multiple provenance rows.
+- Newly discovered news sources receive pending polling state, but no polling occurs.
 - Unsafe targets, redirect loops, oversized bodies, and exhausted budgets stop
   cleanly and produce bounded diagnostics.
 - Hosted 25-site and 250-site canaries pass before the full backlog is enabled.
@@ -874,15 +876,15 @@ explicit review:
 
 - **Contact/User-Agent:** unresolved configuration value; blocks hosted enablement
   but not local implementation.
-- **Cross-origin feeds:** allowed only when explicitly linked by the official
+- **Cross-origin news sources:** allowed only when explicitly linked by the official
   page; never guessed cross-origin.
-- **Cadence:** 90 days after success, 30 then 90 days after no-feed, exponential
+- **Cadence:** 90 days after success, 30 then 90 days after no-source, exponential
   one hour to seven days after transient failure.
 - **Throughput:** one claim/minute, one Queue message/invocation, concurrency one.
 - **Runtime tier:** do not enable the backlog on Workers Free unless the hosted
   canary proves the 10 ms CPU limit with headroom; Workers Paid is the default
   recommendation if it does not.
-- **Polling boundary:** create `feed_fetch_state`; do not fetch feed entries.
+- **Fetching boundary:** create `news_source_fetch_state`; do not fetch news items.
 - **Notion:** intentionally skipped; this is the local handoff artifact requested
   for another coding session.
 
@@ -890,7 +892,7 @@ explicit review:
 
 - Repository architecture: `architecture.md`
 - Inventory/discovery predecessor plan:
-  `.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md`
+  `.claude/plans/gsa-inventory-and-news-source-discovery-implementation-plan.md`
 - Hosted inventory runbook: `docs/infrastructure/runbook.md`
 - Cloudflare Workers best practices:
   <https://developers.cloudflare.com/workers/best-practices/workers-best-practices/>

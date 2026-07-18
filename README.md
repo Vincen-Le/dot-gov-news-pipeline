@@ -6,7 +6,8 @@ government websites.
 The repository currently implements:
 
 - Supabase for durable pipeline events, GSA inventory runs, government sites,
-  and lease-based site-discovery due state.
+  lease-based site-discovery state, canonical news sources, site/source
+  provenance, and source fetch scheduling.
 - A Node/TypeScript batch application that validates and reconciles the weekly
   GSA Federal Website Index.
 - Content-addressed source snapshot archival in Cloudflare R2.
@@ -17,8 +18,10 @@ The repository currently implements:
   resumable direct backfill runner for initial database seeding.
 - Local Chroma through Docker for future semantic-search development.
 
-Feed polling, article parsing, embeddings, ranking, search, and the public UI
-remain follow-up work.
+The database and shared TypeScript contracts support RSS, Atom, JSON Feed,
+publisher APIs, HTML archives, and sitemaps through the generalized
+`news_sources` model. Source fetching, news-item normalization, embeddings,
+ranking, search, and the public UI remain follow-up work.
 
 ## Architecture smoke path
 
@@ -46,7 +49,7 @@ GSA Federal Website Index
 ```
 
 Every source row is retained for audit. Only active, GSA-unfiltered, and
-ingestion-usable hostnames become due for feed discovery. A full hosted import
+ingestion-usable hostnames become due for news-source discovery. A full hosted import
 has reconciled 29,569 source rows into 25,367 usable discovery targets; replay
 of the same checksum completed as an unchanged no-op.
 
@@ -147,6 +150,7 @@ Run the local Supabase stack:
 ```sh
 mise exec -- pnpm supabase start
 mise exec -- pnpm supabase db reset
+mise exec -- pnpm test:migration
 mise exec -- pnpm supabase test db
 ```
 
@@ -204,4 +208,4 @@ complete read-only command catalog.
 - [Ranking pipeline design proposal](docs/superpowers/specs/2026-07-17-ranking-pipeline-design.md)
 - [Operator observability implementation plan](.claude/plans/operator-cli-dashboard-observability-implementation-plan.md)
 - [Implementation plan](.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)
-- [Inventory and feed-discovery plan](.claude/plans/gsa-inventory-and-feed-discovery-implementation-plan.md)
+- [Inventory and news-source-discovery plan](.claude/plans/gsa-inventory-and-news-source-discovery-implementation-plan.md)

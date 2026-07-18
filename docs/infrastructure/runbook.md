@@ -56,8 +56,15 @@ Start and verify the local stack:
 ```sh
 mise exec -- pnpm supabase start
 mise exec -- pnpm supabase db reset
+mise exec -- pnpm test:migration
 mise exec -- pnpm supabase test db
 ```
+
+`test:migration` creates a temporary database inside the local Supabase
+Postgres container, applies the legacy schema, loads representative source,
+relationship, discovery, and fetch-state rows, runs the generalized migration,
+and verifies field-for-field preservation before deleting the temporary
+database. It never connects to the hosted project.
 
 This repository uses dedicated local ports in the `5742x` range so it can run
 alongside other Supabase or Postgres projects. Local analytics is intentionally
