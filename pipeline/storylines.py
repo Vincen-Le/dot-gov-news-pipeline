@@ -24,7 +24,10 @@ class StorylineEngine:
             shared = set(entry["entity_set"]) & set(cand["entity_set"])
             score = sum(1.0 / (1.0 + emas.get(e, 0.0)) for e in shared)
             scored.append((score, len(shared), cand))
-        scored.sort(key=lambda x: (-x[0], -x[1], str(x[2]["id"])))
+        # no id tie-break: ids regenerate every run, which made tie order —
+        # and attach decisions — vary across identical replays. Stable sort
+        # preserves the store's content-ordered input for ties instead.
+        scored.sort(key=lambda x: (-x[0], -x[1]))
         return [c for _, _, c in scored]
 
     def resolve(self, entry: dict, vec: np.ndarray

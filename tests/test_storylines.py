@@ -116,3 +116,15 @@ def test_strong_join_requires_rare_shared_entities():
     sid, method, _, _, _ = engine.resolve(e, unit(0))
     assert method != "entity_candidate"
     assert sid is None and method == "new_storyline"
+
+
+def test_rank_candidates_ties_keep_input_order_not_id_order():
+    # Storyline ids regenerate every run (gen_random_uuid), so an id tie-break
+    # makes candidate order — and therefore attach decisions — vary across
+    # otherwise identical replays. Ties must preserve the store's stable,
+    # content-ordered input instead.
+    first = storyline(id="zzz-first", entity_set=["valsatrex"])
+    second = storyline(id="aaa-second", entity_set=["valsatrex"])
+    engine = StorylineEngine(StorylineFakeStore([first, second]), SayNo(), CFG)
+    ranked = engine._rank_candidates(entry(), [first, second])
+    assert [c["id"] for c in ranked] == ["zzz-first", "aaa-second"]

@@ -126,6 +126,7 @@ class Store:
             select id, storyline_id, status, centroid, entity_set, event_keys,
                    entry_count, first_entry_at, newest_entry_at
             from public.episodes where status = 'open'
+            order by first_entry_at, newest_entry_at, entity_set, event_keys
             """
         )
         return [dict(r, centroid=unpack_fp16(r["centroid"]) if r["centroid"] is not None else None)
@@ -154,12 +155,16 @@ class Store:
         return self._storyline_rows("s.entity_set && %(ents)s::text[]", {"ents": entities})
 
     def _storyline_rows(self, where: str, params: dict) -> list[dict]:
+        # content-stable order (never id: ids regenerate every replay) so
+        # candidate iteration — and replay outcomes — are reproducible
         rows = self.db.all(
             f"""
             select s.id, s.entity_set, s.event_keys, s.centroid, s.episode_count,
                    s.newest_entry_at, s.latest_card_id
             from public.storylines s
             where s.merged_into is null and {where}
+            order by s.first_entry_at, s.newest_entry_at, s.entity_set,
+                     s.event_keys, s.episode_count, s.entry_count, s.centroid
             """,
             params,
         )
@@ -235,6 +240,7 @@ class Store:
             """
             select id, display_name, centroid, category_id, storyline_count
             from public.topic_themes where merged_into is null
+            order by display_name, first_storyline_at, storyline_count, centroid
             """
         )
         return [dict(r, centroid=unpack_fp16(r["centroid"]) if r["centroid"] is not None else None)
@@ -246,7 +252,7 @@ class Store:
             select c.headline from public.storylines s
             join public.event_cards c on c.id = s.latest_card_id
             where s.theme_id = %(t)s
-            order by s.newest_entry_at desc limit %(limit)s
+            order by s.newest_entry_at desc, c.headline limit %(limit)s
             """,
             {"t": theme_id, "limit": limit},
         )
@@ -279,7 +285,8 @@ class Store:
     def all_categories(self) -> list[dict]:
         return [dict(r, id=str(r["id"]))
                 for r in self.db.all(
-                    "select id, display_name, origin from public.topic_categories")]
+                    "select id, display_name, origin from public.topic_categories "
+                    "order by display_name")]
 
     def create_theme(self, display_name: str, centroid: bytes,
                      category_id: str | None, name_model: str | None) -> str:

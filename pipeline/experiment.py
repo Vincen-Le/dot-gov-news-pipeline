@@ -38,7 +38,9 @@ def summarize(db) -> dict:
         from public.storylines s
         left join public.event_cards c on c.id = s.latest_card_id
         where s.merged_into is null
-        order by s.episode_count desc, s.entry_count desc limit 10
+        order by s.episode_count desc, s.entry_count desc,
+                 coalesce(c.headline, ''), s.first_entry_at
+        limit 10
     """)
     topics_totals = db.one("""
         select
