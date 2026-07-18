@@ -33,6 +33,23 @@ def test_local_dsn_guard():
         assert_local_dsn("postgresql://postgres.ref@aws-1-us-east-2.pooler.supabase.com:5432/postgres")
 
 
+def test_local_dsn_guard_keyword_value_form():
+    # Db.conn.info.dsn comes back in this form, not as a URI.
+    assert_local_dsn("user=postgres dbname=postgres host=127.0.0.1 port=54322")
+
+
+def test_local_dsn_guard_rejects_hostaddr():
+    # libpq connects via hostaddr when present, even if host looks local —
+    # the guard must not be bypassable by setting hostaddr alone or alongside
+    # a spoofed local host.
+    with pytest.raises(RuntimeError):
+        assert_local_dsn("hostaddr=203.0.113.5 dbname=postgres")
+    with pytest.raises(RuntimeError):
+        assert_local_dsn("host=localhost hostaddr=203.0.113.5 dbname=postgres")
+    with pytest.raises(RuntimeError):
+        assert_local_dsn("postgresql://postgres@localhost/postgres?hostaddr=203.0.113.9")
+
+
 def test_reset_clusters_wipes_decisions_not_features():
     db = FakeDb()
     reset_clusters(db)

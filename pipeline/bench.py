@@ -17,10 +17,15 @@ def assert_local_dsn(dsn: str) -> None:
     # Db.conn.info.dsn comes back as libpq keyword=value ("host=127.0.0.1 ..."),
     # not a URI, so parse with psycopg's own conninfo parser (handles both forms)
     # rather than urlsplit, which mis-reads keyword=value strings as an opaque host.
-    host = conninfo_to_dict(dsn).get("host")
-    if host not in _LOCAL_HOSTS:
-        raise RuntimeError(
-            f"refusing to run bench tool against non-local database host: {host!r}")
+    info = conninfo_to_dict(dsn)
+    # libpq connects via hostaddr when present, even if host looks local, so
+    # both keys must be checked or a spoofed local host + remote hostaddr
+    # bypasses the guard.
+    for key in ("host", "hostaddr"):
+        value = info.get(key)
+        if value not in _LOCAL_HOSTS:
+            raise RuntimeError(
+                f"refusing to run bench tool against non-local database {key}: {value!r}")
 
 
 def reset_clusters(db) -> None:
