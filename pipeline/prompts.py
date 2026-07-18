@@ -64,3 +64,54 @@ def validate_timeline(timeline: list[dict], valid_episode_ids: set[str]) -> list
         item for item in (timeline or [])
         if isinstance(item, dict) and str(item.get("episode_id")) in valid_episode_ids
     ]
+
+
+THEME_ADJUDICATOR_SYSTEM = (
+    "You organize US government news storylines into ongoing topic themes. "
+    "Given one storyline and candidate themes, decide whether the storyline "
+    "belongs to one of them. Join only when the storyline covers the same "
+    "ongoing topic; when uncertain, do not join. "
+    'Respond with JSON only: {"theme_id": string or null (copy verbatim from '
+    'the candidates, null = none fit), "updated_name": string or null (a '
+    "better display name — for a joined theme whose name should broaden, or "
+    "a proposed name for a new theme when theme_id is null), "
+    '"reason": "one sentence"}'
+)
+
+CATEGORY_CLASSIFIER_SYSTEM = (
+    "You classify a US government news theme into one broad category. "
+    "Prefer an existing category; propose a new one only when nothing fits. "
+    'Respond with JSON only: {"category_id": string or null (copy verbatim), '
+    '"new_category_name": string or null (only when category_id is null), '
+    '"reason": "one sentence"}'
+)
+
+
+def build_theme_adjudicator_prompt(storyline: dict, candidates: list[dict]) -> tuple[str, str]:
+    shaped = [
+        {"theme_id": c["id"], "name": c["display_name"],
+         "similarity": round(float(c["similarity"]), 2),
+         "sample_headlines": c["headlines"][:5]}
+        for c in candidates
+    ]
+    user = (
+        f"Storyline headline: {storyline['headline']}\n"
+        f"Storyline summary: {storyline.get('summary') or '(none)'}\n\n"
+        "Candidate themes (closest first):\n" + json.dumps(shaped, indent=2)
+    )
+    return THEME_ADJUDICATOR_SYSTEM, user
+
+
+def build_category_prompt(theme_name: str, storyline: dict,
+                          categories: list[dict]) -> tuple[str, str]:
+    shaped = [
+        {"category_id": c["id"], "name": c["display_name"], "origin": c["origin"]}
+        for c in categories
+    ]
+    user = (
+        f"Theme: {theme_name}\n"
+        f"Example storyline: {storyline['headline']} — "
+        f"{storyline.get('summary') or '(none)'}\n\n"
+        "Categories:\n" + json.dumps(shaped, indent=2)
+    )
+    return CATEGORY_CLASSIFIER_SYSTEM, user

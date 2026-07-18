@@ -10,8 +10,10 @@ from pipeline.config import Config
 from pipeline.prompts import (
     RUBRIC_CRITERIA,
     build_adjudicator_prompt,
+    build_category_prompt,
     build_compressor_prompt,
     build_enricher_prompt,
+    build_theme_adjudicator_prompt,
 )
 
 
@@ -73,3 +75,34 @@ class WorkersAI:
         for criterion in RUBRIC_CRITERIA:
             parsed["rubric"].setdefault(criterion, 0)
         return parsed
+
+    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
+        system, user = build_theme_adjudicator_prompt(storyline, candidates)
+        try:
+            parsed = _extract_json(self._chat(self.cfg.adjudicator_model, system, user))
+            theme_id = parsed.get("theme_id")
+            updated = parsed.get("updated_name")
+            return {
+                "theme_id": str(theme_id) if theme_id else None,
+                "updated_name": str(updated) if updated else None,
+                "reason": str(parsed.get("reason", "")),
+            }
+        except Exception as exc:  # engine spawns a new theme on failure
+            return {"theme_id": None, "updated_name": None,
+                    "reason": f"adjudicator_error: {exc}"}
+
+    def classify_category(self, theme_name: str, storyline: dict,
+                          categories: list[dict]) -> dict:
+        system, user = build_category_prompt(theme_name, storyline, categories)
+        try:
+            parsed = _extract_json(self._chat(self.cfg.adjudicator_model, system, user))
+            category_id = parsed.get("category_id")
+            proposed = parsed.get("new_category_name")
+            return {
+                "category_id": str(category_id) if category_id else None,
+                "new_category_name": str(proposed) if proposed else None,
+                "reason": str(parsed.get("reason", "")),
+            }
+        except Exception as exc:  # engine leaves category null on failure
+            return {"category_id": None, "new_category_name": None,
+                    "reason": f"classifier_error: {exc}"}

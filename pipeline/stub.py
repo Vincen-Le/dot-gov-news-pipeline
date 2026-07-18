@@ -16,6 +16,11 @@ from pipeline.prompts import RUBRIC_CRITERIA
 _DIM = 256
 
 
+def _tokens(text: str) -> set[str]:
+    return {t.strip(".,;:!?()'\"").casefold()
+            for t in text.split() if len(t.strip(".,;:!?()'\"")) >= 4}
+
+
 class StubModels:
     def embed(self, texts: list[str]) -> list[np.ndarray]:
         out: list[np.ndarray] = []
@@ -53,3 +58,25 @@ class StubModels:
             "rubric": {c: 0 for c in RUBRIC_CRITERIA},
             "reason": "stub rubric",
         }
+
+    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
+        mine = _tokens(storyline["headline"])
+        for cand in candidates:
+            theirs = _tokens(cand["display_name"] + " " + " ".join(cand["headlines"]))
+            overlap = mine & theirs
+            if overlap:
+                return {"theme_id": cand["id"], "updated_name": None,
+                        "reason": f"stub: shared tokens {sorted(overlap)}"}
+        return {"theme_id": None,
+                "updated_name": storyline["headline"][:256],
+                "reason": "stub: no candidate shares tokens"}
+
+    def classify_category(self, theme_name: str, storyline: dict,
+                          categories: list[dict]) -> dict:
+        mine = _tokens(theme_name + " " + storyline["headline"])
+        for cat in categories:
+            if mine & _tokens(cat["display_name"]):
+                return {"category_id": cat["id"], "new_category_name": None,
+                        "reason": "stub: token match"}
+        return {"category_id": None, "new_category_name": "General Government",
+                "reason": "stub: no category token match"}

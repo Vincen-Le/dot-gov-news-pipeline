@@ -22,6 +22,9 @@ class DecisionCache:
         self.conn.execute(
             "create table if not exists adjudications ("
             "key text primary key, same integer not null, reason text not null)")
+        self.conn.execute(
+            "create table if not exists json_decisions ("
+            "key text primary key, payload text not null)")
         self.conn.commit()
 
     def get(self, key: str) -> tuple[bool, str] | None:
@@ -33,6 +36,17 @@ class DecisionCache:
         self.conn.execute(
             "insert or replace into adjudications (key, same, reason) values (?, ?, ?)",
             (key, int(same), reason))
+        self.conn.commit()
+
+    def get_json(self, key: str) -> dict | None:
+        row = self.conn.execute(
+            "select payload from json_decisions where key = ?", (key,)).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def put_json(self, key: str, payload: dict) -> None:
+        self.conn.execute(
+            "insert or replace into json_decisions (key, payload) values (?, ?)",
+            (key, json.dumps(payload, sort_keys=True)))
         self.conn.commit()
 
 
@@ -59,6 +73,31 @@ class CachedModels:
         if not reason.startswith("adjudicator_error"):  # never cache transient failures
             self.cache.put(key, same, reason)
         return same, reason
+
+    def _memo_json(self, kind: str, parts: list, call) -> dict:
+        key = hashlib.sha256(
+            json.dumps([self.model_tag, kind, *parts], sort_keys=True, default=str)
+            .encode()).hexdigest()
+        cached = self.cache.get_json(key)
+        if cached is not None:
+            self.hits += 1
+            return cached
+        self.misses += 1
+        result = call()
+        reason = result.get("reason", "")
+        if not reason.startswith(("adjudicator_error", "classifier_error")):
+            self.cache.put_json(key, result)
+        return result
+
+    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
+        return self._memo_json("theme", [storyline, candidates],
+                               lambda: self.inner.adjudicate_theme(storyline, candidates))
+
+    def classify_category(self, theme_name: str, storyline: dict,
+                          categories: list[dict]) -> dict:
+        return self._memo_json(
+            "category", [theme_name, storyline, categories],
+            lambda: self.inner.classify_category(theme_name, storyline, categories))
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.inner, name)

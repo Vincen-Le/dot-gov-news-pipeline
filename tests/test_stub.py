@@ -39,3 +39,33 @@ def test_stub_compressor_cites_episodes():
         "mass_impact", "health_safety", "economic", "policy_change",
         "rights_legal", "national_scope", "urgency", "novelty",
     }
+
+
+def test_stub_adjudicate_theme_joins_on_shared_token():
+    result = StubModels().adjudicate_theme(
+        {"headline": "FDA recalls Valsatrex", "summary": ""},
+        [{"id": "t-1", "display_name": "FDA recalls",
+          "headlines": ["FDA recalls Xarnib"], "similarity": 0.7}])
+    assert result["theme_id"] == "t-1"
+    assert result["reason"].startswith("stub")
+
+
+def test_stub_adjudicate_theme_spawns_on_disjoint_tokens():
+    result = StubModels().adjudicate_theme(
+        {"headline": "SSA field office closures", "summary": ""},
+        [{"id": "t-1", "display_name": "FDA recalls",
+          "headlines": ["FDA recalls Xarnib"], "similarity": 0.7}])
+    assert result["theme_id"] is None
+    assert result["updated_name"] == "SSA field office closures"
+
+
+def test_stub_classify_category_matches_token_else_none():
+    hit = StubModels().classify_category(
+        "FDA drug recalls", {"headline": "FDA recalls Valsatrex", "summary": ""},
+        [{"id": "c-1", "display_name": "Drug Safety", "origin": "seed"}])
+    assert hit["category_id"] == "c-1"
+    miss = StubModels().classify_category(
+        "SSA closures", {"headline": "SSA field office closures", "summary": ""},
+        [{"id": "c-1", "display_name": "Drug Safety", "origin": "seed"}])
+    assert miss["category_id"] is None
+    assert miss["new_category_name"] == "General Government"

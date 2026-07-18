@@ -1,4 +1,5 @@
 from pipeline.cache import CachedModels, DecisionCache
+from pipeline.stub import StubModels
 
 
 class CountingModels:
@@ -59,3 +60,39 @@ def test_database_url_defaults_local(monkeypatch):
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "t")
     from pipeline.config import load_config
     assert load_config().database_url == "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+
+
+def test_cached_models_memoizes_theme_adjudication(tmp_path):
+    class CountingStub(StubModels):
+        calls = 0
+
+        def adjudicate_theme(self, storyline, candidates):
+            CountingStub.calls += 1
+            return super().adjudicate_theme(storyline, candidates)
+
+    cache = DecisionCache(str(tmp_path / "d.sqlite"))
+    models = CachedModels(CountingStub(), cache, "tag")
+    args = ({"headline": "FDA recalls Valsatrex", "summary": ""},
+            [{"id": "t-1", "display_name": "FDA recalls",
+              "headlines": [], "similarity": 0.7}])
+    first = models.adjudicate_theme(*args)
+    second = models.adjudicate_theme(*args)
+    assert first == second
+    assert CountingStub.calls == 1
+    assert models.hits == 1
+
+
+def test_cached_models_never_caches_theme_errors(tmp_path):
+    class FailingStub(StubModels):
+        calls = 0
+
+        def adjudicate_theme(self, storyline, candidates):
+            FailingStub.calls += 1
+            return {"theme_id": None, "updated_name": None,
+                    "reason": "adjudicator_error: boom"}
+
+    cache = DecisionCache(str(tmp_path / "d.sqlite"))
+    models = CachedModels(FailingStub(), cache, "tag")
+    models.adjudicate_theme({"headline": "x", "summary": ""}, [])
+    models.adjudicate_theme({"headline": "x", "summary": ""}, [])
+    assert FailingStub.calls == 2

@@ -26,6 +26,9 @@ class Config:
     rubric_version: int = 1
     prompt_version: int = 1
     tau_seconds: float = 124_600.0
+    topics_enabled: bool = False
+    theme_sim_floor: float = 0.55
+    theme_stick_floor: float = 0.50
 
 
 def _f(key: str, default: float) -> float:
@@ -59,4 +62,7 @@ def load_config() -> Config:
         rubric_version=int(os.environ.get("RUBRIC_VERSION", Config.rubric_version)),
         prompt_version=int(os.environ.get("PROMPT_VERSION", Config.prompt_version)),
         tau_seconds=_f("TAU_SECONDS", Config.tau_seconds),
+        topics_enabled=_b("TOPICS_ENABLED", Config.topics_enabled),
+        theme_sim_floor=_f("THEME_SIM_FLOOR", Config.theme_sim_floor),
+        theme_stick_floor=_f("THEME_STICK_FLOOR", Config.theme_stick_floor),
     )

@@ -1,4 +1,4 @@
-from pipeline.config import load_config
+from pipeline.config import Config, load_config
 
 
 def test_defaults(monkeypatch):
@@ -21,3 +21,10 @@ def test_overrides(monkeypatch):
     cfg = load_config()
     assert cfg.near_dup_threshold == 0.87
     assert cfg.enrichment_enabled is False
+
+
+def test_topics_config_defaults_off():
+    cfg = Config(database_url="x", cf_account_id="a", cf_api_token="t")
+    assert cfg.topics_enabled is False
+    assert cfg.theme_sim_floor == 0.55
+    assert cfg.theme_stick_floor == 0.50
