@@ -82,3 +82,21 @@ def test_overview_card_summary_clamped_to_db_bounds():
     assert overview["kind"] == "overview"
     assert len(overview["headline"]) <= 512
     assert len(overview["summary"]) <= 8192
+
+
+class ExplodingCompressorModels(StubModels):
+    def compress_overview(self, storyline_summary, episode_cards):
+        raise ValueError("no json object in model output: garbage")
+
+
+def test_compressor_failure_falls_back_to_deterministic_overview():
+    store = CardFakeStore(episode_count=2)
+    CardEngine(store, ExplodingCompressorModels(), CFG).on_episode_closed(episode())
+    kinds = [c["kind"] for c in store.cards]
+    assert kinds == ["episode", "overview"]          # close never blocks on the LLM
+    overview = store.cards[1]
+    assert overview["rubric"] is None                # unjudged -> prior points, per spec
+    assert overview["interest_reason"].startswith("compressor_error")
+    assert overview["timeline"][0]["episode_id"] == "e1"   # deterministic cited timeline
+    assert len(overview["summary"]) <= 8192
+    assert overview["overview_embedding"] is not None
