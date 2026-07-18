@@ -1,6 +1,6 @@
 {
-  "cohortId": "top-20-diversity-v1",
-  "version": 1,
+  "cohortId": "top-20-diversity-v2",
+  "version": 2,
   "windowStart": "2025-07-18T00:00:00.000Z",
   "windowEnd": "2026-07-18T00:00:00.000Z",
   "publishers": [
@@ -155,18 +155,16 @@
       "trafficVisits": 31957053,
       "sources": [
         {
-          "sourceKey": "noaa-news-pages",
+          "sourceKey": "noaa-news-sitemap",
           "title": "NOAA News",
-          "sourceUrl": "https://www.noaa.gov/news",
-          "urlTemplate": "https://www.noaa.gov/news?page={page}",
-          "sourceType": "html_archive",
-          "adapter": "html_archive",
+          "sourceUrl": "https://www.noaa.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
           "newsSubtype": "agency_news",
           "allowedHosts": ["noaa.gov"],
-          "includeUrlPattern": "https://www\\.noaa\\.gov/(?:news|news-release)/[^?#]+$",
+          "includeUrlPattern": "https://www\\.noaa\\.gov/news-release/[^?#]+$",
           "hydrate": true,
-          "pageStart": 0,
-          "maxPages": 100
+          "maxPages": 5
         }
       ]
     },
@@ -214,16 +212,15 @@
       "trafficVisits": 25560037,
       "sources": [
         {
-          "sourceKey": "cdc-syndication-api",
+          "sourceKey": "cdc-newsroom-search",
           "title": "CDC Media Releases",
-          "sourceUrl": "https://tools.cdc.gov/api/v2/resources/media",
+          "sourceUrl": "https://search.cdc.gov/srch/internet_wcms/select",
           "sourceType": "publisher_api",
           "adapter": "publisher_api",
-          "adapterVariant": "cdc",
+          "adapterVariant": "cdc_solr",
           "newsSubtype": "press_release",
-          "allowedHosts": ["tools.cdc.gov", "cdc.gov"],
-          "includeUrlPattern": "cdc\\.gov/(?:media/releases|media/pressroom)/",
-          "maxPages": 100
+          "allowedHosts": ["search.cdc.gov", "cdc.gov"],
+          "maxPages": 1
         }
       ]
     },
@@ -233,18 +230,40 @@
       "trafficVisits": 24779567,
       "sources": [
         {
-          "sourceKey": "state-press-pages",
-          "title": "State Department Press Releases",
-          "sourceUrl": "https://www.state.gov/press-releases/",
-          "urlTemplate": "https://www.state.gov/press-releases/page/{page}/",
-          "sourceType": "html_archive",
-          "adapter": "html_archive",
+          "sourceKey": "state-press-sitemap-1",
+          "title": "State Department Press Release Sitemap 1",
+          "sourceUrl": "https://www.state.gov/state_press_release-sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
           "newsSubtype": "press_release",
           "allowedHosts": ["state.gov"],
-          "includeUrlPattern": "https://www\\.state\\.gov/releases/[^?#]+$",
+          "includeUrlPattern": "https://www\\.state\\.gov/releases/.+/(?:2025/(?:0[7-9]|1[0-2])|2026)/[^?#]+/?$",
           "hydrate": true,
-          "pageStart": 1,
-          "maxPages": 100
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "state-press-sitemap-2",
+          "title": "State Department Press Release Sitemap 2",
+          "sourceUrl": "https://www.state.gov/state_press_release-sitemap2.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["state.gov"],
+          "includeUrlPattern": "https://www\\.state\\.gov/releases/.+/(?:2025/(?:0[7-9]|1[0-2])|2026)/[^?#]+/?$",
+          "hydrate": true,
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "state-press-sitemap-3",
+          "title": "State Department Press Release Sitemap 3",
+          "sourceUrl": "https://www.state.gov/state_press_release-sitemap3.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["state.gov"],
+          "includeUrlPattern": "https://www\\.state\\.gov/releases/.+/(?:2025/(?:0[7-9]|1[0-2])|2026)/[^?#]+/?$",
+          "hydrate": true,
+          "maxPages": 1
         }
       ]
     },
@@ -261,6 +280,18 @@
           "adapter": "syndication",
           "newsSubtype": "agency_news",
           "allowedHosts": ["usgs.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "usgs-monthly-feed-wayback",
+          "title": "USGS Monthly News Feed Archive",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.usgs.gov/news/all/feed",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "wayback_feed",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["web.archive.org", "usgs.gov"],
+          "includeUrlPattern": "https://www\\.usgs\\.gov/(?:news|programs|centers)/",
           "maxPages": 1
         }
       ]
@@ -296,10 +327,10 @@
           "urlTemplate": "https://home.treasury.gov/news/press-releases?page={page}",
           "sourceType": "html_archive",
           "adapter": "html_archive",
+          "adapterVariant": "dated_html",
           "newsSubtype": "press_release",
           "allowedHosts": ["home.treasury.gov"],
           "includeUrlPattern": "https://home\\.treasury\\.gov/news/press-releases/[^?#]+$",
-          "hydrate": true,
           "pageStart": 0,
           "maxPages": 160
         }
@@ -338,7 +369,7 @@
           "adapterVariant": "wayback",
           "newsSubtype": "press_release",
           "allowedHosts": ["web.archive.org", "usda.gov"],
-          "includeUrlPattern": "usda\\.gov/media/press-releases/",
+          "includeUrlPattern": "usda\\.gov/media/press-releases/(?:2025|2026)/",
           "hydrate": true,
           "maxPages": 1
         },
@@ -351,7 +382,7 @@
           "adapterVariant": "wayback",
           "newsSubtype": "press_release",
           "allowedHosts": ["web.archive.org", "usda.gov"],
-          "includeUrlPattern": "usda\\.gov/about-usda/news/press-releases/",
+          "includeUrlPattern": "usda\\.gov/about-usda/news/press-releases/(?:2025|2026)/",
           "hydrate": true,
           "maxPages": 1
         }

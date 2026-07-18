@@ -53,7 +53,7 @@ function rejectedEntry(input: {
     candidate_key: candidateKey,
     content_hash: createHash("sha256").update(canonical).digest("hex"),
     external_item_id: input.candidate.externalItemId,
-    extractor_version: 1,
+    extractor_version: 2,
     fetched_at: new Date().toISOString(),
     news_subtype: input.newsSubtype,
     published_at: input.candidate.publishedAt ?? input.windowStart,

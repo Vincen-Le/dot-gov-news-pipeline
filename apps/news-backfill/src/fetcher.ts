@@ -21,6 +21,7 @@ function isPublisherChallenge(body: string, contentType: string): boolean {
   const normalized = body.toLowerCase();
   return [
     "<title>access denied</title>",
+    "<title>technical difficulties</title>",
     "you don't have permission to access",
     "bm-verify",
     "apology_objects/interstitial",

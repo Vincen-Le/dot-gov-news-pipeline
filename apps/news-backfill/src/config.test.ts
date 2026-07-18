@@ -9,7 +9,7 @@ describe("top-20 manifest", () => {
     const manifest = await loadManifest(
       path.resolve(
         import.meta.dirname,
-        "../../../config/news-backfill/top-20-diversity-v1.json",
+        "../../../config/news-backfill/top-20-diversity-v2.json",
       ),
     );
 

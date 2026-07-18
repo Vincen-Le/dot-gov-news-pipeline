@@ -23,7 +23,11 @@ function validateSource(value: unknown, publisherKey: string): SourceProfile {
     source.allowedHosts.length === 0 ||
     !Number.isInteger(source.maxPages) ||
     (source.maxPages ?? 0) < 1 ||
-    (source.maxPages ?? 0) > 10_000
+    (source.maxPages ?? 0) > 10_000 ||
+    (source.pageSize !== undefined &&
+      (!Number.isInteger(source.pageSize) ||
+        source.pageSize < 1 ||
+        source.pageSize > 100))
   ) {
     throw new Error(`${publisherKey} source configuration is invalid`);
   }

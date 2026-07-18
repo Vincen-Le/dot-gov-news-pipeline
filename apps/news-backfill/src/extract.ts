@@ -55,17 +55,82 @@ function findArticleJson(value: unknown): Record<string, unknown> | null {
   return null;
 }
 
+function findJsonString(value: unknown, keys: string[]): string | null {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findJsonString(item, keys);
+      if (found !== null) return found;
+    }
+    return null;
+  }
+  if (typeof value !== "object" || value === null) return null;
+  const record = value as Record<string, unknown>;
+  for (const key of keys) {
+    if (typeof record[key] === "string") return record[key];
+  }
+  for (const nested of Object.values(record)) {
+    const found = findJsonString(nested, keys);
+    if (found !== null) return found;
+  }
+  return null;
+}
+
+function dateFromMarkedField(html: string): string | null {
+  const patterns = [
+    /field--name-field-news-publication-date[\s\S]{0,500}?<time\b[^>]*datetime=["']([^"']+)/i,
+    /field--name-field-publication-date-for-dis[\s\S]{0,500}?field__item["'][^>]*>([^<]+)/i,
+    /<strong\b[^>]*>\s*News Release Date:\s*<\/strong>\s*([^<\r\n]+)/i,
+    /article-meta__publish-date["'][^>]*>\s*([^<\r\n]+)/i,
+  ];
+  for (const pattern of patterns) {
+    const normalized = isoDate(pattern.exec(html)?.[1]);
+    if (normalized !== null) return normalized;
+  }
+  return null;
+}
+
+function dateFromUrl(pageUrl: string): string | null {
+  try {
+    const path = new URL(pageUrl).pathname;
+    const pathDate =
+      /\/(20\d{2})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(path);
+    if (pathDate !== null) {
+      return isoDate(`${pathDate[1]}-${pathDate[2]}-${pathDate[3]}`);
+    }
+    const segmentDate =
+      /\/(20\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\/|$)/.exec(path);
+    if (segmentDate !== null) {
+      return isoDate(`${segmentDate[1]}-${segmentDate[2]}-${segmentDate[3]}`);
+    }
+    const compactDate =
+      /_(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(20\d{2})\.[a-z0-9]+$/i.exec(path);
+    if (compactDate !== null) {
+      return isoDate(`${compactDate[3]}-${compactDate[1]}-${compactDate[2]}`);
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export function extractArticleMetadata(
   html: string,
   pageUrl: string,
 ): ArticleMetadata {
   let jsonArticle: Record<string, unknown> | null = null;
+  let jsonDate: string | null = null;
   for (const match of html.matchAll(
     /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
   )) {
     if (jsonArticle !== null) break;
     try {
-      jsonArticle = findArticleJson(JSON.parse(match[1] ?? ""));
+      const parsed: unknown = JSON.parse(match[1] ?? "");
+      jsonArticle = findArticleJson(parsed);
+      jsonDate ??= findJsonString(parsed, [
+        "datePublished",
+        "datePosted",
+        "dateCreated",
+      ]);
     } catch {
       // Broken publisher JSON-LD is common; fall through to HTML metadata.
     }
@@ -87,10 +152,15 @@ export function extractArticleMetadata(
   );
   const publishedAt =
     isoDate(article?.datePublished) ??
+    isoDate(jsonDate) ??
     isoDate(metaContent(html, "article:published_time")) ??
     isoDate(metaContent(html, "date")) ??
-    isoDate(tagAttribute(html, "time", "datetime")) ??
-    isoDate(metaContent(html, "datePublished"));
+    isoDate(metaContent(html, "dcterms.created")) ??
+    isoDate(metaContent(html, "dcterms.date")) ??
+    isoDate(metaContent(html, "datePublished")) ??
+    dateFromMarkedField(html) ??
+    dateFromUrl(pageUrl) ??
+    isoDate(tagAttribute(html, "time", "datetime"));
 
   const description = cleanText(
     (typeof article?.description === "string" ? article.description : null) ??
@@ -162,7 +232,7 @@ export function normalizeCandidate(input: {
     candidate_key: candidateKey,
     content_hash: contentHash,
     external_item_id: input.candidate.externalItemId,
-    extractor_version: 1,
+    extractor_version: 2,
     fetched_at: input.fetchedAt,
     news_subtype: input.newsSubtype,
     published_at: publishedAt,

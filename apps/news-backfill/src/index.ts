@@ -23,7 +23,7 @@ function parseArguments(argv: string[]): Arguments {
     dryRun: false,
     manifestPath: path.resolve(
       import.meta.dirname,
-      "../../../config/news-backfill/top-20-diversity-v1.json",
+      "../../../config/news-backfill/top-20-diversity-v2.json",
     ),
     publishers: undefined,
   };
@@ -74,7 +74,7 @@ async function main(): Promise<void> {
     timeoutMs: 30_000,
     userAgent:
       process.env.NEWS_BACKFILL_USER_AGENT ??
-      "DotGovNewsBackfill/1.0 (historical public-news research; contact project operator)",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 DotGovNewsBackfill/1.0",
   });
   const summary = await runBackfill({
     artifactStore: new ArtifactStore(

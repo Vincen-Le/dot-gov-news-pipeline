@@ -45,6 +45,7 @@ export class BackfillRepository {
         adapterVariant: profile.adapterVariant,
         includeUrlPattern: profile.includeUrlPattern,
         maxPages: profile.maxPages,
+        pageSize: profile.pageSize,
         sourceKey: profile.sourceKey,
         urlTemplate: profile.urlTemplate,
       },

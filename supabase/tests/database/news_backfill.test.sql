@@ -1,6 +1,6 @@
 begin;
 
-select plan(36);
+select plan(46);
 
 select is(
     (
@@ -125,6 +125,34 @@ select ok(
         'execute'
     ),
     'client roles cannot execute backfill database functions'
+);
+
+select ok(
+    has_function_privilege(
+        'service_role',
+        'public.cancel_news_backfill_run(uuid,text)',
+        'execute'
+    )
+    and has_function_privilege(
+        'service_role',
+        'public.purge_cancelled_backfill_target_entries(uuid)',
+        'execute'
+    ),
+    'service role can execute corrective backfill maintenance functions'
+);
+
+select ok(
+    not has_function_privilege(
+        'anon',
+        'public.cancel_news_backfill_run(uuid,text)',
+        'execute'
+    )
+    and not has_function_privilege(
+        'authenticated',
+        'public.purge_cancelled_backfill_target_entries(uuid)',
+        'execute'
+    ),
+    'client roles cannot execute corrective backfill maintenance functions'
 );
 
 create temporary table source_fixture as
@@ -521,6 +549,114 @@ select is(
     ),
     'window_boundary_reached',
     'stores the target stop reason'
+);
+
+create temporary table cancelled_run_fixture as
+select public.begin_news_backfill_run(
+    'top-20-cancelled-test-2026',
+    'top-20-diversity-v2',
+    repeat('9', 64),
+    '2025-07-18 00:00:00+00'::timestamptz,
+    '2026-07-18 00:00:00+00'::timestamptz
+) as run_id;
+
+create temporary table cancelled_target_fixture as
+select public.ensure_news_backfill_target(
+    (select run_id from cancelled_run_fixture),
+    'example',
+    'superseded-feed',
+    (select source_id from source_fixture),
+    'syndication'
+) as target_id;
+
+select is(
+    (
+        select disposition
+        from public.ingest_news_entries(
+            (select target_id from cancelled_target_fixture),
+            pg_catalog.jsonb_build_array(
+                pg_catalog.jsonb_build_object(
+                    'candidate_key', repeat('8', 64),
+                    'url', 'https://example.gov/news/superseded',
+                    'url_canonical', 'https://example.gov/news/superseded',
+                    'title', 'Superseded extraction result',
+                    'published_at', '2026-06-15T12:00:00Z',
+                    'content_hash', repeat('7', 64),
+                    'news_subtype', 'press_release',
+                    'extractor_version', 1,
+                    'raw_artifact_key', 'news-backfill/test/superseded.json'
+                )
+            )
+        )
+    ),
+    'inserted',
+    'creates an entry owned exclusively by the superseded target'
+);
+
+select ok(
+    public.cancel_news_backfill_run(
+        (select run_id from cancelled_run_fixture),
+        'Superseded after an extraction defect was found.'
+    ),
+    'cancels an active backfill run'
+);
+
+select is(
+    (
+        select status
+        from public.news_backfill_runs
+        where id = (select run_id from cancelled_run_fixture)
+    ),
+    'cancelled',
+    'marks the superseded run cancelled'
+);
+
+select is(
+    (
+        select status
+        from public.news_backfill_targets
+        where id = (select target_id from cancelled_target_fixture)
+    ),
+    'cancelled',
+    'marks the active target cancelled with its run'
+);
+
+select is(
+    public.purge_cancelled_backfill_target_entries(
+        (select target_id from cancelled_target_fixture)
+    ),
+    1,
+    'purges the entry owned exclusively by the cancelled target'
+);
+
+select is(
+    (
+        select count(*)::integer
+        from public.news_entries
+        where url_canonical = 'https://example.gov/news/superseded'
+    ),
+    0,
+    'removes the superseded canonical entry'
+);
+
+select is(
+    (
+        select inserted_count
+        from public.news_backfill_targets
+        where id = (select target_id from cancelled_target_fixture)
+    ),
+    0,
+    'resets the cancelled target counters after cleanup'
+);
+
+select throws_ok(
+    format(
+        'select public.purge_cancelled_backfill_target_entries(%L)',
+        (select target_id from target_one_fixture)
+    ),
+    '55000',
+    'only cancelled target entries can be purged',
+    'refuses to purge a target that was not cancelled'
 );
 
 select * from finish();

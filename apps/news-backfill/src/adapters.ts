@@ -113,7 +113,9 @@ async function* syndicationBatches(
       stopReason:
         oldest !== null && oldest < windowStart
           ? "window_boundary_reached"
-          : undefined,
+          : profile.urlTemplate === undefined
+            ? "source_exhausted"
+            : undefined,
     };
     if (oldest !== null && oldest < windowStart) return;
     if (profile.urlTemplate === undefined) return;
@@ -128,9 +130,10 @@ async function* wordpressBatches(
   cursor: Record<string, unknown>,
 ): AsyncGenerator<CandidateBatch> {
   const firstPage = typeof cursor.page === "number" ? cursor.page + 1 : 1;
+  const pageSize = profile.pageSize ?? 100;
   for (let page = firstPage; page <= profile.maxPages; page += 1) {
     const separator = profile.sourceUrl.includes("?") ? "&" : "?";
-    const url = `${profile.sourceUrl}${separator}per_page=100&page=${page}&after=${encodeURIComponent(windowStart)}&before=${encodeURIComponent(windowEnd)}&_fields=id,link,date_gmt,title,excerpt,content`;
+    const url = `${profile.sourceUrl}${separator}per_page=${pageSize}&page=${page}&after=${encodeURIComponent(windowStart)}&before=${encodeURIComponent(windowEnd)}&_fields=id,link,date_gmt,title,excerpt,content`;
     let document: FetchedDocument;
     try {
       document = await fetchDocument(url, profile.allowedHosts);
@@ -165,16 +168,27 @@ async function* wordpressBatches(
         },
       ];
     });
+    const oldest = oldestIso(candidates.map(({ publishedAt }) => publishedAt));
+    const reachedBoundary = oldest !== null && oldest < windowStart;
+    const sourceExhausted = posts.length < pageSize;
     yield {
       candidates,
-      coverageReachedAt: windowStart,
+      coverageReachedAt: reachedBoundary
+        ? oldest
+        : sourceExhausted
+          ? windowStart
+          : null,
       cursor: { page },
       evidenceBody: document.body,
       evidenceContentType: document.contentType,
       evidenceUrl: document.finalUrl,
-      stopReason: posts.length < 100 ? "source_exhausted" : undefined,
+      stopReason: reachedBoundary
+        ? "window_boundary_reached"
+        : sourceExhausted
+          ? "source_exhausted"
+          : undefined,
     };
-    if (posts.length < 100) return;
+    if (reachedBoundary || sourceExhausted) return;
   }
 }
 
@@ -219,6 +233,72 @@ async function* htmlArchiveBatches(
       stopReason: emptyPages >= 2 ? "source_exhausted" : undefined,
     };
     if (emptyPages >= 2) return;
+  }
+}
+
+async function* datedHtmlBatches(
+  profile: SourceProfile,
+  fetchDocument: FetchDocument,
+  windowStart: string,
+  windowEnd: string,
+  cursor: Record<string, unknown>,
+): AsyncGenerator<CandidateBatch> {
+  const pageStart = profile.pageStart ?? 0;
+  const firstPage =
+    typeof cursor.page === "number" ? cursor.page + 1 : pageStart;
+  const seen = new Set<string>();
+  let emptyPages = 0;
+  for (let page = firstPage; page < firstPage + profile.maxPages; page += 1) {
+    const url = templateUrl(profile, page, windowStart, windowEnd);
+    const document = await fetchDocument(url, profile.allowedHosts);
+    const candidates: Candidate[] = [];
+    for (const match of document.body.matchAll(
+      /<time\b[^>]*datetime=["']([^"']+)["'][^>]*>[\s\S]{0,500}?<(?:div|h3)\b[^>]*class=["'][^"']*(?:news-title|featured-stories__headline)[^"']*["'][^>]*>\s*<a\b([^>]*)>([\s\S]*?)<\/a>/gi,
+    )) {
+      const href = attributeValue(match[2] ?? "", "href");
+      if (href === null) continue;
+      let articleUrl: string;
+      try {
+        articleUrl = new URL(href, document.finalUrl).href;
+      } catch {
+        continue;
+      }
+      if (!includeUrl(profile, articleUrl) || seen.has(articleUrl)) continue;
+      seen.add(articleUrl);
+      const title = textFromHtml(match[3]);
+      candidates.push({
+        externalItemId: articleUrl,
+        publishedAt: isoDate(match[1]),
+        rawBody: document.body,
+        rawContentType: document.contentType,
+        sourceUrl: document.finalUrl,
+        summary: title,
+        title,
+        url: articleUrl,
+      });
+    }
+    emptyPages = candidates.length === 0 ? emptyPages + 1 : 0;
+    const oldest = oldestIso(candidates.map(({ publishedAt }) => publishedAt));
+    const reachedBoundary = oldest !== null && oldest < windowStart;
+    const sourceExhausted = emptyPages >= 2;
+    yield {
+      candidates,
+      coverageReachedAt: reachedBoundary
+        ? oldest
+        : sourceExhausted
+          ? windowStart
+          : null,
+      cursor: { page },
+      evidenceBody: document.body,
+      evidenceContentType: document.contentType,
+      evidenceUrl: document.finalUrl,
+      stopReason: reachedBoundary
+        ? "window_boundary_reached"
+        : sourceExhausted
+          ? "source_exhausted"
+          : undefined,
+    };
+    if (reachedBoundary || sourceExhausted) return;
   }
 }
 
@@ -348,6 +428,75 @@ async function* cdcApiBatches(
   }
 }
 
+async function* cdcSolrBatches(
+  profile: SourceProfile,
+  fetchDocument: FetchDocument,
+  windowStart: string,
+  windowEnd: string,
+): AsyncGenerator<CandidateBatch> {
+  const years: string[] = [];
+  for (
+    let year = Number(windowStart.slice(0, 4));
+    year <= Number(windowEnd.slice(0, 4));
+    year += 1
+  ) {
+    years.push(`permalink:*/media/releases/${year}/*`);
+  }
+  const url = new URL(profile.sourceUrl);
+  url.searchParams.set("q", "*:*");
+  url.searchParams.append("fq", "site_id:191");
+  url.searchParams.append("fq", `(${years.join(" OR ")})`);
+  url.searchParams.append("fq", '-status:"cdc_archive"');
+  url.searchParams.append("fq", "cdc_sys_lang_str:en");
+  url.searchParams.set("sort", "cdc_article_date_dt desc");
+  url.searchParams.set("rows", "1000");
+  url.searchParams.set(
+    "fl",
+    "id,type,type_txt,title_txt,permalink,cdc_article_date_dt,excerpt_txt",
+  );
+  url.searchParams.set("wt", "json");
+  const document = await fetchDocument(url.href, profile.allowedHosts);
+  const payload = JSON.parse(document.body) as {
+    response?: { docs?: Array<Record<string, unknown>> };
+  };
+  const rows = payload.response?.docs ?? [];
+  const candidates = rows.flatMap((item): Candidate[] => {
+    if (
+      typeof item.permalink !== "string" ||
+      typeof item.title_txt !== "string" ||
+      typeof item.cdc_article_date_dt !== "string"
+    ) {
+      return [];
+    }
+    return [
+      {
+        externalItemId: String(item.id ?? item.permalink),
+        publishedAt: item.cdc_article_date_dt,
+        rawBody: document.body,
+        rawContentType: document.contentType,
+        sourceUrl: document.finalUrl,
+        summary:
+          typeof item.excerpt_txt === "string"
+            ? item.excerpt_txt
+            : item.title_txt,
+        title: item.title_txt,
+        url: item.permalink,
+      },
+    ];
+  });
+  if (candidates.length === 0)
+    throw new Error("CDC search returned no releases");
+  yield {
+    candidates,
+    coverageReachedAt: windowStart,
+    cursor: { rows: candidates.length },
+    evidenceBody: document.body,
+    evidenceContentType: document.contentType,
+    evidenceUrl: document.finalUrl,
+    stopReason: "source_exhausted",
+  };
+}
+
 async function* npsApiBatches(
   profile: SourceProfile,
   fetchDocument: FetchDocument,
@@ -431,10 +580,13 @@ function cdxUrl(
   windowStart: string,
   windowEnd: string,
   collapse: string,
+  mimetype: string | null = "text/html",
 ): string {
   const from = windowStart.slice(0, 10).replaceAll("-", "");
   const to = windowEnd.slice(0, 10).replaceAll("-", "");
-  return `${profile.sourceUrl}&from=${from}&to=${to}&output=json&filter=statuscode:200&filter=mimetype:text/html&collapse=${encodeURIComponent(collapse)}&fl=timestamp,original,statuscode,digest`;
+  const mimeFilter =
+    mimetype === null ? "" : `&filter=mimetype:${encodeURIComponent(mimetype)}`;
+  return `${profile.sourceUrl}&from=${from}&to=${to}&output=json&filter=statuscode:200${mimeFilter}&collapse=${encodeURIComponent(collapse)}&fl=timestamp,original,statuscode,digest`;
 }
 
 function archivedUrl(row: WaybackRow, original = row.original): string {
@@ -490,6 +642,39 @@ async function* waybackBatches(
     evidenceBody: document.body,
     evidenceContentType: document.contentType,
     evidenceUrl: document.finalUrl,
+    stopReason: "source_exhausted",
+  };
+}
+
+async function* waybackFeedBatches(
+  profile: SourceProfile,
+  fetchDocument: FetchDocument,
+  windowStart: string,
+  windowEnd: string,
+): AsyncGenerator<CandidateBatch> {
+  const cdx = await fetchDocument(
+    cdxUrl(profile, windowStart, windowEnd, "timestamp:6", null),
+    profile.allowedHosts,
+  );
+  const candidatesByUrl = new Map<string, Candidate>();
+  for (const row of waybackRows(cdx.body)) {
+    const feed = await fetchDocument(archivedUrl(row), profile.allowedHosts);
+    for (const candidate of feedCandidates(feed)) {
+      const original = originalUrl(candidate.url);
+      if (original === null || !includeUrl(profile, original)) continue;
+      candidatesByUrl.set(original, { ...candidate, url: original });
+    }
+  }
+  if (candidatesByUrl.size === 0) {
+    throw new Error("Wayback feed snapshots yielded no news items");
+  }
+  yield {
+    candidates: [...candidatesByUrl.values()],
+    coverageReachedAt: windowStart,
+    cursor: { snapshots: waybackRows(cdx.body).length },
+    evidenceBody: cdx.body,
+    evidenceContentType: cdx.contentType,
+    evidenceUrl: cdx.finalUrl,
     stopReason: "source_exhausted",
   };
 }
@@ -562,7 +747,7 @@ async function* ssaArchiveBatches(
   windowEnd: string,
 ): AsyncGenerator<CandidateBatch> {
   const cdx = await fetchDocument(
-    cdxUrl(profile, windowStart, windowEnd, "urlkey"),
+    cdxUrl(profile, windowStart, windowEnd, "digest"),
     profile.allowedHosts,
   );
   const latestByYear = new Map<string, WaybackRow>();
@@ -630,6 +815,15 @@ export function enumerateBatches(input: {
   windowStart: string;
 }): AsyncGenerator<CandidateBatch> {
   const { cursor, fetchDocument, profile, windowEnd, windowStart } = input;
+  if (profile.adapterVariant === "dated_html") {
+    return datedHtmlBatches(
+      profile,
+      fetchDocument,
+      windowStart,
+      windowEnd,
+      cursor,
+    );
+  }
   if (profile.adapter === "syndication") {
     return syndicationBatches(
       profile,
@@ -663,6 +857,9 @@ export function enumerateBatches(input: {
   if (profile.adapterVariant === "cdc") {
     return cdcApiBatches(profile, fetchDocument, windowStart, cursor);
   }
+  if (profile.adapterVariant === "cdc_solr") {
+    return cdcSolrBatches(profile, fetchDocument, windowStart, windowEnd);
+  }
   if (profile.adapterVariant === "nps") {
     return npsApiBatches(profile, fetchDocument, windowStart, cursor);
   }
@@ -676,6 +873,9 @@ export function enumerateBatches(input: {
       windowStart,
       windowEnd,
     );
+  }
+  if (profile.adapterVariant === "wayback_feed") {
+    return waybackFeedBatches(profile, fetchDocument, windowStart, windowEnd);
   }
   if (profile.adapterVariant === "ssa_archive") {
     return ssaArchiveBatches(profile, fetchDocument, windowStart, windowEnd);

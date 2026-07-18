@@ -95,4 +95,60 @@ describe("source adapters", () => {
       },
     ]);
   });
+
+  it("accepts archived RSS snapshots regardless of their captured MIME type", async () => {
+    const cdx = JSON.stringify([
+      ["timestamp", "original", "statuscode", "digest"],
+      [
+        "20260102030405",
+        "https://www.usgs.gov/news/all/feed",
+        "200",
+        "feed-digest",
+      ],
+    ]);
+    const feed = `<rss><channel><item>
+      <guid>release-1</guid>
+      <link>https://www.usgs.gov/news/national-news-release/example</link>
+      <title>Science update</title>
+      <pubDate>Mon, 01 Jun 2026 12:00:00 GMT</pubDate>
+      <description>USGS announced an update.</description>
+    </item></channel></rss>`;
+    const requested: string[] = [];
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => {
+          requested.push(url);
+          return {
+            body: url.includes("/cdx/") ? cdx : feed,
+            contentType: url.includes("/cdx/")
+              ? "application/json"
+              : "application/rss+xml",
+            finalUrl: url,
+            status: 200,
+          };
+        },
+        profile: profile({
+          adapter: "publisher_api",
+          adapterVariant: "wayback_feed",
+          allowedHosts: ["web.archive.org", "usgs.gov"],
+          includeUrlPattern: "https://www\\.usgs\\.gov/news/",
+          sourceType: "publisher_api",
+          sourceUrl:
+            "https://web.archive.org/cdx/search/cdx?url=www.usgs.gov/news/all/feed",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(requested[0]).not.toContain("mimetype:text/html");
+    expect(batches[0]?.candidates).toMatchObject([
+      {
+        publishedAt: "Mon, 01 Jun 2026 12:00:00 GMT",
+        title: "Science update",
+        url: "https://www.usgs.gov/news/national-news-release/example",
+      },
+    ]);
+  });
 });

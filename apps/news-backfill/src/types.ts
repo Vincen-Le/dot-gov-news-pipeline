@@ -7,13 +7,21 @@ export type NewsSubtype =
 export interface SourceProfile {
   adapter: AdapterType;
   adapterVariant?:
-    "cdc" | "nps" | "ssa_archive" | "wayback" | "wayback_listing";
+    | "cdc"
+    | "cdc_solr"
+    | "dated_html"
+    | "nps"
+    | "ssa_archive"
+    | "wayback"
+    | "wayback_feed"
+    | "wayback_listing";
   allowedHosts: string[];
   apiKeyEnvironment?: string;
   hydrate?: boolean;
   includeUrlPattern?: string;
   maxPages: number;
   newsSubtype: NewsSubtype;
+  pageSize?: number;
   pageStart?: number;
   sourceKey: string;
   sourceType:
