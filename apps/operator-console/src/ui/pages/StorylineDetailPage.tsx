@@ -181,6 +181,23 @@ export function StorylineDetailPage() {
               ? ` · keys: ${storyline.eventKeys.join(" ")}`
               : ""}
           </p>
+          {storyline.themeName === null ? null : (
+            <p className="source-note">
+              Theme: {storyline.themeName}
+              {storyline.categoryName === null
+                ? ""
+                : ` · ${storyline.categoryName}`}
+              {storyline.themeAttachMethod === null
+                ? ""
+                : ` · ${storyline.themeAttachMethod}`}
+              {storyline.themeSimilarity === null
+                ? ""
+                : ` · sim ${storyline.themeSimilarity.toFixed(3)}`}
+              {storyline.themeReason === null
+                ? ""
+                : ` — ${storyline.themeReason}`}
+            </p>
+          )}
         </div>
       </section>
 
@@ -265,10 +282,7 @@ export function StorylineDetailPage() {
         <section className="ruled-section">
           <SectionHeading index="II" title="Event cards" />
           {storyline.overviewCards.length === 0 ? (
-            <p className="empty-row">
-              No overview card yet — single-episode storylines collapse onto
-              their episode card.
-            </p>
+            <p className="empty-row">No overview card yet.</p>
           ) : (
             <div className="card-stack">
               {storyline.overviewCards.map((card) => (

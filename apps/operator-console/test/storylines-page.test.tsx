@@ -108,6 +108,69 @@ const AGENCIES_PAYLOAD = {
   data: { agencies: ["cdc", "fda"] },
 };
 
+const CATEGORIES_PAYLOAD = {
+  data: {
+    categories: [
+      {
+        displayName: "Food & Drug Safety",
+        id: "00000000-0000-4000-8000-0000000000c1",
+        origin: "seed",
+        proposalReason: null,
+        themeCount: 1,
+      },
+      {
+        displayName: "Test LLM Category",
+        id: "00000000-0000-4000-8000-0000000000c9",
+        origin: "llm",
+        proposalReason: "proposed by classifier",
+        themeCount: 0,
+      },
+    ],
+  },
+};
+
+const THEMES_PAYLOAD = {
+  data: {
+    themes: [
+      {
+        categoryId: "00000000-0000-4000-8000-0000000000c1",
+        categoryName: "Food & Drug Safety",
+        categoryOrigin: "seed",
+        displayName: "Valsatrex recall fallout",
+        id: "00000000-0000-4000-8000-0000000000d1",
+        newestStorylineAt: "2026-05-17T15:00:00.000Z",
+        storylineCount: 1,
+      },
+    ],
+  },
+};
+
+function mockFetchRoutes(): ReturnType<typeof vi.fn> {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/lab/capability")) {
+        return jsonResponse({
+          data: { experimentsEnabled: true, status: "available" },
+        });
+      }
+      if (url.includes("/api/lab/metrics")) {
+        return jsonResponse(METRICS_PAYLOAD);
+      }
+      if (url.includes("/api/lab/agencies")) {
+        return jsonResponse(AGENCIES_PAYLOAD);
+      }
+      if (url.includes("/api/lab/topics/categories")) {
+        return jsonResponse(CATEGORIES_PAYLOAD);
+      }
+      if (url.includes("/api/lab/topics/themes")) {
+        return jsonResponse(THEMES_PAYLOAD);
+      }
+      return jsonResponse(STORYLINES_PAYLOAD);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
 describe("StorylinesPage", () => {
   it("renders chains from the lab api", async () => {
     vi.stubGlobal(
@@ -202,6 +265,35 @@ describe("StorylinesPage", () => {
       .map((call) => String(call[0]))
       .filter((url) => url.includes("/api/lab/storylines"));
     expect(storylineCalls.at(-1)).toContain("offset=50");
+  });
+
+  it("renders category and theme filters with llm origin badges", async () => {
+    mockFetchRoutes();
+    renderPage();
+    expect(await screen.findByLabelText("Category")).toBeTruthy();
+    expect(await screen.findByLabelText("Theme")).toBeTruthy();
+    // llm-origin categories are visibly marked for auditability
+    expect(
+      await screen.findByText("Test LLM Category (LLM)"),
+    ).toBeTruthy();
+  });
+
+  it("shows the theme chip on storyline rows and filters the api call", async () => {
+    const fetchMock = mockFetchRoutes();
+    renderPage(
+      "/storylines?theme=00000000-0000-4000-8000-0000000000d1",
+    );
+    // theme chip on the row (the Theme column renders the storyline's theme)
+    expect(
+      await screen.findAllByText("Valsatrex recall fallout"),
+    ).not.toHaveLength(0);
+    // theme param round-trips into the storylines api call
+    const storylineCalls = fetchMock.mock.calls
+      .map((call) => String(call[0]))
+      .filter((url) => url.includes("/api/lab/storylines"));
+    expect(storylineCalls.at(0)).toContain(
+      "theme=00000000-0000-4000-8000-0000000000d1",
+    );
   });
 
   it("renders the not-enabled state honestly", async () => {

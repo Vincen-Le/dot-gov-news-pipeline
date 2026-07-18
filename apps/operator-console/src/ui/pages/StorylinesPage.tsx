@@ -5,6 +5,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import {
   LabCapabilitySchema,
   StorylineListItemSchema,
+  TopicCategorySchema,
+  TopicThemeSchema,
 } from "../../lab/contracts";
 import { LabMetricsSchema } from "../../lab/metrics";
 import { fetchLab } from "../lab-api";
@@ -24,6 +26,8 @@ export function StorylinesPage() {
   const agency = params.get("agency") ?? "";
   const minEpisodes = params.get("minEpisodes") ?? "";
   const sort = params.get("sort") ?? "";
+  const theme = params.get("theme") ?? "";
+  const category = params.get("category") ?? "";
   const parsedPage = Number(params.get("page") ?? "1");
   const page = Number.isInteger(parsedPage) && parsedPage > 1 ? parsedPage : 1;
   const offset = (page - 1) * PAGE_SIZE;
@@ -44,11 +48,31 @@ export function StorylinesPage() {
       fetchLab("/agencies", z.object({ agencies: z.string().array() })),
     queryKey: ["lab-agencies"],
   });
+  const categories = useQuery({
+    enabled: capability.data?.status === "available",
+    queryFn: () =>
+      fetchLab(
+        "/topics/categories",
+        z.object({ categories: TopicCategorySchema.array() }),
+      ),
+    queryKey: ["lab-topic-categories"],
+  });
+  const themes = useQuery({
+    enabled: capability.data?.status === "available",
+    queryFn: () =>
+      fetchLab(
+        `/topics/themes${category === "" ? "" : `?category=${category}`}`,
+        z.object({ themes: TopicThemeSchema.array() }),
+      ),
+    queryKey: ["lab-topic-themes", category],
+  });
   const query = new URLSearchParams();
   if (entity !== "") query.set("entity", entity);
   if (agency !== "") query.set("agency", agency);
   if (minEpisodes !== "") query.set("minEpisodes", minEpisodes);
   if (sort !== "") query.set("sort", sort);
+  if (theme !== "") query.set("theme", theme);
+  if (category !== "") query.set("category", category);
   if (offset > 0) query.set("offset", String(offset));
   const storylines = useQuery({
     enabled: capability.data?.status === "available",
@@ -60,7 +84,16 @@ export function StorylinesPage() {
           items: StorylineListItemSchema.array(),
         }),
       ),
-    queryKey: ["lab-storylines", entity, agency, minEpisodes, sort, page],
+    queryKey: [
+      "lab-storylines",
+      entity,
+      agency,
+      minEpisodes,
+      sort,
+      theme,
+      category,
+      page,
+    ],
   });
 
   if (capability.data?.status === "not_enabled") {
@@ -79,6 +112,8 @@ export function StorylinesPage() {
     agency === "" ? "" : ` --agency ${agency}`,
     minEpisodes === "" ? "" : ` --min-episodes ${minEpisodes}`,
     sort === "" ? "" : ` --sort ${sort}`,
+    category === "" ? "" : ` --category ${category}`,
+    theme === "" ? "" : ` --theme ${theme}`,
     offset === 0 ? "" : ` --offset ${offset}`,
   ].join("");
   const goToPage = (next: number): void => {
@@ -164,7 +199,14 @@ export function StorylinesPage() {
             event.preventDefault();
             const data = new FormData(event.currentTarget);
             const next: Record<string, string> = {};
-            for (const key of ["entity", "agency", "minEpisodes", "sort"]) {
+            for (const key of [
+              "entity",
+              "agency",
+              "minEpisodes",
+              "sort",
+              "category",
+              "theme",
+            ]) {
               const value = data.get(key);
               if (typeof value === "string" && value !== "") next[key] = value;
             }
@@ -190,6 +232,36 @@ export function StorylinesPage() {
             {agencyOptions.map((option) => (
               <option key={option} value={option}>
                 {option}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="category">Category</label>
+          <select
+            defaultValue={category}
+            id="category"
+            key={categories.data === undefined ? "cat-loading" : "cat-loaded"}
+            name="category"
+          >
+            <option value="">All categories</option>
+            {(categories.data?.categories ?? []).map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.origin === "llm"
+                  ? `${option.displayName} (LLM)`
+                  : option.displayName}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="theme">Theme</label>
+          <select
+            defaultValue={theme}
+            id="theme"
+            key={themes.data === undefined ? "theme-loading" : "theme-loaded"}
+            name="theme"
+          >
+            <option value="">All themes</option>
+            {(themes.data?.themes ?? []).map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.displayName} ({option.storylineCount})
               </option>
             ))}
           </select>
@@ -225,6 +297,7 @@ export function StorylinesPage() {
                     <th>Entries</th>
                     <th>Feeds</th>
                     <th>Agencies</th>
+                    <th>Theme</th>
                     <th>Event keys</th>
                     <th>Newest</th>
                   </tr>
@@ -244,6 +317,7 @@ export function StorylinesPage() {
                       <td className="numeric">{item.entryCount}</td>
                       <td className="numeric">{item.distinctFeeds}</td>
                       <td>{item.agencies.join(", ") || "—"}</td>
+                      <td>{item.themeName ?? "—"}</td>
                       <td className="mono">
                         {item.eventKeys.join(" ") || "—"}
                       </td>
