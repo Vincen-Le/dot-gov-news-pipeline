@@ -37,13 +37,33 @@ const ExperimentListSchema = z.object({
 });
 const SnapshotEventSchema = ActiveRunSchema.nullable();
 
+// hints mirror pipeline/config.py defaults and the attach tiers in
+// pipeline/episodes.py + pipeline/storylines.py — update together
 const OVERRIDE_FIELDS = [
-  "NEAR_DUP_THRESHOLD",
-  "CLUSTER_JOIN_THRESHOLD",
-  "STORYLINE_SIM_FLOOR",
-  "AMBIENT_EMA_CEILING",
-  "EPISODE_DORMANCY_HOURS",
-  "ENRICHMENT_ENABLED",
+  {
+    hint: "Similarity at or above which an entry attaches to an episode as a syndicated near-duplicate. Default 0.90.",
+    key: "NEAR_DUP_THRESHOLD",
+  },
+  {
+    hint: "Minimum centroid similarity to join an open episode — rare shared entities join outright, the rest go to the adjudicator. Default 0.78.",
+    key: "CLUSTER_JOIN_THRESHOLD",
+  },
+  {
+    hint: "Storyline candidates below this similarity are never considered when chaining a new episode. Default 0.60.",
+    key: "STORYLINE_SIM_FLOOR",
+  },
+  {
+    hint: "Entities with a daily EMA at or above this are ambient (seen everywhere) and never justify a join on their own. Default 3.",
+    key: "AMBIENT_EMA_CEILING",
+  },
+  {
+    hint: "Open episodes close after this many hours without a new entry; later matches start a new episode in the chain. Default 4.",
+    key: "EPISODE_DORMANCY_HOURS",
+  },
+  {
+    hint: "Set false to embed raw titles instead of LLM-enriched text — isolates enrichment's effect on clustering. Default true.",
+    key: "ENRICHMENT_ENABLED",
+  },
 ] as const;
 
 function stageStatus(stage: RunStage) {
@@ -195,7 +215,7 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
             setNotice(null);
             const data = new FormData(event.currentTarget);
             const env: Record<string, string> = {};
-            for (const key of OVERRIDE_FIELDS) {
+            for (const { key } of OVERRIDE_FIELDS) {
               const value = data.get(key);
               if (typeof value === "string" && value.trim() !== "")
                 env[key] = value.trim();
@@ -235,7 +255,7 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
             <label htmlFor="exp-name">Name</label>
             <input id="exp-name" name="name" placeholder="baseline" required />
           </div>
-          {OVERRIDE_FIELDS.map((key) => (
+          {OVERRIDE_FIELDS.map(({ hint, key }) => (
             <div key={key}>
               <label htmlFor={`exp-${key}`}>{key.toLowerCase()}</label>
               <input
@@ -244,6 +264,7 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
                 name={key}
                 placeholder="default"
               />
+              <p className="field-hint">{hint}</p>
             </div>
           ))}
           <div>

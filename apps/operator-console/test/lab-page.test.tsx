@@ -161,5 +161,11 @@ describe("LabPage", () => {
       await screen.findByText("FDA expands Valsatrex recall"),
     ).toBeInTheDocument();
     expect(await screen.findByText(/0\.922/)).toBeInTheDocument();
+    // every override parameter explains what it tunes
+    expect(
+      screen.getByText(/syndicated near-duplicate/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/hours without a new entry/)).toBeInTheDocument();
+    expect(screen.getByText(/never justify a join/)).toBeInTheDocument();
   });
 });

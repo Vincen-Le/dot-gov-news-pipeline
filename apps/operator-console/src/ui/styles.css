@@ -1012,6 +1012,12 @@ footer {
   background: var(--canvas);
   color: var(--text);
 }
+.lab-form .field-hint {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
 .lab-form .lab-form-actions {
   display: flex;
   align-items: end;
