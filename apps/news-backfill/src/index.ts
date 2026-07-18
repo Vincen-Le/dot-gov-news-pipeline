@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
+import { setDefaultResultOrder } from "node:dns";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -9,6 +10,8 @@ import { loadManifest } from "./config";
 import { createFetcher } from "./fetcher";
 import { BackfillRepository } from "./repository";
 import { runBackfill } from "./runner";
+
+setDefaultResultOrder("ipv4first");
 
 interface Arguments {
   artifactDirectory: string;
