@@ -1,10 +1,17 @@
+import { gzipSync } from "node:zlib";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createFetcher } from "./fetcher";
+import { createFetcher, decodeResponseBody } from "./fetcher";
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("publisher fetcher", () => {
+  it("decodes compressed archive responses", () => {
+    expect(decodeResponseBody(gzipSync("archived article"), "gzip")).toBe(
+      "archived article",
+    );
+  });
+
   it("exposes WordPress pagination metadata", async () => {
     vi.stubGlobal(
       "fetch",

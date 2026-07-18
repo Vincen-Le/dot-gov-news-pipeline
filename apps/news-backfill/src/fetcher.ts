@@ -1,5 +1,6 @@
 import { get } from "node:https";
 import { setTimeout as delay } from "node:timers/promises";
+import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
 export interface FetchedDocument {
   body: string;
@@ -17,6 +18,24 @@ export interface FetcherOptions {
 }
 
 const MAX_BODY_BYTES = 10 * 1024 * 1024;
+
+export function decodeResponseBody(
+  body: Buffer,
+  contentEncoding: string | undefined,
+): string {
+  const encoding = contentEncoding?.split(",")[0]?.trim().toLowerCase();
+  const decoded =
+    encoding === "gzip"
+      ? gunzipSync(body)
+      : encoding === "deflate"
+        ? inflateSync(body)
+        : encoding === "br"
+          ? brotliDecompressSync(body)
+          : body;
+  if (decoded.byteLength > MAX_BODY_BYTES)
+    throw new Error(`publisher body exceeds ${MAX_BODY_BYTES} bytes`);
+  return decoded.toString("utf8");
+}
 
 interface RawDocument extends FetchedDocument {
   retryAfter: number;
@@ -103,21 +122,31 @@ function fetchViaHttps(
       });
       response.on("error", reject);
       response.on("end", () => {
-        const contentTypeHeader = response.headers["content-type"];
-        const retryAfterHeader = response.headers["retry-after"];
-        resolve({
-          body: Buffer.concat(chunks).toString("utf8"),
-          contentType:
-            typeof contentTypeHeader === "string"
-              ? contentTypeHeader
-              : "application/octet-stream",
-          finalUrl: url.href,
-          retryAfter:
-            typeof retryAfterHeader === "string"
-              ? Number(retryAfterHeader)
-              : Number.NaN,
-          status,
-        });
+        try {
+          const contentTypeHeader = response.headers["content-type"];
+          const retryAfterHeader = response.headers["retry-after"];
+          const contentEncodingHeader = response.headers["content-encoding"];
+          resolve({
+            body: decodeResponseBody(
+              Buffer.concat(chunks),
+              typeof contentEncodingHeader === "string"
+                ? contentEncodingHeader
+                : undefined,
+            ),
+            contentType:
+              typeof contentTypeHeader === "string"
+                ? contentTypeHeader
+                : "application/octet-stream",
+            finalUrl: url.href,
+            retryAfter:
+              typeof retryAfterHeader === "string"
+                ? Number(retryAfterHeader)
+                : Number.NaN,
+            status,
+          });
+        } catch (error) {
+          reject(error);
+        }
       });
     });
     request.on("timeout", () => {
