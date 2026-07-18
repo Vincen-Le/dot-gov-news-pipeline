@@ -27,6 +27,44 @@ about 43,200 Queue operations/day, above the Free plan's 10,000-operation daily
 allowance. Keep discovery disabled after the canary until the account tier or
 steady-state rate is explicitly selected.
 
+The hosted 250-site gate completed with 14 succeeded sites, 80 valid no-feed
+outcomes, 156 bounded publisher failures, and no stale leases or system
+failures. Completed-crawl duration was 4.9 seconds at the median and 13.2
+seconds at p95; one 97-second outlier remained within policy.
+
+## Initial backfill
+
+Use the direct runner to seed a large initial inventory without consuming
+Cloudflare Queue operations. It calls the same claim, completion, and failure
+RPCs and the same bounded discovery implementation as the Worker. The only
+runtime-specific component is a Node HTML link extractor. Supabase is the
+checkpoint: completed sites advance their next schedule, publisher failures
+enter backoff, and an interrupted run resumes the remaining due rows.
+
+Keep `DISCOVERY_ENABLED=false` for the direct run. Dry-run first; it reads the
+summary but makes no claims, publisher requests, or database writes:
+
+```sh
+export SUPABASE_URL=https://qdqmahimrnwhzdjlcont.supabase.co
+export SUPABASE_SECRET_KEY=...
+export DISCOVERY_CONTACT=vincen_le@berkeley.edu
+pnpm discovery:backfill --dry-run --concurrency 60
+pnpm discovery:backfill --concurrency 60 --progress-every 500
+```
+
+`--max-sites N` bounds a canary. The runner claims no more than 25 sites per RPC,
+keeps at most one active crawl per base domain, retries transient repository
+calls with bounded jitter, stops new claims on SIGINT/SIGTERM, and waits for
+active work to settle. A persistent system failure stops the run after
+token-aware lease compensation. On macOS, wrap the command with
+`caffeinate -ims` for an unattended run.
+
+Production validation showed that 120 concurrent domains can create an
+unnecessary Supabase write burst. The measured default is therefore 60. Raising
+global concurrency does not speed up a tail dominated by many subdomains under
+the same parent domain; changing that domain-safety invariant requires a
+separate review.
+
 ## Observe
 
 Run `supabase/queries/discovery-health.sql` with an operator database role. It
@@ -90,6 +128,10 @@ counters.
 2. If publisher traffic must stop immediately, pause Queue delivery.
 3. Let active leases expire or call the token-aware release/recovery RPC.
 4. Inspect the DLQ before resuming; do not purge it as a first response.
+
+For a direct backfill, rerun the same command after the transient clears.
+Database schedules are authoritative, so do not maintain or import a separate
+checkpoint file.
 
 The additive migration can remain during a Worker rollback. Do not delete feed
 or provenance rows. Expired leases recover on ordinary future claim traffic.

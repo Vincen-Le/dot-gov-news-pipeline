@@ -80,17 +80,18 @@ The repository currently provides:
   staging, auditable sync runs, soft deactivation, checksum no-ops, and
   service-only query/RPC access.
 - `site_discovery_state` due rows plus lease-safe claim and expired-lease
-  recovery RPCs. These are durable discovery backlog primitives, not an active
-  discovery Worker.
+  recovery RPCs, an active bounded discovery Worker, and a resumable direct
+  backfill operator path.
+- Canonical feeds, site-to-feed provenance, and durable feed-fetch handoff
+  state populated transactionally by discovery completion.
 - A Thursday `04:17 UTC` GitHub Actions workflow with manual dispatch and a
   reviewed large-decrease override.
 - Local persistent Chroma development service, shared event contracts, unit
   and database tests, CI verification, and operations guidance.
 
-Actual feed discovery, feed tables, feed polling, article parsing, embeddings,
-search, ranking, public APIs, and the user interface remain follow-up work. Do
-not infer that they exist from their architectural designs or from pending
-`site_discovery_state` rows.
+Feed polling, article parsing, embeddings, search, ranking, public APIs, and the
+user interface remain follow-up work. Do not infer that they exist from their
+architectural designs or from seeded feed records.
 
 ## Safety for agents
 

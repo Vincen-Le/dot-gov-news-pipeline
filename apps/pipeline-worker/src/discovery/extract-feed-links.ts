@@ -20,17 +20,34 @@ export interface ExtractedPageLinks {
 const FEED_HINT = /(?:^|[\s/_\-.])(rss|atom|feed|feeds)(?:$|[\s/_\-.])/i;
 const LANDING_HINT = /(?:news|press(?:-releases?)?|newsroom|alerts?|blog)/i;
 
-function mediaType(value: string | null): string {
+export type FeedLinkExtractor = (
+  body: Uint8Array,
+  baseUrl: URL,
+  linkHeader: string | null,
+) => Promise<ExtractedPageLinks>;
+
+export function normalizeMediaType(value: string | null): string {
   return value?.split(";", 1)[0]?.trim().toLowerCase() ?? "";
 }
 
-function safeResolve(value: string, baseUrl: URL): string | null {
+export function resolvePublisherLink(
+  value: string,
+  baseUrl: URL,
+): string | null {
   try {
     return validatePublisherUrl(value, baseUrl).href;
   } catch (error) {
     if (error instanceof UnsafeUrlError) return null;
     throw error;
   }
+}
+
+export function isFeedLinkEvidence(value: string): boolean {
+  return FEED_HINT.test(value);
+}
+
+export function isLandingPageEvidence(value: string): boolean {
+  return LANDING_HINT.test(value);
 }
 
 export function extractHttpFeedLinks(
@@ -48,13 +65,13 @@ export function extractHttpFeedLinks(
     const relationships = (rel?.[1] ?? rel?.[2] ?? "")
       .toLowerCase()
       .split(/\s+/);
-    const declaredType = mediaType(type?.[1] ?? type?.[2] ?? null);
+    const declaredType = normalizeMediaType(type?.[1] ?? type?.[2] ?? null);
     if (
       !relationships.includes("alternate") ||
       !FEED_MEDIA_TYPES.has(declaredType)
     )
       continue;
-    const url = safeResolve(match[1], baseUrl);
+    const url = resolvePublisherLink(match[1], baseUrl);
     if (
       url !== null &&
       links.length < DISCOVERY_MAX_CANDIDATES &&
@@ -66,11 +83,11 @@ export function extractHttpFeedLinks(
   return links;
 }
 
-export async function extractFeedLinks(
+export const extractFeedLinks: FeedLinkExtractor = async (
   body: Uint8Array,
   baseUrl: URL,
   linkHeader: string | null,
-): Promise<ExtractedPageLinks> {
+): Promise<ExtractedPageLinks> => {
   const feeds = extractHttpFeedLinks(linkHeader, baseUrl);
   const landingPages: string[] = [];
   const feedUrls = new Set(feeds.map((feed) => feed.url));
@@ -100,7 +117,7 @@ export async function extractFeedLinks(
     .on('link[rel~="alternate"][href]', {
       element(element) {
         const href = element.getAttribute("href");
-        const type = mediaType(element.getAttribute("type"));
+        const type = normalizeMediaType(element.getAttribute("type"));
         if (
           href === null ||
           href.length > 2_048 ||
@@ -108,7 +125,7 @@ export async function extractFeedLinks(
         ) {
           return;
         }
-        const url = safeResolve(href, baseUrl);
+        const url = resolvePublisherLink(href, baseUrl);
         if (url !== null) {
           addFeed({
             discoveryMethod: "html_alternate",
@@ -137,12 +154,12 @@ export async function extractFeedLinks(
           if (activeAnchor?.elementToken !== token) return;
           const anchor = activeAnchor;
           activeAnchor = undefined;
-          const url = safeResolve(anchor.href, baseUrl);
+          const url = resolvePublisherLink(anchor.href, baseUrl);
           if (url === null) return;
           const evidence = `${anchor.href} ${anchor.text.slice(0, 256)} ${anchor.title}`;
-          if (FEED_HINT.test(evidence)) {
+          if (isFeedLinkEvidence(evidence)) {
             addFeed({ discoveryMethod: "anchor", discoveryUrl: url, url });
-          } else if (LANDING_HINT.test(evidence)) {
+          } else if (isLandingPageEvidence(evidence)) {
             addLandingPage(url);
           }
         });
@@ -166,4 +183,4 @@ export async function extractFeedLinks(
   // without performing a second publisher read.
   await transformed.arrayBuffer();
   return { feeds, landingPages };
-}
+};

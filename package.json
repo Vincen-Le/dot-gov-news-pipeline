@@ -10,22 +10,25 @@
     "dev:chroma": "docker compose -f infra/chroma/compose.yaml up -d",
     "dev:chroma:down": "docker compose -f infra/chroma/compose.yaml down",
     "dev:worker": "pnpm --filter @dot-gov-news/pipeline-worker dev",
+    "discovery:backfill": "tsx scripts/backfill-site-discovery.ts",
     "discovery:dispatch-canary": "node scripts/dispatch-discovery-canary.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "inventory:sync": "pnpm --filter @dot-gov-news/inventory-sync sync",
     "lint": "eslint .",
     "supabase": "supabase",
-    "test": "pnpm --recursive --if-present test",
-    "typecheck": "pnpm --recursive --if-present typecheck"
+    "test": "pnpm --recursive --if-present test && vitest run scripts",
+    "typecheck": "pnpm --recursive --if-present typecheck && tsc --project tsconfig.scripts.json"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "24.13.3",
+    "cheerio": "1.2.0",
     "eslint": "10.7.0",
     "globals": "17.7.0",
     "prettier": "3.9.5",
     "supabase": "2.109.1",
+    "tsx": "4.23.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.64.0",
     "vitest": "4.1.10"

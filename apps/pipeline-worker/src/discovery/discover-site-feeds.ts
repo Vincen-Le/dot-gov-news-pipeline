@@ -17,7 +17,11 @@ import {
   DISCOVERY_MAX_REDIRECTS,
   DISCOVERY_REQUEST_TIMEOUT_MS,
 } from "./discovery-policy";
-import { extractFeedLinks, extractHttpFeedLinks } from "./extract-feed-links";
+import {
+  extractFeedLinks,
+  extractHttpFeedLinks,
+  type FeedLinkExtractor,
+} from "./extract-feed-links";
 import {
   conventionalFeedCandidates,
   deduplicateFeedCandidates,
@@ -68,6 +72,7 @@ export class SiteDiscoveryFailure extends Error {
 
 export interface DiscoverSiteFeedsOptions {
   baseDomain: string;
+  extractPageLinks?: FeedLinkExtractor;
   fetcher?: PublisherFetcher;
   initialUrl: string;
   maxPublisherRequests: number;
@@ -242,6 +247,7 @@ export async function discoverSiteFeeds(
   options: DiscoverSiteFeedsOptions,
 ): Promise<SiteDiscoveryResult> {
   const now = options.now ?? Date.now;
+  const extractPageLinks = options.extractPageLinks ?? extractFeedLinks;
   const startedAt = now();
   const budget = new DiscoveryBudget(
     options.maxPublisherRequests,
@@ -283,7 +289,7 @@ export async function discoverSiteFeeds(
     }
 
     const rootLinks = looksLikeHtml(root)
-      ? await extractFeedLinks(
+      ? await extractPageLinks(
           root.body,
           root.finalUrl,
           root.headers.get("link"),
@@ -318,7 +324,7 @@ export async function discoverSiteFeeds(
       if (landingFailure?.code === "publisher_http_4xx") continue;
       if (landingFailure !== null) throw landingFailure;
       if (!looksLikeHtml(landing)) continue;
-      const links = await extractFeedLinks(
+      const links = await extractPageLinks(
         landing.body,
         landing.finalUrl,
         landing.headers.get("link"),

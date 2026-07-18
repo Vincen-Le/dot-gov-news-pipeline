@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"]
+  },
+  "include": [
+    "apps/pipeline-worker/worker-configuration.d.ts",
+    "scripts/**/*.ts"
+  ]
+}

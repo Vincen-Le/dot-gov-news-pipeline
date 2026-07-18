@@ -12,12 +12,13 @@ The repository currently implements:
 - Content-addressed source snapshot archival in Cloudflare R2.
 - A scheduled and manually dispatchable GitHub Actions inventory workflow.
 - Cloudflare Workers, Cron Triggers, Queues, and R2 for asynchronous compute
-  and artifacts, currently exercised by the infrastructure heartbeat.
+  and artifacts, including bounded site feed discovery.
+- Canonical `feeds`, site-to-feed provenance, feed-fetch handoff state, and a
+  resumable direct backfill runner for initial database seeding.
 - Local Chroma through Docker for future semantic-search development.
 
-Feed discovery, feed polling, article parsing, embeddings, ranking, search,
-and the public UI remain follow-up work. In particular, the current Worker does
-not yet consume `site_discovery_state` or create feed records.
+Feed polling, article parsing, embeddings, ranking, search, and the public UI
+remain follow-up work.
 
 ## Architecture smoke path
 
@@ -58,6 +59,22 @@ mise exec -- pnpm inventory:sync --dry-run
 The durable sync, credential setup, hosted verification record, and recovery
 queries are documented in the
 [infrastructure runbook](docs/infrastructure/runbook.md#gsa-government-site-inventory).
+
+## Site feed discovery path
+
+```text
+site_discovery_state
+    -> lease-safe claim by distinct base domain
+        -> bounded publisher crawl and feed validation
+            -> feeds
+            -> government_site_feeds
+            -> feed_fetch_state
+```
+
+Cloudflare Queue/Cron is the recurring path. The initial inventory seed can run
+directly with `pnpm discovery:backfill`; Supabase remains the checkpoint, so the
+job is safe to resume after interruption. See the
+[discovery operations guide](docs/operations/site-feed-discovery.md).
 
 ## Dependency management
 
