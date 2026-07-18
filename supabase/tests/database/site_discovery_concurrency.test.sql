@@ -17,7 +17,9 @@ begin
 end;
 $$;
 
-grant execute on function public.claim_due_site_discoveries(uuid, integer, integer, boolean)
+grant execute on function public.claim_due_site_discoveries(
+    uuid, integer, integer, boolean, integer
+)
     to discovery_claim_test;
 
 insert into public.inventory_sync_runs (
@@ -104,6 +106,8 @@ truncate table
     public.inventory_sync_runs,
     public.government_sites
 cascade;
-revoke execute on function public.claim_due_site_discoveries(uuid, integer, integer, boolean)
+revoke execute on function public.claim_due_site_discoveries(
+    uuid, integer, integer, boolean, integer
+)
     from discovery_claim_test;
 drop role discovery_claim_test;

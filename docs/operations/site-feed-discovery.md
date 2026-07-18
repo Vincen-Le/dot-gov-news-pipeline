@@ -51,22 +51,26 @@ summary but makes no claims, publisher requests, or database writes:
 export SUPABASE_URL=https://qdqmahimrnwhzdjlcont.supabase.co
 export SUPABASE_SECRET_KEY=...
 export DISCOVERY_CONTACT=vincen_le@berkeley.edu
-pnpm discovery:backfill --dry-run --concurrency 60
-pnpm discovery:backfill --concurrency 60 --progress-every 500
+pnpm discovery:backfill --dry-run --concurrency 60 --max-per-base-domain 10
+pnpm discovery:backfill --concurrency 60 --max-per-base-domain 10 --progress-every 500
 ```
 
 `--max-sites N` bounds a canary. The runner claims no more than 25 sites per RPC,
-keeps at most one active crawl per base domain, retries transient repository
-calls with bounded jitter, stops new claims on SIGINT/SIGTERM, and waits for
-active work to settle. A persistent system failure stops the run after
-token-aware lease compensation. On macOS, wrap the command with
-`caffeinate -ims` for an unattended run.
+keeps at most 10 active crawls per base domain by default, retries transient
+repository calls with bounded jitter, stops new claims on SIGINT/SIGTERM, and
+waits for active work to settle. The wider lane count is available only through
+an explicit repository argument used by the pending-only backfill; recurring
+Worker claims omit it and retain one active crawl per base domain. A persistent
+system failure stops the run after token-aware lease compensation. On macOS,
+wrap the command with `caffeinate -ims` for an unattended run.
 
-Production validation showed that 120 concurrent domains can create an
-unnecessary Supabase write burst. The measured default is therefore 60. Raising
-global concurrency does not speed up a tail dominated by many subdomains under
-the same parent domain; changing that domain-safety invariant requires a
-separate review.
+Production validation showed that 120 global crawls can create an unnecessary
+Supabase write burst. The measured global default is therefore 60. The initial
+inventory also contains a long tail of independent hostnames below a few parent
+domains, so the pending-only seed uses 10 base-domain lanes. The reference
+crawler uses 120 global connections with two connections per exact host; the
+10-lane seed remains more conservative at the global level. Set
+`--max-per-base-domain 1` to recover recurring-mode publisher isolation.
 
 ## Observe
 

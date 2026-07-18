@@ -25,6 +25,7 @@ export interface BackfillArguments {
   concurrency: number;
   dryRun: boolean;
   leaseSeconds: number;
+  maxPerBaseDomain: number;
   maxPublisherRequests: number;
   maxSites: number;
   policyVersion: number;
@@ -90,6 +91,7 @@ const DEFAULT_ARGUMENTS: BackfillArguments = {
   concurrency: 60,
   dryRun: false,
   leaseSeconds: 900,
+  maxPerBaseDomain: 10,
   maxPublisherRequests: 36,
   maxSites: 0,
   policyVersion: 1,
@@ -138,6 +140,14 @@ export function parseBackfillArguments(argv: string[]): BackfillArguments {
           argv[++index],
           1,
           36,
+        );
+        break;
+      case "--max-per-base-domain":
+        parsed.maxPerBaseDomain = integerArgument(
+          argument,
+          argv[++index],
+          1,
+          25,
         );
         break;
       case "--max-sites":
@@ -471,6 +481,7 @@ export async function runBackfill(
               claimLimit,
               options.leaseSeconds,
               true,
+              options.maxPerBaseDomain,
             ),
         );
         if (claims.length === 0) {

@@ -111,11 +111,13 @@ uses about 43,200 Queue operations/day. Upgrade Workers or lower the
 steady-state claim rate before full rollout.
 
 The initial database seed is a separate operator path and does not publish
-Queue messages. Run `pnpm discovery:backfill --dry-run --concurrency 60`, then
-the same command without `--dry-run`, while the recurring dispatcher remains
-disabled. The runner shares discovery policy and persistence with the Worker,
-uses durable database leases for resume, and keeps one active crawl per base
-domain. Full operating and recovery guidance is in
+Queue messages. Run
+`pnpm discovery:backfill --dry-run --concurrency 60 --max-per-base-domain 10`,
+then the same command without `--dry-run`, while the recurring dispatcher
+remains disabled. The runner shares discovery policy and persistence with the
+Worker, uses durable database leases for resume, and keeps at most 10 active
+crawls per base domain. Recurring Worker claims continue to default to one
+active crawl per base domain. Full operating and recovery guidance is in
 `docs/operations/site-feed-discovery.md`.
 
 Validate without deploying:

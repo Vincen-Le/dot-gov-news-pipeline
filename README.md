@@ -64,16 +64,17 @@ queries are documented in the
 
 ```text
 site_discovery_state
-    -> lease-safe claim by distinct base domain
+    -> lease-safe claim with bounded base-domain lanes
         -> bounded publisher crawl and feed validation
             -> feeds
             -> government_site_feeds
             -> feed_fetch_state
 ```
 
-Cloudflare Queue/Cron is the recurring path. The initial inventory seed can run
-directly with `pnpm discovery:backfill`; Supabase remains the checkpoint, so the
-job is safe to resume after interruption. See the
+Cloudflare Queue/Cron is the recurring path and keeps one active lane per base
+domain. The initial inventory seed can run directly with
+`pnpm discovery:backfill` using a wider, explicit lane cap; Supabase remains the
+checkpoint, so the job is safe to resume after interruption. See the
 [discovery operations guide](docs/operations/site-feed-discovery.md).
 
 ## Dependency management
