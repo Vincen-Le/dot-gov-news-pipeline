@@ -50,3 +50,35 @@ def test_overview_regenerated_on_multi_episode_storyline():
     assert overview["timeline"][0]["episode_id"] == "e1"  # cited bullets survive validation
     assert overview["overview_embedding"] is not None      # storyline centroid refresh
     assert set(overview["rubric"].keys()) >= {"urgency", "novelty"}
+
+
+class OversizedCardFakeStore(CardFakeStore):
+    def episode_members(self, episode_id):
+        return [{"id": "n1", "title": "F" * 600, "summary": "C" * 16000,
+                 "published_at": T0, "is_syndicated": True}]
+
+
+class OversizedOverviewModels(StubModels):
+    def compress_overview(self, storyline_summary, episode_cards):
+        card = super().compress_overview(storyline_summary, episode_cards)
+        card["summary"] = "S" * 9000
+        return card
+
+
+def test_episode_card_headline_and_summary_clamped_to_db_bounds():
+    store = OversizedCardFakeStore(episode_count=1)
+    CardEngine(store, StubModels(), CFG).on_episode_closed(episode())
+    card = store.cards[0]
+    assert card["kind"] == "episode"
+    assert len(card["headline"]) <= 512
+    assert len(card["summary"]) <= 8192
+    assert card["summary"].endswith("(+1 republications)")
+
+
+def test_overview_card_summary_clamped_to_db_bounds():
+    store = CardFakeStore(episode_count=2)
+    CardEngine(store, OversizedOverviewModels(), CFG).on_episode_closed(episode())
+    overview = store.cards[1]
+    assert overview["kind"] == "overview"
+    assert len(overview["headline"]) <= 512
+    assert len(overview["summary"]) <= 8192

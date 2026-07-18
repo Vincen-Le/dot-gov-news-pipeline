@@ -8,6 +8,10 @@ from pipeline.config import Config
 from pipeline.prompts import validate_timeline
 from pipeline.vectors import pack_fp16
 
+# event_cards_headline_bounded / event_cards_summary_bounded db check constraints.
+_MAX_HEADLINE = 512
+_MAX_SUMMARY = 8192
+
 
 class CardEngine:
     def __init__(self, store, models, cfg: Config) -> None:
@@ -21,12 +25,13 @@ class CardEngine:
         representative = originals[0]
         syndicated_count = sum(1 for m in members if m["is_syndicated"])
         summary = (representative.get("summary") or representative["title"]).strip()
-        if syndicated_count:
-            summary += f" (+{syndicated_count} republications)"
+        suffix = f" (+{syndicated_count} republications)" if syndicated_count else ""
+        headline = representative["title"][:_MAX_HEADLINE]
+        summary = summary[:_MAX_SUMMARY - len(suffix)] + suffix
 
         self.store.insert_card(
             storyline_id=str(episode["storyline_id"]), episode_id=str(episode["id"]),
-            kind="episode", headline=representative["title"], summary=summary,
+            kind="episode", headline=headline, summary=summary,
             timeline=None, rubric=None, rubric_version=None, interest_reason=None,
             representative_entry_id=str(representative["id"]),
             judge_model=None, prompt_version=self.cfg.prompt_version,
@@ -41,6 +46,8 @@ class CardEngine:
     def _regenerate_overview(self, storyline_id: str, representative_entry_id: str) -> None:
         episode_cards = self.store.episode_cards_for(storyline_id)
         card = self.models.compress_overview({"id": storyline_id}, episode_cards)
+        card["headline"] = card["headline"][:_MAX_HEADLINE]
+        card["summary"] = card["summary"][:_MAX_SUMMARY]
         valid_ids = {str(c["episode_id"]) for c in episode_cards}
         timeline = validate_timeline(card.get("timeline", []), valid_ids)
         overview_vec = self.models.embed([card["summary"]])[0]
