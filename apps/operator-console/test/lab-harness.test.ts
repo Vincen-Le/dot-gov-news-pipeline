@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  createLineSplitter,
   ExperimentHarness,
   LabRunActiveError,
   LabValidationError,
@@ -45,6 +46,35 @@ async function waitForDone(
     });
   });
 }
+
+describe("createLineSplitter", () => {
+  it("reassembles a line split across chunk boundaries", () => {
+    const lines: string[] = [];
+    const splitter = createLineSplitter((line) => lines.push(line));
+    splitter.push('{"report": "docs/eval/baseline/report.md",');
+    splitter.push(' "run_id": "run-123"}\n');
+    expect(lines).toEqual([
+      '{"report": "docs/eval/baseline/report.md", "run_id": "run-123"}',
+    ]);
+  });
+
+  it("flushes a trailing partial line with no newline on stream end", () => {
+    const lines: string[] = [];
+    const splitter = createLineSplitter((line) => lines.push(line));
+    splitter.push("stage log line\nfinal unterminated line");
+    expect(lines).toEqual(["stage log line"]);
+    splitter.flush();
+    expect(lines).toEqual(["stage log line", "final unterminated line"]);
+  });
+
+  it("does not emit an empty remainder on flush", () => {
+    const lines: string[] = [];
+    const splitter = createLineSplitter((line) => lines.push(line));
+    splitter.push("complete line\n");
+    splitter.flush();
+    expect(lines).toEqual(["complete line"]);
+  });
+});
 
 describe("ExperimentHarness", () => {
   it("runs experiment-only when features are prepared, parsing the run id", async () => {

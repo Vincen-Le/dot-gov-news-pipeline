@@ -35,6 +35,7 @@ const ExperimentListSchema = z.object({
   active: ActiveRunSchema.nullable(),
   items: ExperimentRunSchema.array(),
 });
+const SnapshotEventSchema = ActiveRunSchema.nullable();
 
 const OVERRIDE_FIELDS = [
   "NEAR_DUP_THRESHOLD",
@@ -107,13 +108,45 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
   } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const sourceRef = useRef<EventSource | null>(null);
+  // Tracks whether this tab is still waiting on a `done` event for the run
+  // it just started. A fast (stub) run can finish before the EventSource
+  // connects, so the initial `snapshot` may already show no active run.
+  const awaitingTerminalRef = useRef(false);
 
   useEffect(() => () => sourceRef.current?.close(), []);
+
+  const invalidateLabQueries = (): void => {
+    for (const key of [
+      "lab-metrics",
+      "lab-experiments",
+      "lab-storylines",
+      "lab-corpus",
+    ]) {
+      void queryClient.invalidateQueries({ queryKey: [key] });
+    }
+  };
 
   const follow = (): void => {
     sourceRef.current?.close();
     const source = new EventSource("/api/lab/experiments/stream");
     sourceRef.current = source;
+    source.addEventListener("snapshot", (event) => {
+      const payload = SnapshotEventSchema.parse(
+        JSON.parse((event as MessageEvent<string>).data),
+      );
+      if (payload !== null) {
+        setStages(payload.stages);
+        return;
+      }
+      // The harness has no active run. If we were still waiting on this
+      // run's `done` event, it must have finished before we connected —
+      // settle the UI the same way the `done` handler does.
+      if (awaitingTerminalRef.current) {
+        awaitingTerminalRef.current = false;
+        source.close();
+        invalidateLabQueries();
+      }
+    });
     source.addEventListener("stage", (event) => {
       const payload = JSON.parse((event as MessageEvent<string>).data) as {
         stage: RunStage;
@@ -136,16 +169,10 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
         runId: string | null;
         status: "failed" | "succeeded";
       };
+      awaitingTerminalRef.current = false;
       setResult(payload);
       source.close();
-      for (const key of [
-        "lab-metrics",
-        "lab-experiments",
-        "lab-storylines",
-        "lab-corpus",
-      ]) {
-        void queryClient.invalidateQueries({ queryKey: [key] });
-      }
+      invalidateLabQueries();
     });
   };
 
@@ -192,6 +219,7 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
                 setStages(active.stages);
                 setLog([]);
                 setResult(null);
+                awaitingTerminalRef.current = true;
                 follow();
               })
               .catch((error: unknown) => {

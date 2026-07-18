@@ -244,6 +244,33 @@ export class ExperimentHarness {
   }
 }
 
+export interface LineSplitter {
+  flush: () => void;
+  push: (chunk: string) => void;
+}
+
+/**
+ * Buffers partial lines across chunk boundaries. A chunk may end mid-line
+ * (or contain several lines), so the last (possibly incomplete) segment is
+ * held back as the new remainder instead of being emitted right away.
+ */
+export function createLineSplitter(onLine: (line: string) => void): LineSplitter {
+  let remainder = "";
+  return {
+    flush(): void {
+      if (remainder.trim().length > 0) onLine(remainder);
+      remainder = "";
+    },
+    push(chunk: string): void {
+      const segments = (remainder + chunk).split("\n");
+      remainder = segments.pop() ?? "";
+      for (const line of segments) {
+        if (line.trim().length > 0) onLine(line);
+      }
+    },
+  };
+}
+
 export function defaultSpawner(cwd: string): StageSpawner {
   return (command, args, env, onLine) =>
     new Promise((resolve, reject) => {
@@ -252,14 +279,19 @@ export function defaultSpawner(cwd: string): StageSpawner {
         env: { ...process.env, ...env },
         stdio: ["ignore", "pipe", "pipe"],
       });
-      const forward = (chunk: Buffer): void => {
-        for (const line of chunk.toString().split("\n")) {
-          if (line.trim().length > 0) onLine(line);
-        }
-      };
-      child.stdout.on("data", forward);
-      child.stderr.on("data", forward);
+      const stdoutSplitter = createLineSplitter(onLine);
+      const stderrSplitter = createLineSplitter(onLine);
+      child.stdout.on("data", (chunk: Buffer) =>
+        stdoutSplitter.push(chunk.toString()),
+      );
+      child.stderr.on("data", (chunk: Buffer) =>
+        stderrSplitter.push(chunk.toString()),
+      );
       child.once("error", reject);
-      child.once("close", (code) => resolve(code ?? 1));
+      child.once("close", (code) => {
+        stdoutSplitter.flush();
+        stderrSplitter.flush();
+        resolve(code ?? 1);
+      });
     });
 }
