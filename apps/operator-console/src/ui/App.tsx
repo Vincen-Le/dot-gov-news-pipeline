@@ -5,7 +5,10 @@ import { operatorRecipes } from "../recipes";
 import { CapabilityPage } from "./pages/CapabilityPage";
 import { EventsPage } from "./pages/EventsPage";
 import { InventoryPage } from "./pages/InventoryPage";
+import { LabPage } from "./pages/LabPage";
 import { OverviewPage } from "./pages/OverviewPage";
+import { StorylineDetailPage } from "./pages/StorylineDetailPage";
+import { StorylinesPage } from "./pages/StorylinesPage";
 import { SystemPage } from "./pages/SystemPage";
 
 const navigation = [
@@ -13,8 +16,10 @@ const navigation = [
   ["/inventory", "Inventory"],
   ["/discovery", "Discovery"],
   ["/feeds", "Feeds"],
+  ["/storylines", "Storylines"],
   ["/events", "Events"],
   ["/system", "System"],
+  ["/lab", "Lab"],
 ] as const;
 
 function CommandPalette({ close }: { close: () => void }) {
@@ -167,8 +172,11 @@ export function App() {
             element={<CapabilityPage capability="feeds" title="Feeds" />}
             path="/feeds"
           />
+          <Route element={<StorylinesPage />} path="/storylines" />
+          <Route element={<StorylineDetailPage />} path="/storylines/:id" />
           <Route element={<EventsPage />} path="/events" />
           <Route element={<SystemPage />} path="/system" />
+          <Route element={<LabPage />} path="/lab" />
           <Route element={<OverviewPage />} path="*" />
         </Routes>
       </main>

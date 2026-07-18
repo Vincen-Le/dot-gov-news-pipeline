@@ -2,8 +2,21 @@
 import { Command } from "commander";
 
 import { OperatorApiClient, OperatorApiError } from "./api-client";
-import { loadOperatorConfig, requireOperatorConfig } from "./config";
+import {
+  loadOperatorConfig,
+  repositoryRoot,
+  requireOperatorConfig,
+} from "./config";
 import { generateCheatsheet } from "./generate-cheatsheet";
+import {
+  createLabDb,
+  labCapability,
+  type LabCapability,
+  type LabDb,
+} from "./lab/db";
+import { ExperimentHarness, defaultSpawner } from "./lab/harness";
+import { snapshotLabMetrics } from "./lab/metrics";
+import { LabQueries } from "./lab/queries";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
 import { operatorRecipes } from "./recipes";
 import { startDashboard } from "./server";
@@ -445,5 +458,328 @@ program.command("docs:generate").action(() =>
     process.stdout.write("Generated docs/operations/cli-cheatsheet.md\n");
   }),
 );
+
+interface LabContext {
+  capability: LabCapability;
+  close(): Promise<void>;
+  databaseUrl: string;
+  db: LabDb;
+  queries: LabQueries;
+}
+
+async function withLab(
+  action: (context: LabContext) => Promise<void>,
+): Promise<void> {
+  const config = loadOperatorConfig();
+  const db =
+    config.databaseUrl === undefined ? null : createLabDb(config.databaseUrl);
+  const capability = await labCapability(db, config.databaseUrl);
+  if (db === null || capability.status !== "available") {
+    await db?.close();
+    process.stderr.write(
+      `not_enabled: ${capability.reason ?? "clustering lab unavailable"}\n`,
+    );
+    process.exitCode = 3;
+    return;
+  }
+  const context: LabContext = {
+    capability,
+    close: () => db.close(),
+    databaseUrl: config.databaseUrl ?? "",
+    db,
+    queries: new LabQueries(db.read),
+  };
+  try {
+    await action(context);
+  } finally {
+    await context.close();
+  }
+}
+
+const lab = program
+  .command("lab")
+  .description("Clustering lab: browse chains, run and compare experiments");
+
+lab
+  .command("corpus")
+  .description("Corpus receipt, feature coverage, prepare backlog")
+  .option("--json", "print JSON only")
+  .action((options: JsonOption) =>
+    runAction(() =>
+      withLab(async ({ queries }) => {
+        const summary = await queries.corpusSummary();
+        if (options.json) {
+          printJson(summary);
+          return;
+        }
+        process.stdout.write(
+          `Corpus ${summary.entries.toLocaleString()} entries · ${summary.sources} sources · ${summary.firstPublishedAt ?? "—"} → ${summary.lastPublishedAt ?? "—"}\n`,
+        );
+        printRows([
+          {
+            clustered: summary.clustered,
+            embedded: summary.embedded,
+            enriched: summary.enriched,
+            extracted: summary.extracted,
+            needsPrepare: summary.needsPrepare,
+          },
+        ]);
+        printRows(summary.agencies.slice(0, 15));
+      }),
+    ),
+  );
+
+lab
+  .command("storylines")
+  .description("List storylines (newest first)")
+  .option("--entity <entity>", "filter by extracted entity")
+  .option("--agency <host>", "filter by agency host, e.g. fda.gov")
+  .option("--min-episodes <n>", "only chains with at least n episodes")
+  .option("--limit <n>", "maximum rows", "50")
+  .option("--json", "print JSON only")
+  .action(
+    (
+      options: JsonOption & {
+        agency?: string;
+        entity?: string;
+        limit: string;
+        minEpisodes?: string;
+      },
+    ) =>
+      runAction(() =>
+        withLab(async ({ queries }) => {
+          const items = await queries.storylines({
+            agency: options.agency,
+            entity: options.entity,
+            limit: Number(options.limit),
+            minEpisodes:
+              options.minEpisodes === undefined
+                ? undefined
+                : Number(options.minEpisodes),
+          });
+          if (options.json) {
+            printJson(items);
+            return;
+          }
+          printRows(
+            items.map((item) => ({
+              entries: item.entryCount,
+              episodes: item.episodeCount,
+              feeds: item.distinctFeeds,
+              headline: item.headline ?? "(no card)",
+              id: item.id,
+              newest: item.newestEntryAt,
+            })),
+          );
+        }),
+      ),
+  );
+
+lab
+  .command("storyline <id>")
+  .description("Walk one chain: episodes, attach evidence, cards")
+  .option("--json", "print JSON only")
+  .action((id: string, options: JsonOption) =>
+    runAction(() =>
+      withLab(async ({ queries }) => {
+        const detail = await queries.storylineDetail(id);
+        if (detail === null) {
+          process.stderr.write("not_found: unknown storyline\n");
+          process.exitCode = 2;
+          return;
+        }
+        if (options.json) {
+          printJson(detail);
+          return;
+        }
+        process.stdout.write(
+          `${detail.headline ?? "(no overview card)"} · ${detail.episodeCount} episodes · ${detail.entryCount} entries\n`,
+        );
+        for (const episode of detail.episodes) {
+          process.stdout.write(
+            `\n[${episode.status}] ${episode.card?.headline ?? episode.id} — ${episode.attachMethod}${episode.attachSimilarity === null ? "" : ` (sim ${episode.attachSimilarity})`}${episode.attachReason === null ? "" : ` — ${episode.attachReason}`}\n`,
+          );
+          printRows(
+            episode.entries.map((entry) => ({
+              agency: entry.agency,
+              method: entry.attachMethod,
+              published: entry.publishedAt ?? "—",
+              similarity:
+                entry.similarity === null
+                  ? "—"
+                  : `${entry.similarity} / ${entry.thresholdUsed ?? "—"}`,
+              syndicated: entry.isSyndicated,
+              title: entry.title ?? entry.url,
+            })),
+          );
+        }
+        const overview = detail.overviewCards[0];
+        if (overview?.timeline) {
+          process.stdout.write(`\nOverview v${overview.version} timeline:\n`);
+          for (const item of overview.timeline) {
+            process.stdout.write(
+              `  ${item.cited ? "·" : "✗ UNCITED"} ${item.date}  ${item.text}\n`,
+            );
+          }
+        }
+      }),
+    ),
+  );
+
+lab
+  .command("metrics")
+  .description("Live clustering quality snapshot")
+  .option("--json", "print JSON only")
+  .action((options: JsonOption) =>
+    runAction(() =>
+      withLab(async ({ queries }) => {
+        const metrics = await snapshotLabMetrics(queries);
+        if (options.json) {
+          printJson(metrics);
+          return;
+        }
+        printRows([metrics.volume]);
+        printRows(metrics.attachMix);
+        process.stdout.write(
+          `singleton rate ${metrics.singletonEpisodeRate ?? "—"} · syndication ${metrics.syndicationRate ?? "—"} · suggested NEAR_DUP_THRESHOLD ${metrics.calibration.suggestedNearDupThreshold ?? "—"}\n`,
+        );
+      }),
+    ),
+  );
+
+lab
+  .command("borderline")
+  .description("Borderline attach decisions awaiting labels")
+  .option("--window <w>", "similarity window around the threshold", "0.03")
+  .option("--limit <n>", "maximum rows", "50")
+  .option("--json", "print JSON only")
+  .action((options: JsonOption & { limit: string; window: string }) =>
+    runAction(() =>
+      withLab(async ({ queries }) => {
+        const items = await queries.borderlinePairs(
+          Number(options.window),
+          Number(options.limit),
+        );
+        if (options.json) printJson(items);
+        else
+          printRows(
+            items.map((pair) => ({
+              a: pair.entryTitle ?? pair.entryId,
+              b: pair.matchedTitle ?? pair.matchedEntryId ?? "—",
+              method: pair.attachMethod,
+              similarity: `${pair.similarity} / ${pair.thresholdUsed}`,
+            })),
+          );
+      }),
+    ),
+  );
+
+lab
+  .command("experiments")
+  .description("List experiment runs (from experiment_runs)")
+  .option("--json", "print JSON only")
+  .action((options: JsonOption) =>
+    runAction(() =>
+      withLab(async ({ queries }) => {
+        const items = await queries.experimentRuns();
+        if (options.json) printJson(items);
+        else
+          printRows(
+            items.map((run) => ({
+              cache: `${run.cacheHits}/${run.cacheMisses}`,
+              chains: run.summary?.multi_episode_storylines ?? "—",
+              created: run.createdAt,
+              duration: `${run.durationSeconds}s`,
+              episodes: run.summary?.episodes ?? "—",
+              name: run.name,
+              storylines: run.summary?.storylines ?? "—",
+            })),
+          );
+      }),
+    ),
+  );
+
+lab
+  .command("run")
+  .description("Run a clustering experiment via the pipeline CLI")
+  .requiredOption("--name <name>", "experiment name (report directory)")
+  .option("--stub", "use deterministic stub models")
+  .option("--limit <n>", "cluster at most n prepared entries")
+  .option("--until <iso>", "cluster entries published up to this timestamp")
+  .option("--no-cache", "bypass the adjudicator decision cache")
+  .option("--prepare", "force the prepare phase before the experiment")
+  .option("--clear-features", "reset features first (model/enrichment A/Bs)")
+  .option(
+    "--set <KEY=VALUE...>",
+    "pipeline env override (repeatable)",
+    (value: string, previous: string[] = []) => [...previous, value],
+  )
+  .action(
+    (options: {
+      cache: boolean;
+      clearFeatures?: boolean;
+      limit?: string;
+      name: string;
+      prepare?: boolean;
+      set?: string[];
+      stub?: boolean;
+      until?: string;
+    }) =>
+      runAction(() =>
+        withLab(async ({ capability, databaseUrl, queries }) => {
+          if (!capability.experimentsEnabled) {
+            process.stderr.write(
+              `not_enabled: ${capability.experimentsReason ?? capability.reason ?? "experiments are not enabled"}\n`,
+            );
+            process.exitCode = 3;
+            return;
+          }
+          const env: Record<string, string> = {};
+          for (const pair of options.set ?? []) {
+            const separator = pair.indexOf("=");
+            if (separator < 1) {
+              throw new Error(`--set expects KEY=VALUE, got "${pair}"`);
+            }
+            env[pair.slice(0, separator)] = pair.slice(separator + 1);
+          }
+          const harness = new ExperimentHarness({
+            needsPrepare: () =>
+              queries.corpusSummary().then((summary) => summary.needsPrepare),
+            spawnStage: defaultSpawner(repositoryRoot, {
+              DATABASE_URL: databaseUrl,
+            }),
+          });
+          const finished = new Promise<{
+            reportPath: string | null;
+            runId: string | null;
+            status: "failed" | "succeeded";
+          }>((resolveDone) => {
+            harness.onEvent((event) => {
+              if (event.type === "log") process.stdout.write(`${event.line}\n`);
+              if (event.type === "stage")
+                process.stderr.write(
+                  `stage ${event.stage.name}: ${event.stage.status}\n`,
+                );
+              if (event.type === "done") resolveDone(event);
+            });
+          });
+          await harness.start({
+            clearFeatures: options.clearFeatures,
+            env,
+            limit: options.limit === undefined ? null : Number(options.limit),
+            name: options.name,
+            noCache: options.cache === false,
+            prepare: options.prepare,
+            stub: options.stub,
+            until: options.until ?? null,
+          });
+          const done = await finished;
+          process.stdout.write(
+            `${done.status}: run ${done.runId ?? "—"} · ${done.reportPath ?? "no report"}\n`,
+          );
+          if (done.status === "failed") process.exitCode = 1;
+        }),
+      ),
+  );
 
 await program.parseAsync(process.argv);
