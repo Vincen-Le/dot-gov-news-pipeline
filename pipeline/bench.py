@@ -29,13 +29,16 @@ def assert_local_dsn(dsn: str) -> None:
 
 
 def reset_clusters(db) -> None:
-    """Wipe clustering decisions between experiments. Features survive."""
+    """Wipe clustering decisions between experiments. Features and corpus survive."""
     assert_local_dsn(db.conn.info.dsn)
-    db.conn.execute(
-        "truncate public.event_cards, public.episode_entries, public.episodes, "
-        "public.storylines, public.entity_stats cascade")
     db.conn.execute("update public.news_entries set episode_id = null "
                     "where episode_id is not null")
+    db.conn.execute("update public.storylines set latest_card_id = null, merged_into = null")
+    db.conn.execute("delete from public.episode_entries")
+    db.conn.execute("delete from public.event_cards")
+    db.conn.execute("delete from public.episodes")
+    db.conn.execute("delete from public.storylines")
+    db.conn.execute("delete from public.entity_stats")
 
 
 def reset_features(db) -> None:

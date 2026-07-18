@@ -1,5 +1,6 @@
 # tests/test_bench.py
 import json
+import os
 
 import httpx
 import pytest
@@ -53,15 +54,40 @@ def test_local_dsn_guard_rejects_hostaddr():
 def test_reset_clusters_wipes_decisions_not_features():
     db = FakeDb()
     reset_clusters(db)
-    sql = " ; ".join(s for s, _ in db.conn.executed)
-    assert "truncate" in sql and "episode_entries" in sql and "entity_stats" in sql
-    assert "set episode_id = null" in sql
+    statements = [s for s, _ in db.conn.executed]
+    sql = " ; ".join(statements)
+    assert not any("truncate" in s for s in statements)
+    assert not any("cascade" in s for s in statements)
+    assert "news_entries" in sql and "set episode_id = null" in sql
+    assert "storylines" in sql and "set latest_card_id = null" in sql
+    for table in ("episode_entries", "event_cards", "episodes", "storylines",
+                  "entity_stats"):
+        assert any(s.startswith(f"delete from public.{table}") for s in statements)
     assert "embedding" not in sql          # features untouched
 
 
 def test_reset_refuses_remote_dsn():
     with pytest.raises(RuntimeError):
         reset_clusters(FakeDb("postgresql://u:p@db.example.supabase.co/postgres"))
+
+
+@pytest.mark.integration
+def test_reset_clusters_preserves_news_entries_against_real_db():
+    from pipeline.db import Db
+
+    db = Db(os.environ["DATABASE_URL"])
+    before = db.one("select count(*) as n from public.news_entries")["n"]
+    if before == 0:
+        pytest.skip("no news_entries corpus present in local db")
+
+    reset_clusters(db)
+
+    after = db.one("select count(*) as n from public.news_entries")["n"]
+    assert after == before
+    for table in ("episodes", "storylines", "episode_entries", "event_cards",
+                  "entity_stats"):
+        remaining = db.one(f"select count(*) as n from public.{table}")["n"]
+        assert remaining == 0, f"{table} not empty after reset_clusters"
 
 
 def test_sync_copies_pages_and_preserves_ids():
