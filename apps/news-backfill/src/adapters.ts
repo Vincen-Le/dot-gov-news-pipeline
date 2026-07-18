@@ -662,15 +662,7 @@ function originalUrl(input: string): string | null {
   try {
     const url = new URL(input);
     url.hash = "";
-    for (const key of [...url.searchParams.keys()]) {
-      if (
-        /^(utm_|fbclid$|gclid$|ref$|os$|hss_meta$|_hsenc$|_hsmi$|_kx$)/i.test(
-          key,
-        )
-      )
-        url.searchParams.delete(key);
-    }
-    url.searchParams.sort();
+    url.search = "";
     return url.href;
   } catch {
     return null;

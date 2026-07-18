@@ -276,6 +276,12 @@ describe("source adapters", () => {
       ],
       [
         "20260102030407",
+        "https://agency.gov/news/2026-current-release?s=09&campaign=test",
+        "200",
+        "tracked-digest",
+      ],
+      [
+        "20260102030408",
         "https://agency.gov/news/archives/report_07152025.htm",
         "200",
         "dated-digest",
