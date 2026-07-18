@@ -63,6 +63,48 @@ export const operatorRecipes: OperatorRecipe[] = [
     title: "Open local dashboard",
     view: "/",
   },
+  {
+    cli: "pnpm ops lab corpus",
+    description: "Inspect the synced news-entries corpus and feature coverage.",
+    id: "lab-corpus",
+    title: "Inspect the corpus",
+    view: "/lab",
+  },
+  {
+    cli: "pnpm ops lab storylines --min-episodes 2",
+    description: "List multi-episode storyline chains for QA.",
+    id: "lab-chains",
+    title: "Browse storyline chains",
+    view: "/storylines?minEpisodes=2",
+  },
+  {
+    cli: "pnpm ops lab storyline <id>",
+    description: "Walk one chain: episodes, attach evidence, event cards.",
+    id: "lab-storyline-qa",
+    title: "QA a storyline chain",
+    view: "/storylines",
+  },
+  {
+    cli: "pnpm ops lab run --name baseline --stub",
+    description: "Run a clustering experiment via the pipeline CLI.",
+    id: "lab-run-stub",
+    title: "Run a stub experiment",
+    view: "/lab#run",
+  },
+  {
+    cli: "pnpm ops lab experiments",
+    description: "List experiment runs and compare their summaries.",
+    id: "lab-experiments",
+    title: "List experiment runs",
+    view: "/lab#experiments",
+  },
+  {
+    cli: "pnpm ops lab borderline --limit 50",
+    description: "Label borderline attach decisions for future eval scoring.",
+    id: "lab-label-queue",
+    title: "Open the label queue",
+    view: "/lab#labels",
+  },
 ];
 
 export function renderCheatsheet(): string {

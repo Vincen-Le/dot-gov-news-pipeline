@@ -77,3 +77,51 @@ Start the private dashboard on loopback.
 ```bash
 pnpm ops dashboard
 ```
+
+### Inspect the corpus
+
+Inspect the synced news-entries corpus and feature coverage.
+
+```bash
+pnpm ops lab corpus
+```
+
+### Browse storyline chains
+
+List multi-episode storyline chains for QA.
+
+```bash
+pnpm ops lab storylines --min-episodes 2
+```
+
+### QA a storyline chain
+
+Walk one chain: episodes, attach evidence, event cards.
+
+```bash
+pnpm ops lab storyline <id>
+```
+
+### Run a stub experiment
+
+Run a clustering experiment via the pipeline CLI.
+
+```bash
+pnpm ops lab run --name baseline --stub
+```
+
+### List experiment runs
+
+List experiment runs and compare their summaries.
+
+```bash
+pnpm ops lab experiments
+```
+
+### Open the label queue
+
+Label borderline attach decisions for future eval scoring.
+
+```bash
+pnpm ops lab borderline --limit 50
+```
