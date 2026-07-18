@@ -18,6 +18,7 @@ class Config:
     near_dup_threshold: float = 0.90        # calibrate on real corpus (design amendment 5)
     cluster_join_threshold: float = 0.78    # ditto
     storyline_sim_floor: float = 0.60
+    ambient_ema_ceiling: float = 3.0        # daily_ema at/above this = ambient entity; never merge on it
     episode_dormancy_hours: float = 4.0
     dedupe_window_hours: float = 72.0
     enrichment_enabled: bool = True
@@ -49,6 +50,7 @@ def load_config() -> Config:
         near_dup_threshold=_f("NEAR_DUP_THRESHOLD", Config.near_dup_threshold),
         cluster_join_threshold=_f("CLUSTER_JOIN_THRESHOLD", Config.cluster_join_threshold),
         storyline_sim_floor=_f("STORYLINE_SIM_FLOOR", Config.storyline_sim_floor),
+        ambient_ema_ceiling=_f("AMBIENT_EMA_CEILING", Config.ambient_ema_ceiling),
         episode_dormancy_hours=_f("EPISODE_DORMANCY_HOURS", Config.episode_dormancy_hours),
         dedupe_window_hours=_f("DEDUPE_WINDOW_HOURS", Config.dedupe_window_hours),
         enrichment_enabled=_b("ENRICHMENT_ENABLED", Config.enrichment_enabled),

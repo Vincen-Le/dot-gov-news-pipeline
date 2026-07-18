@@ -51,3 +51,23 @@ def test_deterministic_and_sorted():
     b = extract("FDA Recalls Valsatrex", "Sundexo Pharmaceuticals recall.")
     assert a == b
     assert a[0] == sorted(a[0])
+
+
+def test_generic_capitalized_junk_filtered():
+    entities, _ = extract(
+        "NASA Knows: What Is Mass Distribution?",
+        "This article explains. Learn more here.",
+    )
+    for banned in ("knows", "what", "this", "here", "mass", "distribution"):
+        assert banned not in entities
+
+
+def test_nav_blob_summary_skipped():
+    # state.gov-style summaries lead with punctuation-less navigation text;
+    # entity extraction must not harvest it
+    nav = ("About Administrative Areas Bureaus Countries Directories Offices "
+           "Press Releases Travel Visas Business Education Culture " * 3)
+    entities, _ = extract("Secretary Meets With Foreign Minister Kestrel", nav)
+    assert "bureaus" not in entities
+    assert "directories" not in entities
+    assert "kestrel" in entities

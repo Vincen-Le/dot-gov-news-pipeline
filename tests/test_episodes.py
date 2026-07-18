@@ -131,3 +131,38 @@ def test_dormancy_close_in_event_time():
     closed = engine.close_due(T0 + timedelta(hours=5))
     assert len(closed) == 1
     assert store.episodes[closed[0]["id"]]["status"] == "dormant"
+
+
+def test_ambient_only_overlap_does_not_auto_join():
+    store = FakeStore()
+    store.emas = {"washington": 50.0}  # ambient: high daily EMA
+    engine = make_engine(store, SayNoModels())
+    a = store.add_entry(title="HUD Announces Washington Grants", content_hash="h1",
+                        published_at=T0, entity_set=["washington", "grants-a"], event_keys=[])
+    engine.process_entry(a, vec(0))
+    near = vec(0) * 0.9 + vec(1) * 0.1
+    near /= np.linalg.norm(near)
+    b = store.add_entry(title="DOT Announces Washington Bridge Funds", content_hash="h2",
+                        published_at=T0 + timedelta(hours=1),
+                        entity_set=["washington", "bridge-b"], event_keys=[])
+    decision = engine.process_entry(b, near)
+    # only shared entity is ambient -> gate must NOT auto-join; split-biased adjudicator says no
+    assert decision["method"] == "adjudicated_new"
+    assert len(store.episodes) == 2
+
+
+def test_rare_overlap_still_auto_joins():
+    store = FakeStore()
+    store.emas = {"washington": 50.0, "valsatrex": 0.1}
+    engine = make_engine(store, SayNoModels())
+    a = store.add_entry(title="FDA recalls Valsatrex", content_hash="h1", published_at=T0,
+                        entity_set=["valsatrex", "washington"], event_keys=[])
+    engine.process_entry(a, vec(0))
+    near = vec(0) * 0.9 + vec(1) * 0.1
+    near /= np.linalg.norm(near)
+    b = store.add_entry(title="Valsatrex recall expands", content_hash="h2",
+                        published_at=T0 + timedelta(hours=1),
+                        entity_set=["valsatrex", "sundexo"], event_keys=[])
+    decision = engine.process_entry(b, near)
+    assert decision["method"] == "centroid_join"
+    assert len(store.episodes) == 1

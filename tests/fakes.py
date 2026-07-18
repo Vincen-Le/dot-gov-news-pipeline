@@ -16,6 +16,10 @@ class FakeStore:
         self.storylines: dict[str, dict] = {}
         self.attaches: list[dict] = []
         self.cards: list[dict] = []
+        self.emas: dict[str, float] = {}
+
+    def entity_emas(self, entities):
+        return {e: self.emas.get(e, 0.0) for e in entities}
 
     # -- writes --------------------------------------------------------
     def create_episode(self, storyline_id, method, similarity, reason, model, t):

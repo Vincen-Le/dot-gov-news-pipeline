@@ -34,14 +34,18 @@ class StorylineEngine:
             return str(cand["id"]), "event_key", None, None, None
 
         # tier 2/3: entity candidates via GIN, EMA-down-weighted
+        emas = self.store.entity_emas(entry["entity_set"])
         candidates = self._rank_candidates(
             entry, self.store.storylines_by_entities(entry["entity_set"]))
         for cand in candidates[:_TOP_K]:
             sim = cosine(vec, cand["centroid"]) if cand.get("centroid") is not None else 0.0
             shared = set(entry["entity_set"]) & set(cand["entity_set"])
+            shared_rare = [e for e in shared
+                           if emas.get(e, 0.0) < self.cfg.ambient_ema_ceiling]
 
-            # strong deterministic join: multiple shared discriminators + tight embedding
-            if len(shared) >= 2 and sim >= self.cfg.cluster_join_threshold:
+            # strong deterministic join: multiple RARE shared discriminators +
+            # tight embedding — ambient entities never justify a join
+            if len(shared_rare) >= 2 and sim >= self.cfg.cluster_join_threshold:
                 return str(cand["id"]), "entity_candidate", sim, None, None
 
             if sim < self.cfg.storyline_sim_floor:

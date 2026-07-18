@@ -30,32 +30,54 @@ _CAP_SPAN = re.compile(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b")
 
 _AGENCY_LEXICON = frozenset("""
 fda hhs epa cdc nih usda doj dhs dod doe dot va ssa irs gsa nasa noaa fema cms
-department administration agency office bureau commission federal national
-united states secretary center centers institute institutes service services
+department departments administration agency agencies office offices bureau
+bureaus commission federal national united states secretary center centers
+institute institutes service services treasury
 """.split())
 
 _BOILERPLATE_LEXICON = frozenset("""
 announces announcement announced statement statements recall recalls notice
-notices press release releases update updates news alert alerts issues issued
-proposes proposed final rule rules regulation regulations report reports
-officials january february march april may june july august september october
+notices press release releases update updated updates news alert alerts issues
+issued proposes proposed final rule rules regulation regulations report reports
+officials designate designates designated launches launched celebrates
+celebrating meets meeting knows opens closes remarks readout briefing
+chronology photo photos video videos podcast blog webinar factsheet
+january february march april may june july august september october
 november december monday tuesday wednesday thursday friday saturday sunday
-today yesterday week month year nationwide public
+today yesterday tomorrow week weekly month monthly year yearly annual daily
+quarterly fiscal nationwide public
 """.split())
 
 _COMMON_ENGLISH = frozenset("""
 blood pressure medication drug drugs company companies million billion state
-states people american americans health safety program funding grant grants
-water air food act law court case plan effort action actions
+states people american americans health safety program programs funding grant
+grants water air food act law court case plan effort action actions
+here there this that these those what when where which while who whom why how
+about above after again against because before between during into more most
+learn read click visit contact information article explains look first second
+third last next new old data mass distribution results review overview
+employment unemployment jobs benefits families working children changes
+event events episode series story stories partnership dialogue economic
+prosperity international official website government since takes over recent
+dear colleague call calls watch highlights hiring apparent role sept
 """.split())
 
 _MIN_LEN = 4
 
 
+_NAV_BLOB_HORIZON = 240
+
+
 def _first_sentence(text: str | None) -> str:
+    """First sentence of the summary — or nothing if the text does not read
+    like prose. Nav-blob guard: feed summaries that lead with site navigation
+    (long capitalized runs with no sentence punctuation, e.g. state.gov) must
+    contribute no entity candidates."""
     text = text or ""
     match = re.search(r"[.!?](\s|$)", text)
-    return text[: match.start() + 1] if match else text
+    if not match or match.start() > _NAV_BLOB_HORIZON:
+        return ""
+    return text[: match.start() + 1]
 
 
 def extract(title: str | None, summary: str | None) -> tuple[list[str], list[str]]:

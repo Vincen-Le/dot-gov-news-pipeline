@@ -102,3 +102,17 @@ def test_no_candidates_new_storyline():
     engine = StorylineEngine(StorylineFakeStore([]), SayNo(), CFG)
     sid, method, _, _, _ = engine.resolve(entry(), unit(0))
     assert sid is None and method == "new_storyline"
+
+
+def test_strong_join_requires_rare_shared_entities():
+    # two shared entities, both ambient -> no deterministic entity_candidate join
+    ambient_story = storyline(entity_set=["washington", "announces-x"])
+    store = StorylineFakeStore(
+        [ambient_story],
+        emas={"washington": 50.0, "announces-x": 40.0},
+    )
+    engine = StorylineEngine(store, SayNo(), CFG)
+    e = entry(entity_set=["washington", "announces-x", "kestrel"])
+    sid, method, _, _, _ = engine.resolve(e, unit(0))
+    assert method != "entity_candidate"
+    assert sid is None and method == "new_storyline"

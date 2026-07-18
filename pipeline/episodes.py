@@ -113,9 +113,16 @@ class EpisodeEngine:
                 candidate, cand_sim = ep, sim
         if candidate is not None:
             entry_entities, ep_entities = set(entry["entity_set"]), set(candidate["entity_set"])
-            if entry_entities & ep_entities:
-                return self._attach(entry, candidate, "centroid_join", cand_sim, None,
-                                    self.cfg.cluster_join_threshold, vec, False)
+            overlap = entry_entities & ep_entities
+            # rare-entity gate: ambient entities (high daily EMA) never justify
+            # an auto-join — only a rare shared discriminator does
+            if overlap:
+                emas = self.store.entity_emas(sorted(overlap))
+                rare = [e for e in overlap
+                        if emas.get(e, 0.0) < self.cfg.ambient_ema_ceiling]
+                if rare:
+                    return self._attach(entry, candidate, "centroid_join", cand_sim, None,
+                                        self.cfg.cluster_join_threshold, vec, False)
             same, _reason = self.models.adjudicate_same_event(
                 {"title": entry["title"], "summary": entry.get("summary"),
                  "entities": sorted(entry_entities)},
