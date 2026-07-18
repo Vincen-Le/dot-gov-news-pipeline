@@ -271,12 +271,15 @@ export function createLineSplitter(onLine: (line: string) => void): LineSplitter
   };
 }
 
-export function defaultSpawner(cwd: string): StageSpawner {
+export function defaultSpawner(
+  cwd: string,
+  baseEnv: Record<string, string> = {},
+): StageSpawner {
   return (command, args, env, onLine) =>
     new Promise((resolve, reject) => {
       const child = spawn(command, args, {
         cwd,
-        env: { ...process.env, ...env },
+        env: { ...process.env, ...baseEnv, ...env },
         stdio: ["ignore", "pipe", "pipe"],
       });
       const stdoutSplitter = createLineSplitter(onLine);

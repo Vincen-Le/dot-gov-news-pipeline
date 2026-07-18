@@ -21,6 +21,11 @@ function ensureEnvironment(): void {
   environmentLoaded = true;
 }
 
+// Local bench database on the port supabase/config.toml pins for this repo.
+// DATABASE_URL still overrides (remote read-only DSNs, alternate ports).
+export const LOCAL_DATABASE_URL =
+  "postgresql://postgres:postgres@127.0.0.1:57422/postgres";
+
 const OptionalConfigSchema = z.object({
   apiToken: z.string().min(32).optional(),
   apiUrl: z.string().transform(validateOperatorApiUrl).optional(),
@@ -52,7 +57,7 @@ export function loadOperatorConfig(): OperatorConsoleConfig {
   return OptionalConfigSchema.parse({
     apiToken: process.env.OPS_API_TOKEN,
     apiUrl: process.env.OPS_API_URL,
-    databaseUrl: process.env.DATABASE_URL,
+    databaseUrl: process.env.DATABASE_URL ?? LOCAL_DATABASE_URL,
     environment: process.env.OPS_ENVIRONMENT,
     workerName: process.env.OPS_WORKER_NAME,
   });

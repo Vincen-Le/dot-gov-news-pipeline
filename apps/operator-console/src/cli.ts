@@ -462,6 +462,7 @@ program.command("docs:generate").action(() =>
 interface LabContext {
   capability: LabCapability;
   close(): Promise<void>;
+  databaseUrl: string;
   db: LabDb;
   queries: LabQueries;
 }
@@ -484,6 +485,7 @@ async function withLab(
   const context: LabContext = {
     capability,
     close: () => db.close(),
+    databaseUrl: config.databaseUrl ?? "",
     db,
     queries: new LabQueries(db.read),
   };
@@ -724,7 +726,7 @@ lab
       until?: string;
     }) =>
       runAction(() =>
-        withLab(async ({ capability, queries }) => {
+        withLab(async ({ capability, databaseUrl, queries }) => {
           if (!capability.experimentsEnabled) {
             process.stderr.write(
               `not_enabled: ${capability.experimentsReason ?? capability.reason ?? "experiments are not enabled"}\n`,
@@ -743,7 +745,9 @@ lab
           const harness = new ExperimentHarness({
             needsPrepare: () =>
               queries.corpusSummary().then((summary) => summary.needsPrepare),
-            spawnStage: defaultSpawner(repositoryRoot),
+            spawnStage: defaultSpawner(repositoryRoot, {
+              DATABASE_URL: databaseUrl,
+            }),
           });
           const finished = new Promise<{
             reportPath: string | null;

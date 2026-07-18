@@ -237,7 +237,9 @@ export async function startDashboard(
       ? new ExperimentHarness({
           needsPrepare: () =>
             labQueries.corpusSummary().then((summary) => summary.needsPrepare),
-          spawnStage: defaultSpawner(repositoryRoot),
+          spawnStage: defaultSpawner(repositoryRoot, {
+            DATABASE_URL: config.databaseUrl,
+          }),
         })
       : null;
   app.use(

@@ -8,16 +8,17 @@ records every completed run in the `experiment_runs` table and writes
 
 ## Setup
 
-1. `DATABASE_URL` pointing at the local bench database. This repo's Supabase
-   config pins the db to port **57422**
-   (`postgresql://postgres:postgres@127.0.0.1:57422/postgres`); the pipeline's
-   built-in fallback is the stock Supabase port 54322, so the variable must be
-   set explicitly here. Reads work against any DSN; experiments require a
-   local one (the pipeline bench tools structurally refuse remote hosts).
-   Caveat: `pipeline/config.py` loads the root `.env`, and
-   `tests/test_cache.py` asserts the built-in default — export the variable
-   in your shell (or per command) instead of committing it to `.env` if you
-   also run `uv run pytest`.
+1. `DATABASE_URL` is optional for `pnpm ops`: the console defaults to the
+   local bench database on port **57422** (the port this repo's
+   `supabase/config.toml` pins) and passes the same DSN to the pipeline
+   stages it spawns. Set the variable to target a different database — reads
+   work against any DSN; experiments require a local one (the pipeline bench
+   tools structurally refuse remote hosts). Direct `uv run python -m
+   pipeline.cli …` invocations still need it exported (the pipeline's own
+   fallback is the stock Supabase port 54322). Caveat: `pipeline/config.py`
+   loads the root `.env`, and `tests/test_cache.py` asserts the built-in
+   default — export the variable in your shell (or per command) instead of
+   committing it to `.env` if you also run `uv run pytest`.
 2. Local stack + migrations: `pnpm supabase start` (schema through
    `20260718100200_create_experiment_runs`).
 3. Corpus synced: `uv run python -m pipeline.cli sync` (hosted → local,
