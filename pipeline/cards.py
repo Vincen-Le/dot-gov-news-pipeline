@@ -37,9 +37,6 @@ class CardEngine:
             judge_model=None, prompt_version=self.cfg.prompt_version,
             overview_embedding=None, tau=self.cfg.tau_seconds)
 
-        # single-episode collapse: only compress once a second episode exists
-        if self.store.storyline_episode_count(str(episode["storyline_id"])) < 2:
-            return
         self._regenerate_overview(str(episode["storyline_id"]),
                                   representative_entry_id=str(representative["id"]))
 

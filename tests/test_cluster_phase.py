@@ -38,9 +38,6 @@ class ClusterFakeStore(FakeStore):
             and c["storyline_id"] == storyline_id
         ]
 
-    def storyline_episode_count(self, storyline_id):
-        return self.storylines[storyline_id]["episode_count"]
-
     def insert_card(self, **kw):
         self.cards.append(kw)
         return f"card-{len(self.cards)}"

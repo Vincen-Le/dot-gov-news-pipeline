@@ -9,9 +9,8 @@ CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
 
 
 class CardFakeStore:
-    def __init__(self, episode_count=1):
+    def __init__(self):
         self.cards = []
-        self.episode_count = episode_count
 
     def episode_members(self, episode_id):
         return [{"id": "n1", "title": "FDA recalls Valsatrex", "summary": "Contamination.",
@@ -20,9 +19,6 @@ class CardFakeStore:
     def episode_cards_for(self, storyline_id):
         return [{"episode_id": "e1", "headline": "FDA recalls Valsatrex",
                  "summary": "Contamination.", "date": "2026-05-14"}]
-
-    def storyline_episode_count(self, storyline_id):
-        return self.episode_count
 
     def insert_card(self, **kw):
         self.cards.append(kw)
@@ -34,15 +30,17 @@ def episode():
             "newest_entry_at": T0, "first_entry_at": T0, "entry_count": 1}
 
 
-def test_episode_card_written_at_close_single_episode_no_overview():
-    store = CardFakeStore(episode_count=1)
+def test_single_episode_close_also_writes_overview():
+    store = CardFakeStore()
     CardEngine(store, StubModels(), CFG).on_episode_closed(episode())
     kinds = [c["kind"] for c in store.cards]
-    assert kinds == ["episode"]  # single-episode collapse: no overview call
+    assert kinds == ["episode", "overview"]  # overview at birth: themes need a centroid
+    overview = store.cards[1]
+    assert overview["overview_embedding"] is not None
 
 
 def test_overview_regenerated_on_multi_episode_storyline():
-    store = CardFakeStore(episode_count=2)
+    store = CardFakeStore()
     CardEngine(store, StubModels(), CFG).on_episode_closed(episode())
     kinds = [c["kind"] for c in store.cards]
     assert kinds == ["episode", "overview"]
@@ -66,7 +64,7 @@ class OversizedOverviewModels(StubModels):
 
 
 def test_episode_card_headline_and_summary_clamped_to_db_bounds():
-    store = OversizedCardFakeStore(episode_count=1)
+    store = OversizedCardFakeStore()
     CardEngine(store, StubModels(), CFG).on_episode_closed(episode())
     card = store.cards[0]
     assert card["kind"] == "episode"
@@ -76,7 +74,7 @@ def test_episode_card_headline_and_summary_clamped_to_db_bounds():
 
 
 def test_overview_card_summary_clamped_to_db_bounds():
-    store = CardFakeStore(episode_count=2)
+    store = CardFakeStore()
     CardEngine(store, OversizedOverviewModels(), CFG).on_episode_closed(episode())
     overview = store.cards[1]
     assert overview["kind"] == "overview"
@@ -90,7 +88,7 @@ class ExplodingCompressorModels(StubModels):
 
 
 def test_compressor_failure_falls_back_to_deterministic_overview():
-    store = CardFakeStore(episode_count=2)
+    store = CardFakeStore()
     CardEngine(store, ExplodingCompressorModels(), CFG).on_episode_closed(episode())
     kinds = [c["kind"] for c in store.cards]
     assert kinds == ["episode", "overview"]          # close never blocks on the LLM

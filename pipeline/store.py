@@ -197,11 +197,6 @@ class Store:
             {"s": storyline_id},
         )
 
-    def storyline_episode_count(self, storyline_id: str) -> int:
-        row = self.db.one("select episode_count from public.storylines where id = %(s)s",
-                          {"s": storyline_id})
-        return int(row["episode_count"]) if row else 0
-
     def entries_needing_features(self, limit: int | None = None) -> list[dict]:
         return self.db.all(
             """
