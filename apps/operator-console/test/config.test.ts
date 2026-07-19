@@ -1,6 +1,13 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { LOCAL_DATABASE_URL, loadOperatorConfig } from "../src/config";
+import {
+  LOCAL_DATABASE_URL,
+  loadOperatorConfig,
+  loadPipelineRegistry,
+} from "../src/config";
 
 describe("loadOperatorConfig databaseUrl", () => {
   const original = process.env.DATABASE_URL;
@@ -20,5 +27,82 @@ describe("loadOperatorConfig databaseUrl", () => {
     expect(loadOperatorConfig().databaseUrl).toBe(
       "postgresql://u:p@db.example.com:5432/postgres",
     );
+  });
+});
+
+describe("loadPipelineRegistry", () => {
+  let root: string | undefined;
+
+  afterEach(async () => {
+    if (root !== undefined) await rm(root, { force: true, recursive: true });
+    root = undefined;
+  });
+
+  async function registryPath(contents: string): Promise<string> {
+    root = await mkdtemp(join(tmpdir(), "pipelines-"));
+    const path = join(root, "pipelines.json");
+    await writeFile(path, contents, "utf8");
+    return path;
+  }
+
+  it("returns null when the registry file is absent (backward compatible)", () => {
+    expect(loadPipelineRegistry("/nonexistent/config/pipelines.json")).toBeNull();
+  });
+
+  it("parses the documented registry shape", async () => {
+    const path = await registryPath(
+      JSON.stringify({
+        pipelines: [
+          {
+            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/complex_db",
+            engine: "classic",
+            name: "complex",
+          },
+          {
+            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/spine_db",
+            engine: "spine",
+            name: "spine",
+          },
+        ],
+      }),
+    );
+    const registry = loadPipelineRegistry(path);
+    expect(registry?.pipelines.map((entry) => entry.name)).toEqual([
+      "complex",
+      "spine",
+    ]);
+    expect(registry?.pipelines[0]?.engine).toBe("classic");
+  });
+
+  it("rejects malformed JSON", async () => {
+    const path = await registryPath("not json");
+    expect(() => loadPipelineRegistry(path)).toThrow(/not valid JSON/);
+  });
+
+  it("rejects an entry missing a required field", async () => {
+    const path = await registryPath(
+      JSON.stringify({ pipelines: [{ engine: "classic", name: "complex" }] }),
+    );
+    expect(() => loadPipelineRegistry(path)).toThrow(/failed validation/);
+  });
+
+  it("rejects duplicate pipeline names", async () => {
+    const path = await registryPath(
+      JSON.stringify({
+        pipelines: [
+          {
+            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/a_db",
+            engine: "classic",
+            name: "dup",
+          },
+          {
+            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/b_db",
+            engine: "spine",
+            name: "dup",
+          },
+        ],
+      }),
+    );
+    expect(() => loadPipelineRegistry(path)).toThrow(/duplicate pipeline name/);
   });
 });

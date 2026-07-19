@@ -80,31 +80,54 @@ Notes:
   `prepare` — v1 evaluates on classic enrichment, so any A/B readout must not
   be attributed to enrichment differences.
 
-### Parallel bench (spine)
+### Registry — one database per pipeline
 
-Spine evaluates in its own database so classic bench state survives:
+`config/pipelines.json` is the source of truth for pipeline↔database
+mappings:
 
-    ./scripts/create-spine-bench.sh   # clone corpus+features -> spine_bench, wipe derived state
+```json
+{
+  "pipelines": [
+    {"name": "complex", "engine": "classic",
+     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/complex_db"},
+    {"name": "spine", "engine": "spine",
+     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/spine_db"}
+  ]
+}
+```
 
-### Entrypoints — which database each spins up
+Every pipeline gets its own `[pipeline]_db` database with the identical
+table set (`experiment_runs`, `rank_snapshots`, etc. — the same schema every
+pipeline shares), so runs never collide and a database dump/reset for one
+pipeline never touches another's history.
 
-| Engine | Database | Experiment entrypoint | Dashboard |
-|---|---|---|---|
-| classic | `postgresql://postgres:postgres@127.0.0.1:57422/postgres` (the default — no env needed) | `uv run python -m pipeline.cli experiment NAME --limit 500` or `pnpm ops lab run --name NAME` | `pnpm ops dashboard` → http://127.0.0.1:4173 |
-| spine | `postgresql://postgres:postgres@127.0.0.1:57422/spine_bench` (must set `DATABASE_URL`) | `DATABASE_URL=$SPINE_DB LAB_ENGINE=spine uv run python -m pipeline.cli experiment NAME --limit 500` or `DATABASE_URL=$SPINE_DB pnpm ops lab run --name NAME --set LAB_ENGINE=spine` | `DATABASE_URL=$SPINE_DB pnpm ops dashboard --port 4174` → http://127.0.0.1:4174 |
+Provision (or re-provision) a pipeline database from scratch:
 
-where `SPINE_DB='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'`.
+    ./scripts/create-pipeline-db.sh complex   # -> complex_db
+    ./scripts/create-pipeline-db.sh spine     # -> spine_db
 
-Rules of thumb: no `DATABASE_URL` = classic bench; spine work always pairs
-`DATABASE_URL=$SPINE_DB` with `LAB_ENGINE=spine` — setting only one of the
-two either runs spine over the classic bench (clobbers classic derived
-state) or runs classic over the spine bench. A dashboard instance evaluates
-whichever database its `DATABASE_URL` pointed at when it started.
+This applies every `supabase/migrations/*.sql` migration in order, then
+copies the corpus (`news_sources`, `news_source_publishers`, `news_entries`)
+from a source database (`postgres` by default; pass a second argument to
+copy from elsewhere). It does **not** copy derived state or run history — a
+freshly provisioned pipeline database starts unclustered, with an empty
+`experiment_runs`. Re-run anytime to reset a pipeline back to a clean corpus
+snapshot (it drops and recreates `<pipeline>_db`).
 
-Re-run the script anytime to re-clone (it drops and recreates `spine_bench`;
-corpus refreshes in the primary propagate on the next clone).
+### One dashboard, both pipelines
 
-Both entrypoints print which database they're using on startup (`[experiment]
-engine=... database=...` on stderr; `Lab database: ...` for the dashboard) —
-`config/pipelines.json` (Task 9, upcoming) will become the registry/source of
-truth for pipeline↔database mappings, replacing this table.
+`pnpm ops dashboard` starts a single dashboard; when `config/pipelines.json`
+is present, the Lab page shows a pipeline switcher (defaulting to the first
+registered pipeline) that routes every lab query and experiment run to that
+pipeline's own database. Each experiment run row shows the engine it was
+recorded under (`config.engine`), so comparing a `complex` baseline against a
+`spine` run in the same table is unambiguous.
+
+    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/spine_db \
+      LAB_ENGINE=spine uv run python -m pipeline.cli experiment NAME --limit 500
+
+still works unchanged for direct-CLI runs against a specific pipeline
+database outside the dashboard. `DATABASE_URL` (and `LAB_ENGINE`) still
+govern the dashboard's env-only default connection when no pipeline is
+selected — the registry only adds switchable connections, it does not
+change single-pipeline behavior when the registry file is absent.

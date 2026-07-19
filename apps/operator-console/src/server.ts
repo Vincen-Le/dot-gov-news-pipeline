@@ -10,8 +10,13 @@ import { spawn } from "node:child_process";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { createServer as createViteServer, type ViteDevServer } from "vite";
 
-import { repositoryRoot, type RequiredOperatorConsoleConfig } from "./config";
-import { createLabDb, isLocalDsn, labCapability } from "./lab/db";
+import {
+  loadPipelineRegistry,
+  repositoryRoot,
+  type PipelineEntry,
+  type RequiredOperatorConsoleConfig,
+} from "./config";
+import { createLabDb, isLocalDsn, labCapability, type LabCapability } from "./lab/db";
 import { ExperimentHarness, defaultSpawner } from "./lab/harness";
 import { LabelStore, RankLabelStore } from "./lab/labels";
 import { LabQueries } from "./lab/queries";
@@ -21,6 +26,9 @@ import { WorkerTail, type TailEvent, type TailState } from "./tail-process";
 
 export interface DashboardOptions {
   noOpen?: boolean;
+  /** Test-only override for the config/pipelines.json registry; omit to load
+   * the real file (or fall back to none, unchanged, when it is absent). */
+  pipelines?: PipelineEntry[];
   port?: number;
 }
 
@@ -156,6 +164,50 @@ export function sanitizedDsn(databaseUrl: string | undefined): string {
   }
 }
 
+interface LabConnection {
+  capability: () => Promise<LabCapability>;
+  close: () => Promise<void>;
+  harness: ExperimentHarness | null;
+  queries: LabQueries | null;
+  rankQueries: RankQueries | null;
+}
+
+/**
+ * One database connection's worth of lab surface: reads (queries,
+ * rankQueries), capability, and — only for a local DSN — the experiment
+ * harness. `engine` seeds LAB_ENGINE for every stage the harness spawns so a
+ * registered pipeline's runs default to its own engine without the caller
+ * having to pass it every time (the run form's env still wins if set).
+ */
+function buildLabConnection(
+  databaseUrl: string | undefined,
+  engine?: string,
+): LabConnection {
+  const labDb = databaseUrl === undefined ? null : createLabDb(databaseUrl);
+  const queries = labDb === null ? null : new LabQueries(labDb.read);
+  const rankQueries = labDb === null ? null : new RankQueries(labDb.read);
+  const harness =
+    queries !== null && databaseUrl !== undefined && isLocalDsn(databaseUrl)
+      ? new ExperimentHarness({
+          needsPrepare: () =>
+            queries.corpusSummary().then((summary) => summary.needsPrepare),
+          spawnStage: defaultSpawner(repositoryRoot, {
+            DATABASE_URL: databaseUrl,
+            ...(engine === undefined ? {} : { LAB_ENGINE: engine }),
+          }),
+        })
+      : null;
+  return {
+    capability: () => labCapability(labDb, databaseUrl),
+    close: async () => {
+      await labDb?.close();
+    },
+    harness,
+    queries,
+    rankQueries,
+  };
+}
+
 function openBrowser(url: string): void {
   const command: { args: string[]; executable: string } =
     process.platform === "darwin"
@@ -239,30 +291,55 @@ export async function startDashboard(
       }
     });
   });
-  const labDb =
-    config.databaseUrl === undefined ? null : createLabDb(config.databaseUrl);
-  const labQueries = labDb === null ? null : new LabQueries(labDb.read);
-  const labHarness =
-    labQueries !== null &&
-    config.databaseUrl !== undefined &&
-    isLocalDsn(config.databaseUrl)
-      ? new ExperimentHarness({
-          needsPrepare: () =>
-            labQueries.corpusSummary().then((summary) => summary.needsPrepare),
-          spawnStage: defaultSpawner(repositoryRoot, {
-            DATABASE_URL: config.databaseUrl,
-          }),
-        })
-      : null;
+  const labelsDir = resolve(repositoryRoot, "docs/eval");
+
+  // config/pipelines.json (Task 9): each registered pipeline gets its own
+  // connection, mounted under its own (more specific) path before the
+  // default `/api/lab` mount below so the single dashboard can switch
+  // between them. Absent file → no extra mounts, no behavior change.
+  const registryPipelines =
+    options.pipelines ?? loadPipelineRegistry()?.pipelines ?? [];
+  const pipelineConnections = new Map<string, LabConnection>();
+  for (const entry of registryPipelines) {
+    const connection = buildLabConnection(entry.databaseUrl, entry.engine);
+    pipelineConnections.set(entry.name, connection);
+    app.use(
+      `/api/lab/p/${entry.name}`,
+      createLabRouter({
+        capability: connection.capability,
+        harness: connection.harness,
+        labels: new LabelStore(labelsDir),
+        queries: connection.queries,
+        rankLabels: new RankLabelStore(labelsDir),
+        rankQueries: connection.rankQueries,
+        repoRoot: repositoryRoot,
+      }),
+    );
+  }
+  app.get("/api/pipelines", (_request, response) => {
+    response.json({
+      data: {
+        pipelines: registryPipelines.map((entry) => ({
+          engine: entry.engine,
+          name: entry.name,
+        })),
+      },
+    });
+  });
+
+  // The default connection: env-only behavior, unchanged whether or not a
+  // registry is present. `pnpm ops lab run` and any dashboard mount that
+  // never selects a pipeline keep hitting DATABASE_URL directly.
+  const defaultConnection = buildLabConnection(config.databaseUrl);
   app.use(
     "/api/lab",
     createLabRouter({
-      capability: () => labCapability(labDb, config.databaseUrl),
-      harness: labHarness,
-      labels: new LabelStore(resolve(repositoryRoot, "docs/eval")),
-      queries: labQueries,
-      rankLabels: new RankLabelStore(resolve(repositoryRoot, "docs/eval")),
-      rankQueries: labDb === null ? null : new RankQueries(labDb.read),
+      capability: defaultConnection.capability,
+      harness: defaultConnection.harness,
+      labels: new LabelStore(labelsDir),
+      queries: defaultConnection.queries,
+      rankLabels: new RankLabelStore(labelsDir),
+      rankQueries: defaultConnection.rankQueries,
       repoRoot: repositoryRoot,
     }),
   );
@@ -306,7 +383,12 @@ export async function startDashboard(
 
   return {
     async close() {
-      await labDb?.close();
+      await defaultConnection.close();
+      await Promise.all(
+        [...pipelineConnections.values()].map((connection) =>
+          connection.close(),
+        ),
+      );
       await stopTail();
       await vite?.close();
       await new Promise<void>((resolveClose, reject) => {

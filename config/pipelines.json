@@ -1,0 +1,14 @@
+{
+  "pipelines": [
+    {
+      "name": "complex",
+      "engine": "classic",
+      "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/complex_db"
+    },
+    {
+      "name": "spine",
+      "engine": "spine",
+      "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/spine_db"
+    }
+  ]
+}

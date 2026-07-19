@@ -1,4 +1,5 @@
 import { config as loadDotEnv } from "dotenv";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import { z } from "zod";
@@ -71,4 +72,51 @@ export function requireOperatorConfig(): RequiredOperatorConsoleConfig {
     );
   }
   return { ...parsed, apiToken: parsed.apiToken, apiUrl: parsed.apiUrl };
+}
+
+// config/pipelines.json — the registry mapping each pipeline (engine) to its
+// own database. See docs/operations/clustering-lab.md#engines. Absent file
+// means single-pipeline operation: DATABASE_URL alone governs, unchanged.
+const PipelineEntrySchema = z.object({
+  databaseUrl: z.string().trim().min(1),
+  engine: z.string().trim().min(1).max(64),
+  // Becomes a URL path segment (/api/lab/p/<name>) — keep it path-safe.
+  name: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9][a-z0-9_-]{0,63}$/i, "must be alphanumeric with _ or -"),
+});
+
+const PipelineRegistrySchema = z.object({
+  pipelines: z.array(PipelineEntrySchema).min(1),
+});
+
+export type PipelineEntry = z.infer<typeof PipelineEntrySchema>;
+export type PipelineRegistry = z.infer<typeof PipelineRegistrySchema>;
+
+export function loadPipelineRegistry(
+  path: string = resolve(repositoryRoot, "config/pipelines.json"),
+): PipelineRegistry | null {
+  if (!existsSync(path)) return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(path, "utf8"));
+  } catch (error) {
+    throw new Error(
+      `${path} is not valid JSON: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
+  }
+  const result = PipelineRegistrySchema.safeParse(parsed);
+  if (!result.success) {
+    throw new Error(`${path} failed validation: ${z.prettifyError(result.error)}`);
+  }
+  const seen = new Set<string>();
+  for (const entry of result.data.pipelines) {
+    if (seen.has(entry.name)) {
+      throw new Error(`${path} has a duplicate pipeline name: ${entry.name}`);
+    }
+    seen.add(entry.name);
+  }
+  return result.data;
 }

@@ -11,7 +11,13 @@ import {
 } from "../../lab/contracts";
 import type { RunStage } from "../../lab/harness";
 import { LabMetricsSchema } from "../../lab/metrics";
-import { fetchLab, postLab, LabApiError } from "../lab-api";
+import {
+  fetchLab,
+  fetchPipelines,
+  labBasePath,
+  postLab,
+  LabApiError,
+} from "../lab-api";
 import {
   CopyCommand,
   ErrorState,
@@ -112,7 +118,13 @@ function Meter({ count, max }: { count: number; max: number }) {
   );
 }
 
-function RunSection({ disabledReason }: { disabledReason: string | null }) {
+function RunSection({
+  disabledReason,
+  pipeline,
+}: {
+  disabledReason: string | null;
+  pipeline?: string;
+}) {
   const queryClient = useQueryClient();
   const [stages, setStages] = useState<RunStage[]>([]);
   const [log, setLog] = useState<string[]>([]);
@@ -138,13 +150,15 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
       "lab-storylines",
       "lab-corpus",
     ]) {
-      void queryClient.invalidateQueries({ queryKey: [key] });
+      void queryClient.invalidateQueries({ queryKey: [key, pipeline] });
     }
   };
 
   const follow = (): void => {
     sourceRef.current?.close();
-    const source = new EventSource("/api/lab/experiments/stream");
+    const source = new EventSource(
+      `${labBasePath(pipeline)}/experiments/stream`,
+    );
     sourceRef.current = source;
     source.addEventListener("snapshot", (event) => {
       const payload = SnapshotEventSchema.parse(
@@ -229,6 +243,7 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
                 stub: data.get("stub") === "on",
               },
               ActiveRunSchema,
+              pipeline,
             )
               .then((active) => {
                 setRunName(active.name);
@@ -318,7 +333,7 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
                 {result.runId === null ? null : (
                   <a
                     className="text-button"
-                    href={`/api/lab/experiments/${result.runId}/report`}
+                    href={`${labBasePath(pipeline)}/experiments/${result.runId}/report`}
                     rel="noreferrer"
                     target="_blank"
                   >
@@ -345,26 +360,41 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
 export function LabPage() {
   const queryClient = useQueryClient();
   const [baselineId, setBaselineId] = useState<string>("");
+  const [pipeline, setPipeline] = useState<string | undefined>(undefined);
+
+  const pipelines = useQuery({
+    queryFn: fetchPipelines,
+    queryKey: ["lab-pipelines"],
+  });
+  // Once the registry loads, default to its first pipeline rather than the
+  // env-only connection — with a registry present that env DSN is not
+  // guaranteed to be either registered pipeline's own database.
+  useEffect(() => {
+    if (pipeline === undefined && (pipelines.data?.length ?? 0) > 0) {
+      setPipeline(pipelines.data?.[0]?.name);
+    }
+  }, [pipeline, pipelines.data]);
 
   const capability = useQuery({
-    queryFn: () => fetchLab("/capability", LabCapabilitySchema),
-    queryKey: ["lab-capability"],
+    queryFn: () => fetchLab("/capability", LabCapabilitySchema, pipeline),
+    queryKey: ["lab-capability", pipeline],
   });
   const enabled = capability.data?.status === "available";
   const corpus = useQuery({
     enabled,
-    queryFn: () => fetchLab("/corpus", CorpusSummarySchema),
-    queryKey: ["lab-corpus"],
+    queryFn: () => fetchLab("/corpus", CorpusSummarySchema, pipeline),
+    queryKey: ["lab-corpus", pipeline],
   });
   const metrics = useQuery({
     enabled,
-    queryFn: () => fetchLab("/metrics", LabMetricsSchema),
-    queryKey: ["lab-metrics"],
+    queryFn: () => fetchLab("/metrics", LabMetricsSchema, pipeline),
+    queryKey: ["lab-metrics", pipeline],
   });
   const experiments = useQuery({
     enabled,
-    queryFn: () => fetchLab("/experiments", ExperimentListSchema),
-    queryKey: ["lab-experiments"],
+    queryFn: () =>
+      fetchLab("/experiments", ExperimentListSchema, pipeline),
+    queryKey: ["lab-experiments", pipeline],
     refetchInterval: 30_000,
   });
   const borderline = useQuery({
@@ -373,8 +403,9 @@ export function LabPage() {
       fetchLab(
         "/borderline?limit=25",
         z.object({ items: BorderlinePairSchema.array() }),
+        pipeline,
       ),
-    queryKey: ["lab-borderline"],
+    queryKey: ["lab-borderline", pipeline],
   });
   const labels = useQuery({
     enabled,
@@ -382,8 +413,9 @@ export function LabPage() {
       fetchLab(
         "/labels",
         z.object({ count: z.number(), labels: z.unknown().array() }),
+        pipeline,
       ),
-    queryKey: ["lab-labels"],
+    queryKey: ["lab-labels", pipeline],
   });
 
   if (capability.data?.status === "not_enabled") {
@@ -412,6 +444,25 @@ export function LabPage() {
         <div>
           <p className="eyebrow">Experiment bench</p>
           <h1>Lab</h1>
+          {(pipelines.data?.length ?? 0) > 0 ? (
+            <div className="pipeline-switcher">
+              <label htmlFor="pipeline-select">Pipeline</label>
+              <select
+                id="pipeline-select"
+                onChange={(event) => {
+                  setBaselineId("");
+                  setPipeline(event.currentTarget.value);
+                }}
+                value={pipeline ?? ""}
+              >
+                {pipelines.data?.map((entry) => (
+                  <option key={entry.name} value={entry.name}>
+                    {entry.name} ({entry.engine})
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           <p>
             Replay the synced corpus through the clustering pipeline, measure
             the chains it builds, and label its borderline decisions.
@@ -476,6 +527,7 @@ export function LabPage() {
                 ? `Experiment "${experiments.data.active.name}" is running`
                 : null
         }
+        pipeline={pipeline}
       />
 
       <section className="ruled-section" id="experiments">
@@ -494,6 +546,7 @@ export function LabPage() {
               <thead>
                 <tr>
                   <th>Run</th>
+                  <th>Engine</th>
                   <th>Created</th>
                   <th>Duration</th>
                   <th>Processed</th>
@@ -510,6 +563,11 @@ export function LabPage() {
                     <th className="mono" scope="row">
                       {run.name}
                     </th>
+                    <td className="mono">
+                      {typeof run.config?.engine === "string"
+                        ? run.config.engine
+                        : "—"}
+                    </td>
                     <td>{new Date(run.createdAt).toLocaleString()}</td>
                     <td className="numeric">{run.durationSeconds}s</td>
                     <td className="numeric">
@@ -525,7 +583,7 @@ export function LabPage() {
                     <td>
                       <a
                         className="text-button"
-                        href={`/api/lab/experiments/${run.id}/report`}
+                        href={`${labBasePath(pipeline)}/experiments/${run.id}/report`}
                         rel="noreferrer"
                         target="_blank"
                       >
@@ -715,12 +773,13 @@ export function LabPage() {
                                     sameEvent: verdict === "y",
                                   },
                                   z.object({ saved: z.boolean() }),
+                                  pipeline,
                                 ).then(() => {
                                   void queryClient.invalidateQueries({
-                                    queryKey: ["lab-borderline"],
+                                    queryKey: ["lab-borderline", pipeline],
                                   });
                                   void queryClient.invalidateQueries({
-                                    queryKey: ["lab-labels"],
+                                    queryKey: ["lab-labels", pipeline],
                                   });
                                 });
                               }}

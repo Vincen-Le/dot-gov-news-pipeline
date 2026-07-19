@@ -520,6 +520,18 @@ tbody th {
   max-width: 680px;
   color: var(--muted);
 }
+.pipeline-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.pipeline-switcher label {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
 .receipt-grid {
   display: grid;
   grid-template-columns: 0.7fr 1.3fr;
