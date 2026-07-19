@@ -149,6 +149,43 @@ mapping (the startup reference; also documented in
 Spine work always pairs `DATABASE_URL` + `LAB_ENGINE` — setting only one
 runs the wrong engine or the wrong database.
 
+### Multi-pipeline experimentation standard
+
+Studied `autoresearch/jul19` (read-only): it adds **no schema** — it consumes
+main's `experiment_runs` + `rank_snapshots` unchanged and keeps its loop
+scores in git-committed files (invisible to the dashboard; not a pattern to
+copy). The pattern worth standardizing is main's own, proven across two
+subsystems (clustering, ranking):
+
+- **Run-header + snapshot-detail split**: one small `experiment_runs` row
+  (config/report/summary jsonb, size-capped, secrets redacted) referencing
+  frozen `rank_snapshots` detail rows via `run_id`, with **no FKs to live
+  tables** and denormalized display fields — this is what makes replaying
+  old experiments possible after every reset wipes the live derived tables.
+- **RLS + service-role-only grants** per table; jsonb `pg_column_size`
+  caps; content-stable ordering.
+
+Neither table has any pipeline/engine scoping today. The standard:
+
+1. **One bench database per pipeline, identical schema.** Each pipeline
+   (classic, spine, future engines) gets its own database in the local
+   cluster carrying the full standard table set: synced corpus + prepared
+   features, its own live derived tables, and its own `experiment_runs` +
+   `rank_snapshots` (+ rank audit tables). Provisioning = the parameterized
+   clone script (`scripts/create-spine-bench.sh NAME`, `SOURCE_DATABASE`
+   env). Same table names in every database — the database IS the pipeline
+   scope, so no `engine` column migration is needed; the redacted config
+   jsonb already embeds `engine` for self-description of each run.
+2. **Pipeline registry** (`config/pipelines.json`): the single source of
+   truth mapping pipeline name → engine → database URL → dashboard port.
+   Replaces tribal knowledge of entrypoint/DB pairings.
+3. **Dashboard rotation**: the operator console loads the registry and can
+   switch its lab surface between pipelines — pipeline views (live derived
+   state), experiment views (`experiment_runs` history), and replay of old
+   experiments (`rank_snapshots` by `run_id`) — one dashboard, N pipelines.
+   Console query modules (`LabQueries`, `RankQueries`) already take a
+   connection, so rotation is a per-pipeline connection, not a rewrite.
+
 ### Success criteria
 
 1. `pnpm ops lab run --stub --set LAB_ENGINE=spine` completes: report +

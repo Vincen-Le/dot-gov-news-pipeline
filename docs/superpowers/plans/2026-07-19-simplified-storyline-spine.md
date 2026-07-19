@@ -1652,6 +1652,41 @@ git commit -m "feat: parallel spine bench provisioning, startup DB banners, seco
 
 ---
 
+### Task 9: Pipeline registry + dashboard rotation
+
+Standardization (see design doc "Multi-pipeline experimentation standard"): every pipeline gets its own bench database with the identical table set; a registry maps pipelines to databases; the one dashboard rotates between them. `autoresearch/jul19` was studied and adds no schema — the run-header/snapshot-detail pattern being generalized is main's own.
+
+**Files:**
+- Create: `config/pipelines.json`
+- Modify: `apps/operator-console/src/config.ts` (registry loading), `apps/operator-console/src/server.ts` + lab routes (per-pipeline connection selection), dashboard lab UI (pipeline switcher)
+- Modify: `docs/operations/clustering-lab.md` (registry documented as the entrypoint source of truth)
+- Rename/generalize: `scripts/create-spine-bench.sh` stays (already parameterized: `create-spine-bench.sh NAME` + `SOURCE_DATABASE`); document per-pipeline usage
+
+**Interfaces:**
+- Registry shape (exact):
+
+```json
+{
+  "pipelines": [
+    {"name": "classic", "engine": "classic",
+     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/postgres",
+     "dashboardPort": 4173},
+    {"name": "spine", "engine": "spine",
+     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/spine_bench",
+     "dashboardPort": 4174}
+  ]
+}
+```
+
+- Console behavior: registry present → lab surface exposes the pipeline list; selecting one routes all lab queries (`LabQueries`, `RankQueries`) through a connection to that pipeline's `databaseUrl` (local-DSN guard still applies per connection). `DATABASE_URL`/`LAB_ENGINE` env still work and win for single-pipeline operation (`pnpm ops lab run` continues unchanged; runs launched from the dashboard use the selected pipeline's DSN and pass `LAB_ENGINE=<engine>` through the existing whitelist).
+- Experiment replay: experiment list/detail/rank-snapshot pages already read `experiment_runs`/`rank_snapshots` by `run_id` — they work per selected pipeline without query changes; run rows self-describe their engine via `config->>'engine'`.
+
+Implementation is judgment work in the console codebase (read `apps/operator-console/src/lab/db.ts`, `routes.ts`, `queries.ts`, `rank-queries.ts`, and the dashboard lab pages first); keep the diff minimal — a connection selector + switcher, not a rewrite. TDD where the console has existing test conventions; otherwise typecheck + existing suites + a manual verification run against both registered pipelines.
+
+Steps: (1) registry file + zod-validated loader in config.ts; (2) per-pipeline connection map in the lab server layer with the local-DSN guard enforced per entry; (3) pipeline switcher in the lab UI + pipeline name/engine badge on experiment views; (4) docs; (5) `pnpm --filter operator-console typecheck` + tests + manual dual-pipeline check; (6) commit `feat: pipeline registry and dashboard rotation across bench databases`.
+
+---
+
 ## Self-review notes
 
 - Spec coverage: enrichment (Task 2 prompt + existing prepare; embed-source knob in Task 1 — note: `SPINE_EMBED_SOURCE=raw` is honored by the *existing* `prepare` only through `ENRICHMENT_ENABLED=false` + `--clear-features` for v1; a dedicated raw-embed prepare path is deliberately deferred and documented in the design's out-of-scope if needed), category (Task 4 via reused CategoryEngine), decision tree (Tasks 3–4), master node incl. singletons (Task 4 birth card + CardEngine regeneration), event-card checkpoints (CardEngine reuse, Task 5), themes with retroactive merge/split (Task 6), rank_key (free via `insert_event_card`), harness hookup (Task 1, Task 7), eval (operational metrics + manual QA in Task 7; golden scorer is a follow-up gated on golden-set QA — see design out-of-scope), parallel bench isolation + second dashboard (Task 8).
