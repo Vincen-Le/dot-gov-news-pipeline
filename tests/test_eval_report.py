@@ -31,14 +31,17 @@ META = {"run": {"name": "jul20-00-check", "id": "abc", "finished_at": "2026-07-2
 def test_report_carries_values_interpretations_and_levers():
     report = render_eval_report(SCORE, META,
                                 {"theme_cohesion": {"t1": 0.3, "t2": 0.7}})
-    assert "R_v2 = 0.712" in report
+    assert "| R_v2 (reward) | 0.712 |" in report
     assert "complex_v1" in report
-    assert "target ≥ 0.70" in report          # interpretation inline
+    assert "| eval / metric | value | effect |" in report  # human-review table
+    assert "meets target 0.70" in report       # interpretation inline
     assert "lever" in report                   # every weak state names a lever
-    assert "t2: too_granular" in report        # granularity flag table
+    assert "t2: too_granular" in report        # granularity flags
     assert "enrichment lever: ['t1']" in report  # cohesion router quadrant
     assert "n/a (no gold labels)" in report    # recall slot never deleted
     assert "- s1: -0.500" in report            # worst chains spot-check ids
+    assert report.index("## Themes — observations") < report.index(
+        "## Multi-episode chains — observations")  # themes first
     assert "VALIDITY FLAG" not in report
 
 

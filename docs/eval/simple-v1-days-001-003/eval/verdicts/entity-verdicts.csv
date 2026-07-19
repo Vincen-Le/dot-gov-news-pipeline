@@ -1,0 +1,13 @@
+entry_id,kind,token,valid,reason
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,city,0,Generic noun.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,civil,0,Fragment of division name.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,consent,0,Generic fragment.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,decree,1,Distinctive term central to this story.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,division,0,Generic organizational noun.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,justice,0,Generic agency word shared broadly.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,motion,0,Generic legal noun.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,police,0,Generic noun.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,rights,0,Fragment of division name.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,seattle,1,Specific city central to this story.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,supports,0,Generic verb.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,terminate,0,Generic verb.

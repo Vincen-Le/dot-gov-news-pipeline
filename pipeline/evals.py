@@ -79,9 +79,11 @@ def b_cubed(pred: dict[str, str], gold: dict[str, str]) -> dict:
 
 def _yes(value: str) -> bool:
     value = value.strip().lower()
-    if value not in {"y", "n"}:
-        raise ValueError(f"expected y/n, got {value!r}")
-    return value == "y"
+    # 1/0 is the emission contract (2026-07-19 review); y/n accepted for
+    # verdict CSVs written before the switch
+    if value not in {"1", "0", "y", "n"}:
+        raise ValueError(f"expected 1/0, got {value!r}")
+    return value in {"1", "y"}
 
 
 def weighted_binary(values: list[bool]) -> float:

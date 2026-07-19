@@ -85,7 +85,7 @@ def test_score_v1_rejects_missing_endpoint_verdict():
         "related": "y",
         "attach_method": "event_key",
     }]
-    with pytest.raises(ValueError, match="expected y/n"):
+    with pytest.raises(ValueError, match="expected 1/0"):
         score_v1(pairs, [{
             "storyline_id": "s1",
             "endpoints_related": "",
@@ -183,7 +183,7 @@ def test_v4_and_v5_reject_unknown_categorical_values():
         "v4_merge_pairs": 1,
         "v4_candidate_n": 2,
     }
-    with pytest.raises(ValueError, match="expected y/n"):
+    with pytest.raises(ValueError, match="expected 1/0"):
         score_v4([{"should_merge": "maybe"}])
     with pytest.raises(ValueError, match="invalid V5 token kinds"):
         score_v5([{"kind": "other", "valid": "y"}], 0, 1)

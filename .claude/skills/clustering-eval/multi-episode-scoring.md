@@ -20,7 +20,7 @@ Ordering contract (two different orders, do not conflate):
 **Cases:** every multi-episode storyline (no sampling; report `n_chains`,
 `n_episodes_judged`).
 
-**Per non-anchor episode: `related y/n`** to the chain's event thread,
+**Per non-anchor episode: `related 1/0`** to the chain's event thread,
 walking build order. Criteria:
 - Related = same real-world event thread evolving over time — not merely
   same topic, same agency, same program, or same occasion/observance (the
@@ -31,13 +31,13 @@ walking build order. Criteria:
   hazard type but locations genuinely far apart; same policy action but
   different subjects; different docket/case/contract numbers. Shared rare
   entities + temporal continuity → related.
-- Uncertain after entity check → `n` (split bias — a false join shows the
+- Uncertain after entity check → `0` (split bias — a false join shows the
   reader two unrelated events as one story, worse than showing two stories).
 
 **Drift check (chains ≥ 3 episodes).** Pairwise verdicts pass on chains
 that drift link-by-link (A→B fine, B→C fine, A→C unrelated). Two extra
 verdicts per such chain:
-- `endpoints_related y/n` — first vs last episode, same criteria.
+- `endpoints_related 1/0` — first vs last episode, same criteria.
 - `chain_verdict: coherent | drifted | should_split` — whole-chain read;
   `drifted` when every link passes but endpoints fail.
 
@@ -58,13 +58,13 @@ scores, and `drift_rate` (drifted chains / chains ≥ 3 episodes).
 **Cases:** multi-entry episodes. All of them if ≤ 50; else stratified sample
 of 50 by entry_count band, `random.Random(42)`.
 
-**Per non-anchor entry: `same_event y/n`** vs the episode's anchor entry.
+**Per non-anchor entry: `same_event 1/0`** vs the episode's anchor entry.
 Criteria mirror V1 but at event grain, entity-first:
 - Same event reported/syndicated differently (near-dup, cross-agency mirror,
-  GovDelivery repost) → `y`.
-- Same *kind* of event, different discriminating entities → `n`.
-- Follow-up coverage of a developing event within the episode window → `y`;
-  a NEW development that should have opened a new episode in the chain → `n`.
+  GovDelivery repost) → `1`.
+- Same *kind* of event, different discriminating entities → `0`.
+- Follow-up coverage of a developing event within the episode window → `1`;
+  a NEW development that should have opened a new episode in the chain → `0`.
 
 **Score:** `V6 = (Σ same − 2·Σ different) / Σ judged`. Target ≥ 0.70.
 CSV: `episode-verdicts.csv` (`episode_id,entry_id,same_event,reason`).
@@ -75,16 +75,16 @@ CSV: `episode-verdicts.csv` (`episode_id,entry_id,same_event,reason`).
 overview headline + summary + timeline, plus the member episode cards.
 
 Binary verdicts per overview:
-- `coverage y/n` — does the overview represent the cohesive chain, or is it
-  biased to one episode? `n` if any episode's development is absent from
+- `coverage 1/0` — does the overview represent the cohesive chain, or is it
+  biased to one episode? `0` if any episode's development is absent from
   both summary and timeline without being a mere duplicate of another.
-- `faithful y/n` — every factual claim in headline + summary is entailed by
-  at least one member episode card. Any unsupported claim → `n`
+- `faithful 1/0` — every factual claim in headline + summary is entailed by
+  at least one member episode card. Any unsupported claim → `0`
   (hallucination is a false merge of facts; carries the −2 weight).
-- `current y/n` — headline reflects the chain's latest state, not anchored
+- `current 1/0` — headline reflects the chain's latest state, not anchored
   to the first event (the "Investment Regulation" first-event-anchoring
   failure).
-- `representative y/n` — a reader seeing only headline + summary would
+- `representative 1/0` — a reader seeing only headline + summary would
   correctly predict what the episode chain contains.
 
 **Score:**

@@ -114,14 +114,22 @@ Required files and their exact header rows:
 {file_specs}
 
 Every case in the artifact must receive a verdict row. Reasons must be one \
-short sentence. No text outside the FILE blocks is read."""
+short sentence. Double-quote any CSV field that contains a comma. No text \
+outside the FILE blocks is read."""
 
 _FILE_RE = re.compile(r"FILE:\s*(\S+)\s*\n```(?:csv)?\n(.*?)```", re.DOTALL)
 
 
 def build_judge_prompt(rubric: str, files: dict[str, list[str]],
                        artifact_json: str) -> tuple[str, str]:
-    specs = "\n".join(f"- {name}: `{','.join(cols)}`" for name, cols in files.items())
+    lines = []
+    for name, cols in files.items():
+        allowed = _VALUE_COLUMNS.get(name, {})
+        vocab = "".join(
+            f"; {col} must be one of: {', '.join(sorted(values))}"
+            for col, values in allowed.items())
+        lines.append(f"- {name}: `{','.join(cols)}`{vocab}")
+    specs = "\n".join(lines)
     return _SYSTEM_TEMPLATE.format(rubric=rubric, file_specs=specs), artifact_json
 
 
@@ -213,31 +221,33 @@ _CASE_COLUMNS = {
     "overview-verdicts.csv": ("storyline_id",),
 }
 
+# binary verdicts are emitted as 1 (yes) / 0 (no) so scoring is direct
+# arithmetic over the columns (2026-07-19 review decision)
 _VALUE_COLUMNS: dict[str, dict[str, set[str]]] = {
-    "chain-verdicts.csv": {"related": {"y", "n"}},
+    "chain-verdicts.csv": {"related": {"1", "0"}},
     "chain-summary.csv": {
-        "endpoints_related": {"y", "n"},
+        "endpoints_related": {"1", "0"},
         "chain_verdict": {"coherent", "drifted", "should_split"},
     },
-    "theme-verdicts.csv": {"fits": {"y", "n"}},
+    "theme-verdicts.csv": {"fits": {"1", "0"}},
     "theme-granularity.csv": {
         "granularity": {"right", "too_granular", "too_broad"},
     },
     "category-verdicts.csv": {
         "verdict": {"correct", "better_option_exists", "ambiguous"},
     },
-    "granularity-merge-verdicts.csv": {"should_merge": {"y", "n"}},
-    "entity-stats-verdicts.csv": {"valid": {"y", "n"}},
+    "granularity-merge-verdicts.csv": {"should_merge": {"1", "0"}},
+    "entity-stats-verdicts.csv": {"valid": {"1", "0"}},
     "entity-verdicts.csv": {
         "kind": {"entity", "event_key"},
-        "valid": {"y", "n"},
+        "valid": {"1", "0"},
     },
-    "episode-verdicts.csv": {"same_event": {"y", "n"}},
+    "episode-verdicts.csv": {"same_event": {"1", "0"}},
     "overview-verdicts.csv": {
-        "coverage": {"y", "n"},
-        "faithful": {"y", "n"},
-        "current": {"y", "n"},
-        "representative": {"y", "n"},
+        "coverage": {"1", "0"},
+        "faithful": {"1", "0"},
+        "current": {"1", "0"},
+        "representative": {"1", "0"},
     },
 }
 

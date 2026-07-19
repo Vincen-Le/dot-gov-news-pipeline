@@ -1,0 +1,134 @@
+{
+  "chains": [
+    {
+      "storyline": {
+        "storyline_id": "ceb809ed-ca43-483d-8d18-3b0437004f84",
+        "headline": "Secretary Rubio\u2019s Call with Djiboutian President Guelleh - United States Department of State",
+        "summary": "Joint Statement by Secretary of State Marco Rubio and Secretary of Health and Human Services Robert F. Kennedy on the United States\u2019 Rejection of 2024 Amendments to the International Health Regulations (2005) - United States Department of State / Secretary Rubio\u2019s Call with Djiboutian President Guelleh - United States Department of State",
+        "entities": [
+          "amendments",
+          "begin",
+          "bruce",
+          "djiboutian",
+          "guelleh",
+          "human",
+          "ismail",
+          "joint",
+          "kennedy",
+          "marco",
+          "omar",
+          "president",
+          "rejection",
+          "robert",
+          "rubio",
+          "spokesperson",
+          "tammy"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 04:00:00+00:00",
+        "newest_entry_at": "2025-07-18 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "e90b4dd1-ff32-4675-bd49-1bd87948cc03",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "062cba65-dcf8-498c-847d-7189989acc46",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.716717,
+          "attach_reason": "The article reports a new development involving Secretary Rubio, but is not a follow-up to the specific topic of the International Health Regulations amendments.",
+          "first_entry_at": "2025-07-18 04:00:00+00:00",
+          "newest_entry_at": "2025-07-18 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "bruce",
+            "djiboutian",
+            "guelleh",
+            "ismail",
+            "marco",
+            "omar",
+            "president",
+            "rubio",
+            "spokesperson",
+            "tammy"
+          ],
+          "event_keys": [],
+          "headline": "Secretary Rubio\u2019s Call with Djiboutian President Guelleh - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio spoke today with Djiboutian President Ismail Omar Guelleh. The Secretary and the President discussed the long-standing strategic partnership between the United States and Djibouti and the importance of maintaining peace and security in the Red Sea and in the Horn of Africa. [\u2026]",
+          "entries": [
+            {
+              "entry_id": "426bd27e-bb74-4b57-84af-2e29816972a8",
+              "title": "Secretary Rubio\u2019s Call with Djiboutian President Guelleh - United States Department of State",
+              "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio spoke today with Djiboutian President Ismail Omar Guelleh. The Secretary and the President discussed the long-standing strategic partnership between the United States and Djibouti and the importance of maintaining peace and security in the Red Sea and in the Horn of Africa. [\u2026]",
+              "published_at": "2025-07-18 04:00:00+00:00",
+              "entities": [
+                "bruce",
+                "djiboutian",
+                "guelleh",
+                "ismail",
+                "marco",
+                "omar",
+                "president",
+                "rubio",
+                "spokesperson",
+                "tammy"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.716717
+            }
+          ]
+        },
+        {
+          "episode_id": "9b37d82f-48f4-4a5e-b962-a99505cb71bd",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "The article is about the rejection of amendments to the International Health Regulations, which has no connection to the candidate storyline about state employment and unemployment.",
+          "first_entry_at": "2025-07-18 04:00:00+00:00",
+          "newest_entry_at": "2025-07-18 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "amendments",
+            "begin",
+            "human",
+            "joint",
+            "kennedy",
+            "marco",
+            "rejection",
+            "robert",
+            "rubio"
+          ],
+          "event_keys": [],
+          "headline": "Joint Statement by Secretary of State Marco Rubio and Secretary of Health and Human Services Robert F. Kennedy on the United States\u2019 Rejection of 2024 Amendments to the International Health Regulations (2005) - United States Department of State",
+          "summary": "Begin text: Today, the Department of State, in collaboration with the Department of Health and Human Services (HHS), transmitted the official U.S. rejection of the 2024 amendments to the International Health Regulations (IHR) (2005). This action delivers on our promise to the American people \u2013 to fight for Americans in the international system, protect our [\u2026]",
+          "entries": [
+            {
+              "entry_id": "0a9f8ac9-73b1-4c87-9220-f4504152fda0",
+              "title": "Joint Statement by Secretary of State Marco Rubio and Secretary of Health and Human Services Robert F. Kennedy on the United States\u2019 Rejection of 2024 Amendments to the International Health Regulations (2005) - United States Department of State",
+              "summary": "Begin text: Today, the Department of State, in collaboration with the Department of Health and Human Services (HHS), transmitted the official U.S. rejection of the 2024 amendments to the International Health Regulations (IHR) (2005). This action delivers on our promise to the American people \u2013 to fight for Americans in the international system, protect our [\u2026]",
+              "published_at": "2025-07-18 04:00:00+00:00",
+              "entities": [
+                "amendments",
+                "begin",
+                "human",
+                "joint",
+                "kennedy",
+                "marco",
+                "rejection",
+                "robert",
+                "rubio"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

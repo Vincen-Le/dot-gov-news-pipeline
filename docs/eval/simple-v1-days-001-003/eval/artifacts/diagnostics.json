@@ -1,0 +1,13 @@
+{
+  "chains": {
+    "ceb809ed-ca43-483d-8d18-3b0437004f84": {
+      "consecutive_cosine": [
+        0.7167
+      ],
+      "entity_overlap": [
+        2
+      ]
+    }
+  },
+  "theme_cohesion": {}
+}

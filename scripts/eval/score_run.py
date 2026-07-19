@@ -43,9 +43,18 @@ def score(verdicts: Path, artifacts: Path) -> dict:
     result: dict = {}
     result.update(evals.score_v1(rows(verdicts / "chain-verdicts.csv"),
                                  rows(verdicts / "chain-summary.csv")))
-    result.update(evals.score_v2(rows(verdicts / "theme-verdicts.csv"),
-                                 rows(verdicts / "theme-granularity.csv"),
-                                 intruder_truth))
+    # a run can legitimately produce zero themes / zero multi-entry episodes
+    # (tiny replay window); the vector is then unmeasured, not zero
+    theme_rows = rows(verdicts / "theme-verdicts.csv")
+    granularity_rows = rows(verdicts / "theme-granularity.csv")
+    if theme_rows or granularity_rows:
+        result.update(evals.score_v2(theme_rows, granularity_rows,
+                                     intruder_truth))
+    else:
+        result.update({"v2_score": None, "v2_n": 0, "v2_n_cases": 0,
+                       "v2_n_themes": 0, "v2_n_intruders": 0,
+                       "v2_discrimination": None, "v2_theme_scores": {},
+                       "v2_theme_case_counts": {}, "v2_granularity": {}})
     result.update(evals.score_v3(rows(verdicts / "category-verdicts.csv")))
     result.update(evals.score_v4(
         rows(verdicts / "granularity-merge-verdicts.csv")
@@ -58,11 +67,24 @@ def score(verdicts: Path, artifacts: Path) -> dict:
         sampled_count=len(v5_artifact["sampled_entries"]),
         stats_rows=rows(verdicts / "entity-stats-verdicts.csv"),
     ))
-    result.update(evals.score_v6(rows(verdicts / "episode-verdicts.csv")))
+    episode_rows = rows(verdicts / "episode-verdicts.csv")
+    if episode_rows:
+        result.update(evals.score_v6(episode_rows))
+    else:
+        result.update({"v6_score": None, "v6_n": 0})
     result.update(evals.score_v7(rows(verdicts / "overview-verdicts.csv")))
 
-    result["reward_v2"] = evals.reward_v2(result)
-    result["quanta"] = evals.quanta(result)
+    unmeasured = [key for key in ("v1_score", "v2_score", "v3_score",
+                                  "v5_entity_precision", "v6_score",
+                                  "v7_score") if result.get(key) is None]
+    if unmeasured:
+        result["reward_v2"] = None
+        result["reward_v2_note"] = (
+            "not computable: unmeasured vectors " + ", ".join(unmeasured))
+        result["quanta"] = None
+    else:
+        result["reward_v2"] = evals.reward_v2(result)
+        result["quanta"] = evals.quanta(result)
     discrimination = result.get("v2_discrimination")
     result["validity"] = {
         "v2_weak": discrimination is None or discrimination < DISCRIMINATION_FLOOR,

@@ -1,0 +1,19 @@
+{
+  "run": {
+    "id": "3eea9a58-ae11-4d25-ab59-eed5301c6598",
+    "name": "simple-v1-days-001-003",
+    "finished_at": "2026-07-19 21:18:45.589601+00"
+  },
+  "pipeline": "simple_v1",
+  "judge_model": "claude-opus-4-8",
+  "counts": {
+    "v1_chains": 1,
+    "v2_themes": 0,
+    "v2_intruders_planted": 0,
+    "v3_pairs": 46,
+    "v4_candidates": 0,
+    "v5_entries": 100,
+    "v6_episodes": 0,
+    "v7_overviews": 1
+  }
+}

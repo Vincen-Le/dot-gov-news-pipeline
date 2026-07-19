@@ -28,10 +28,10 @@ def test_parse_judge_output_multi_file():
 
 def test_judge_vector_validates_headers():
     def fake_complete(system, user):
-        return "FILE: chain-verdicts.csv\n```csv\nstoryline_id,episode_id,related,attach_method,reason\ns1,e2,y,event_key,ok\n```"
+        return "FILE: chain-verdicts.csv\n```csv\nstoryline_id,episode_id,related,attach_method,reason\ns1,e2,1,event_key,ok\n```"
 
     out = judge_vector(fake_complete, RUBRIC, FILES, "{}")
-    assert out["chain-verdicts.csv"].splitlines()[1] == "s1,e2,y,event_key,ok"
+    assert out["chain-verdicts.csv"].splitlines()[1] == "s1,e2,1,event_key,ok"
 
 
 def test_judge_vector_rejects_wrong_header():
@@ -65,7 +65,7 @@ def test_judge_vector_rejects_omitted_artifact_case():
             "storyline_id,episode_id,related,attach_method,reason\n```\n"
             "FILE: chain-summary.csv\n```csv\n"
             "storyline_id,endpoints_related,chain_verdict,reason\n"
-            "s1,y,coherent,ok\n```"
+            "s1,1,coherent,ok\n```"
         )
 
     with pytest.raises(ValueError, match="missing=.*e2"):
@@ -133,12 +133,12 @@ def test_v5_judge_requires_top_stats_and_all_sample_tokens():
     def complete(system, user):
         return (
             "FILE: entity-stats-verdicts.csv\n```csv\nentity,valid,reason\n"
-            "fda,y,specific\n```\n"
+            "fda,1,specific\n```\n"
             "FILE: entity-verdicts.csv\n```csv\nentry_id,kind,token,valid,reason\n"
-            "n1,entity,valsatrex,y,specific\n"
-            "n1,event_key,DOC-123,y,identifier\n```\n"
+            "n1,entity,valsatrex,1,specific\n"
+            "n1,event_key,DOC-123,1,identifier\n```\n"
             "FILE: entity-misses.csv\n```csv\nentry_id,missed_entity\n```"
         )
 
     out = judge_vector(complete, "rubric", files, artifact, vector="v5")
-    assert "fda,y,specific" in out["entity-stats-verdicts.csv"]
+    assert "fda,1,specific" in out["entity-stats-verdicts.csv"]

@@ -1,0 +1,51 @@
+entity,valid,reason
+president,0,Generic title shared across many stories.
+members,0,Generic noun not story-specific.
+park,0,Generic noun many stories share.
+trump,1,Named political figure discriminator.
+marco,1,First name of Marco Rubio.
+rubio,1,Surname of the Secretary of State.
+veterans,0,Generic noun common across the VA corpus.
+administrator,0,Generic title.
+area,0,Generic noun.
+bruce,0,Bare ambiguous first name.
+enactment,0,Generic legal noun.
+force,0,Generic noun.
+hills,0,Bare geography fragment.
+loan,0,Generic noun.
+racketeering,0,Generic legal noun shared by crime stories.
+relief,0,Generic noun.
+river,0,Bare geography.
+site,0,Generic noun.
+space,0,Generic noun.
+spokesperson,0,Generic title.
+superfund,1,Specific EPA program name.
+tammy,0,Bare first name.
+tests,0,Generic noun.
+$1,0,Numeric fragment artifact.
+$1 million,0,Generic dollar amount.
+abidjan,1,Specific city discriminator.
+address,0,Generic noun.
+advised,0,Generic verb.
+africa,0,Bare continent geography.
+aggregation,0,Generic noun.
+alliance,0,Generic noun.
+amendment,0,Generic legal noun.
+amendments,0,Generic legal noun.
+america,0,Bare geography.
+apply,0,Generic verb.
+apps,0,Generic noun.
+army,0,Generic noun.
+artist,0,Generic noun.
+assistance,0,Generic noun.
+athena,1,Specific named program/vehicle.
+award,0,Generic noun.
+base,0,Generic noun.
+based,0,Generic verb.
+bath,0,Generic noun.
+bear,0,Generic noun.
+beautiful,0,Generic adjective.
+begin,0,Generic verb.
+begins,0,Generic verb.
+bessent,1,Surname of Treasury Secretary.
+bike,0,Generic noun.

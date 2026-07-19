@@ -16,12 +16,12 @@ penalize cross-category membership as such; penalize incoherence.
 
 ### Part A — membership
 
-Per member storyline: `fits y/n` under the theme label + its
+Per member storyline: `fits 1/0` under the theme label + its
 `inclusion_criterion`. Fit is a real relationship judgment, not a keyword
 match: does this storyline belong to the thread/subject the theme names —
 would a reader following this theme expect this storyline in it? The entity
 gate is necessary but NOT sufficient: entity-named theme → member's
-entity_set/headline must mention that entity (violation = automatic `n`),
+entity_set/headline must mention that entity (violation = automatic `0`),
 but passing the gate does not establish fit — an FDA-named theme about drug
 recalls does not fit an FDA staffing storyline.
 
@@ -36,7 +36,7 @@ everything). So every theme is also probed with planted non-members:
   uniform-random non-members, seed 42.
 - Intruders are shuffled in with real members in the judge dispatch; the
   judge sees one flat storyline list per theme and never learns which are
-  planted. Same `fits y/n` question.
+  planted. Same `fits 1/0` question.
 - `intruder_accepted` = planted storyline judged `fits=y`.
 
 Report per theme and corpus-wide: `discrimination = fit_rate −
@@ -85,7 +85,7 @@ Judged granularity of a single theme lives in V2; V4 is the cross-theme view.
 - **Merge candidates:** theme pairs with centroid cosine ≥ 0.75 (unpack via
   `pipeline.vectors`) or shared distinctive name token (corpus-wide — do NOT
   scope the token heuristic to same-category; themes cross categories).
-  Judge each: should-merge y/n, applying the V2 probe-label test to the pair.
+  Judge each: should-merge 1/0, applying the V2 probe-label test to the pair.
 - **Threshold audit (retroactive, every run):** log the centroid-cosine
   histogram of all judged pairs alongside verdicts. Should-merge pairs found
   only via the token heuristic (below 0.75 cosine) are evidence the 0.75

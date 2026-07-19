@@ -280,7 +280,10 @@ def main() -> None:
         left join public.event_cards c on c.episode_id = e.id
              and c.kind = 'episode' and c.superseded_by is null
         where s.merged_into is null and s.episode_count >= 2
-        order by e.storyline_id, e.first_entry_at, e.id
+        -- build order, not event time: same-timestamp entries can put the
+        -- adjudicated join ahead of the birth episode, and V1 expects
+        -- episodes[0] to be the chain's birth
+        order by e.storyline_id, e.created_at, e.id
     """)
     episode_member_rows = db.all("""
         select ee.episode_id::text, ne.id::text as entry_id, ne.title,
