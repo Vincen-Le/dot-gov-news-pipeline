@@ -13,8 +13,9 @@ directory, fully separate from the existing five-stage engine
 (`experiment_runs`, `pnpm ops lab run`, `docs/eval/<name>/report.md`,
 `rank_snapshots`) so the two engines can be A/B'd on identical corpora.
 
-Testing space is small (<2000 articles; golden slice is 1,181 labeled
-entries). Simplicity and measurability beat cleverness.
+Testing space is small (<2000 articles; a 1,181-entry golden slice exists
+but is **not yet QAed** — treat its labels as unvetted). Simplicity and
+measurability beat cleverness.
 
 ## Proposed architecture (as requested)
 
@@ -56,7 +57,7 @@ TnT-LLM WWW 2024; EpiMine 2024; Papadakis et al. CSUR 2020; Chi et al. KDD
 | 4 | **Category at enrichment** | **Keep as metadata, never as a blocking key.** Blocking-survey result (Papadakis 2020): pairs split across blocks are unrecoverable; LLM category errors cluster exactly at boundary cases (an antitrust action is both "enforcement" and "competition"). At <2000 articles there is no efficiency need for blocking. | Category assigned per storyline at creation (schema has `storylines.category_id`; no new migration) from the seed taxonomy. Shown to the judge as context; **never filters candidates**. |
 | 5 | Themes from **batches of 10–15** storylines, LLM pattern detection, retroactive merge/split | **Batching rejected; sweep + retroactivity kept.** Batch-local induction mints near-duplicate themes that depend on arbitrary batch boundaries, then requires the merge machinery to clean up its own artifacts. TnT-LLM and the BERTopic lineage induce themes with **global visibility**; Chi 2007: merge/split without smoothness causes label churn. | Periodic sweep runs **global** average-linkage clustering over storyline centroids (pure numpy; corpus is tiny), min theme size 5 enforced structurally. LLM's job is unchanged in spirit — confirm the pattern and name it. Retroactivity comes free: each sweep reclusters globally and reconciles against existing themes by member overlap (ID survives at ≥50% overlap; merge/split otherwise), which is **simpler** than batch orchestration plus repair. |
 | 6 | **Time-burst episodes** | **Supported** (EpiMine; Saravanakumar's Gaussian time term). Risk is only the ad-hoc constant. | Single gap rule: a storyline's episode is "active" if its newest entry is within `SPINE_EPISODE_GAP_HOURS` (default 48h — .gov cadence is spikier than newswire; the classic engine's 4h is a knob to sweep, not a truth). Kleinberg-style adaptive gaps are explicitly deferred. |
-| 7 | Evaluation | **Gap in current harness confirmed.** Only operational proxies exist (singleton rates, attach mixes); the 1,181-entry golden set is curated but nothing scores against it (spec follow-up "E0"). B³ alone under-penalizes fragmentation of small clusters — and this corpus is mostly small storylines. | First deliverable is a **golden scorer** (B³ P/R/F1 for episodes and storylines, pairwise F1, ARI) wired into every experiment report — it scores the classic engine too, so spine-vs-classic is a real quality comparison from day one. |
+| 7 | Evaluation | **Gap in current harness confirmed.** Only operational proxies exist (singleton rates, attach mixes). The 1,181-entry golden set is curated but **not yet QAed — its labels must not drive decisions**. B³ alone also under-penalizes fragmentation of small clusters. | V1 comparison uses **operational metrics + manual QA** (existing lab storyline-QA and borderline-labeling surfaces). A golden scorer (B³ P/R/F1, pairwise F1, ARI) is a **follow-up explicitly gated on golden-set QA** — the metric math is trivial; the labels are the blocker. |
 
 Everything else in the proposal survives unchanged: two-phase
 prepare/replay, judge-gated joins, master node for singletons, event cards
@@ -96,7 +97,6 @@ replay (spine/replay.py), event-time order (published_at, id):
 | `spine/linker.py` | Decision tree: dup → retrieve → judge → act (create/attach via `Store` RPCs); initial overview card at storyline birth |
 | `spine/themes.py` | Global average-linkage sweep, LLM theme confirmation, persistent-ID reconciliation (merge/split by member overlap) |
 | `spine/replay.py` | Event-time driver: ordering, window, episode close, CardEngine calls, sweep scheduling, report dict |
-| `pipeline/score.py` | **Shared** golden scorer (B³, pairwise F1, ARI) — engine-agnostic |
 
 Reused untouched: `pipeline/db.py`, `store.py`, `vectors.py`, `cards.py`,
 `window.py`, `cache.py`, `stub.py`, `bench.py`, `rank.py`,
@@ -122,14 +122,15 @@ with `CachedModels` memoization.
 
 1. `pnpm ops lab run --stub --set LAB_ENGINE=spine` completes: report +
    `experiment_runs` row + rank snapshot.
-2. Golden scorer emits episode-B³/storyline-B³/pairwise-F1/ARI for both
-   engines in every report.
-3. A real spine run over the golden slice produces scores comparable to a
-   classic baseline run — the A/B the whole exercise exists for.
+2. A real spine run and a classic baseline run over the same slice produce
+   comparable reports (attach mixes, singleton rates, chains, themes) plus a
+   manual-QA A/B notes doc — the comparison the whole exercise exists for.
+3. Master-node invariant holds: zero live storylines without an overview
+   card.
 
 ### Out of scope (v1)
 
 Kleinberg burst modeling; storyline-level retroactive repair (margins are
-logged to enable it later); learned ranking; CEAF-e (needs Hungarian
-matching — revisit if B³/ARI disagree); hosted/scheduled operation; theme
-hierarchy.
+logged to enable it later); learned ranking; **golden scoring** (B³/pairwise
+F1/ARI — gated on QA of `golden_news_entries`; do first after labels are
+vetted); hosted/scheduled operation; theme hierarchy.

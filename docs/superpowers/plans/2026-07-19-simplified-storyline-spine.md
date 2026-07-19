@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A second, simpler aggregation engine (`spine/`) — entity-lossless enrichment → member-embedding retrieval → listwise LLM judge → gap-based episodes → global theme sweep — selectable via `LAB_ENGINE=spine` in the existing experiment harness, plus a golden scorer (B³/pairwise-F1/ARI) that grades every run of either engine.
+**Goal:** A second, simpler aggregation engine (`spine/`) — entity-lossless enrichment → member-embedding retrieval → listwise LLM judge → gap-based episodes → global theme sweep — selectable via `LAB_ENGINE=spine` in the existing experiment harness. (Golden scoring deliberately excluded: `golden_news_entries` is not yet QAed — its labels must not drive decisions.)
 
-**Architecture:** Spine reuses the whole `pipeline/` seam (`Db`, `Store`, `vectors`, `cards`, `window`, `cache`, `bench`, `experiment`, `rank`) and writes the same derived tables (`episodes`, `storylines`, `event_cards`, `topic_themes`), so summarize/report/`experiment_runs`/rank-snapshot work unchanged. New code is five focused modules under `spine/` plus one shared scorer in `pipeline/score.py`. Design and research rationale: `docs/superpowers/specs/2026-07-19-simplified-storyline-spine-design.md`.
+**Architecture:** Spine reuses the whole `pipeline/` seam (`Db`, `Store`, `vectors`, `cards`, `window`, `cache`, `bench`, `experiment`, `rank`) and writes the same derived tables (`episodes`, `storylines`, `event_cards`, `topic_themes`), so summarize/report/`experiment_runs`/rank-snapshot work unchanged. New code is five focused modules under `spine/`. Design and research rationale: `docs/superpowers/specs/2026-07-19-simplified-storyline-spine-design.md`.
 
 **Tech Stack:** Python 3.12, numpy, psycopg (existing deps only — no scipy/sklearn), pytest with `tests/fakes.py` FakeStore + `pipeline.stub.StubModels`; TypeScript only for the one-array whitelist change in `apps/operator-console/src/lab/harness.ts`.
 
@@ -22,232 +22,14 @@
 
 ---
 
-### Task 1: Golden scorer (`pipeline/score.py`)
-
-The eval gap flagged as "E0": nothing consumes `golden_news_entries`. Engine-agnostic — lands first so the classic baseline gets scored before spine exists.
-
-**Files:**
-- Create: `pipeline/score.py`
-- Create: `tests/test_score.py`
-- Modify: `pipeline/experiment.py` (summarize + render_report)
-
-**Interfaces:**
-- Produces: `bcubed(pairs) -> dict`, `pairwise_f1(pairs) -> dict`, `ari(pairs) -> float` where `pairs: list[tuple[str|None, str|None]]` is `(gold_label, predicted_label)` per entry; `score_run(db) -> dict | None` returning `{"scored_entries": int, "episode": {...}, "storyline": {...}, "theme": {...} | None}`.
-- Consumes: `db.all` (a `pipeline.db.Db`); `public.golden_news_entries` (columns `news_entry_id`, `review_status`, `gold_episode_id`, `gold_storyline_id`, `gold_theme_id`).
-
-- [ ] **Step 1: Write failing tests**
-
-```python
-# tests/test_score.py
-from pipeline.score import ari, bcubed, pairwise_f1
-
-
-def test_bcubed_hand_computed():
-    # gold: {a,b} {c}; pred: {a} {b,c}
-    pairs = [("g1", "p1"), ("g1", "p2"), ("g2", "p2")]
-    m = bcubed(pairs)
-    assert round(m["precision"], 4) == round(2 / 3, 4)
-    assert round(m["recall"], 4) == round(2 / 3, 4)
-    assert round(m["f1"], 4) == round(2 / 3, 4)
-
-
-def test_bcubed_perfect():
-    m = bcubed([("g1", "p1"), ("g1", "p1"), ("g2", "p2")])
-    assert m == {"precision": 1.0, "recall": 1.0, "f1": 1.0}
-
-
-def test_pairwise_f1_hand_computed():
-    # gold pair (a,b); pred pair (b,c) -> tp=0 fp=1 fn=1
-    m = pairwise_f1([("g1", "p1"), ("g1", "p2"), ("g2", "p2")])
-    assert m == {"precision": 0.0, "recall": 0.0, "f1": 0.0}
-
-
-def test_pairwise_f1_perfect():
-    m = pairwise_f1([("g1", "p1"), ("g1", "p1"), ("g2", "p2")])
-    assert m["f1"] == 1.0
-
-
-def test_ari_perfect_and_random():
-    assert ari([("g1", "p1"), ("g1", "p1"), ("g2", "p2")]) == 1.0
-    # single cluster vs singletons: ARI is 0 by convention (no variation)
-    assert ari([("g1", "p1"), ("g1", "p2")]) == 0.0
-
-
-def test_skips_unlabeled_sides():
-    # entries missing either label are excluded before scoring
-    m = pairwise_f1([("g1", "p1"), ("g1", "p1"), (None, "p2"), ("g2", None)])
-    assert m["f1"] == 1.0
-```
-
-- [ ] **Step 2: Run tests to verify they fail**
-
-Run: `uv run pytest tests/test_score.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'pipeline.score'`
-
-- [ ] **Step 3: Implement `pipeline/score.py`**
-
-```python
-"""Golden scorer: grades a replay against golden_news_entries labels.
-
-Engine-agnostic — reads only derived tables + the golden anchor table.
-B-Cubed is the streaming-news standard (Miranda et al. 2018 benchmark);
-pairwise F1 is the most interpretable; ARI corrects for chance on small
-corpora. Entries missing a gold or predicted label are excluded.
-"""
-
-from __future__ import annotations
-
-from collections import Counter
-from itertools import combinations
-
-Pairs = list[tuple[str | None, str | None]]
-
-
-def _clean(pairs: Pairs) -> list[tuple[str, str]]:
-    return [(g, p) for g, p in pairs if g is not None and p is not None]
-
-
-def bcubed(pairs: Pairs) -> dict:
-    labeled = _clean(pairs)
-    if not labeled:
-        return {"precision": None, "recall": None, "f1": None}
-    gold_of = Counter(g for g, _ in labeled)
-    pred_of = Counter(p for _, p in labeled)
-    both = Counter(labeled)
-    precision = sum(both[(g, p)] / pred_of[p] for g, p in labeled) / len(labeled)
-    recall = sum(both[(g, p)] / gold_of[g] for g, p in labeled) / len(labeled)
-    f1 = (2 * precision * recall / (precision + recall)) if precision + recall else 0.0
-    return {"precision": round(precision, 4), "recall": round(recall, 4),
-            "f1": round(f1, 4)}
-
-
-def pairwise_f1(pairs: Pairs) -> dict:
-    labeled = _clean(pairs)
-    tp = fp = fn = 0
-    for (g1, p1), (g2, p2) in combinations(labeled, 2):
-        same_gold, same_pred = g1 == g2, p1 == p2
-        tp += same_gold and same_pred
-        fp += same_pred and not same_gold
-        fn += same_gold and not same_pred
-    precision = tp / (tp + fp) if tp + fp else 0.0
-    recall = tp / (tp + fn) if tp + fn else 0.0
-    f1 = (2 * precision * recall / (precision + recall)) if precision + recall else 0.0
-    return {"precision": round(precision, 4), "recall": round(recall, 4),
-            "f1": round(f1, 4)}
-
-
-def ari(pairs: Pairs) -> float:
-    labeled = _clean(pairs)
-    n = len(labeled)
-    if n < 2:
-        return 0.0
-
-    def comb2(x: int) -> int:
-        return x * (x - 1) // 2
-
-    contingency = Counter(labeled)
-    gold_sizes = Counter(g for g, _ in labeled)
-    pred_sizes = Counter(p for _, p in labeled)
-    index = sum(comb2(v) for v in contingency.values())
-    sum_gold = sum(comb2(v) for v in gold_sizes.values())
-    sum_pred = sum(comb2(v) for v in pred_sizes.values())
-    expected = sum_gold * sum_pred / comb2(n)
-    maximum = (sum_gold + sum_pred) / 2
-    if maximum == expected:
-        return 0.0
-    return round((index - expected) / (maximum - expected), 4)
-
-
-_GOLD_SQL = """
-    select g.gold_episode_id, g.gold_storyline_id, g.gold_theme_id,
-           ne.episode_id::text as pred_episode,
-           coalesce(s.merged_into, s.id)::text as pred_storyline,
-           s.theme_id::text as pred_theme
-    from public.golden_news_entries g
-    join public.news_entries ne on ne.id = g.news_entry_id
-    left join public.episodes e on e.id = ne.episode_id
-    left join public.storylines s on s.id = e.storyline_id
-    where g.review_status = 'reviewed' and ne.episode_id is not null
-"""
-
-
-def score_run(db) -> dict | None:
-    rows = db.all(_GOLD_SQL)
-    if not rows:
-        return None
-
-    def level(gold_key: str, pred_key: str) -> Pairs:
-        return [(str(r[gold_key]) if r[gold_key] else None, r[pred_key])
-                for r in rows]
-
-    episode = level("gold_episode_id", "pred_episode")
-    storyline = level("gold_storyline_id", "pred_storyline")
-    theme = level("gold_theme_id", "pred_theme")
-    result = {
-        "scored_entries": len(rows),
-        "episode": {**bcubed(episode), "pairwise": pairwise_f1(episode),
-                    "ari": ari(episode)},
-        "storyline": {**bcubed(storyline), "pairwise": pairwise_f1(storyline),
-                      "ari": ari(storyline)},
-    }
-    if any(g is not None and p is not None for g, p in theme):
-        result["theme"] = {**bcubed(theme), "ari": ari(theme)}
-    return result
-```
-
-- [ ] **Step 4: Run tests to verify they pass**
-
-Run: `uv run pytest tests/test_score.py -v`
-Expected: 6 passed
-
-- [ ] **Step 5: Wire into `summarize` and `render_report`**
-
-In `pipeline/experiment.py`, at the end of `summarize(db)` (before the final `return`), add the score and include it in the returned dict:
-
-```python
-    from pipeline.score import score_run
-    golden_scores = score_run(db)
-```
-
-and add `"golden_scores": golden_scores,` to the returned dict. In `render_report`, after the `## Totals` block lines, insert:
-
-```python
-        *([
-            "", "## Golden scores", "",
-            f"- scored entries: {summary['golden_scores']['scored_entries']}",
-            "- episode  B3 F1: {f1}  pairwise F1: {pw}  ARI: {ari}".format(
-                f1=summary["golden_scores"]["episode"]["f1"],
-                pw=summary["golden_scores"]["episode"]["pairwise"]["f1"],
-                ari=summary["golden_scores"]["episode"]["ari"]),
-            "- storyline B3 F1: {f1}  pairwise F1: {pw}  ARI: {ari}".format(
-                f1=summary["golden_scores"]["storyline"]["f1"],
-                pw=summary["golden_scores"]["storyline"]["pairwise"]["f1"],
-                ari=summary["golden_scores"]["storyline"]["ari"]),
-        ] if summary.get("golden_scores") else []),
-```
-
-- [ ] **Step 6: Run the full unit suite**
-
-Run: `uv run pytest -q`
-Expected: all pass (integration tests are excluded by default via `addopts`)
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add pipeline/score.py tests/test_score.py pipeline/experiment.py
-git commit -m "feat: golden scorer (B3/pairwise-F1/ARI) wired into experiment reports"
-```
-
----
-
-### Task 2: Config knobs, engine dispatch, harness whitelist
+### Task 1: Config knobs, engine dispatch, harness whitelist
 
 **Files:**
 - Modify: `pipeline/config.py`
 - Modify: `pipeline/experiment.py:246` (the `cluster(...)` call site in `run_experiment`)
 - Modify: `apps/operator-console/src/lab/harness.ts:4-19` (`LAB_ENV_WHITELIST`)
 - Create: `spine/__init__.py` (empty)
-- Create: `spine/replay.py` (walking skeleton — replaced in Task 6)
+- Create: `spine/replay.py` (walking skeleton — replaced in Task 5)
 - Create: `tests/test_spine_config.py`
 
 **Interfaces:**
@@ -337,7 +119,7 @@ Append to the `Config(...)` call in `load_config` (matching the file's existing 
 
 ```python
 # spine/replay.py
-"""Spine engine event-time replay driver. Skeleton — full driver in Task 6."""
+"""Spine engine event-time replay driver. Skeleton — full driver in Task 5."""
 
 from __future__ import annotations
 
@@ -418,7 +200,7 @@ git commit -m "feat: spine engine config knobs, experiment dispatch, lab whiteli
 
 ---
 
-### Task 3: Spine prompts + model-layer methods
+### Task 2: Spine prompts + model-layer methods
 
 **Files:**
 - Create: `spine/prompts.py`
@@ -661,7 +443,7 @@ git commit -m "feat: spine prompts and link/theme model methods with caching"
 
 ---
 
-### Task 4: Storyline index — retrieval + burst rule (`spine/index.py`)
+### Task 3: Storyline index — retrieval + burst rule (`spine/index.py`)
 
 Pure in-memory, no store, no LLM. This is the research-amended core: candidates come from **max member-embedding cosine**, not the overview vector.
 
@@ -888,7 +670,7 @@ git commit -m "feat: spine storyline index — member-embedding retrieval and bu
 
 ---
 
-### Task 5: Linker decision tree (`spine/linker.py`)
+### Task 4: Linker decision tree (`spine/linker.py`)
 
 **Files:**
 - Create: `spine/linker.py`
@@ -897,7 +679,7 @@ git commit -m "feat: spine storyline index — member-embedding retrieval and bu
 
 **Interfaces:**
 - Produces: `Linker(store, models, cfg, index, category_engine)` with `process_entry(row: dict, vec: np.ndarray) -> dict` returning `{"episode_id": str, "storyline_id": str, "method": str}` where method ∈ `{"syndicated_dup", "judge_same_dev", "judge_new_episode", "new_storyline", "new_storyline_no_candidates"}`.
-- Consumes: `StorylineIndex` (Task 4); `models.link_storyline` (Task 3); `Store.content_hash_dup/create_episode/attach_entry/insert_card/latest_overview/close_episode`; `pipeline.categories.CategoryEngine.classify(storyline_id)`; `pipeline.vectors.pack_fp16`; row dict shape from `store.prepared_unclustered` (`id`, `title`, `summary`, `enriched_text`, `published_at`, `content_hash`, `embedding`, `entity_set`, `event_keys`, `agency`).
+- Consumes: `StorylineIndex` (Task 3); `models.link_storyline` (Task 2); `Store.content_hash_dup/create_episode/attach_entry/insert_card/latest_overview/close_episode`; `pipeline.categories.CategoryEngine.classify(storyline_id)`; `pipeline.vectors.pack_fp16`; row dict shape from `store.prepared_unclustered` (`id`, `title`, `summary`, `enriched_text`, `published_at`, `content_hash`, `embedding`, `entity_set`, `event_keys`, `agency`).
 
 Decision flow (implements the amended design):
 
@@ -1151,15 +933,15 @@ git commit -m "feat: spine linker — dup/retrieve/judge decision tree with mast
 
 ---
 
-### Task 6: Replay driver (`spine/replay.py`, real version)
+### Task 5: Replay driver (`spine/replay.py`, real version)
 
 **Files:**
-- Modify: `spine/replay.py` (replace the Task-2 skeleton)
+- Modify: `spine/replay.py` (replace the Task-1 skeleton)
 - Create: `tests/test_spine_replay.py`
 
 **Interfaces:**
 - Produces: `run(store, models, cfg, limit=None, since=None, until=None, per_agency=None) -> dict` report: `{"engine": "spine", "processed", "episodes_closed", "storylines_created", "attach_mix": {method: n}, "theme_sweeps", "theme_sweep_totals"}`.
-- Consumes: `Linker` (Task 5), `StorylineIndex` (Task 4), `pipeline.cards.CardEngine` (reused verbatim — episode card + LLM overview + rank_key), `pipeline.categories.CategoryEngine`, `pipeline.window.ReplayWindow/ReplayStore` + the window-priming pattern from `pipeline/runner.py:122-137` (copy it — golden curation resumes depend on it), `spine.themes.sweep` (Task 7 — stub it with a no-op import guard until then: `try: from spine.themes import sweep except ImportError: sweep = None`).
+- Consumes: `Linker` (Task 4), `StorylineIndex` (Task 3), `pipeline.cards.CardEngine` (reused verbatim — episode card + LLM overview + rank_key), `pipeline.categories.CategoryEngine`, `pipeline.window.ReplayWindow/ReplayStore` + the window-priming pattern from `pipeline/runner.py:122-137` (copy it — golden curation resumes depend on it), `spine.themes.sweep` (Task 6 — stub it with a no-op import guard until then: `try: from spine.themes import sweep except ImportError: sweep = None`).
 
 Driver loop (mirrors `runner.cluster` shape):
 
@@ -1299,7 +1081,7 @@ git commit -m "feat: spine event-time replay driver reusing CardEngine and repla
 
 ---
 
-### Task 7: Global theme sweep (`spine/themes.py`)
+### Task 6: Global theme sweep (`spine/themes.py`)
 
 Research amendment #5: global average-linkage clustering instead of 10–15-item batches; persistent theme IDs reconciled by member overlap (merge and split fall out of reconciliation).
 
@@ -1313,7 +1095,7 @@ Research amendment #5: global average-linkage clustering instead of 10–15-item
   - `cluster_storylines(vecs: list[np.ndarray], link_sim: float) -> list[list[int]]` — pure average-linkage agglomerative over cosine sim; merges while the best cluster-pair average sim ≥ `link_sim`; deterministic (ties: lowest first-index first).
   - `reconcile(clusters: list[list[str]], existing: dict[str, set[str]], keep_overlap: float) -> list[tuple[str | None, list[str]]]` — pairs each cluster with the existing theme id it keeps (Jaccard ≥ `keep_overlap`, greedy best-first, each theme used once) or `None` for a new theme.
   - `sweep(store, models, cfg) -> dict` — `{"themes_created", "themes_kept", "themes_demoted", "storylines_assigned"}`.
-- Consumes: new `Store.storylines_for_sweep() -> list[dict]` (`id`, `centroid` unpacked, `theme_id`, `headline` from latest card — same shape appended to `tests/fakes.py`); `Store.create_theme/assign_theme/update_theme/demote_theme/all_themes`; `models.induce_theme` (Task 3); `pipeline.vectors.cosine/pack_fp16`.
+- Consumes: new `Store.storylines_for_sweep() -> list[dict]` (`id`, `centroid` unpacked, `theme_id`, `headline` from latest card — same shape appended to `tests/fakes.py`); `Store.create_theme/assign_theme/update_theme/demote_theme/all_themes`; `models.induce_theme` (Task 2); `pipeline.vectors.cosine/pack_fp16`.
 
 Sweep algorithm:
 1. `rows = store.storylines_for_sweep()`; skip if fewer than `cfg.spine_theme_min_size`.
@@ -1549,7 +1331,7 @@ def test_sweep_creates_theme_of_min_size(monkeypatch):
 Run: `uv run pytest tests/test_spine_themes.py -q`
 Expected: 6 passed
 
-- [ ] **Step 7: Remove the Task-6 import guard**
+- [ ] **Step 7: Remove the Task-5 import guard**
 
 In `spine/replay.py`, replace the `try/except ImportError` sweep import with a plain `from spine.themes import sweep`.
 
@@ -1565,7 +1347,7 @@ git commit -m "feat: spine global theme sweep with persistent-ID reconciliation"
 
 ---
 
-### Task 8: End-to-end verification and baseline A/B
+### Task 7: End-to-end verification and baseline A/B
 
 No new production code — proving the harness contract holds, then producing the first spine-vs-classic comparison.
 
@@ -1621,7 +1403,7 @@ export DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:57422/postgres'
 LAB_ENGINE=spine uv run python -m pipeline.cli experiment spine-smoke-stub --stub --limit 100
 ```
 
-Expected: JSON line with `report` + `run_id`; `docs/eval/spine-smoke-stub/report.md` exists and contains a `## Golden scores` section (may show few scored entries at limit 100).
+Expected: JSON line with `report` + `run_id`; `docs/eval/spine-smoke-stub/report.md` exists.
 
 - [ ] **Step 3: Real-model baseline pair over the same slice**
 
@@ -1630,7 +1412,7 @@ uv run python -m pipeline.cli experiment classic-baseline-500 --limit 500
 LAB_ENGINE=spine uv run python -m pipeline.cli experiment spine-baseline-500 --limit 500
 ```
 
-Expected: both reports render; both `experiment_runs` rows exist; golden scores present in both. Also verify the operator harness path: `pnpm ops lab run --name spine-lab-smoke --stub --limit 50 --set LAB_ENGINE=spine` completes with a parsed run id.
+Expected: both reports render; both `experiment_runs` rows exist. Also verify the operator harness path: `pnpm ops lab run --name spine-lab-smoke --stub --limit 50 --set LAB_ENGINE=spine` completes with a parsed run id.
 
 - [ ] **Step 4: Sanity-check spine output quality signals**
 
@@ -1650,7 +1432,7 @@ Expected: 0.
 
 - [ ] **Step 5: Write the A/B notes doc**
 
-`docs/eval/spine-vs-classic-2026-07/notes.md`: table of golden scores (episode/storyline B³ F1, pairwise F1, ARI), singleton rates, storyline counts, theme counts, LLM call/error counts for both runs, plus 3–5 qualitative observations (best/worst chains from each). This is analysis of real output — write it from the actual reports, not a template.
+`docs/eval/spine-vs-classic-2026-07/notes.md`: table of operational metrics for both runs (singleton episode/theme rates, storyline/episode/theme counts, attach mixes, multi-episode chains, LLM call/error counts) plus a manual-QA section: sample 15–20 storylines per engine via the lab storyline-QA surface and note over-merges, over-splits, and master-node quality (best/worst chains from each). This is analysis of real output — write it from the actual reports and hands-on inspection, not a template. Do NOT cite golden-set numbers; the golden labels are unvetted.
 
 - [ ] **Step 6: Document the engine switch**
 
@@ -1670,8 +1452,8 @@ Select per run: `pnpm ops lab run --name my-run --set LAB_ENGINE=spine` or
 `LAB_ENGINE=spine uv run python -m pipeline.cli experiment my-run --limit 500`.
 Spine knobs (`SPINE_*`) are in the lab `--set` whitelist; see `pipeline/config.py`.
 Spine does not yet support `--use-golden` materialization or topology curation.
-Golden scores (B³/pairwise/ARI vs `golden_news_entries`) appear in every report
-for both engines.
+Engine comparison is operational metrics + manual QA for now; golden-based
+scoring is deferred until `golden_news_entries` passes QA.
 ```
 
 - [ ] **Step 7: Full suite + commit**
@@ -1686,5 +1468,5 @@ git commit -m "feat: spine e2e verification, baseline A/B notes, lab engine docs
 
 ## Self-review notes
 
-- Spec coverage: enrichment (Task 3 prompt + existing prepare; embed-source knob in Task 2 — note: `SPINE_EMBED_SOURCE=raw` is honored by the *existing* `prepare` only through `ENRICHMENT_ENABLED=false` + `--clear-features` for v1; a dedicated raw-embed prepare path is deliberately deferred and documented in the design's out-of-scope if needed), category (Task 5 via reused CategoryEngine), decision tree (Tasks 4–5), master node incl. singletons (Task 5 birth card + CardEngine regeneration), event-card checkpoints (CardEngine reuse, Task 6), themes with retroactive merge/split (Task 7), rank_key (free via `insert_event_card`), harness hookup (Task 2, Task 8), eval (Task 1).
+- Spec coverage: enrichment (Task 2 prompt + existing prepare; embed-source knob in Task 1 — note: `SPINE_EMBED_SOURCE=raw` is honored by the *existing* `prepare` only through `ENRICHMENT_ENABLED=false` + `--clear-features` for v1; a dedicated raw-embed prepare path is deliberately deferred and documented in the design's out-of-scope if needed), category (Task 4 via reused CategoryEngine), decision tree (Tasks 3–4), master node incl. singletons (Task 4 birth card + CardEngine regeneration), event-card checkpoints (CardEngine reuse, Task 5), themes with retroactive merge/split (Task 6), rank_key (free via `insert_event_card`), harness hookup (Task 1, Task 7), eval (operational metrics + manual QA in Task 7; golden scorer is a follow-up gated on golden-set QA — see design out-of-scope).
 - Known verify-before-trusting points are called out inline: `insert_event_card` supersession behavior, `CategoryEngine.classify` signature, `create_theme` signature post-lazy-promotion migration, `WorkersAI.errors` mechanism, operator-console script names.
