@@ -7,12 +7,16 @@ Failures are split-biased and create a new storyline.
 
 from __future__ import annotations
 
+import re
+
 import numpy as np
 
 from pipeline.config import Config
 from pipeline.vectors import cosine
 
 _TOP_K = 3
+_RECURRING_CONTACT_TITLE = re.compile(r"\b(?:calls?|meetings?)\b", re.IGNORECASE)
+_RECURRING_CONTACT_MAX_GAP_DAYS = 21
 
 
 class StorylineEngine:
@@ -67,9 +71,19 @@ class StorylineEngine:
                              self.store.latest_storyline_entry(str(cand["id"])))
             evidence = overview or latest_member or {}
             gap_days = (entry["published_at"] - cand["newest_entry_at"]).days
+            evidence_title = evidence.get("headline") or evidence.get("title") or ""
+            # A recurring call/meeting with the same participants is a new
+            # event unless a concrete event key links it to the prior item.
+            # Keep this guard narrow: named programs and other long-running
+            # series still reach the adjudicator.
+            if (gap_days > _RECURRING_CONTACT_MAX_GAP_DAYS
+                    and not shared_event_keys
+                    and _RECURRING_CONTACT_TITLE.search(entry["title"])
+                    and _RECURRING_CONTACT_TITLE.search(evidence_title)):
+                continue
             context = (
                 f"The storyline's current evidence: "
-                f"{evidence.get('headline') or evidence.get('title') or '(none)'} — "
+                f"{evidence_title or '(none)'} — "
                 f"{evidence.get('summary') or '(no summary)'} "
                 f"Last activity {gap_days} days before the new item. "
                 f"Candidate signals only (not proof): shared event keys "
@@ -81,7 +95,7 @@ class StorylineEngine:
             same, reason = self.models.adjudicate_same_event(
                 {"title": entry["title"], "summary": entry.get("summary"),
                  "entities": entry["entity_set"]},
-                {"title": evidence.get("headline") or evidence.get("title") or "(storyline)",
+                {"title": evidence_title or "(storyline)",
                  "summary": evidence.get("summary", ""),
                  "entities": sorted(cand["entity_set"])[:32]},
                 context=context)
