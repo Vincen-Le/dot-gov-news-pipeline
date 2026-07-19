@@ -1,0 +1,2 @@
+iteration,run_id,config_delta,reward,v1_score,v1_n,v1_method_worst,v2_score,v2_n,v3_score,v3_n,v4_merge_pairs,v4_singleton_rate,v5_entity_precision,v5_event_key_validity,v6_score,v6_n,intruder_detection,notes
+00-baseline,cc752797-55d8-4a71-846a-1b914d0e2c33,baseline,0.412446,0.142857,14,0.692308,-0.130357,23,0.956522,23,0,0.000000,0.093207,1.000000,1.000000,10,10/10,"4 live themes; 10 intruder trials cycled across 4 themes; V5 n=633; event-key n=1; V4 candidates=0"

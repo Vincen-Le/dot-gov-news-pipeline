@@ -1,0 +1,15 @@
+{
+  "run": {
+    "id": "cc752797-55d8-4a71-846a-1b914d0e2c33",
+    "name": "jul19-00-baseline",
+    "finished_at": "2026-07-19 09:42:27.582898+00"
+  },
+  "counts": {
+    "v1_chains": 13,
+    "v2_themes": 4,
+    "v3_pairs": 23,
+    "v4_candidates": 0,
+    "v5_entries": 100,
+    "v6_episodes": 8
+  }
+}
