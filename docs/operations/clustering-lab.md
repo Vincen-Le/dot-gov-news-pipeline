@@ -29,13 +29,13 @@ metric definitions, ranking evaluation, and recovery.
    `tests/test_cache.py` asserts the built-in default — export the variable in
    your shell (or per command) instead of committing it to `.env` if you also
    run `uv run pytest`.
-2. Start the local stack with `pnpm supabase start`. Preserve an existing
-   corpus by applying pending migrations instead of resetting it. The command
-   is `pnpm supabase migration up --local`. Use `pnpm supabase db reset` only
-   for a disposable local database because it erases the local corpus and
-   features.
-3. Sync the hosted corpus with `uv run python -m pipeline.cli sync`. Prepare
-   features once with `uv run python -m pipeline.cli prepare`; the lab's run
+2. Run `pnpm ops setup` to prepare local databases for every pipeline: it
+   starts the local stack if it isn't running, applies pending migrations,
+   installs the python environment (`uv sync`), syncs the hosted corpus into
+   the primary database, and provisions/verifies every registered pipeline
+   database. Safe to re-run. Add `--fresh` to wipe and rebuild from scratch
+   (asks for confirmation) or `--dry-run` to preview the plan.
+3. Prepare features once with `uv run python -m pipeline.cli prepare`; the lab's run
    form auto-includes this when entries still need it.
 4. The `uv` toolchain (experiment stages spawn the pipeline CLI).
 
@@ -50,7 +50,7 @@ metric definitions, ranking evaluation, and recovery.
 | QA the chains          | Storylines → chain detail                         | `pnpm ops lab storyline <id>`                                                       |
 | Read quality metrics   | Lab § Quality                                     | `pnpm ops lab metrics`                                                              |
 | Compare runs           | Lab § Experiment runs (baseline + config diff)    | `pnpm ops lab experiments` + `diff docs/eval/<a>/report.md docs/eval/<b>/report.md` |
-| Replay a captured run  | Top-bar **Experiment view** selector               | Select **Live working state** to return to mutable tables                           |
+| Replay a captured run  | Top-bar **Experiment view** selector              | Select **Live working state** to return to mutable tables                           |
 | Label borderline pairs | Lab § Label queue (writes `docs/eval/labels.csv`) | `pnpm ops lab borderline` (read-only listing)                                       |
 
 Notes:
@@ -105,10 +105,16 @@ history already lives; `simple_v1` gets its own dedicated `simple_v1_db`:
 ```json
 {
   "pipelines": [
-    {"name": "complex_v1", "engine": "classic",
-     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/postgres"},
-    {"name": "simple_v1", "engine": "spine",
-     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db"}
+    {
+      "name": "complex_v1",
+      "engine": "classic",
+      "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/postgres"
+    },
+    {
+      "name": "simple_v1",
+      "engine": "spine",
+      "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db"
+    }
   ]
 }
 ```
@@ -127,7 +133,7 @@ Provision (or re-provision) a pipeline database from scratch:
 
     ./scripts/create-pipeline-db.sh simple_v1   # -> simple_v1_db
 
-`pnpm ops lab setup` does this for every registry entry in one pass:
+`pnpm ops setup` does this for every registry entry in one pass:
 provisions (via the script above) any **managed** pipeline (dbname follows
 the `<name>_db` convention) whose database does not exist yet, and otherwise
 only verifies the existing database's tables/RPC — it never drops or

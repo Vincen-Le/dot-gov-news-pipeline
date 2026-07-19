@@ -40,6 +40,7 @@ the plan; `--fresh` rebuilds the local database from scratch.
 | Command                                                       | Purpose                                      |
 | ------------------------------------------------------------- | -------------------------------------------- |
 | `pnpm ops doctor`                                             | verify toolchain, credentials, hosted access |
+| `pnpm ops setup`                                              | prepare/refresh all pipeline databases       |
 | `uv run python -m pipeline.cli sync`                          | refresh the local corpus                     |
 | `uv run python -m pipeline.cli prepare --limit 500`           | embed more entries                           |
 | `uv run python -m pipeline.cli experiment <name> --limit 500` | run an experiment                            |
@@ -87,6 +88,8 @@ follow `docs/infrastructure/access.md`.
 | `node` / `pnpm` / `uv` | shell not using mise            | `mise install`, check shell activation                           |
 | `supabase`             | Supabase CLI not installed      | Run: pnpm install                                                |
 | `local database`       | Supabase stack down             | `pnpm supabase start`                                            |
+| `pipeline <name>`      | pipeline database not prepared  | `pnpm ops setup`                                                 |
 | `cloudflare token`     | token lacks Workers AI scope    | recreate token from the Workers AI template, `pnpm ops env init` |
 | `hosted corpus read`   | publishable key missing/rotated | ask the repo owner; see `docs/infrastructure/access.md`          |
 | `hosted direct read`   | stale optional DSN              | remove it from `.env` or request a fresh one                     |
+| `remote API`           | not deployed                    | optional — only after `pnpm ops deploy`                          |

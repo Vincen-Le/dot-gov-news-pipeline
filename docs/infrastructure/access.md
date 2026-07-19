@@ -104,7 +104,7 @@ file after setup, and atomically writes the Operator API URL and token to a
 mode-`0600` `.env` before enabling remote reads:
 
 ```sh
-pnpm ops:setup
+pnpm ops deploy
 ```
 
 The resulting ignored local configuration contains:
@@ -120,7 +120,7 @@ The bearer token protects a single-user read-only endpoint. Rotate it before
 sharing the environment or if it may have appeared in logs. The local browser
 receives neither this token nor the Supabase service key; it calls only the
 loopback proxy through a one-time local bootstrap URL and an HttpOnly session
-cookie. Run `pnpm ops:setup --rotate-token` to rotate the token without putting
+cookie. Run `pnpm ops deploy --rotate-token` to rotate the token without putting
 it in shell history.
 
 ## Contributor corpus access

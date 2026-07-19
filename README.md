@@ -216,8 +216,8 @@ then let the bootstrap validate and deploy the Operator API, generate its token,
 and write the remaining local configuration:
 
 ```sh
-pnpm ops:setup --dry-run
-pnpm ops:setup
+pnpm ops deploy --dry-run
+pnpm ops deploy
 ```
 
 After that, everyday startup is one command:
@@ -229,9 +229,9 @@ pnpm ops:start
 The individual CLI queries remain available without Mise:
 
 ```sh
-pnpm ops health --deep
-pnpm ops queues
-pnpm ops inventory summary
+pnpm ops remote health --deep
+pnpm ops remote queues
+pnpm ops remote inventory summary
 pnpm ops lab corpus
 ```
 

@@ -395,8 +395,8 @@ changing the pipeline Worker, Cron, or Queue consumers. Add
 bootstrap:
 
 ```sh
-pnpm ops:setup --dry-run
-pnpm ops:setup
+pnpm ops deploy --dry-run
+pnpm ops deploy
 ```
 
 The command validates the bundle, checks Cloudflare authentication, deploys with
@@ -415,10 +415,10 @@ An unauthenticated request, wrong token, mutation method, and unknown route must
 all fail without provider details. Then verify individual queries as needed:
 
 ```sh
-pnpm ops health --deep
-pnpm ops queues --json
-pnpm ops inventory summary
-pnpm ops events list --since 30m
+pnpm ops remote health --deep
+pnpm ops remote queues --json
+pnpm ops remote inventory summary
+pnpm ops remote events list --since 30m
 ```
 
 Start the local dashboard with:

@@ -306,7 +306,7 @@ export function upsertOperatorEnvironment(
       updated.push("");
     }
     updated.push(
-      "# Local operator console (managed by pnpm ops:setup).",
+      "# Local operator console (managed by pnpm ops deploy).",
       ...pending,
     );
   }
