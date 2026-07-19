@@ -52,9 +52,15 @@ def main() -> None:
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
 
-    p = sub.add_parser("rank", help="rank observability: snapshot | audit")
-    p.add_argument("action", choices=["snapshot", "audit"])
-    p.add_argument("--run", required=True, help="experiment_runs.id")
+    p = sub.add_parser("rank", help="rank observability: snapshot | audit | fit")
+    p.add_argument("action", choices=["snapshot", "audit", "fit"])
+    p.add_argument("--run", help="experiment_runs.id (snapshot/audit)")
+    p.add_argument("--runs", help="comma-separated run ids (fit)")
+    p.add_argument("--labels", default=None,
+                   help="rank-labels csv overriding llm verdicts (fit)")
+    p.add_argument("--min-pairs", type=int, default=50, dest="min_pairs")
+    p.add_argument("--write", action="store_true",
+                   help="insert fitted weights as a new rubric_version")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
 
@@ -93,10 +99,26 @@ def main() -> None:
                       per_agency=args.per_agency)
     elif args.command == "rank":
         from pipeline.rank import audit_run, snapshot_run
+        if args.action in ("snapshot", "audit") and not args.run:
+            parser.error("--run is required for snapshot/audit")
         if args.action == "snapshot":
             out = snapshot_run(db, cfg, args.run)
-        else:
+        elif args.action == "audit":
             out = audit_run(db, _models(cfg, args.stub, args.no_cache), cfg, args.run)
+        else:
+            from pipeline.fit import fit_weights, load_pairs, write_weights
+            run_ids = [r.strip() for r in (args.runs or "").split(",") if r.strip()]
+            if not run_ids:
+                parser.error("--runs is required for fit")
+            pairs = load_pairs(db, run_ids, labels_path=args.labels)
+            if len(pairs) < args.min_pairs:
+                out = {"error": "not_enough_pairs", "pairs": len(pairs),
+                       "min_pairs": args.min_pairs}
+            else:
+                weights = fit_weights(pairs)
+                out = {"pairs": len(pairs), "weights": weights}
+                if args.write:
+                    out["rubric_version"] = write_weights(db, weights)
     elif args.command == "reset":
         from pipeline.bench import reset_clusters, reset_features
         (reset_features if args.features else reset_clusters)(db)
