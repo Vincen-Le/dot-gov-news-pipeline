@@ -165,7 +165,21 @@ subsystems (clustering, ranking):
 - **RLS + service-role-only grants** per table; jsonb `pg_column_size`
   caps; content-stable ordering.
 
-Neither table has any pipeline/engine scoping today. The standard:
+Neither table has any pipeline/engine scoping today.
+
+> **Coordination note (2026-07-19):** a concurrent session (worktree
+> `local-dev-setup-process-67aa52`) is actively standardizing this in the
+> live primary database with per-pipeline TABLE families —
+> `complex_v1_experiment_runs` + `complex_v1_experiment_cluster_snapshots`
+> observed — i.e. `{pipeline}_experiment_runs` +
+> `{pipeline}_experiment_cluster_snapshots` in ONE database, with cluster-
+> state snapshots (not just rank snapshots) for experiment replay. That
+> convention supersedes the per-database scoping sketched below where they
+> conflict; spine should adopt `spine_v1_experiment_runs` +
+> `spine_v1_experiment_cluster_snapshots` once that session's migrations
+> land. Task 9 is paused pending that convergence.
+
+The per-database standard as originally sketched:
 
 1. **One bench database per pipeline, identical schema.** Each pipeline
    (classic, spine, future engines) gets its own database in the local
