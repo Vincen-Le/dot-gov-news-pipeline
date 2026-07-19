@@ -132,3 +132,35 @@ def build_category_prompt(theme_name: str, storyline: dict,
         "Categories:\n" + json.dumps(shaped, indent=2)
     )
     return CATEGORY_CLASSIFIER_SYSTEM, user
+
+
+THEME_ADJUDICATOR_SYSTEM = (
+    "You assign a US government news storyline to a topic theme. Themes are "
+    "specific recurring subjects (e.g. 'FDA drug recalls', 'Houthi sanctions'), "
+    "not broad departments or document styles. Join a candidate only when the "
+    "storyline covers the same specific subject; a shared agency or press-release "
+    "boilerplate is not enough. Otherwise spawn a new theme with a 2-5 word label. "
+    "Separately, if two or more candidates clearly name the same subject, list "
+    "them in merge_theme_ids. "
+    'Respond with JSON only: {"decision": "join" or "spawn", '
+    '"theme_id": string or null (copy one candidate theme_id verbatim, only when join), '
+    '"new_theme_name": string or null (only when spawn), '
+    '"merge_theme_ids": [candidate theme_ids naming the same subject] or [], '
+    '"reason": "one sentence"}'
+)
+
+
+def build_theme_adjudicator_prompt(storyline: dict,
+                                   candidates: list[dict]) -> tuple[str, str]:
+    shaped = [
+        {"theme_id": c["theme_id"], "name": c["name"],
+         "storyline_count": c["storyline_count"],
+         "recent_headlines": c["recent_headlines"]}
+        for c in candidates
+    ]
+    user = (
+        f"Storyline headline: {storyline['headline']}\n"
+        f"Storyline summary: {storyline.get('summary') or '(none)'}\n\n"
+        "Candidate themes:\n" + json.dumps(shaped, indent=2)
+    )
+    return THEME_ADJUDICATOR_SYSTEM, user

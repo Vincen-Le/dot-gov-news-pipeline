@@ -67,3 +67,21 @@ def test_rank_audit_prompt_shape():
     assert '"prefers"' in system
     assert "Item A" in user and "Item B" in user
     assert "age_hours" in user
+
+
+def test_theme_adjudicator_prompt_lists_candidates_and_json_contract():
+    from pipeline.prompts import build_theme_adjudicator_prompt
+
+    system, user = build_theme_adjudicator_prompt(
+        {"headline": "State opens Harvard exchange-program investigation",
+         "summary": "Investigation into sponsor eligibility."},
+        [{"theme_id": "t-1", "name": "US Visa Sanctions Brazil",
+          "storyline_count": 16,
+          "recent_headlines": ["Visa restrictions on Brazilian officials"]}],
+    )
+    assert "JSON" in system
+    assert "merge_theme_ids" in system
+    assert "spawn" in system
+    assert "t-1" in user
+    assert "US Visa Sanctions Brazil" in user
+    assert "Harvard exchange-program" in user
