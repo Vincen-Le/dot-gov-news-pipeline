@@ -16,6 +16,34 @@ from spine.index import StorylineIndex
 _MAX_HEADLINE = 512
 _MAX_SUMMARY = 8192
 
+# DB-facing vocabulary is fixed by CHECK constraints (and, for the null-
+# storyline case, a RAISE in the RPC itself) — see
+# supabase/migrations/20260718000600_create_storylines_episodes.sql
+# (episodes_attach_method_valid, episode_entries_attach_method_valid) and
+# 20260718100100_create_clustering_write_rpcs.sql (create_episode_with_storyline).
+# Spine's richer observability labels (returned as `method` from
+# process_entry, consumed by spine/replay.py and tests/test_spine_linker.py)
+# must be translated to the closest legal DB value before hitting an RPC.
+# Keep that mapping here, in one place, so no call site re-invents it.
+_EPISODE_ATTACH_METHOD = {
+    # episodes.attach_method_valid: event_key, entity_candidate,
+    # adjudicated_join, new_storyline, consolidation_merge
+    "new_storyline_no_candidates": "new_storyline",
+    "new_storyline": "new_storyline",
+    "judge_new_episode": "adjudicated_join",
+}
+
+_ENTRY_ATTACH_METHOD = {
+    # episode_entries.attach_method_valid: exact_url, content_hash, near_dup,
+    # event_key, centroid_join, entity_community, adjudicated_join,
+    # adjudicated_new, new_cluster, consolidation_merge, consolidation_split
+    "syndicated_dup": "content_hash",
+    "new_storyline_no_candidates": "new_cluster",
+    "new_storyline": "adjudicated_new",
+    "judge_same_dev": "adjudicated_join",
+    "judge_new_episode": "adjudicated_new",
+}
+
 
 class Linker:
     def __init__(self, store, models, cfg, index: StorylineIndex,
@@ -61,7 +89,7 @@ class Linker:
                     "storyline_id": story.id, "method": "judge_same_dev"}
 
         episode_id, _ = self.store.create_episode(
-            story.id, "judge_new_episode", sim,
+            story.id, _EPISODE_ATTACH_METHOD["judge_new_episode"], sim,
             (verdict.get("reason") or "")[:512],
             self.cfg.adjudicator_model, t)
         self.index.new_episode(story.id, episode_id, vec,
@@ -94,8 +122,12 @@ class Linker:
 
     def _new_storyline(self, row: dict, vec, t: datetime, method: str,
                        reason: str | None = None) -> dict:
+        attach_reason = reason
+        if method == "new_storyline_no_candidates":
+            attach_reason = "no_candidates" + (f": {reason}" if reason else "")
         episode_id, storyline_id = self.store.create_episode(
-            None, method, None, (reason or "")[:512] or None,
+            None, _EPISODE_ATTACH_METHOD[method], None,
+            (attach_reason or "")[:512] or None,
             self.cfg.adjudicator_model, t)
         self.index.register(storyline_id, episode_id, vec,
                             set(row["entity_set"]), t)
@@ -119,7 +151,8 @@ class Linker:
                 similarity: float | None, matched: str | None,
                 syndicated: bool, episode_centroid: bytes | None) -> None:
         self.store.attach_entry(
-            str(row["id"]), episode_id, row["agency"], syndicated, method,
+            str(row["id"]), episode_id, row["agency"], syndicated,
+            _ENTRY_ATTACH_METHOD[method],
             similarity, matched, self.cfg.spine_sim_floor,
             self.cfg.embedding_model, episode_centroid, row["published_at"],
             self.cfg.publisher_weight_version)

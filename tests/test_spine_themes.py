@@ -6,6 +6,14 @@ from pipeline.vectors import pack_fp16
 from spine.themes import cluster_storylines, reconcile, sweep
 from tests.fakes import FakeStore
 
+# storylines.theme_attach_method_valid in
+# supabase/migrations/20260719110000_lazy_theme_promotion.sql — the
+# DB-legal vocabulary spine's theme sweep must map onto.
+THEME_ATTACH_METHODS = {
+    "adjudicated_join", "knn_join", "new_theme", "reassigned",
+    "criterion_join", "promoted", "sweep_join",
+}
+
 
 def _v(x, y):
     return np.array([x, y], dtype=np.float32)
@@ -56,3 +64,5 @@ def test_sweep_creates_theme_of_min_size():
     result = sweep(store, StubModels(), cfg)
     assert result["themes_created"] == 1
     assert result["storylines_assigned"] == 3
+    for sid in ("s0", "s1", "s2"):
+        assert store.storylines[sid]["theme_attach_method"] in THEME_ATTACH_METHODS

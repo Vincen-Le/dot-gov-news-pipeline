@@ -9,6 +9,12 @@ import numpy as np
 
 from pipeline.vectors import cosine, pack_fp16
 
+# storylines.theme_attach_method_valid (see
+# supabase/migrations/20260719110000_lazy_theme_promotion.sql) does not
+# include a "spine_sweep" value — the closest legal value for a sweep-time
+# assignment is "sweep_join".
+_THEME_ATTACH_METHOD = "sweep_join"
+
 
 def cluster_storylines(vecs: list, link_sim: float) -> list[list[int]]:
     clusters = [[i] for i in range(len(vecs))]
@@ -98,7 +104,7 @@ def sweep(store, models, cfg) -> dict:
         for i, sid in zip(cluster, members):
             if str(member_theme.get(sid)) != str(theme_id):
                 store.assign_theme(
-                    sid, theme_id, method="spine_sweep",
+                    sid, theme_id, method=_THEME_ATTACH_METHOD,
                     similarity=cosine(rows[i]["centroid"], mean),
                     reason=(verdict.get("reason") or "")[:512],
                     theme_centroid=None, theme_display_name=None)
