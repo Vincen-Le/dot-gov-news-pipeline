@@ -77,6 +77,14 @@ class StubModels:
     def name_theme(self, storyline: dict) -> str:
         return " ".join(storyline["headline"].split()[:5])
 
+    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
+        if candidates:
+            return {"decision": "join", "theme_id": candidates[0]["theme_id"],
+                    "new_theme_name": None, "merge_theme_ids": [],
+                    "reason": "stub: nearest candidate theme"}
+        return {"decision": "spawn", "theme_id": None, "new_theme_name": None,
+                "merge_theme_ids": [], "reason": "stub: no candidates"}
+
     def classify_category(self, theme_name: str, storyline: dict,
                           categories: list[dict]) -> dict:
         mine = _tokens(theme_name + " " + storyline["headline"])

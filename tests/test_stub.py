@@ -88,3 +88,23 @@ def test_stub_compare_rank_breaks_ties_deterministically():
     m = StubModels()
     assert m.compare_rank(a, b)["prefers"] == "a"
     assert m.compare_rank(b, a)["prefers"] == "b"
+
+
+def test_stub_adjudicate_theme_joins_nearest_candidate():
+    stub = StubModels()
+    out = stub.adjudicate_theme(
+        {"headline": "h", "summary": ""},
+        [{"theme_id": "t-1", "name": "A", "storyline_count": 1,
+          "recent_headlines": []},
+         {"theme_id": "t-2", "name": "B", "storyline_count": 5,
+          "recent_headlines": []}],
+    )
+    assert out["decision"] == "join"
+    assert out["theme_id"] == "t-1"
+    assert out["merge_theme_ids"] == []
+
+
+def test_stub_adjudicate_theme_spawns_without_candidates():
+    out = StubModels().adjudicate_theme({"headline": "h", "summary": ""}, [])
+    assert out["decision"] == "spawn"
+    assert out["theme_id"] is None
