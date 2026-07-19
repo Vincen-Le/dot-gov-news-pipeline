@@ -188,3 +188,59 @@ def test_attach_recomputes_source_weight_from_publisher_tier():
                 "where news_source_id = %(s)s", {"s": source_id})
             db.conn.execute(
                 "delete from public.news_sources where id = %(s)s", {"s": source_id})
+
+
+@pytest.mark.integration
+def test_merge_topic_theme_repoints_storylines_and_tombstones_loser():
+    db = Db(os.environ["DATABASE_URL"])
+    store = Store(db)
+
+    ts = datetime.now(timezone.utc)
+    winner_id = loser_id = None
+    episode_a = episode_b = storyline_a = storyline_b = None
+    try:
+        winner_id = store.create_theme("winner theme", b"\x00\x00", None, None)
+        loser_id = store.create_theme("loser theme", b"\x00\x00", None, None)
+
+        episode_a, storyline_a = store.create_episode(
+            None, "new_storyline", None, "merge test a", None, ts)
+        episode_b, storyline_b = store.create_episode(
+            None, "new_storyline", None, "merge test b", None, ts)
+        store.assign_theme(storyline_a, winner_id, "new_theme", None,
+                           "seed", None, None)
+        store.assign_theme(storyline_b, loser_id, "new_theme", None,
+                           "seed", None, None)
+
+        store.merge_theme(loser_id, winner_id)
+
+        row = db.one("select theme_id from public.storylines where id = %(s)s",
+                     {"s": storyline_b})
+        assert str(row["theme_id"]) == str(winner_id)
+        loser = db.one(
+            "select merged_into, storyline_count from public.topic_themes "
+            "where id = %(t)s", {"t": loser_id})
+        assert str(loser["merged_into"]) == str(winner_id)
+        assert loser["storyline_count"] == 0
+        winner = db.one(
+            "select storyline_count from public.topic_themes where id = %(t)s",
+            {"t": winner_id})
+        assert winner["storyline_count"] == 2
+        assert all(str(t["id"]) != str(loser_id) for t in store.all_themes())
+    finally:
+        for sid in (storyline_a, storyline_b):
+            if sid is not None:
+                db.conn.execute(
+                    "update public.storylines set theme_id = null, "
+                    "latest_card_id = null where id = %(s)s", {"s": sid})
+        for eid in (episode_a, episode_b):
+            if eid is not None:
+                db.conn.execute(
+                    "delete from public.episodes where id = %(e)s", {"e": eid})
+        for sid in (storyline_a, storyline_b):
+            if sid is not None:
+                db.conn.execute(
+                    "delete from public.storylines where id = %(s)s", {"s": sid})
+        for tid in (winner_id, loser_id):
+            if tid is not None:
+                db.conn.execute(
+                    "delete from public.topic_themes where id = %(t)s", {"t": tid})

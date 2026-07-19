@@ -300,7 +300,8 @@ class Store:
     def all_themes(self) -> list[dict]:
         rows = self.db.all(
             """
-            select id, display_name, centroid, category_id, storyline_count
+            select id, display_name, centroid, category_id, storyline_count,
+                   created_at
             from public.topic_themes where merged_into is null
             order by display_name, first_storyline_at, storyline_count, centroid
             """
@@ -343,6 +344,23 @@ class Store:
         return dict(row, centroid=unpack_fp16(row["centroid"])
                     if row["centroid"] is not None else None,
                     theme_id=str(row["theme_id"]) if row["theme_id"] else None)
+
+    def theme_recent_headlines(self, theme_id: str, limit: int = 3) -> list[str]:
+        rows = self.db.all(
+            """
+            select c.headline from public.storylines s
+            join public.event_cards c on c.id = s.latest_card_id
+            where s.theme_id = %(t)s and s.merged_into is null
+            order by s.newest_entry_at desc nulls last
+            limit %(n)s
+            """,
+            {"t": theme_id, "n": limit},
+        )
+        return [r["headline"] for r in rows]
+
+    def merge_theme(self, loser_id: str, winner_id: str) -> None:
+        self.db.rpc("merge_topic_theme", p_loser_id=loser_id,
+                    p_winner_id=winner_id)
 
     def all_categories(self) -> list[dict]:
         return [dict(r, id=str(r["id"]))

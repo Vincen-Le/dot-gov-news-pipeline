@@ -90,7 +90,7 @@ class FakeStore:
     # -- topics ----------------------------------------------------------
     def all_themes(self):
         return [dict(t, centroid=unpack_fp16(t["centroid"]) if t["centroid"] is not None else None)
-                for t in self.themes.values()]
+                for t in self.themes.values() if t.get("merged_into") is None]
 
     def themed_storylines(self):
         return [{"id": s["id"], "theme_id": s["theme_id"],
@@ -117,7 +117,8 @@ class FakeStore:
         theme_id = str(uuid.uuid4())
         self.themes[theme_id] = {"id": theme_id, "display_name": display_name,
                                  "centroid": centroid, "category_id": category_id,
-                                 "storyline_count": 0}
+                                 "storyline_count": 0, "merged_into": None,
+                                 "created_at": len(self.themes)}
         return theme_id
 
     def assign_theme(self, storyline_id, theme_id, method, similarity, reason,
@@ -151,6 +152,22 @@ class FakeStore:
         self.categories[cat_id] = {"id": cat_id, "display_name": display_name,
                                    "origin": origin}
         return cat_id
+
+    def theme_recent_headlines(self, theme_id, limit=3):
+        heads = [s.get("headline", "") for s in self.storylines.values()
+                 if s.get("theme_id") == theme_id]
+        return list(reversed(heads))[:limit]
+
+    def merge_theme(self, loser_id, winner_id):
+        for s in self.storylines.values():
+            if s.get("theme_id") == loser_id:
+                s["theme_id"] = winner_id
+        loser = self.themes[loser_id]
+        loser["merged_into"] = winner_id
+        loser["storyline_count"] = 0
+        self.themes[winner_id]["storyline_count"] = sum(
+            1 for s in self.storylines.values()
+            if s.get("theme_id") == winner_id)
 
     # -- test helpers ----------------------------------------------------
     def add_entry(self, **kw: Any) -> dict:
