@@ -24,6 +24,7 @@ type StorylineFilter = {
 
 interface SnapshotStoryline {
   agency_ids: string[];
+  category_id: string | null;
   distinct_feeds: number;
   entity_set: string[];
   entry_count: number;
@@ -213,21 +214,17 @@ export class SnapshotQueries {
       .filter(
         (row) => filter.theme === undefined || row.theme_id === filter.theme,
       )
-      .filter((row) => {
-        const theme =
-          row.theme_id === null ? undefined : themes.get(row.theme_id);
-        return (
-          filter.category === undefined ||
-          theme?.category_id === filter.category
-        );
-      })
+      .filter(
+        (row) =>
+          filter.category === undefined || row.category_id === filter.category,
+      )
       .map((row): StorylineListItem => {
         const theme =
           row.theme_id === null ? undefined : themes.get(row.theme_id);
         const category =
-          theme?.category_id === null || theme?.category_id === undefined
+          row.category_id === null
             ? undefined
-            : categories.get(theme.category_id);
+            : categories.get(row.category_id);
         return {
           agencies: row.agency_ids,
           categoryName: category?.display_name ?? null,
@@ -375,13 +372,15 @@ export class SnapshotQueries {
         ? undefined
         : snapshot.topic_themes.find((row) => row.id === storyline.theme_id);
     const category =
-      theme?.category_id === null || theme?.category_id === undefined
+      storyline.category_id === null
         ? undefined
-        : snapshot.topic_categories.find((row) => row.id === theme.category_id);
+        : snapshot.topic_categories.find(
+            (row) => row.id === storyline.category_id,
+          );
 
     return {
       agencies: storyline.agency_ids,
-      categoryId: theme?.category_id ?? null,
+      categoryId: storyline.category_id,
       categoryName: category?.display_name ?? null,
       distinctFeeds: Number(storyline.distinct_feeds),
       entities: storyline.entity_set,

@@ -60,6 +60,8 @@ class CardEngine:
         card["summary"] = card["summary"][:_MAX_SUMMARY]
         valid_ids = {str(c["episode_id"]) for c in episode_cards}
         timeline = validate_timeline(card.get("timeline", []), valid_ids)
+        # display contract: overview reads newest -> oldest
+        timeline.sort(key=lambda item: str(item.get("date") or ""), reverse=True)
         overview_vec = self.models.embed([card["summary"]])[0]
 
         self.store.insert_card(

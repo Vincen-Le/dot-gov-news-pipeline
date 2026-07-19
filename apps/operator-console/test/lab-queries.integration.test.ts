@@ -115,8 +115,8 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
       queries.storylines({ groupBy: "theme" }),
     );
     expect(byTheme.map((item) => item.themeName)).toEqual([
-      "Field office access",
       "Valsatrex recall fallout",
+      null,
     ]);
 
     const byCategory = await withFixture((queries) =>
@@ -222,6 +222,10 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
         detail: await frozen.storylineDetail(
           "00000000-0000-4000-8000-000000000021",
         ),
+        frozenByCategory: await frozen.storylines({ groupBy: "category" }),
+        frozenInLlmCategory: await frozen.storylines({
+          category: "00000000-0000-4000-8000-0000000000c9",
+        }),
         frozen: await frozen.storylines({ sort: "episodes" }),
         live,
         metrics: await frozen.volume(),
@@ -232,6 +236,16 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
     expect(result.live[0]!.headline).toBe("mutated live headline");
     expect(result.frozen[0]!.episodeCount).toBe(2);
     expect(result.frozen[0]!.headline).toBe("Valsatrex recall chain");
+    expect(
+      result.frozenByCategory.map((item) => [item.categoryName, item.headline]),
+    ).toEqual([
+      ["Food & Drug Safety", null],
+      ["Test LLM Category", "Valsatrex recall chain"],
+    ]);
+    expect(result.frozenInLlmCategory.map((item) => item.headline)).toEqual([
+      "Valsatrex recall chain",
+    ]);
+    expect(result.detail?.categoryName).toBe("Test LLM Category");
     expect(result.detail?.episodes).toHaveLength(2);
     expect(result.metrics).toMatchObject({
       entries: 4,

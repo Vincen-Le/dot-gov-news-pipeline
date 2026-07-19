@@ -5,10 +5,10 @@ description: Use when asked to autonomously run and iterate clustering/aggregati
 
 # Clustering Autoresearch
 
-Autonomous researcher loop for the aggregation pipeline (entries → episodes → storylines → themes). **The goal is one number: maximize R**, the reward defined in `scoring.md`. Change one thing, run an experiment, have blinded judges score it, keep iff R rose, repeat until the human stops you.
+Autonomous researcher loop for the aggregation pipeline (entries → episodes → storylines → themes). **The goal is one number: maximize R**, the reward defined in the clustering-eval skill's `scoring.md`. Change one thing, run an experiment, have blinded judges score it, keep iff R rose, repeat until the human stops you.
 
 **REQUIRED BACKGROUND (read before iteration 0):**
-- `scoring.md` (this skill's directory) — **the authoritative scoring rubric**: six vectors (V1–V5 + V6 episode coherence), per-vector judge criteria, weighted scores (false merges cost −2), scorecard schema, and the mandatory blinded-subagent judge protocol.
+- The **clustering-eval skill** (`.claude/skills/clustering-eval/`) — the one-pass scoring machine this loop invokes every iteration. Its directory holds the authoritative rubrics: `scoring.md` (judge protocol, false-merge −2 weighting, V3/V5, gold recall via `pipeline/evals.py`, R_v2, scorecard schema, eval-report contract), `theme_scoring.md` (Themes axis), `multi-episode-scoring.md` (Storylines axis).
 - `docs/superpowers/plans/2026-07-18-clustering-eval-loop.md` — crawl mechanics (queries, CSV formats, sampling seeds) and the tuning playbook. Where its judging prose conflicts with `scoring.md`, scoring.md wins. **Its 10-iteration budget does NOT apply here** — this loop is unbounded (see NEVER STOP).
 - `docs/operations/clustering-experimentation-spec-2026-07-18.md` — ranked experiment catalog (your idea backlog).
 - `docs/operations/clustering-lab.md` — lab/CLI mechanics (quick guide).
@@ -22,14 +22,14 @@ Autonomous researcher loop for the aggregation pipeline (entries → episodes �
    export DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:57422/postgres'
    ```
    No `psql` on this machine — reads go through `pipeline.db.Db` one-liners.
-3. **Bench idle check**: record the newest `public.experiment_runs` row. If a run you didn't start appears mid-loop, STOP and tell the human. Never run two experiments concurrently.
+3. **Bench idle check**: record the newest `public.complex_v1_experiment_runs` row. If a run you didn't start appears mid-loop, STOP and tell the human. Never run two experiments concurrently.
 4. **Corpus ready**: entries synced (`pipeline.cli sync`) and featured (`pipeline.cli prepare`). If not, do that once first.
 5. **Ledger**: ensure `docs/eval/loop/scorecard.csv` (header per the eval-loop plan) and `docs/eval/loop/journal.md` exist. Both stay untracked by the experiment commits' subject matter but ARE committed — they're the deliverable.
 6. **Baseline first**: iteration 0 is always the unmodified config:
    ```bash
    TOPICS_ENABLED=true DATABASE_URL=... uv run python -m pipeline.cli experiment <tag>-00-baseline --out docs/eval
    ```
-   Full six-vector crawl (blinded judges, `scoring.md`), scorecard row, journal entry. Nothing is tuned yet.
+   Full seven-vector crawl (blinded judges, `scoring.md`), scorecard row, journal entry. Nothing is tuned yet.
 
 ## What you CAN change
 
@@ -49,7 +49,7 @@ Autonomous researcher loop for the aggregation pipeline (entries → episodes �
 
 - **`EMBEDDING_MODEL` / `ENRICHER_MODEL` swaps without explicit human opt-in** (tier 4b): new model = new vector space + real API cost across the corpus. Log the idea in the journal as `blocked-tier4` and move on.
 - **`--stub`**: stub embeddings make every quality vector meaningless. Never, in this loop.
-- **Modify the reward function or eval harness**: `scoring.md` (the rubric and R formula), `pipeline/experiment.py` summarize/report, the judging rules in the eval-loop plan, `docs/eval/labels.csv`. R is ground truth; changing how R is measured to make R go up is reward hacking, not research. If the rubric seems wrong, journal it for the human.
+- **Modify the reward function or eval harness**: the clustering-eval skill's rubrics (`.claude/skills/clustering-eval/scoring.md`, `theme_scoring.md`, `multi-episode-scoring.md` — the rubrics and R formula), `pipeline/evals.py`, `pipeline/experiment.py` summarize/report, the judging rules in the eval-loop plan, `docs/eval/labels.csv`. R is ground truth; changing how R is measured to make R go up is reward hacking, not research. If the rubric seems wrong, journal it for the human.
 - **Direct SQL writes or hosted DB**: the CLI owns all mutation; the pipeline is local-DSN-guarded — don't fight the guard.
 - **Change two things at once**: one knob OR one code change per iteration. Attribution dies otherwise.
 
@@ -57,7 +57,7 @@ Autonomous researcher loop for the aggregation pipeline (entries → episodes �
 
 LOOP UNTIL INTERRUPTED:
 
-1. Read the scorecard; pick the vector with the most reward headroom (targets in `scoring.md` are diagnostics for this choice, not gates; tie-break V5 → V1 → V6 → V2 → V4 → V3; if a vector fails to move R 2 iterations running, attack the next one).
+1. Read the scorecard; pick the vector with the most reward headroom (targets in the scoring files are diagnostics for this choice, not gates; tie-break V5 → V1 → V6 → V2 → V4 → V7 → V3; if a vector fails to move R 2 iterations running, attack the next one).
 2. Journal the hypothesis BEFORE changing anything: iteration, vector, exact change, expected effect, cost tier.
 3. Apply exactly one change. Code changes: tests green, then commit on the branch.
 4. Run, redirected — never let output flood context:
@@ -66,7 +66,10 @@ LOOP UNTIL INTERRUPTED:
      uv run python -m pipeline.cli experiment <tag>-NN-<slug> --out docs/eval > run.log 2>&1
    ```
    Name encodes the change (`jul18-03-join-0.82`). Read results from `docs/eval/<name>/report.md` + the crawl, not the log. If the run fails, `tail -n 50 run.log`, then the runbook's Troubleshooting section (`docs/operations/evaluation-harness.md`); dumb bug → fix and re-run; broken idea → journal `crash`, revert, move on. A run past ~30 min with no progress: kill, treat as crash; interrupted replays leave partial derived state — the next `experiment` resets it.
-5. Re-crawl ALL six vectors fresh via **blinded subagent judges** (one judge per vector, dispatched in parallel; protocol and rubrics in `scoring.md` — judges get artifact data + rubric ONLY, never the hypothesis or config delta; artifact IDs change every replay — never carry verdicts over). Compute vector scores mechanically from the verdict CSVs; append the scorecard row.
+5. Score the run via the **clustering-eval skill** — one full pass (artifact export → seven parallel blinded judges → `docs/eval/<name>/eval/score.json` + `eval-report.md`). Judges get artifact data + rubric ONLY, never the hypothesis or config delta; artifact IDs change every replay — never carry verdicts over. The eval skill stops at the report; ledger writes are THIS loop's job, tied to the experiment run:
+   - append the scorecard row from score.json (the `run_id` column comes from `eval/artifacts/metadata.json`);
+   - stamp the reward onto the artifact metadata's exact run UUID so the DB row carries its score: `uv run python scripts/eval/score_run.py --pipeline complex_v1 --verdicts ... --artifacts ... --write-reward` (add `--best` when a kept iteration becomes the new best — it clears the previous best flag);
+   - journal entry. Compute vector scores mechanically from the verdict CSVs; append the scorecard row.
 6. Compute R (formula in `scoring.md`, mechanical). **Keep iff ΔR exceeds the flipped-verdict quantum** — R strictly up beyond noise, nothing else to weigh (the −2 false-merge weighting inside the vectors already prices every tradeoff). Keep → branch advances (commit stays). Revert → drop the env var (tier 1) or revert ONLY the files the iteration touched (`git checkout <commit>~1 -- <files>` or `git revert`) — never `git reset --hard` if the tree carries pre-existing uncommitted work you didn't create. Journal the numbers either way.
 7. Go to 1.
 
