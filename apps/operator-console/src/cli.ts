@@ -21,6 +21,7 @@ import { LabQueries } from "./lab/queries";
 import { defaultProvisioner, setupPipeline } from "./lab/setup";
 import { defaultDoctorDeps, runDoctor } from "./onboarding/checks";
 import { defaultEnvInitDeps, envInit } from "./onboarding/env-init";
+import { defaultOnboardDeps, onboard } from "./onboarding/onboard";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
 import { operatorRecipes } from "./recipes";
 import { sanitizedDsn, startDashboard } from "./server";
@@ -167,8 +168,6 @@ program
   .option("--dry-run", "show the plan and run checks without changing anything")
   .option("--fresh", "force supabase db reset even if a corpus exists")
   .action(async (options: { dryRun?: boolean; fresh?: boolean }) => {
-    const { defaultOnboardDeps, onboard } =
-      await import("./onboarding/onboard");
     await onboard(defaultOnboardDeps(), {
       dryRun: options.dryRun,
       fresh: options.fresh,
