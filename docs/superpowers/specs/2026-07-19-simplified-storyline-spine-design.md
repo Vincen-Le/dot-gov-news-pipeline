@@ -167,38 +167,42 @@ subsystems (clustering, ranking):
 
 Neither table has any pipeline/engine scoping today.
 
-> **Coordination note (2026-07-19):** a concurrent session (worktree
-> `local-dev-setup-process-67aa52`) is actively standardizing this in the
-> live primary database with per-pipeline TABLE families —
-> `complex_v1_experiment_runs` + `complex_v1_experiment_cluster_snapshots`
-> observed — i.e. `{pipeline}_experiment_runs` +
-> `{pipeline}_experiment_cluster_snapshots` in ONE database, with cluster-
-> state snapshots (not just rank snapshots) for experiment replay. That
-> convention supersedes the per-database scoping sketched below where they
-> conflict; spine should adopt `spine_v1_experiment_runs` +
-> `spine_v1_experiment_cluster_snapshots` once that session's migrations
-> land. Task 9 is paused pending that convergence.
+> **Decision (2026-07-19, user):** per-pipeline **databases** named
+> `[pipeline]_db`, each carrying its own experiment table and snapshot
+> table under uniform names, with the single dashboard CLI able to switch
+> between the databases in one view. (A concurrent session had begun a
+> per-TABLE convention in the live primary — `complex_v1_experiment_runs` +
+> `complex_v1_experiment_cluster_snapshots`, and `public.experiment_runs`
+> no longer exists there — the per-DB decision supersedes it; that session
+> should converge on `complex_db`.)
 
-The per-database standard as originally sketched:
+The standard:
 
-1. **One bench database per pipeline, identical schema.** Each pipeline
-   (classic, spine, future engines) gets its own database in the local
-   cluster carrying the full standard table set: synced corpus + prepared
-   features, its own live derived tables, and its own `experiment_runs` +
-   `rank_snapshots` (+ rank audit tables). Provisioning = the parameterized
-   clone script (`scripts/create-spine-bench.sh NAME`, `SOURCE_DATABASE`
-   env). Same table names in every database — the database IS the pipeline
-   scope, so no `engine` column migration is needed; the redacted config
+1. **One database per pipeline, named `[pipeline]_db`** (`complex_db`,
+   `spine_db`, future engines alike), each carrying the full standard
+   table set: synced corpus + prepared features, its own live derived
+   tables, and its own `experiment_runs` + `rank_snapshots` (+ rank audit
+   tables) under those uniform names — the database IS the pipeline scope,
+   so no engine column or table prefix is needed; the redacted config
    jsonb already embeds `engine` for self-description of each run.
+   Provisioning is **migration-based, not clone-based**
+   (`scripts/create-pipeline-db.sh <pipeline>`): apply
+   `supabase/migrations/*.sql` to a fresh `[pipeline]_db`, then copy the
+   corpus tables (`news_sources`, `news_source_publishers`,
+   `news_entries`) from a source database. Migration-based provisioning
+   keeps every pipeline DB's schema deterministic even while the primary
+   is mid-surgery, and drops no live state anywhere.
 2. **Pipeline registry** (`config/pipelines.json`): the single source of
    truth mapping pipeline name → engine → database URL → dashboard port.
    Replaces tribal knowledge of entrypoint/DB pairings.
-3. **Dashboard rotation**: the operator console loads the registry and can
-   switch its lab surface between pipelines — pipeline views (live derived
-   state), experiment views (`experiment_runs` history), and replay of old
-   experiments (`rank_snapshots` by `run_id`) — one dashboard, N pipelines.
-   Console query modules (`LabQueries`, `RankQueries`) already take a
-   connection, so rotation is a per-pipeline connection, not a rewrite.
+3. **Single dashboard, DB switcher**: the operator console loads the
+   registry and switches its lab surface between pipeline databases in one
+   view — pipeline views (live derived state), experiment views
+   (`experiment_runs` history), and replay of old experiments
+   (`rank_snapshots` by `run_id`) — one dashboard evaluating all
+   pipelines. Console query modules (`LabQueries`, `RankQueries`) already
+   take a connection, so switching is a per-pipeline connection, not a
+   rewrite.
 
 ### Success criteria
 
