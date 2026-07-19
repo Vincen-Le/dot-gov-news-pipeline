@@ -2,8 +2,8 @@ from pipeline.extraction import EXTRACTOR_VERSION, extract
 
 
 def test_version_frozen():
-    # v2: cfr citations dropped, case numbers context-anchored
-    assert EXTRACTOR_VERSION == 2
+    # v3: recurrent judge-confirmed generic fragments filtered
+    assert EXTRACTOR_VERSION == 3
 
 
 def test_drug_recall_headline():
@@ -60,6 +60,18 @@ def test_generic_capitalized_junk_filtered():
         "This article explains. Learn more here.",
     )
     for banned in ("knows", "what", "this", "here", "mass", "distribution"):
+        assert banned not in entities
+
+
+def test_recurrent_judge_confirmed_junk_filtered():
+    entities, _ = extract(
+        "Governor Approves Major California Disaster Assistance",
+        "Washington officials announced support after severe flooding.",
+    )
+    for banned in (
+        "governor", "approves", "major", "california", "disaster",
+        "assistance", "washington", "support", "severe", "flooding",
+    ):
         assert banned not in entities
 
 

@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 import unicodedata
 
-EXTRACTOR_VERSION = 2
+EXTRACTOR_VERSION = 3
 
 # v2: CFR citations dropped (legal-authority references shared by unrelated
 # notices — 36 CFR 261.50 appeared in 6 different park announcements) and bare
@@ -63,6 +63,18 @@ employment unemployment jobs benefits families working children changes
 event events episode series story stories partnership dialogue economic
 prosperity international official website government since takes over recent
 dear colleague call calls watch highlights hiring apparent role sept
+abraham acting address advisory affected america anniversary apply approves
+area assets assistance atlantic available based beautiful bill birthplace blue
+board bruce california canyon cape care carolina ceremony chemical chronic
+colorado commemoration comment committee commodity competition conservation
+credit crews crypto deceptive deputy director disaster disease draft education
+exchange exclusive explosion extension fatal financial fire fisheries flooding
+foreign former fraud from futures gorge governor guidance historic historical
+homeland human investigation island joint jurisdiction justice labor left major
+marco marine minister monument north park president readiness recovery reducing
+repair response river robert science securities security severe site species
+spokesperson sues support tank temporary terrorism than tips tornadoes tourism
+trade trading under urgent veteran veterans virus volcano washington
 """.split())
 
 _MIN_LEN = 4

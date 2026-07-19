@@ -84,3 +84,19 @@ the older `THEME_STICK_FLOOR` no longer exists. The lazy-promotion design adds
 `THEME_PROMOTION_COHESION_FLOOR`, `THEME_PROMOTION_CLUSTER_FLOOR`,
 `THEME_DEMOTION_COHESION_FLOOR`, and `THEME_SWEEP_INTERVAL_HOURS`. Future
 sweeps will use only keys verified in the live `load_config()` implementation.
+
+## Iteration 01 — recurrent extraction junk lexicon
+
+- Vector targeted: V5 entity extraction validity (baseline 0.093207 vs 0.80
+  diagnostic target; largest reward headroom)
+- Exact change: add the union of (a) all 48 invalid tokens from the top-50
+  `entity_stats` sweep and (b) all sample-invalid tokens occurring at least
+  twice to `_COMMON_ENGLISH` in `pipeline/extraction.py`; 114 tokens total;
+  bump `EXTRACTOR_VERSION` 2 -> 3 and update its frozen-version test
+- Evidence before change: those tokens account for 192 baseline invalid entity
+  judgments and 0 valid judgments; constant-sample projected precision rises
+  from 0.093207 to 0.133787
+- Expected effect: materially higher V5 precision; fewer ubiquitous entity
+  gates may also reduce V1/V2 false merges; event-key validity unchanged
+- Cost tier: Tier 2 (deterministic extraction only; test, reextract, replay)
+- Status: hypothesis recorded; implementation pending
