@@ -365,8 +365,8 @@ export class SnapshotQueries {
       .filter((row) => row.storyline_id === id)
       .sort(
         (left, right) =>
-          left.first_entry_at.localeCompare(right.first_entry_at) ||
-          left.id.localeCompare(right.id),
+          right.first_entry_at.localeCompare(left.first_entry_at) ||
+          right.id.localeCompare(left.id),
       );
     const memberEpisodeIds = new Set(episodes.map((row) => row.id));
     const entries = new Map(snapshot.news_entries.map((row) => [row.id, row]));

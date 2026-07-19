@@ -283,7 +283,7 @@ export class LabQueries {
              newest_entry_at, attach_method, attach_similarity, attach_reason,
              adjudicator_model
       from public.episodes where storyline_id = ${id}
-      order by first_entry_at, id
+      order by first_entry_at desc, id desc
     `;
     const memberIds = new Set(episodes.map((episode) => String(episode.id)));
 

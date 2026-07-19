@@ -136,9 +136,10 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
     );
     expect(detail).not.toBeNull();
     expect(detail?.episodes).toHaveLength(2);
-    expect(detail?.episodes[0]!.entries).toHaveLength(2);
-    expect(detail?.episodes[0]!.card?.headline).toBe("FDA recalls Valsatrex");
-    expect(detail?.episodes[1]!.attachMethod).toBe("event_key");
+    // episodes render newest development first
+    expect(detail?.episodes[0]!.attachMethod).toBe("event_key");
+    expect(detail?.episodes[1]!.entries).toHaveLength(2);
+    expect(detail?.episodes[1]!.card?.headline).toBe("FDA recalls Valsatrex");
     const latest = detail?.overviewCards[0];
     expect(latest?.version).toBe(2);
     expect(latest?.timeline?.map((item) => item.cited)).toEqual([
