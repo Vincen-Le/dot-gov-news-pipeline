@@ -19,7 +19,7 @@ import { snapshotLabMetrics } from "./lab/metrics";
 import { LabQueries } from "./lab/queries";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
 import { operatorRecipes } from "./recipes";
-import { startDashboard } from "./server";
+import { sanitizedDsn, startDashboard } from "./server";
 import { WorkerTail, type TailEvent } from "./tail-process";
 
 interface JsonOption {
@@ -425,11 +425,13 @@ program
   .option("--no-open", "do not open the browser")
   .action((options: { open: boolean; port: string }) =>
     runAction(async () => {
-      const dashboard = await startDashboard(requireOperatorConfig(), {
+      const config = requireOperatorConfig();
+      const dashboard = await startDashboard(config, {
         noOpen: !options.open,
         port: Number(options.port),
       });
       process.stdout.write(`Operator dashboard: ${dashboard.url}\n`);
+      process.stdout.write(`Lab database: ${sanitizedDsn(config.databaseUrl)}\n`);
       await new Promise<void>((resolve) => {
         process.once("SIGINT", resolve);
         process.once("SIGTERM", resolve);

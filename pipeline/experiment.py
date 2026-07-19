@@ -16,6 +16,13 @@ from pipeline.config import Config
 from pipeline.runner import cluster
 
 
+def _dsn_label(database_url: str) -> str:
+    """host:port/dbname only — never credentials."""
+    from urllib.parse import urlsplit
+    parts = urlsplit(database_url)
+    return f"{parts.hostname}:{parts.port}{parts.path}"
+
+
 def _anchored_replay_since(since):
     """Return an inclusive lower bound that cannot overlap the gold prefix."""
     from pipeline.golden import GOLDEN_BEFORE, GoldenValidationError
@@ -232,6 +239,9 @@ def run_experiment(db, store, models, cfg: Config, name: str,
                    topology_seed: str = "default",
                    use_golden: bool = False) -> dict:
     started = datetime.now(timezone.utc)
+    import sys
+    print(f"[experiment] engine={cfg.engine} "
+          f"database={_dsn_label(cfg.database_url)}", file=sys.stderr)
     if cfg.engine == "spine" and (topology_label_set_id is not None or use_golden):
         raise ValueError("spine engine does not support topology curation "
                          "or --use-golden yet")

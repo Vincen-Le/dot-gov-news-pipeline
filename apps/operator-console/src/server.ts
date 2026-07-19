@@ -145,6 +145,17 @@ function attachTailEndpoint(
   };
 }
 
+/** host:port/dbname only — never credentials. Same rule as pipeline/experiment.py::_dsn_label. */
+export function sanitizedDsn(databaseUrl: string | undefined): string {
+  if (databaseUrl === undefined) return "not configured";
+  try {
+    const url = new URL(databaseUrl);
+    return `${url.hostname}:${url.port}${url.pathname}`;
+  } catch {
+    return "invalid";
+  }
+}
+
 function openBrowser(url: string): void {
   const command: { args: string[]; executable: string } =
     process.platform === "darwin"

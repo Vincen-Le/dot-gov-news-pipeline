@@ -67,3 +67,41 @@ Notes:
   resets, but they are not currently scored as gold truth by the experiment
   CLI. They support review and controlled sampling; a pairwise/B-Cubed scorer
   remains follow-up work.
+
+## Engines
+
+- **classic** — the existing five-stage engine (`episodes.py` →
+  `storylines.py` → `cards.py` → `categories.py` → `topics.py`/`promotion.py`).
+- **spine** — a simpler aggregation pipeline (decision-tree join/spawn per
+  article against a dense master-node overview, retroactive theme merge/split)
+  that A/Bs against classic on the same corpus. See the
+  [Simplified Storyline Spine design doc](../superpowers/specs/2026-07-19-simplified-storyline-spine-design.md).
+
+### Parallel bench (spine)
+
+Spine evaluates in its own database so classic bench state survives:
+
+    ./scripts/create-spine-bench.sh   # clone corpus+features -> spine_bench, wipe derived state
+
+### Entrypoints — which database each spins up
+
+| Engine | Database | Experiment entrypoint | Dashboard |
+|---|---|---|---|
+| classic | `postgresql://postgres:postgres@127.0.0.1:57422/postgres` (the default — no env needed) | `uv run python -m pipeline.cli experiment NAME --limit 500` or `pnpm ops lab run --name NAME` | `pnpm ops dashboard` → http://127.0.0.1:4173 |
+| spine | `postgresql://postgres:postgres@127.0.0.1:57422/spine_bench` (must set `DATABASE_URL`) | `DATABASE_URL=$SPINE_DB LAB_ENGINE=spine uv run python -m pipeline.cli experiment NAME --limit 500` or `DATABASE_URL=$SPINE_DB pnpm ops lab run --name NAME --set LAB_ENGINE=spine` | `DATABASE_URL=$SPINE_DB pnpm ops dashboard --port 4174` → http://127.0.0.1:4174 |
+
+where `SPINE_DB='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'`.
+
+Rules of thumb: no `DATABASE_URL` = classic bench; spine work always pairs
+`DATABASE_URL=$SPINE_DB` with `LAB_ENGINE=spine` — setting only one of the
+two either runs spine over the classic bench (clobbers classic derived
+state) or runs classic over the spine bench. A dashboard instance evaluates
+whichever database its `DATABASE_URL` pointed at when it started.
+
+Re-run the script anytime to re-clone (it drops and recreates `spine_bench`;
+corpus refreshes in the primary propagate on the next clone).
+
+Both entrypoints print which database they're using on startup (`[experiment]
+engine=... database=...` on stderr; `Lab database: ...` for the dashboard) —
+`config/pipelines.json` (Task 9, upcoming) will become the registry/source of
+truth for pipeline↔database mappings, replacing this table.
