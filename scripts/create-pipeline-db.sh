@@ -111,8 +111,13 @@ rpc="$(sql "select count(*) from pg_proc p
             join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public'
               and p.proname = 'create_episode_with_storyline'")"
-experiment_runs_present="$(sql "select to_regclass('public.experiment_runs') is not null")"
-experiment_runs_count="$(sql 'select count(*) from public.experiment_runs')"
+# experiment_runs is namespaced per pipeline (supabase/migrations/
+# 20260719140000, 20260719150000); the registry's pipeline name is the
+# namespace itself (complex_v1, simple_v1), so <pipeline>_experiment_runs is
+# the table this fresh database actually has.
+experiment_runs_table="${pipeline_name}_experiment_runs"
+experiment_runs_present="$(sql "select to_regclass('public.${experiment_runs_table}') is not null")"
+experiment_runs_count="$(sql "select count(*) from public.${experiment_runs_table}")"
 
 if [[ "${entries}" -eq 0 ]]; then
   echo "Verification failed: news_entries is empty after corpus copy." >&2
@@ -123,11 +128,11 @@ if [[ "${rpc}" -ne 1 ]]; then
   exit 1
 fi
 if [[ "${experiment_runs_present}" != "t" ]]; then
-  echo "Verification failed: public.experiment_runs table is missing." >&2
+  echo "Verification failed: public.${experiment_runs_table} table is missing." >&2
   exit 1
 fi
 if [[ "${experiment_runs_count}" -ne 0 ]]; then
-  echo "Verification failed: public.experiment_runs is not empty on a fresh database." >&2
+  echo "Verification failed: public.${experiment_runs_table} is not empty on a fresh database." >&2
   exit 1
 fi
 

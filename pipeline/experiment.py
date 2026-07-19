@@ -139,6 +139,21 @@ def _validate_engine(cfg: Config) -> None:
             f"unknown engine: {cfg.engine!r} (expected 'classic' or 'spine')")
 
 
+# Public pipeline name per engine, mirroring the complex_v1 precedent
+# (supabase/migrations/20260719140000): each pipeline's experiment/snapshot
+# tables live under its own namespace. Table names are always resolved
+# through this fixed dict lookup after engine validation — never from
+# user-supplied strings — so this can never become an injection surface.
+_NAMESPACES = {"classic": "complex_v1", "spine": "simple_v1"}
+
+
+def _namespace(cfg: Config) -> str:
+    _validate_engine(cfg)
+    ns = _NAMESPACES.get(cfg.engine)
+    assert ns is not None, f"no namespace registered for engine {cfg.engine!r}"
+    return ns
+
+
 def _redacted_config(cfg: Config) -> dict:
     return {k: v for k, v in asdict(cfg).items()
             if k not in ("database_url", "cf_account_id", "cf_api_token")}
@@ -220,8 +235,9 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
 
 def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
                cache_stats: dict, started_at, finished_at) -> str:
+    ns = _namespace(cfg)
     cursor = db.conn.execute(
-        "insert into public.experiment_runs "
+        f"insert into public.{ns}_experiment_runs "
         "(name, started_at, finished_at, config, cluster_report, summary, "
         " cache_hits, cache_misses) "
         "values (%(name)s, %(started_at)s, %(finished_at)s, %(config)s::jsonb, "
@@ -233,6 +249,15 @@ def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
          "summary": json.dumps(summary, default=str),
          "hits": cache_stats.get("hits", 0), "misses": cache_stats.get("misses", 0)})
     return str(cursor.fetchone()["id"])
+
+
+def capture_run_snapshot(db, cfg: Config, run_id: str) -> dict:
+    """Freeze the current derived clustering state for dashboard replay."""
+    ns = _namespace(cfg)
+    counts = db.rpc(f"{ns}_capture_experiment_cluster_snapshot", p_run_id=run_id)
+    if not isinstance(counts, dict):
+        raise RuntimeError(f"snapshot capture returned an invalid receipt for {run_id}")
+    return counts
 
 
 def run_experiment(db, store, models, cfg: Config, name: str,
@@ -292,4 +317,6 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     run_id = record_run(db, name, cfg, cluster_report, summary, cache_stats, started, finished)
     from pipeline.rank import snapshot_run
     snapshot = snapshot_run(db, cfg, run_id)
-    return {"report": path, "run_id": run_id, **snapshot}
+    cluster_snapshot_rows = capture_run_snapshot(db, cfg, run_id)
+    return {"report": path, "run_id": run_id,
+            "cluster_snapshot_rows": cluster_snapshot_rows, **snapshot}

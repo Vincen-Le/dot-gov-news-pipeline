@@ -7,13 +7,24 @@ from __future__ import annotations
 import json
 
 from pipeline.config import Config
+from pipeline.experiment import _NAMESPACES
+
+# rank_snapshots predates per-pipeline namespacing (supabase/migrations/
+# 20260719140000) and was left bare for complex_v1; only simple_v1 gets its
+# own namespaced copy (20260719150000). Namespace resolves through the same
+# fixed engine dict experiment.py uses — never from user input.
+def _rank_snapshot_table(cfg: Config) -> str:
+    ns = _NAMESPACES.get(cfg.engine)
+    assert ns is not None, f"no namespace registered for engine {cfg.engine!r}"
+    return "rank_snapshots" if ns == "complex_v1" else f"{ns}_rank_snapshots"
+
 
 # One insert-select freezes the whole per-facet ranking. Facets expand via a
 # lateral union: global always; one row per agency; theme/category when the
 # theme workstream has assigned them. Ties break on content-stable columns
 # before id (ids regenerate across replays).
 _SNAPSHOT_SQL = """
-insert into public.rank_snapshots
+insert into public.{table}
     (run_id, facet_type, facet_key, position, storyline_id, card_id,
      rank_key, terms, judged, headline, summary, rubric, interest_reason,
      agencies, feeds, entry_count, newest_entry_at)
@@ -57,8 +68,9 @@ where s.merged_into is null
 
 
 def snapshot_run(db, cfg: Config, run_id: str) -> dict:
+    table = _rank_snapshot_table(cfg)
     cursor = db.conn.execute(
-        _SNAPSHOT_SQL, {"run_id": run_id, "tau": cfg.tau_seconds})
+        _SNAPSHOT_SQL.format(table=table), {"run_id": run_id, "tau": cfg.tau_seconds})
     return {"snapshot_rows": cursor.rowcount}
 
 
@@ -86,6 +98,8 @@ def _verdict(fwd: dict, rev: dict) -> str:
 
 
 def audit_run(db, models, cfg: Config, run_id: str) -> dict:
+    if cfg.engine == "spine":
+        raise ValueError("rank audit not yet supported for simple_v1")
     facets = [f.strip() for f in cfg.rank_audit_facets.split(",") if f.strip()]
     rows = db.all(
         """

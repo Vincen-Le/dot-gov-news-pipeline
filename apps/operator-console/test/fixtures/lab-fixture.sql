@@ -92,7 +92,7 @@ insert into public.event_cards
 update public.storylines set latest_card_id = '00000000-0000-4000-8000-000000000044'
   where id = '00000000-0000-4000-8000-000000000021';
 
-insert into public.experiment_runs
+insert into public.complex_v1_experiment_runs
   (id, name, started_at, finished_at, config, cluster_report, summary,
    cache_hits, cache_misses, created_at) values
   ('00000000-0000-4000-8000-0000000000a1', 'baseline',

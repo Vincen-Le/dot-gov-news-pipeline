@@ -2,11 +2,31 @@ import { spawn } from "node:child_process";
 
 import type { PipelineEntry } from "../config";
 import { isLocalDsn, type LabDb } from "./db";
+import { namespaceForEngine, namespaceTables } from "./namespace";
 
 /** Tables every pipeline database must have, beyond the
- * create_episode_with_storyline RPC checked separately below. */
+ * create_episode_with_storyline RPC checked separately below. These keys
+ * are stable, engine-independent labels — the real table name each one
+ * resolves to for a given pipeline comes from requiredTableNames below. */
 const REQUIRED_TABLES = ["news_entries", "experiment_runs", "rank_snapshots"] as const;
 const REQUIRED_RPC = "create_episode_with_storyline";
+
+type RequiredTableNames = Record<(typeof REQUIRED_TABLES)[number], string>;
+
+/** Resolves each REQUIRED_TABLES label to the real table name for this
+ * pipeline's namespace (apps/operator-console/src/lab/namespace.ts):
+ * experiment_runs and rank_snapshots are namespaced per pipeline
+ * (rank_snapshots stays bare for complex_v1 — it predates namespacing). */
+function requiredTableNamesFor(engine?: string): RequiredTableNames {
+  const { experimentRuns, rankSnapshots } = namespaceTables(namespaceForEngine(engine));
+  return {
+    experiment_runs: experimentRuns,
+    news_entries: "news_entries",
+    rank_snapshots: rankSnapshots,
+  };
+}
+
+const DEFAULT_TABLE_NAMES: RequiredTableNames = requiredTableNamesFor();
 
 export interface PipelineSetupResult {
   database: string;
@@ -65,14 +85,15 @@ export interface DatabaseProbe {
  * the connection it opens. */
 export async function probePipelineDatabase(
   connect: () => LabDb,
+  tableNames: RequiredTableNames = DEFAULT_TABLE_NAMES,
 ): Promise<DatabaseProbe> {
   const db = connect();
   try {
     const rows = await db.read`
       select
-        to_regclass('public.news_entries') is not null as news_entries,
-        to_regclass('public.experiment_runs') is not null as experiment_runs,
-        to_regclass('public.rank_snapshots') is not null as rank_snapshots,
+        to_regclass(${`public.${tableNames.news_entries}`}) is not null as news_entries,
+        to_regclass(${`public.${tableNames.experiment_runs}`}) is not null as experiment_runs,
+        to_regclass(${`public.${tableNames.rank_snapshots}`}) is not null as rank_snapshots,
         exists (
           select 1 from pg_proc p
           join pg_namespace n on n.oid = p.pronamespace
@@ -130,10 +151,11 @@ export async function setupPipeline(
 
   const managed = isManagedPipeline(entry);
   const connect = () => deps.connect(entry.databaseUrl);
+  const tableNames = requiredTableNamesFor(entry.engine);
 
   if (!managed) {
     // Custom database name: verify only, never create.
-    const probe = await probePipelineDatabase(connect);
+    const probe = await probePipelineDatabase(connect, tableNames);
     if (probe.status === "missing") {
       return {
         ...base,
@@ -148,10 +170,10 @@ export async function setupPipeline(
     };
   }
 
-  let probe = await probePipelineDatabase(connect);
+  let probe = await probePipelineDatabase(connect, tableNames);
   if (probe.status === "missing") {
     await deps.provision(entry.name);
-    probe = await probePipelineDatabase(connect);
+    probe = await probePipelineDatabase(connect, tableNames);
     if (probe.status === "missing") {
       return {
         ...base,

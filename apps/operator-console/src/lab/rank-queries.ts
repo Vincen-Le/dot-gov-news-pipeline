@@ -17,12 +17,15 @@ const iso = (value: unknown): string | null =>
   value instanceof Date ? value.toISOString() : null;
 
 export class RankQueries {
-  constructor(private readonly sql: postgres.Sql) {}
+  constructor(
+    private readonly sql: postgres.Sql,
+    private readonly rankSnapshotsTable: string = "rank_snapshots",
+  ) {}
 
   async rankFacets(runId: string): Promise<RankFacet[]> {
     const rows = await this.sql`
       select facet_type, facet_key, count(*)::integer as rows
-      from public.rank_snapshots
+      from public.${this.sql(this.rankSnapshotsTable)}
       where run_id = ${runId}
       group by facet_type, facet_key
       order by facet_type, facet_key
@@ -44,7 +47,7 @@ export class RankQueries {
       select facet_type, facet_key, position, storyline_id, card_id, rank_key,
              terms, judged, headline, summary, rubric, interest_reason,
              agencies, feeds, entry_count, newest_entry_at
-      from public.rank_snapshots
+      from public.${this.sql(this.rankSnapshotsTable)}
       where run_id = ${runId} and facet_type = ${facetType}
         and facet_key = ${facetKey}
       order by position

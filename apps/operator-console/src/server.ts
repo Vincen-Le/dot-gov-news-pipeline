@@ -19,6 +19,7 @@ import {
 import { createLabDb, isLocalDsn, labCapability, type LabCapability } from "./lab/db";
 import { ExperimentHarness, defaultSpawner } from "./lab/harness";
 import { LabelStore, RankLabelStore } from "./lab/labels";
+import { namespaceForEngine, namespaceTables } from "./lab/namespace";
 import { LabQueries } from "./lab/queries";
 import { RankQueries } from "./lab/rank-queries";
 import { createLabRouter } from "./lab/routes";
@@ -197,9 +198,10 @@ function buildLabConnection(
   databaseUrl: string | undefined,
   engine?: string,
 ): LabConnection {
+  const { experimentRuns, rankSnapshots } = namespaceTables(namespaceForEngine(engine));
   const labDb = databaseUrl === undefined ? null : createLabDb(databaseUrl);
-  const queries = labDb === null ? null : new LabQueries(labDb.read);
-  const rankQueries = labDb === null ? null : new RankQueries(labDb.read);
+  const queries = labDb === null ? null : new LabQueries(labDb.read, experimentRuns);
+  const rankQueries = labDb === null ? null : new RankQueries(labDb.read, rankSnapshots);
   const harness =
     queries !== null && databaseUrl !== undefined && isLocalDsn(databaseUrl)
       ? new ExperimentHarness({
@@ -212,7 +214,7 @@ function buildLabConnection(
         })
       : null;
   return {
-    capability: () => labCapability(labDb, databaseUrl),
+    capability: () => labCapability(labDb, databaseUrl, engine),
     close: async () => {
       await labDb?.close();
     },

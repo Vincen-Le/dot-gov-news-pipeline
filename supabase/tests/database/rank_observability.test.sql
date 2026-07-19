@@ -6,7 +6,7 @@ select has_table('public', 'rank_snapshots', 'rank_snapshots exists');
 select has_table('public', 'rank_audit_pairs', 'rank_audit_pairs exists');
 select has_table('public', 'rank_audit_runs', 'rank_audit_runs exists');
 
-insert into public.experiment_runs (id, name, started_at, finished_at)
+insert into public.complex_v1_experiment_runs (id, name, started_at, finished_at)
 values ('22222222-2222-4222-8222-222222222201', 'rank obs test',
         '2026-07-18T00:00:00Z', '2026-07-18T00:01:00Z');
 

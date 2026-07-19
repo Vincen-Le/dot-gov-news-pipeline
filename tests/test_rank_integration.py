@@ -22,7 +22,7 @@ CFG = Config(database_url="unused", cf_account_id="a", cf_api_token="t")
 
 def _mk_run(db) -> str:
     row = db.conn.execute(
-        "insert into public.experiment_runs (name, started_at, finished_at) "
+        "insert into public.complex_v1_experiment_runs (name, started_at, finished_at) "
         "values ('rank snapshot test', %(t)s, %(t)s) returning id",
         {"t": T0}).fetchone()
     return str(row["id"])
@@ -97,7 +97,7 @@ def test_snapshot_orders_by_rank_key_and_terms_sum():
     finally:
         if run_id is not None:
             db.conn.execute(
-                "delete from public.experiment_runs where id = %(r)s", {"r": run_id})
+                "delete from public.complex_v1_experiment_runs where id = %(r)s", {"r": run_id})
         for storyline_id, card_id in storylines:
             db.conn.execute(
                 "update public.storylines set latest_card_id = null where id = %(s)s",

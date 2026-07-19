@@ -3,8 +3,10 @@
 The operator console's QA and experiment surface for the clustering pipeline.
 Reads the database at `DATABASE_URL` directly (read-only); experiments shell
 out to the pipeline experiment CLI (`uv run python -m pipeline.cli …`), which
-records every completed run in the `experiment_runs` table and writes
-`docs/eval/<name>/report.md`.
+records every completed run in the pipeline's namespaced experiment-runs
+table (`complex_v1_experiment_runs` for classic, `simple_v1_experiment_runs`
+for spine — see [Registry](#registry--one-database-per-pipeline) below) and
+writes `docs/eval/<name>/report.md`.
 
 This page is the quick guide. Use the
 [Evaluation Harness Runbook](evaluation-harness.md) for command side effects,
@@ -61,8 +63,9 @@ Notes:
   clustering. Inspect `pnpm ops lab corpus` before starting a run if feature
   generation is not intended.
 - The clustering tables always hold the **latest** run's state (Storylines and
-  Quality describe it); run history and comparisons come from
-  `experiment_runs`, which survives resets. Failed runs are not recorded.
+  Quality describe it); run history and comparisons come from the pipeline's
+  namespaced experiment-runs table, which survives resets. Failed runs are
+  not recorded.
 - Pair labels in `docs/eval/labels.csv` and versioned topology labels survive
   resets, but they are not currently scored as gold truth by the experiment
   CLI. They support review and controlled sampling; a pairwise/B-Cubed scorer
@@ -83,43 +86,53 @@ Notes:
 ### Registry — one database per pipeline
 
 `config/pipelines.json` is the source of truth for pipeline↔database
-mappings:
+mappings. Pipeline **names** are the public identifiers `complex_v1`
+(classic engine) and `simple_v1` (spine engine) — the same namespace each
+pipeline's experiment/snapshot tables use (see below). `complex_v1` points
+at the primary `postgres` database, where the autoresearch/complex_v1
+history already lives; `simple_v1` gets its own dedicated `simple_v1_db`:
 
 ```json
 {
   "pipelines": [
-    {"name": "complex", "engine": "classic",
-     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/complex_db"},
-    {"name": "spine", "engine": "spine",
-     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/spine_db"}
+    {"name": "complex_v1", "engine": "classic",
+     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/postgres"},
+    {"name": "simple_v1", "engine": "spine",
+     "databaseUrl": "postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db"}
   ]
 }
 ```
 
-Every pipeline gets its own `[pipeline]_db` database with the identical
-table set (`experiment_runs`, `rank_snapshots`, etc. — the same schema every
-pipeline shares), so runs never collide and a database dump/reset for one
-pipeline never touches another's history.
+Each pipeline's tables are namespaced by its own name rather than shared:
+`complex_v1_experiment_runs` / `complex_v1_experiment_cluster_snapshots` /
+`rank_snapshots` (unnamespaced — it predates per-pipeline namespacing) for
+`complex_v1`, and `simple_v1_experiment_runs` /
+`simple_v1_experiment_cluster_snapshots` / `simple_v1_rank_snapshots` for
+`simple_v1`. Runs never collide and a database dump/reset for one pipeline
+never touches another's history. `complex_v1`'s `postgres` database is the
+**primary** database and is never provisioned, dropped, or reset by any lab
+tooling — it is read-only from the lab's point of view (see below).
 
 Provision (or re-provision) a pipeline database from scratch:
 
-    ./scripts/create-pipeline-db.sh complex   # -> complex_db
-    ./scripts/create-pipeline-db.sh spine     # -> spine_db
+    ./scripts/create-pipeline-db.sh simple_v1   # -> simple_v1_db
 
 `pnpm ops lab setup` does this for every registry entry in one pass:
-provisions (via the script above) any pipeline whose database does not exist
-yet, and otherwise only verifies the existing database's tables/RPC — it
-never drops or re-provisions a database that is already there, since it may
-hold experiment history. Prints a per-pipeline table (name, engine,
-database, status, entry count).
+provisions (via the script above) any **managed** pipeline (dbname follows
+the `<name>_db` convention) whose database does not exist yet, and otherwise
+only verifies the existing database's tables/RPC — it never drops or
+re-provisions a database that is already there, since it may hold
+experiment history. `complex_v1`'s primary `postgres` database is classified
+as unmanaged (primary) and only ever read, never provisioned. Prints a
+per-pipeline table (name, engine, database, status, entry count).
 
 This applies every `supabase/migrations/*.sql` migration in order, then
 copies the corpus (`news_sources`, `news_source_publishers`, `news_entries`)
 from a source database (`postgres` by default; pass a second argument to
 copy from elsewhere). It does **not** copy derived state or run history — a
 freshly provisioned pipeline database starts unclustered, with an empty
-`experiment_runs`. Re-run anytime to reset a pipeline back to a clean corpus
-snapshot (it drops and recreates `<pipeline>_db`).
+experiment-runs table. Re-run anytime to reset a pipeline back to a clean
+corpus snapshot (it drops and recreates `<pipeline>_db`).
 
 ### One dashboard, both pipelines
 
@@ -127,28 +140,29 @@ snapshot (it drops and recreates `<pipeline>_db`).
 is present, the Lab page shows a pipeline switcher (defaulting to the first
 registered pipeline) that routes every lab query and experiment run to that
 pipeline's own database. Each experiment run row shows the engine it was
-recorded under (`config.engine`), so comparing a `complex` baseline against a
-`spine` run in the same table is unambiguous.
+recorded under (`config.engine`), so comparing a `complex_v1` baseline
+against a `simple_v1` run in the same table is unambiguous.
 
-    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/spine_db \
+    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db \
       LAB_ENGINE=spine uv run python -m pipeline.cli experiment NAME --limit 500
 
 still works unchanged for direct-CLI runs against a specific pipeline
 database outside the dashboard. `DATABASE_URL` (and `LAB_ENGINE`) still
 govern the dashboard's env-only default connection when no pipeline is
-selected — the registry only adds switchable connections, it does not
-change single-pipeline behavior when the registry file is absent.
+selected (defaulting to the `complex_v1` namespace) — the registry only adds
+switchable connections, it does not change single-pipeline behavior when the
+registry file is absent.
 
 ### Running the baseline pair
 
-Each pipeline database keeps its own `experiment_runs` history, so a
-classic-vs-spine comparison is two ordinary experiment runs against the two
+Each pipeline database keeps its own namespaced experiment-runs history, so
+a classic-vs-spine comparison is two ordinary experiment runs against the two
 databases over the same corpus slice:
 
-    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/complex_db \
+    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/postgres \
       uv run python -m pipeline.cli experiment classic-baseline-500 --limit 500
 
-    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/spine_db \
+    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db \
       LAB_ENGINE=spine uv run python -m pipeline.cli experiment spine-baseline-500 --limit 500
 
 Add `--stub` to both for a stub-scale plumbing check (deterministic,

@@ -1,6 +1,7 @@
 import postgres from "postgres";
 
 import type { LabCapability } from "./contracts";
+import { namespaceForEngine, namespaceTables } from "./namespace";
 
 export interface LabDb {
   read: postgres.Sql;
@@ -37,6 +38,7 @@ export function isLocalDsn(dsn: string): boolean {
 export async function labCapability(
   db: LabDb | null,
   databaseUrl?: string,
+  engine?: string,
 ): Promise<LabCapability> {
   if (db === null) {
     return {
@@ -46,10 +48,11 @@ export async function labCapability(
       status: "not_enabled",
     };
   }
+  const { experimentRuns } = namespaceTables(namespaceForEngine(engine));
   try {
     const rows = await db.read`
       select to_regclass('public.storylines') is not null as clustering,
-             to_regclass('public.experiment_runs') is not null as runs
+             to_regclass(${`public.${experimentRuns}`}) is not null as runs
     `;
     if (rows[0]?.clustering !== true) {
       return {
@@ -62,8 +65,7 @@ export async function labCapability(
     if (rows[0]?.runs !== true) {
       return {
         experimentsEnabled: false,
-        experimentsReason:
-          "The experiment_runs migration (20260718100200) is not applied.",
+        experimentsReason: `The ${experimentRuns} table is not present.`,
         status: "available",
       };
     }

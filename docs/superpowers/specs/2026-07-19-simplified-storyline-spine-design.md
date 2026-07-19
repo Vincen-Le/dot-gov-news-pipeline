@@ -204,6 +204,25 @@ The standard:
    take a connection, so switching is a per-pipeline connection, not a
    rewrite.
 
+> **Amendment (2026-07-19, later same day):** the per-DB-only convention
+> above is superseded by a combination of both conventions: **namespaced
+> tables per pipeline, plus per-pipeline databases**. The concurrent
+> session referenced above landed first and renamed the primary database's
+> tables to `complex_v1_experiment_runs` /
+> `complex_v1_experiment_cluster_snapshots` (`rank_snapshots` stays bare —
+> it predates namespacing); rather than converge that session onto
+> `complex_db`, this pipeline adopted the same per-table namespace
+> convention instead. Final shape: each pipeline is named after its
+> namespace (`complex_v1`, `simple_v1`), `config/pipelines.json` maps that
+> name to both an `engine` and a `databaseUrl`, and each pipeline's tables
+> inside its own database carry its namespace prefix
+> (`simple_v1_experiment_runs`, `simple_v1_experiment_cluster_snapshots`,
+> `simple_v1_rank_snapshots`). `complex_v1` keeps living in the primary
+> `postgres` database (autoresearch's existing history); this pipeline's
+> public name is `simple_v1`, backed by its own `simple_v1_db`. See
+> `docs/operations/clustering-lab.md#registry--one-database-per-pipeline`
+> for the up-to-date registry shape.
+
 ### Success criteria
 
 1. `pnpm ops lab run --stub --set LAB_ENGINE=spine` completes: report +

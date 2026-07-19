@@ -3,10 +3,20 @@ from datetime import datetime, timezone
 import pytest
 
 from pipeline.config import Config
-from pipeline.experiment import _anchored_replay_since, render_report
+from pipeline.experiment import _anchored_replay_since, _namespace, render_report
 from pipeline.golden import GOLDEN_BEFORE, GoldenValidationError
 
 CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
+
+
+def test_namespace_routes_classic_and_spine_and_rejects_unknown_engine():
+    assert _namespace(Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                             engine="classic")) == "complex_v1"
+    assert _namespace(Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                             engine="spine")) == "simple_v1"
+    with pytest.raises(ValueError, match="unknown engine"):
+        _namespace(Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                          engine="bogus"))
 
 
 def test_golden_replay_defaults_to_september_and_rejects_overlap():
@@ -112,7 +122,7 @@ def test_record_run_inserts_redacted_config():
                         {"episodes": 4}, {"hits": 1, "misses": 2}, t, t)
     assert run_id == "run-1"
     sql, params = db.conn.executed[0]
-    assert sql.startswith("insert into public.experiment_runs")
+    assert sql.startswith("insert into public.complex_v1_experiment_runs")
     assert "cf_api_token" not in params["config"]
     assert '"near_dup_threshold": 0.9' in params["config"]
 

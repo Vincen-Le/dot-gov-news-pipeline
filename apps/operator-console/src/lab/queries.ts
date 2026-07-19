@@ -62,7 +62,10 @@ function toCard(row: CardRow, memberEpisodeIds: Set<string>): EventCard {
 }
 
 export class LabQueries {
-  constructor(private readonly sql: postgres.Sql) {}
+  constructor(
+    private readonly sql: postgres.Sql,
+    private readonly experimentRunsTable: string = "complex_v1_experiment_runs",
+  ) {}
 
   async corpusSummary(): Promise<CorpusSummary> {
     const [row] = await this.sql`
@@ -520,7 +523,7 @@ export class LabQueries {
     const rows = await this.sql`
       select id, name, started_at, finished_at, config, cluster_report, summary,
              cache_hits, cache_misses, created_at
-      from public.experiment_runs
+      from public.${this.sql(this.experimentRunsTable)}
       order by created_at desc
       limit ${Math.min(limit, 500)}
     `;
@@ -531,7 +534,7 @@ export class LabQueries {
     const [row] = await this.sql`
       select id, name, started_at, finished_at, config, cluster_report, summary,
              cache_hits, cache_misses, created_at
-      from public.experiment_runs where id = ${id}
+      from public.${this.sql(this.experimentRunsTable)} where id = ${id}
     `;
     return row === undefined ? null : this.shapeRun(row);
   }
