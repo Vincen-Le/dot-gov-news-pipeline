@@ -22,3 +22,15 @@ def test_running_mean():
     assert np.allclose(m, [2.0, 2.0])
     m = running_mean(m, 1, np.array([4.0, 0.0]))
     assert np.allclose(m, [3.0, 1.0])
+
+
+def test_cosine_clamped_to_unit_range():
+    # fp16 roundtrips make self-similarity exceed 1.0 by float epsilon, which
+    # violates the db's similarity <= 1.0 checks on near_dup attaches
+    rng = np.random.default_rng(7)
+    for _ in range(50):
+        v = rng.normal(size=1024).astype(np.float32)
+        v /= np.linalg.norm(v)
+        u = unpack_fp16(pack_fp16(v))
+        assert -1.0 <= cosine(u, u) <= 1.0
+        assert -1.0 <= cosine(u, -u) <= 1.0

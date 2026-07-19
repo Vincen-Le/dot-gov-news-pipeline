@@ -15,7 +15,9 @@ def cosine(a: np.ndarray, b: np.ndarray) -> float:
     na, nb = float(np.linalg.norm(a)), float(np.linalg.norm(b))
     if na == 0.0 or nb == 0.0:
         return 0.0
-    return float(np.dot(a, b) / (na * nb))
+    # clamp: fp16 roundtrips push self-similarity past 1.0 by epsilon, which
+    # violates the db's [-1, 1] similarity check constraints
+    return float(min(1.0, max(-1.0, np.dot(a, b) / (na * nb))))
 
 
 def running_mean(current: np.ndarray | None, count: int, new: np.ndarray) -> np.ndarray:
