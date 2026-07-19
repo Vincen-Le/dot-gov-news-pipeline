@@ -466,7 +466,11 @@ def promote_clustered(db) -> dict:
         order by g.ordinal
         """)
     if not proposals:
-        return {"promoted": 0, "remaining_unreviewed": status(db)["pending"]}
+        # labels already current — still refresh the render mirror
+        with db.conn.transaction():
+            mirrored = _mirror_render_tables(db)
+        return {"promoted": 0, "mirrored": mirrored,
+                "remaining_unreviewed": status(db)["pending"]}
     unseeded = [str(row["news_entry_id"]) for row in proposals
                 if row["gold_category_id"] is None]
     if unseeded:
@@ -498,9 +502,43 @@ def promote_clustered(db) -> dict:
         errors = _required_label_errors(all_rows) + _one_parent_errors(all_rows)
         if errors:
             raise GoldenValidationError("; ".join(errors[:20]))
+        mirrored = _mirror_render_tables(db)
     return {"promoted": len(proposals),
             "themes_labeled": sum(r["gold_theme_id"] is not None for r in proposals),
-            "remaining_unreviewed": status(db)["total"] - status(db)["reviewed"]}
+            "remaining_unreviewed": status(db)["total"] - status(db)["reviewed"],
+            "mirrored": mirrored}
+
+
+_MIRRORED_TABLES = ("topic_categories", "topic_themes", "storylines",
+                    "episodes", "event_cards")
+
+
+def _mirror_render_tables(db) -> dict:
+    """Copy the live render surface into its golden_* twins (full rewrite).
+
+    Golden mirrors are a perfect rendition of the QAed production tables —
+    a reader can rebuild the dashboard view from golden_* alone. Guard:
+    every reviewed gold storyline must still exist live, so a reset/blank
+    workspace can never wipe an already-frozen image.
+    """
+    orphaned = db.one(
+        """
+        select count(*)::integer as n from public.golden_news_entries g
+        where g.review_status = 'reviewed'
+          and not exists (select 1 from public.storylines s
+                          where s.id = g.gold_storyline_id)
+        """)
+    if orphaned["n"] > 0:
+        raise GoldenValidationError(
+            f"live tables are missing {orphaned['n']} reviewed gold "
+            "storylines; refusing to overwrite the golden mirror")
+    counts = {}
+    for table in _MIRRORED_TABLES:
+        db.conn.execute(f"delete from public.golden_{table}")
+        cursor = db.conn.execute(
+            f"insert into public.golden_{table} select * from public.{table}")
+        counts[table] = cursor.rowcount
+    return counts
 
 
 def approve_batch(db, batch_number: int) -> dict:
