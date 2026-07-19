@@ -106,6 +106,13 @@ Provision (or re-provision) a pipeline database from scratch:
     ./scripts/create-pipeline-db.sh complex   # -> complex_db
     ./scripts/create-pipeline-db.sh spine     # -> spine_db
 
+`pnpm ops lab setup` does this for every registry entry in one pass:
+provisions (via the script above) any pipeline whose database does not exist
+yet, and otherwise only verifies the existing database's tables/RPC — it
+never drops or re-provisions a database that is already there, since it may
+hold experiment history. Prints a per-pipeline table (name, engine,
+database, status, entry count).
+
 This applies every `supabase/migrations/*.sql` migration in order, then
 copies the corpus (`news_sources`, `news_source_publishers`, `news_entries`)
 from a source database (`postgres` by default; pass a second argument to

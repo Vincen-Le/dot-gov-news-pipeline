@@ -4,6 +4,7 @@ import { Command } from "commander";
 import { OperatorApiClient, OperatorApiError } from "./api-client";
 import {
   loadOperatorConfig,
+  loadPipelineRegistry,
   repositoryRoot,
   requireOperatorConfig,
 } from "./config";
@@ -17,6 +18,7 @@ import {
 import { ExperimentHarness, defaultSpawner } from "./lab/harness";
 import { snapshotLabMetrics } from "./lab/metrics";
 import { LabQueries } from "./lab/queries";
+import { defaultProvisioner, setupPipeline } from "./lab/setup";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
 import { operatorRecipes } from "./recipes";
 import { sanitizedDsn, startDashboard } from "./server";
@@ -501,6 +503,53 @@ async function withLab(
 const lab = program
   .command("lab")
   .description("Clustering lab: browse chains, run and compare experiments");
+
+lab
+  .command("setup")
+  .description(
+    "Provision or verify every config/pipelines.json pipeline's database",
+  )
+  .option("--registry <path>", "override the registry path (testing)")
+  .option("--json", "print JSON only")
+  .action((options: JsonOption & { registry?: string }) =>
+    runAction(async () => {
+      const registry = loadPipelineRegistry(options.registry);
+      if (registry === null) {
+        process.stdout.write(
+          "No config/pipelines.json registry found; nothing to set up.\n",
+        );
+        return;
+      }
+      const results = [];
+      for (const entry of registry.pipelines) {
+        process.stderr.write(
+          `Checking pipeline "${entry.name}" (${entry.engine})...\n`,
+        );
+        results.push(
+          await setupPipeline(entry, {
+            connect: createLabDb,
+            provision: defaultProvisioner(repositoryRoot),
+          }),
+        );
+      }
+      if (options.json) {
+        printJson(results);
+      } else {
+        printRows(
+          results.map((result) => ({
+            database: result.database,
+            engine: result.engine,
+            entries: result.entries ?? "—",
+            name: result.name,
+            status: result.status,
+          })),
+        );
+      }
+      if (results.some((result) => result.status.startsWith("broken"))) {
+        process.exitCode = 1;
+      }
+    }),
+  );
 
 lab
   .command("corpus")
