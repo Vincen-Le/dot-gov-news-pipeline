@@ -151,3 +151,16 @@ def test_cluster_with_topics_disabled_never_touches_themes():
     cluster(store, models, cfg)
     assert store.themes == {}
     assert all(s.get("theme_id") is None for s in store.storylines.values())
+
+
+def test_cluster_touches_entity_stats_per_entry_in_event_time():
+    store = ClusterFakeStore()
+    add(store, 0, hours=0, axis=0)
+    add(store, 1, hours=1, axis=1)
+    cluster(store, NoModels(), CFG)
+    assert len(store.touches) == 2
+    for tokens, t in store.touches:
+        assert isinstance(tokens, list)
+        assert "valsatrex" in tokens
+    # EMA table is no longer empty during replay
+    assert store.emas.get("valsatrex", 0.0) >= 2.0

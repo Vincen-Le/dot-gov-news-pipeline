@@ -19,9 +19,15 @@ class FakeStore:
         self.emas: dict[str, float] = {}
         self.themes: dict[str, dict] = {}
         self.categories: dict[str, dict] = {}
+        self.touches: list = []
 
     def entity_emas(self, entities):
         return {e: self.emas.get(e, 0.0) for e in entities}
+
+    def touch_entities(self, tokens, t):
+        self.touches.append((tokens, t))
+        for token in tokens:
+            self.emas[token] = self.emas.get(token, 0.0) + 1.0
 
     # -- writes --------------------------------------------------------
     def create_episode(self, storyline_id, method, similarity, reason, model, t):

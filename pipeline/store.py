@@ -74,6 +74,10 @@ class Store:
             p_episode_centroid=episode_centroid, p_published_at=published_at,
             p_publisher_weight_version=publisher_weight_version)
 
+    def touch_entities(self, tokens: list[str], t: datetime) -> None:
+        if tokens:
+            self.db.rpc("touch_entity_stats", p_tokens=tokens, p_event_time=t)
+
     def close_episode(self, episode_id: str) -> bool:
         return bool(self.db.rpc("close_episode", p_episode_id=episode_id))
 

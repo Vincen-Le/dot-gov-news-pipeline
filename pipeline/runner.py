@@ -102,6 +102,10 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     for row in rows:
         t = row["published_at"]
         window.advance(t)
+        # emulate ingest-time anchor touching in event time: bench corpora
+        # arrive via direct sync, so EMAs would otherwise stay empty all run
+        replay.touch_entities(
+            list(row["entity_set"]) + list(row["event_keys"]), t)
         for closed in episode_engine.close_due(t):
             card_engine.on_episode_closed(closed)
             if theme_engine is not None:
