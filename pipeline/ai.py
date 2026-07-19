@@ -13,6 +13,7 @@ from pipeline.prompts import (
     build_category_prompt,
     build_compressor_prompt,
     build_enricher_prompt,
+    build_rank_audit_prompt,
     build_theme_namer_prompt,
 )
 
@@ -76,6 +77,18 @@ class WorkersAI:
         for criterion in RUBRIC_CRITERIA:
             parsed["rubric"].setdefault(criterion, 0)
         return parsed
+
+    def compare_rank(self, a: dict, b: dict) -> dict:
+        system, user = build_rank_audit_prompt(a, b)
+        try:
+            parsed = _extract_json(self._chat(self.cfg.audit_model, system, user))
+            prefers = str(parsed.get("prefers", "")).strip().lower()
+            if prefers not in ("a", "b"):
+                return {"prefers": "invalid",
+                        "reason": f"rank_audit_error: unparseable verdict {parsed!r}"}
+            return {"prefers": prefers, "reason": str(parsed.get("reason", ""))[:2048]}
+        except Exception as exc:  # audit failure is recorded, never raised
+            return {"prefers": "invalid", "reason": f"rank_audit_error: {exc}"}
 
     def name_theme(self, storyline: dict) -> str:
         # judge model on purpose: naming is high-volume (every spawn) and

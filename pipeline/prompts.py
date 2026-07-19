@@ -93,6 +93,32 @@ def build_theme_namer_prompt(storyline: dict) -> tuple[str, str]:
     return THEME_NAMER_SYSTEM, user
 
 
+RANK_AUDIT_SYSTEM = (
+    "You compare two US government news storylines and decide which one is "
+    "more important for a general national audience to see first in a ranked "
+    "news feed. Consider real-world impact, public health and safety, scope, "
+    "urgency, and novelty. Each item lists its corroboration (distinct "
+    "agencies, feeds, entries) and its age in hours — newer and more "
+    "corroborated stories matter more, but importance can outweigh age. "
+    'Respond with JSON only: {"prefers": "A" or "B", "reason": "one sentence"}'
+)
+
+
+def build_rank_audit_prompt(a: dict, b: dict) -> tuple[str, str]:
+    def shape(item: dict) -> dict:
+        return {
+            "headline": item["headline"],
+            "summary": (item.get("summary") or "")[:800],
+            "agencies": item["agencies"],
+            "feeds": item["feeds"],
+            "entries": item["entries"],
+            "age_hours": item["age_hours"],
+        }
+    user = ("Item A:\n" + json.dumps(shape(a), indent=2)
+            + "\n\nItem B:\n" + json.dumps(shape(b), indent=2))
+    return RANK_AUDIT_SYSTEM, user
+
+
 def build_category_prompt(theme_name: str, storyline: dict,
                           categories: list[dict]) -> tuple[str, str]:
     shaped = [

@@ -85,9 +85,14 @@ class CachedModels:
         self.misses += 1
         result = call()
         reason = result.get("reason", "")
-        if not reason.startswith(("adjudicator_error", "classifier_error")):
+        if not reason.startswith(("adjudicator_error", "classifier_error",
+                                  "rank_audit_error")):
             self.cache.put_json(key, result)
         return result
+
+    def compare_rank(self, a: dict, b: dict) -> dict:
+        return self._memo_json("rank_pair", [a, b],
+                               lambda: self.inner.compare_rank(a, b))
 
     def name_theme(self, storyline: dict) -> str:
         # failures raise (nothing cached); wrap as a dict for _memo_json

@@ -31,6 +31,7 @@ class Config:
     theme_stick_floor: float = 0.50
     theme_knn_k: int = 5
     publisher_weight_version: int = 1
+    audit_model: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 
 
 def _f(key: str, default: float) -> float:
@@ -70,4 +71,5 @@ def load_config() -> Config:
         theme_knn_k=int(os.environ.get("THEME_KNN_K", Config.theme_knn_k)),
         publisher_weight_version=int(os.environ.get(
             "PUBLISHER_WEIGHT_VERSION", Config.publisher_weight_version)),
+        audit_model=os.environ.get("AUDIT_MODEL", Config.audit_model),
     )

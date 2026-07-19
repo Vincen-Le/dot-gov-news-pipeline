@@ -115,3 +115,23 @@ def test_cached_models_memoizes_category_classification(tmp_path):
     assert first == second
     assert CountingStub.calls == 1
     assert models.hits == 1
+
+
+def test_compare_rank_is_memoized(tmp_path):
+    from pipeline.cache import CachedModels, DecisionCache
+
+    class Counting:
+        calls = 0
+
+        def compare_rank(self, a, b):
+            Counting.calls += 1
+            return {"prefers": "a", "reason": "counted"}
+
+    models = CachedModels(Counting(), DecisionCache(str(tmp_path / "c.sqlite")), "tag")
+    item = {"headline": "x", "summary": "", "agencies": 1, "feeds": 1,
+            "entries": 1, "age_hours": 0.0}
+    other = dict(item, headline="y")
+    assert models.compare_rank(item, other)["prefers"] == "a"
+    assert models.compare_rank(item, other)["prefers"] == "a"
+    assert Counting.calls == 1
+    assert models.hits == 1 and models.misses == 1

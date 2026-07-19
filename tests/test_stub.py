@@ -64,3 +64,27 @@ def test_stub_classify_category_matches_token_else_none():
 def test_stub_embedding_tag_never_collides_with_real_models():
     assert StubModels.embedding_tag == "stub-bow-256"
     assert "bge" not in StubModels.embedding_tag
+
+
+def test_stub_compare_rank_is_swap_consistent():
+    from pipeline.stub import StubModels
+    a = {"headline": "FDA recalls Valsatrex", "summary": "x", "agencies": 3,
+         "feeds": 4, "entries": 6, "age_hours": 2.0}
+    b = {"headline": "NPS trail closure", "summary": "y", "agencies": 1,
+         "feeds": 1, "entries": 1, "age_hours": 1.0}
+    m = StubModels()
+    fwd = m.compare_rank(a, b)
+    rev = m.compare_rank(b, a)
+    assert fwd["prefers"] == "a"
+    assert rev["prefers"] == "b"
+
+
+def test_stub_compare_rank_breaks_ties_deterministically():
+    from pipeline.stub import StubModels
+    a = {"headline": "Alpha", "summary": "", "agencies": 1, "feeds": 1,
+         "entries": 1, "age_hours": 0.0}
+    b = {"headline": "Beta", "summary": "", "agencies": 1, "feeds": 1,
+         "entries": 1, "age_hours": 0.0}
+    m = StubModels()
+    assert m.compare_rank(a, b)["prefers"] == "a"
+    assert m.compare_rank(b, a)["prefers"] == "b"

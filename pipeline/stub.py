@@ -63,6 +63,17 @@ class StubModels:
             "reason": "stub rubric",
         }
 
+    def compare_rank(self, a: dict, b: dict) -> dict:
+        # swap-consistent by construction: verdict derives from content only
+        def score(item):
+            return (item["agencies"], item["feeds"], item["entries"])
+        if score(a) != score(b):
+            winner = "a" if score(a) > score(b) else "b"
+            return {"prefers": winner, "reason": "stub: corroboration order"}
+        first = min(a["headline"], b["headline"])
+        return {"prefers": "a" if a["headline"] == first else "b",
+                "reason": "stub: tie broken by headline"}
+
     def name_theme(self, storyline: dict) -> str:
         return " ".join(storyline["headline"].split()[:5])
 

@@ -54,3 +54,16 @@ def test_compressor_rubric_judges_whole_chain():
     from pipeline.prompts import COMPRESSOR_SYSTEM
     assert "entire chain" in COMPRESSOR_SYSTEM
     assert "not only the latest" in COMPRESSOR_SYSTEM
+
+
+def test_rank_audit_prompt_shape():
+    from pipeline.prompts import RANK_AUDIT_SYSTEM, build_rank_audit_prompt
+    a = {"headline": "A", "summary": "sa", "agencies": 2, "feeds": 3,
+         "entries": 4, "age_hours": 5.0}
+    b = {"headline": "B", "summary": "sb", "agencies": 1, "feeds": 1,
+         "entries": 1, "age_hours": 50.0}
+    system, user = build_rank_audit_prompt(a, b)
+    assert system == RANK_AUDIT_SYSTEM
+    assert '"prefers"' in system
+    assert "Item A" in user and "Item B" in user
+    assert "age_hours" in user
