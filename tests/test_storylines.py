@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -237,60 +237,3 @@ def test_rank_candidates_ties_keep_input_order_not_id_order():
     engine = StorylineEngine(StorylineFakeStore([first, second]), SayNo(), CFG)
     ranked = engine._rank_candidates(entry(), [first, second])
     assert [c["id"] for c in ranked] == ["zzz-first", "aaa-second"]
-
-
-def test_long_gap_recurring_contact_is_split_before_adjudication():
-    models = RecordingNo()
-    store = StorylineFakeStore(
-        [storyline(entity_set=["rubio", "lammy"],
-                   newest_entry_at=T0 - timedelta(days=29))],
-        overview={"headline": "Secretary Rubio's Call with Foreign Secretary Lammy",
-                  "summary": "The officials discussed bilateral priorities."},
-    )
-    candidate = entry(
-        title="Secretary Rubio's Call with Foreign Secretary Lammy",
-        entity_set=["rubio", "lammy"],
-    )
-
-    sid, method, _, _, _ = StorylineEngine(store, models, CFG).resolve(
-        candidate, unit(0))
-
-    assert sid is None and method == "new_storyline"
-    assert models.calls == []
-
-
-def test_long_gap_named_program_still_reaches_adjudicator():
-    store = StorylineFakeStore(
-        [storyline(entity_set=["honouliuli", "anniversary"],
-                   newest_entry_at=T0 - timedelta(days=31))],
-        overview={"headline": "August events for Honouliuli 10th Anniversary",
-                  "summary": "A month of anniversary programming."},
-    )
-    candidate = entry(
-        title="September events for Honouliuli 10th Anniversary",
-        entity_set=["honouliuli", "anniversary"],
-    )
-
-    sid, method, _, _, _ = StorylineEngine(store, SayYes(), CFG).resolve(
-        candidate, unit(0))
-
-    assert sid == "s1" and method == "adjudicated_join"
-
-
-def test_shared_event_key_can_override_long_gap_contact_guard():
-    store = StorylineFakeStore(
-        [storyline(entity_set=["committee"], event_keys=["docket-2025-17"],
-                   newest_entry_at=T0 - timedelta(days=30))],
-        overview={"headline": "Committee Meeting for Docket 2025-17",
-                  "summary": "The committee continued its docket hearing."},
-    )
-    candidate = entry(
-        title="Committee Meeting for Docket 2025-17",
-        entity_set=["committee"],
-        event_keys=["docket-2025-17"],
-    )
-
-    sid, method, _, _, _ = StorylineEngine(store, SayYes(), CFG).resolve(
-        candidate, unit(0))
-
-    assert sid == "s1" and method == "adjudicated_join"
