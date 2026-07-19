@@ -19,11 +19,7 @@ from pipeline.vectors import unpack_fp16
 from pipeline.window import ReplayStore, ReplayWindow
 from spine.index import StorylineIndex
 from spine.linker import Linker
-
-try:
-    from spine.themes import sweep
-except ImportError:  # Task 6 not landed yet
-    sweep = None
+from spine.themes import sweep
 
 
 def _close(replay, card_engine: CardEngine, index: StorylineIndex, story) -> None:

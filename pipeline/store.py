@@ -217,6 +217,20 @@ class Store:
         return [dict(r, centroid=unpack_fp16(r["centroid"]) if r["centroid"] is not None else None)
                 for r in rows]
 
+    def storylines_for_sweep(self) -> list[dict]:
+        rows = self.db.all(
+            """
+            select s.id, s.centroid, s.theme_id,
+                   coalesce(c.headline, '(no card)') as headline
+            from public.storylines s
+            left join public.event_cards c on c.id = s.latest_card_id
+            where s.merged_into is null and s.centroid is not null
+            order by s.first_entry_at, s.newest_entry_at, s.entity_set,
+                     s.event_keys, s.centroid
+            """
+        )
+        return [dict(r, centroid=unpack_fp16(r["centroid"])) for r in rows]
+
     def entity_emas(self, entities: list[str]) -> dict[str, float]:
         if not entities:
             return {}

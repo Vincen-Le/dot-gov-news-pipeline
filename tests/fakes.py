@@ -136,6 +136,15 @@ class FakeStore:
         return {"id": latest["id"], "title": latest["title"],
                 "summary": latest.get("summary")}
 
+    def storylines_for_sweep(self):
+        return [
+            {"id": s["id"], "centroid": unpack_fp16(s["centroid"]),
+             "theme_id": s.get("theme_id"),
+             "headline": s.get("headline", "(no card)")}
+            for s in self.storylines.values()
+            if s.get("merged_into") is None and s.get("centroid") is not None
+        ]
+
     # -- topics ----------------------------------------------------------
     def all_themes(self):
         return [dict(t, centroid=unpack_fp16(t["centroid"]) if t["centroid"] is not None else None)
