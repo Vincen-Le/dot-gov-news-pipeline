@@ -232,6 +232,9 @@ def run_experiment(db, store, models, cfg: Config, name: str,
                    topology_seed: str = "default",
                    use_golden: bool = False) -> dict:
     started = datetime.now(timezone.utc)
+    if cfg.engine == "spine" and (topology_label_set_id is not None or use_golden):
+        raise ValueError("spine engine does not support topology curation "
+                         "or --use-golden yet")
     golden_anchor = None
     if use_golden:
         from pipeline.golden import GoldenValidationError, apply_reviewed, validate
@@ -243,13 +246,19 @@ def run_experiment(db, store, models, cfg: Config, name: str,
         golden_anchor = apply_reviewed(db, cfg)
     else:
         reset_clusters(db)
-    cluster_report = cluster(store, models, cfg, limit=limit, since=since, until=until,
-                             per_agency=per_agency,
-                             topology_label_set_id=topology_label_set_id,
-                             multi_episode_percent=multi_episode_percent,
-                             multi_entry_single_episode_percent=(
-                                 multi_entry_single_episode_percent),
-                             topology_seed=topology_seed)
+    if cfg.engine == "spine":
+        from spine.replay import run as spine_run
+        cluster_report = spine_run(store, models, cfg, limit=limit,
+                                   since=since, until=until,
+                                   per_agency=per_agency)
+    else:
+        cluster_report = cluster(store, models, cfg, limit=limit, since=since,
+                                 until=until, per_agency=per_agency,
+                                 topology_label_set_id=topology_label_set_id,
+                                 multi_episode_percent=multi_episode_percent,
+                                 multi_entry_single_episode_percent=(
+                                     multi_entry_single_episode_percent),
+                                 topology_seed=topology_seed)
     if use_golden:
         cluster_report["golden_anchor"] = golden_anchor
         cluster_report["since"] = since

@@ -40,6 +40,15 @@ class Config:
     rank_audit_top_k: int = 30
     rank_audit_window: int = 3
     rank_audit_facets: str = "global,category"
+    engine: str = "classic"
+    spine_sim_floor: float = 0.60
+    spine_top_k: int = 3
+    spine_episode_gap_hours: float = 48.0
+    spine_embed_source: str = "enriched"
+    spine_theme_min_size: int = 5
+    spine_theme_link_sim: float = 0.55
+    spine_theme_sweep_interval_hours: float = 168.0
+    spine_theme_keep_overlap: float = 0.5
 
 
 def _f(key: str, default: float) -> float:
@@ -99,4 +108,19 @@ def load_config() -> Config:
         rank_audit_top_k=int(os.environ.get("RANK_AUDIT_TOP_K", Config.rank_audit_top_k)),
         rank_audit_window=int(os.environ.get("RANK_AUDIT_WINDOW", Config.rank_audit_window)),
         rank_audit_facets=os.environ.get("RANK_AUDIT_FACETS", Config.rank_audit_facets),
+        engine=os.environ.get("LAB_ENGINE", Config.engine),
+        spine_sim_floor=_f("SPINE_SIM_FLOOR", Config.spine_sim_floor),
+        spine_top_k=int(os.environ.get("SPINE_TOP_K", Config.spine_top_k)),
+        spine_episode_gap_hours=_f(
+            "SPINE_EPISODE_GAP_HOURS", Config.spine_episode_gap_hours),
+        spine_embed_source=os.environ.get(
+            "SPINE_EMBED_SOURCE", Config.spine_embed_source),
+        spine_theme_min_size=int(os.environ.get(
+            "SPINE_THEME_MIN_SIZE", Config.spine_theme_min_size)),
+        spine_theme_link_sim=_f("SPINE_THEME_LINK_SIM", Config.spine_theme_link_sim),
+        spine_theme_sweep_interval_hours=_f(
+            "SPINE_THEME_SWEEP_INTERVAL_HOURS",
+            Config.spine_theme_sweep_interval_hours),
+        spine_theme_keep_overlap=_f(
+            "SPINE_THEME_KEEP_OVERLAP", Config.spine_theme_keep_overlap),
     )
