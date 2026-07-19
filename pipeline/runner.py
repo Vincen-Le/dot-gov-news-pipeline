@@ -24,9 +24,15 @@ from pipeline.window import ReplayStore, ReplayWindow
 _MAX_ENRICHED_LEN = 16384
 
 
+def _semantic_content(row: dict) -> str | None:
+    # summary first: it is a human-condensed description of the event, so
+    # title+summary embeds nearer related events than full article body,
+    # which drowns the signal in quotes and boilerplate
+    return row.get("summary") or row.get("body_text")
+
+
 def _fallback_text(row: dict) -> str:
-    content = row.get("body_text") or row.get("summary") or ""
-    return f"{row['title']}. {content}".strip()[:_MAX_ENRICHED_LEN]
+    return f"{row['title']}. {_semantic_content(row) or ''}".strip()[:_MAX_ENRICHED_LEN]
 
 
 def prepare(store, models, cfg: Config, limit: int | None = None,
@@ -43,8 +49,7 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
         if not cfg.enrichment_enabled or row.get("enriched_text"):
             return None
         try:
-            content = row.get("body_text") or row.get("summary")
-            return models.enrich(row["title"], content)[:_MAX_ENRICHED_LEN]
+            return models.enrich(row["title"], _semantic_content(row))[:_MAX_ENRICHED_LEN]
         except Exception:
             return None  # fall back to raw text; never block the batch
 
@@ -68,8 +73,8 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
             continue
         for (row, new_enrichment, _), vec in zip(chunk, vectors):
             needs_anchors = not row["entity_set"] and not row["event_keys"]
-            content = row.get("body_text") or row.get("summary")
-            entities, keys = extract(row["title"], content) if needs_anchors else (None, None)
+            entities, keys = (extract(row["title"], _semantic_content(row))
+                              if needs_anchors else (None, None))
             store.update_entry_features(
                 row["id"],
                 new_enrichment,

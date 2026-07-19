@@ -22,13 +22,12 @@ class ClusterFakeStore(FakeStore):
         if until:
             rows = [r for r in rows if r["published_at"] <= until]
         if per_agency is not None:
-            seen: dict[str, int] = {}
-            capped = []
+            # newest-per-agency, mirroring prepared_unclustered's desc rank
+            groups: dict[str, list] = {}
             for r in rows:
-                seen[r["agency"]] = seen.get(r["agency"], 0) + 1
-                if seen[r["agency"]] <= per_agency:
-                    capped.append(r)
-            rows = capped
+                groups.setdefault(r["agency"], []).append(r)
+            allowed = {id(r) for g in groups.values() for r in g[-per_agency:]}
+            rows = [r for r in rows if id(r) in allowed]
         return rows[:limit] if limit else rows
 
     # CardEngine surface

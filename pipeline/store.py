@@ -294,9 +294,11 @@ class Store:
                        ne.body_text, ne.published_at, ne.content_hash,
                        ne.entity_set, ne.event_keys, ne.embedding,
                        nsp.publisher_key as agency,
+                       -- newest-first rank: the balanced sample keeps each
+                       -- agency's most recent entries; replay still runs asc
                        row_number() over (
                            partition by nsp.publisher_key
-                           order by ne.published_at, ne.id
+                           order by ne.published_at desc, ne.id desc
                        ) as agency_rank
                 from public.news_entries ne
                 left join public.news_source_publishers nsp

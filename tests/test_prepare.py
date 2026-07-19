@@ -93,8 +93,18 @@ def test_prepare_enrichment_disabled_embeds_raw():
     assert store.features["n1"]["enriched_text"] is None
 
 
-def test_prepare_prefers_clean_article_body_over_feed_summary():
+def test_prepare_prefers_human_feed_summary_over_article_body():
+    # summary is a human-condensed event description: title+summary embeds
+    # nearer related events than full body text (quotes/boilerplate noise)
     store = PrepFakeStore([row(1, summary="Short feed summary.",
+                               body_text="Complete cleaned article report.")])
+    models = PrepModels()
+    prepare(store, models, CFG)
+    assert models.enrich_inputs[0][1] == "Short feed summary."
+
+
+def test_prepare_falls_back_to_body_when_no_summary():
+    store = PrepFakeStore([row(1, summary=None,
                                body_text="Complete cleaned article report.")])
     models = PrepModels()
     prepare(store, models, CFG)
