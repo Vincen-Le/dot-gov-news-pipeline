@@ -183,6 +183,7 @@ export const LAB_ENV_WHITELIST = [
   "SPINE_THEME_MIN_SIZE",
   "SPINE_THEME_SWEEP_INTERVAL_HOURS",
   "SPINE_TOP_K",
+  "TAU_SECONDS",
 ] as const;
 ```
 
