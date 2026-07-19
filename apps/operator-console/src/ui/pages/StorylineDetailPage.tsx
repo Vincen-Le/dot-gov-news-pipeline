@@ -8,6 +8,7 @@ import {
   type EventCard,
 } from "../../lab/contracts";
 import { fetchLab } from "../lab-api";
+import { useExperimentView, withExperiment } from "../experiment-view";
 import {
   CopyCommand,
   ErrorState,
@@ -149,11 +150,16 @@ function OverviewCardBlock({ card }: { card: EventCard }) {
 
 export function StorylineDetailPage() {
   const { id } = useParams();
+  const { selectedId } = useExperimentView();
   const [selected, setSelected] = useState<EntryEvidence | null>(null);
   const detail = useQuery({
     enabled: id !== undefined,
-    queryFn: () => fetchLab(`/storylines/${id}`, StorylineDetailSchema),
-    queryKey: ["lab-storyline", id],
+    queryFn: () =>
+      fetchLab(
+        withExperiment(`/storylines/${id}`, selectedId),
+        StorylineDetailSchema,
+      ),
+    queryKey: ["lab-storyline", selectedId, id],
   });
 
   if (detail.isLoading) return <LoadingState label="Loading chain" />;

@@ -80,6 +80,31 @@ export function createLabRouter(deps: LabRouteDeps): Router {
     return null;
   };
 
+  const viewQueries = async (
+    request: Request,
+    response: Response,
+  ): Promise<LabQueries | null> => {
+    const queries = await requireQueries(response);
+    if (queries === null) return null;
+    if (request.query.experiment === undefined) return queries;
+    const experiment = UUID.safeParse(request.query.experiment);
+    if (!experiment.success) {
+      sendError(response, 400, "bad_request", "experiment must be a uuid");
+      return null;
+    }
+    const run = await queries.experimentRun(experiment.data);
+    if (run?.snapshot === null || run === null) {
+      sendError(
+        response,
+        404,
+        "not_found",
+        "Unknown or uncaptured experiment run",
+      );
+      return null;
+    }
+    return queries.forExperiment(experiment.data);
+  };
+
   const handle =
     (run: (request: Request, response: Response) => Promise<void>) =>
     (request: Request, response: Response): void => {
@@ -113,8 +138,8 @@ export function createLabRouter(deps: LabRouteDeps): Router {
 
   router.get(
     "/metrics",
-    handle(async (_request, response) => {
-      const queries = await requireQueries(response);
+    handle(async (request, response) => {
+      const queries = await viewQueries(request, response);
       if (queries === null) return;
       const { snapshotLabMetrics } = await import("./metrics");
       response.json({ data: await snapshotLabMetrics(queries) });
@@ -124,7 +149,7 @@ export function createLabRouter(deps: LabRouteDeps): Router {
   router.get(
     "/storylines",
     handle(async (request, response) => {
-      const queries = await requireQueries(response);
+      const queries = await viewQueries(request, response);
       if (queries === null) return;
       const asString = (value: unknown): string | undefined =>
         typeof value === "string" && value.length > 0 ? value : undefined;
@@ -291,8 +316,8 @@ export function createLabRouter(deps: LabRouteDeps): Router {
 
   router.get(
     "/agencies",
-    handle(async (_request, response) => {
-      const queries = await requireQueries(response);
+    handle(async (request, response) => {
+      const queries = await viewQueries(request, response);
       if (queries === null) return;
       response.json({ data: { agencies: await queries.storylineAgencies() } });
     }),
@@ -301,21 +326,23 @@ export function createLabRouter(deps: LabRouteDeps): Router {
   router.get(
     "/topics/themes",
     handle(async (request, response) => {
-      const queries = await requireQueries(response);
+      const queries = await viewQueries(request, response);
       if (queries === null) return;
       const category =
         typeof request.query.category === "string" &&
         request.query.category.length > 0
           ? request.query.category
           : undefined;
-      response.json({ data: { themes: await queries.topicThemes({ category }) } });
+      response.json({
+        data: { themes: await queries.topicThemes({ category }) },
+      });
     }),
   );
 
   router.get(
     "/topics/categories",
-    handle(async (_request, response) => {
-      const queries = await requireQueries(response);
+    handle(async (request, response) => {
+      const queries = await viewQueries(request, response);
       if (queries === null) return;
       response.json({
         data: { categories: await queries.topicCategories() },
@@ -326,12 +353,10 @@ export function createLabRouter(deps: LabRouteDeps): Router {
   router.get(
     "/storylines/:id",
     handle(async (request, response) => {
-      const queries = await requireQueries(response);
+      const queries = await viewQueries(request, response);
       if (queries === null) return;
       const id = UUID.safeParse(request.params.id);
-      const detail = id.success
-        ? await queries.storylineDetail(id.data)
-        : null;
+      const detail = id.success ? await queries.storylineDetail(id.data) : null;
       if (detail === null) {
         sendError(response, 404, "not_found", "Unknown storyline");
         return;
@@ -343,7 +368,7 @@ export function createLabRouter(deps: LabRouteDeps): Router {
   router.get(
     "/borderline",
     handle(async (request, response) => {
-      const queries = await requireQueries(response);
+      const queries = await viewQueries(request, response);
       if (queries === null) return;
       const window = Number(request.query.window ?? 0.03);
       const limit = Number(request.query.limit ?? 100);
@@ -415,7 +440,12 @@ export function createLabRouter(deps: LabRouteDeps): Router {
       }
       const body = RunBodySchema.safeParse(request.body);
       if (!body.success) {
-        sendError(response, 400, "invalid_request", z.prettifyError(body.error));
+        sendError(
+          response,
+          400,
+          "invalid_request",
+          z.prettifyError(body.error),
+        );
         return;
       }
       try {

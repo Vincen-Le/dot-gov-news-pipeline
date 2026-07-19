@@ -596,7 +596,9 @@ lab
   .action((options: JsonOption & { category?: string }) =>
     runAction(() =>
       withLab(async ({ queries }) => {
-        const themes = await queries.topicThemes({ category: options.category });
+        const themes = await queries.topicThemes({
+          category: options.category,
+        });
         if (options.json) {
           printJson(themes);
           return;
@@ -715,7 +717,7 @@ lab
 
 lab
   .command("experiments")
-  .description("List experiment runs (from experiment_runs)")
+  .description("List complex_v1 experiment runs")
   .option("--json", "print JSON only")
   .action((options: JsonOption) =>
     runAction(() =>
@@ -730,7 +732,19 @@ lab
               created: run.createdAt,
               duration: `${run.durationSeconds}s`,
               episodes: run.summary?.episodes ?? "—",
+              id: run.id,
               name: run.name,
+              note: run.snapshot?.note ?? "—",
+              reward:
+                typeof run.snapshot?.reward?.score === "number"
+                  ? run.snapshot.reward.score
+                  : "—",
+              snapshot:
+                run.snapshot === null
+                  ? "legacy"
+                  : run.snapshot.isBest
+                    ? "best"
+                    : "captured",
               storylines: run.summary?.storylines ?? "—",
             })),
           );

@@ -12,6 +12,7 @@ import {
 } from "../../lab/contracts";
 import { LabMetricsSchema } from "../../lab/metrics";
 import { fetchLab } from "../lab-api";
+import { useExperimentView, withExperiment } from "../experiment-view";
 import {
   CopyCommand,
   ErrorState,
@@ -29,6 +30,7 @@ function groupLabel(item: StorylineListItem, groupBy: GroupBy): string {
 }
 
 export function StorylinesPage() {
+  const { selectedId } = useExperimentView();
   const [params, setParams] = useSearchParams();
   const entity = params.get("entity") ?? "";
   const agency = params.get("agency") ?? "";
@@ -49,33 +51,40 @@ export function StorylinesPage() {
   });
   const metrics = useQuery({
     enabled: capability.data?.status === "available",
-    queryFn: () => fetchLab("/metrics", LabMetricsSchema),
-    queryKey: ["lab-metrics"],
+    queryFn: () =>
+      fetchLab(withExperiment("/metrics", selectedId), LabMetricsSchema),
+    queryKey: ["lab-metrics", selectedId],
     refetchInterval: 60_000,
   });
   const agencies = useQuery({
     enabled: capability.data?.status === "available",
     queryFn: () =>
-      fetchLab("/agencies", z.object({ agencies: z.string().array() })),
-    queryKey: ["lab-agencies"],
+      fetchLab(
+        withExperiment("/agencies", selectedId),
+        z.object({ agencies: z.string().array() }),
+      ),
+    queryKey: ["lab-agencies", selectedId],
   });
   const categories = useQuery({
     enabled: capability.data?.status === "available",
     queryFn: () =>
       fetchLab(
-        "/topics/categories",
+        withExperiment("/topics/categories", selectedId),
         z.object({ categories: TopicCategorySchema.array() }),
       ),
-    queryKey: ["lab-topic-categories"],
+    queryKey: ["lab-topic-categories", selectedId],
   });
   const themes = useQuery({
     enabled: capability.data?.status === "available",
     queryFn: () =>
       fetchLab(
-        `/topics/themes${category === "" ? "" : `?category=${category}`}`,
+        withExperiment(
+          `/topics/themes${category === "" ? "" : `?category=${category}`}`,
+          selectedId,
+        ),
         z.object({ themes: TopicThemeSchema.array() }),
       ),
-    queryKey: ["lab-topic-themes", category],
+    queryKey: ["lab-topic-themes", selectedId, category],
   });
   const query = new URLSearchParams();
   if (entity !== "") query.set("entity", entity);
@@ -86,6 +95,7 @@ export function StorylinesPage() {
   if (category !== "") query.set("category", category);
   if (groupBy !== "") query.set("groupBy", groupBy);
   if (offset > 0) query.set("offset", String(offset));
+  if (selectedId !== null) query.set("experiment", selectedId);
   const storylines = useQuery({
     enabled: capability.data?.status === "available",
     queryFn: () =>
@@ -98,6 +108,7 @@ export function StorylinesPage() {
       ),
     queryKey: [
       "lab-storylines",
+      selectedId,
       entity,
       agency,
       minEpisodes,

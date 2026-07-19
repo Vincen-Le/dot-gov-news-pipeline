@@ -112,9 +112,40 @@ def test_record_run_inserts_redacted_config():
                         {"episodes": 4}, {"hits": 1, "misses": 2}, t, t)
     assert run_id == "run-1"
     sql, params = db.conn.executed[0]
-    assert sql.startswith("insert into public.experiment_runs")
+    assert sql.startswith("insert into public.complex_v1_experiment_runs")
     assert "cf_api_token" not in params["config"]
     assert '"near_dup_threshold": 0.9' in params["config"]
+
+
+def test_capture_run_snapshot_uses_the_append_only_rpc():
+    from pipeline.experiment import capture_run_snapshot
+
+    class RecordingDb:
+        def __init__(self):
+            self.calls = []
+
+        def rpc(self, fn, **kwargs):
+            self.calls.append((fn, kwargs))
+            return {"storylines": 12, "episodes": 14}
+
+    db = RecordingDb()
+    receipt = capture_run_snapshot(db, "00000000-0000-4000-8000-000000000001")
+    assert receipt == {"storylines": 12, "episodes": 14}
+    assert db.calls == [(
+        "complex_v1_capture_experiment_cluster_snapshot",
+        {"p_run_id": "00000000-0000-4000-8000-000000000001"},
+    )]
+
+
+def test_capture_run_snapshot_rejects_invalid_receipt():
+    from pipeline.experiment import capture_run_snapshot
+
+    class InvalidDb:
+        def rpc(self, _fn, **_kwargs):
+            return None
+
+    with pytest.raises(RuntimeError, match="invalid receipt"):
+        capture_run_snapshot(InvalidDb(), "run-1")
 
 
 def make_summary_db():

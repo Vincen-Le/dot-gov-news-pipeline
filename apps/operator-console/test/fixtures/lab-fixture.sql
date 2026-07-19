@@ -92,7 +92,7 @@ insert into public.event_cards
 update public.storylines set latest_card_id = '00000000-0000-4000-8000-000000000044'
   where id = '00000000-0000-4000-8000-000000000021';
 
-insert into public.experiment_runs
+insert into public.complex_v1_experiment_runs
   (id, name, started_at, finished_at, config, cluster_report, summary,
    cache_hits, cache_misses, created_at) values
   ('00000000-0000-4000-8000-0000000000a1', 'baseline',
@@ -136,3 +136,13 @@ set theme_id = '00000000-0000-4000-8000-0000000000d1',
     theme_similarity = 0.81,
     theme_reason = 'fixture join'
 where 'valsatrex' = any(entity_set);
+
+select public.complex_v1_capture_experiment_cluster_snapshot(
+  '00000000-0000-4000-8000-0000000000a1'
+);
+select public.complex_v1_annotate_experiment_cluster_snapshot(
+  '00000000-0000-4000-8000-0000000000a1',
+  'Fixture incumbent',
+  '{"score": 0.68, "formula": "fixed-v1", "vectors": {"v1": 0.8}}'::jsonb,
+  true
+);

@@ -208,7 +208,7 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
 def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
                cache_stats: dict, started_at, finished_at) -> str:
     cursor = db.conn.execute(
-        "insert into public.experiment_runs "
+        "insert into public.complex_v1_experiment_runs "
         "(name, started_at, finished_at, config, cluster_report, summary, "
         " cache_hits, cache_misses) "
         "values (%(name)s, %(started_at)s, %(finished_at)s, %(config)s::jsonb, "
@@ -220,6 +220,15 @@ def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
          "summary": json.dumps(summary, default=str),
          "hits": cache_stats.get("hits", 0), "misses": cache_stats.get("misses", 0)})
     return str(cursor.fetchone()["id"])
+
+
+def capture_run_snapshot(db, run_id: str) -> dict:
+    """Freeze the current derived clustering state for dashboard replay."""
+    counts = db.rpc(
+        "complex_v1_capture_experiment_cluster_snapshot", p_run_id=run_id)
+    if not isinstance(counts, dict):
+        raise RuntimeError(f"snapshot capture returned an invalid receipt for {run_id}")
+    return counts
 
 
 def run_experiment(db, store, models, cfg: Config, name: str,
@@ -266,4 +275,10 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     run_id = record_run(db, name, cfg, cluster_report, summary, cache_stats, started, finished)
     from pipeline.rank import snapshot_run
     snapshot = snapshot_run(db, cfg, run_id)
-    return {"report": path, "run_id": run_id, **snapshot}
+    cluster_snapshot_rows = capture_run_snapshot(db, run_id)
+    return {
+        "report": path,
+        "run_id": run_id,
+        "cluster_snapshot_rows": cluster_snapshot_rows,
+        **snapshot,
+    }

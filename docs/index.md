@@ -119,7 +119,7 @@ The repository currently provides:
   event and overview cards with rubric rank keys, and topic themes against a
   seeded taxonomy.
 - An operator-console clustering lab (`pnpm ops lab …`) for corpus QA,
-  experiments recorded in `experiment_runs`, quality metrics, and borderline
+  experiments recorded in `complex_v1_experiment_runs`, quality metrics, and borderline
   labeling.
 - Local persistent Chroma development service, shared event contracts, unit
   and database tests, CI verification, and operations guidance.

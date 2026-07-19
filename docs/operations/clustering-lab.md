@@ -3,8 +3,10 @@
 The operator console's QA and experiment surface for the clustering pipeline.
 Reads the database at `DATABASE_URL` directly (read-only); experiments shell
 out to the pipeline experiment CLI (`uv run python -m pipeline.cli …`), which
-records every completed run in the `experiment_runs` table and writes
-`docs/eval/<name>/report.md`.
+records every completed run in the `complex_v1_experiment_runs` table and writes
+`docs/eval/<name>/report.md`. It also freezes the completed derived state in
+`complex_v1_experiment_cluster_snapshots`, so the dashboard can replay old groupings
+without replacing the current working tables.
 
 This page is the quick guide. Use the
 [Evaluation Harness Runbook](evaluation-harness.md) for command side effects,
@@ -45,6 +47,7 @@ metric definitions, ranking evaluation, and recovery.
 | QA the chains          | Storylines → chain detail                         | `pnpm ops lab storyline <id>`                                                       |
 | Read quality metrics   | Lab § Quality                                     | `pnpm ops lab metrics`                                                              |
 | Compare runs           | Lab § Experiment runs (baseline + config diff)    | `pnpm ops lab experiments` + `diff docs/eval/<a>/report.md docs/eval/<b>/report.md` |
+| Replay a captured run  | Top-bar **Experiment view** selector               | Select **Live working state** to return to mutable tables                           |
 | Label borderline pairs | Lab § Label queue (writes `docs/eval/labels.csv`) | `pnpm ops lab borderline` (read-only listing)                                       |
 
 Notes:
@@ -60,9 +63,16 @@ Notes:
   `needsPrepare` is nonzero; its `--limit` and `--until` apply only to
   clustering. Inspect `pnpm ops lab corpus` before starting a run if feature
   generation is not intended.
-- The clustering tables always hold the **latest** run's state (Storylines and
-  Quality describe it); run history and comparisons come from
-  `experiment_runs`, which survives resets. Failed runs are not recorded.
+- The clustering tables hold the **latest** run's mutable state. Every
+  successful experiment also gets one append-only row in
+  `complex_v1_experiment_cluster_snapshots`, tagged by its
+  `complex_v1_experiment_runs.id`. The
+  top-bar **Experiment view** selector switches Storylines, chain detail,
+  themes, quality metrics, and the borderline queue between live state and a
+  frozen run. A captured payload cannot be overwritten; post-judging metadata
+  (`note`, `reward`, and the single `is_best` marker) can be annotated later.
+  The selected run persists in the browser. Failed and pre-migration runs do
+  not have a replay snapshot.
 - Pair labels in `docs/eval/labels.csv` and versioned topology labels survive
   resets, but they are not currently scored as gold truth by the experiment
   CLI. They support review and controlled sampling; a pairwise/B-Cubed scorer

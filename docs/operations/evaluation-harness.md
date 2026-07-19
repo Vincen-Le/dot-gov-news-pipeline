@@ -57,7 +57,7 @@ The write commands have materially different costs:
 | `pipeline.cli sync`             | Upserts the hosted raw corpus into local tables; invalidates features only when an entry's content hash changed | None                                                |
 | `pipeline.cli prepare`          | Adds enrichment, embeddings, entities, and event keys to currently unembedded entries                           | Potentially expensive                               |
 | `pipeline.cli reextract`        | Refreshes deterministic entity/event-key extraction                                                             | No LLM or embedding calls                           |
-| `pipeline.cli experiment`       | Clears derived aggregation state, replays prepared entries, writes a report/run row/rank snapshot               | May call adjudicator, card, topic, and judge models |
+| `pipeline.cli experiment`       | Clears derived aggregation state, replays prepared entries, writes a report/run row/rank snapshot/cluster replay snapshot | May call adjudicator, card, topic, and judge models |
 | `pipeline.cli reset --clusters` | Clears current derived aggregation state                                                                        | None                                                |
 | `pipeline.cli reset --features` | Clears derived state and all per-entry prepared features                                                        | Makes a later prepare expensive                     |
 | topology-label publisher        | Writes only versioned topology sidecar labels                                                                   | No enrichment, embedding, or aggregation            |
@@ -91,7 +91,7 @@ local news_entries -- prepare once --> cached entry features
                            v
         episodes -> storylines -> cards/topics
                            |
-                           +-> report + experiment_runs + rank_snapshots
+                           +-> report + complex_v1_experiment_runs + rank_snapshots
 ```
 
 The important storage boundaries are:
@@ -102,7 +102,8 @@ The important storage boundaries are:
 | Prepared features        | Embedding/enrichment/extraction fields on `news_entries`                                                 | Yes                          | Reusable experiment input                                          |
 | Expected topology labels | `topology_label_sets`, `news_entry_topology_labels`                                                      | Yes                          | Versioned bootstrap labels used for input selection                |
 | Current aggregation      | `episode_entries`, `episodes`, `storylines`, `event_cards`, `topic_themes`, LLM-created topic categories | No                           | Only the latest completed or interrupted replay state              |
-| Completed run summary    | `experiment_runs`                                                                                        | Yes                          | Resolved config, summary, cluster report, timing, cache counts     |
+| Completed run summary    | `complex_v1_experiment_runs`                                                                              | Yes                          | Resolved config, summary, cluster report, timing, cache counts     |
+| Clustering replay state  | `complex_v1_experiment_cluster_snapshots`                                                                 | Yes                          | Immutable run-scoped storylines, episodes, memberships, cards, themes, and entry evidence; mutable note/reward/best metadata |
 | Ranking evidence         | `rank_snapshots`, `rank_audit_pairs`, `rank_audit_runs`                                                  | Yes                          | Run-scoped ranking state and audit results                         |
 | Model-decision cache     | `.cache/decisions.sqlite`                                                                                | Yes                          | Content-keyed adjudication/theme/rank decisions                    |
 | Markdown report          | `docs/eval/<name>/report.md`                                                                             | Yes                          | Human-readable lab notebook for one run                            |
@@ -157,7 +158,7 @@ migrations instead:
 mise exec -- pnpm supabase migration up --local
 ```
 
-The harness needs at least the clustering tables, `experiment_runs`, and rank
+The harness needs at least the clustering tables, `complex_v1_experiment_runs`, and rank
 observability migrations. Topology-curated runs additionally need
 `20260718101300_create_news_entry_topology_labels.sql`.
 
@@ -535,7 +536,7 @@ Each successful Python experiment prints JSON containing the report path,
 run UUID, and ranking snapshot row count. It also writes:
 
 - `docs/eval/<name>/report.md`
-- one `experiment_runs` row
+- one `complex_v1_experiment_runs` row
 - run-scoped `rank_snapshots`
 - the newest aggregation state in the clustering tables
 
@@ -676,7 +677,7 @@ Use this minimum A/B discipline:
 - Keep cache policy identical, or explain the difference as a cost test.
 - Change one config variable or one code path per variant.
 - Use a new report name for each run; rerunning a name overwrites its Markdown
-  report even though `experiment_runs` may contain multiple rows with that
+  report even though `complex_v1_experiment_runs` may contain multiple rows with that
   name.
 - Save concrete chain IDs/headlines and the observed failure mode with the
   metric delta.
@@ -700,7 +701,7 @@ pnpm ops lab corpus
 ```
 
 Read-only lab access needs the clustering tables. Experiment access also needs
-`experiment_runs` and a local hostname (`localhost` or `127.0.0.1`).
+`complex_v1_experiment_runs` and a local hostname (`localhost` or `127.0.0.1`).
 
 ### Python connects to port 54322 or refuses a remote host
 
@@ -800,7 +801,7 @@ during an active experiment series.
 ## Post-run checklist
 
 - [ ] Command succeeded and returned a run UUID.
-- [ ] `experiment_runs` lists the run and the report opens.
+- [ ] `complex_v1_experiment_runs` lists the run and the report opens.
 - [ ] Processed count matches the intended eligible input.
 - [ ] Config and topology selection match the experiment contract.
 - [ ] Model errors and fallback rates are acceptable.

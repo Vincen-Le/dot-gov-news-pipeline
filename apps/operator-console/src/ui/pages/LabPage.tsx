@@ -12,6 +12,7 @@ import {
 import type { RunStage } from "../../lab/harness";
 import { LabMetricsSchema } from "../../lab/metrics";
 import { fetchLab, postLab, LabApiError } from "../lab-api";
+import { useExperimentView, withExperiment } from "../experiment-view";
 import {
   CopyCommand,
   ErrorState,
@@ -344,6 +345,7 @@ function RunSection({ disabledReason }: { disabledReason: string | null }) {
 
 export function LabPage() {
   const queryClient = useQueryClient();
+  const { selectedId, selectedRun } = useExperimentView();
   const [baselineId, setBaselineId] = useState<string>("");
 
   const capability = useQuery({
@@ -358,8 +360,9 @@ export function LabPage() {
   });
   const metrics = useQuery({
     enabled,
-    queryFn: () => fetchLab("/metrics", LabMetricsSchema),
-    queryKey: ["lab-metrics"],
+    queryFn: () =>
+      fetchLab(withExperiment("/metrics", selectedId), LabMetricsSchema),
+    queryKey: ["lab-metrics", selectedId],
   });
   const experiments = useQuery({
     enabled,
@@ -371,10 +374,10 @@ export function LabPage() {
     enabled,
     queryFn: () =>
       fetchLab(
-        "/borderline?limit=25",
+        withExperiment("/borderline?limit=25", selectedId),
         z.object({ items: BorderlinePairSchema.array() }),
       ),
-    queryKey: ["lab-borderline"],
+    queryKey: ["lab-borderline", selectedId],
   });
   const labels = useQuery({
     enabled,
@@ -418,6 +421,57 @@ export function LabPage() {
           </p>
         </div>
       </section>
+
+      {selectedRun?.snapshot === null || selectedRun === null ? null : (
+        <section className="experiment-view-receipt">
+          <div>
+            <span className="eyebrow">
+              {selectedRun.snapshot.isBest
+                ? "Best captured run"
+                : "Captured run"}
+            </span>
+            <strong>{selectedRun.name}</strong>
+            <code>{selectedRun.id}</code>
+          </div>
+          <p>
+            {selectedRun.snapshot.note ?? "No experiment note has been added."}
+          </p>
+          <dl>
+            <div>
+              <dt>Reward</dt>
+              <dd>
+                {typeof selectedRun.snapshot.reward?.score === "number"
+                  ? Number(selectedRun.snapshot.reward.score).toFixed(6)
+                  : "not judged"}
+              </dd>
+            </div>
+            <div>
+              <dt>Formula</dt>
+              <dd>
+                {typeof selectedRun.snapshot.reward?.formula === "string"
+                  ? selectedRun.snapshot.reward.formula
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt>Vectors</dt>
+              <dd className="mono">
+                {selectedRun.snapshot.reward?.vectors === undefined
+                  ? "—"
+                  : JSON.stringify(selectedRun.snapshot.reward.vectors)}
+              </dd>
+            </div>
+            <div>
+              <dt>Rows</dt>
+              <dd className="mono">
+                {Object.entries(selectedRun.snapshot.rowCounts)
+                  .map(([key, value]) => `${key} ${value}`)
+                  .join(" · ")}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      )}
 
       <section className="receipt-grid" id="corpus">
         {corpus.isLoading ? (
@@ -500,6 +554,8 @@ export function LabPage() {
                   <th>Episodes</th>
                   <th>Chains</th>
                   <th>Cache h/m</th>
+                  <th>Snapshot</th>
+                  <th>Reward</th>
                   <th>Report</th>
                   <th>Baseline</th>
                 </tr>
@@ -521,6 +577,18 @@ export function LabPage() {
                     </td>
                     <td className="numeric">
                       {run.cacheHits}/{run.cacheMisses}
+                    </td>
+                    <td>
+                      {run.snapshot === null
+                        ? "legacy"
+                        : run.snapshot.isBest
+                          ? "best"
+                          : "captured"}
+                    </td>
+                    <td className="numeric">
+                      {typeof run.snapshot?.reward?.score === "number"
+                        ? Number(run.snapshot.reward.score).toFixed(6)
+                        : "—"}
                     </td>
                     <td>
                       <a
@@ -617,8 +685,8 @@ export function LabPage() {
           <LoadingState />
         ) : metrics.error ? (
           <ErrorState error={metrics.error} />
-        ) : metrics.data === undefined ? null : metrics.data.volume
-            .episodes === 0 ? (
+        ) : metrics.data === undefined ? null : metrics.data.volume.episodes ===
+          0 ? (
           <p className="empty-row">
             No clustered state to measure — run an experiment first.
           </p>

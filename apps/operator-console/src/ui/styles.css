@@ -153,6 +153,37 @@ input:focus-visible {
   align-items: center;
   gap: 0.7rem;
 }
+.experiment-view-selector {
+  display: grid;
+  grid-template-columns: auto minmax(190px, 260px);
+  align-items: center;
+  gap: 0.18rem 0.5rem;
+  min-width: 250px;
+}
+.experiment-view-selector label {
+  color: var(--muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.experiment-view-selector select {
+  min-width: 0;
+  padding: 0.36rem 0.5rem;
+  border: 1px solid var(--rule);
+  background: var(--canvas);
+  color: var(--text);
+  font: 0.72rem var(--mono);
+}
+.experiment-view-selector small {
+  grid-column: 1 / -1;
+  max-width: 320px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.66rem;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .command-trigger,
 .theme-button,
 .text-button {
@@ -1036,6 +1067,50 @@ footer {
   gap: 1rem 1.5rem;
   padding-bottom: 1.25rem;
 }
+.experiment-view-receipt {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(260px, 1fr) minmax(
+      340px,
+      1.5fr
+    );
+  gap: 1.5rem;
+  margin: 0 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--live);
+  background: color-mix(in srgb, var(--live) 5%, var(--surface));
+}
+.experiment-view-receipt > div {
+  display: grid;
+  align-content: start;
+  gap: 0.28rem;
+}
+.experiment-view-receipt code {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.experiment-view-receipt p {
+  margin: 0;
+  line-height: 1.55;
+}
+.experiment-view-receipt dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 1rem;
+  margin: 0;
+}
+.experiment-view-receipt dl div {
+  min-width: 0;
+}
+.experiment-view-receipt dt {
+  color: var(--muted);
+  font-size: 0.64rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.experiment-view-receipt dd {
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
+}
 .lab-form label {
   display: block;
   margin-bottom: 0.35rem;
@@ -1116,6 +1191,9 @@ footer {
 }
 @media (max-width: 900px) {
   .lab-form {
+    grid-template-columns: 1fr;
+  }
+  .experiment-view-receipt {
     grid-template-columns: 1fr;
   }
 }

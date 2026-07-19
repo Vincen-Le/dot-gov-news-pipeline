@@ -1,7 +1,7 @@
 /** DB-backed LabQueries tests.
  *
  * Gated: needs a running local Supabase with all migrations applied
- * (including 20260718100200_create_experiment_runs) and an otherwise EMPTY
+ * (including the complex_v1 experiment namespace) and an otherwise EMPTY
  * database — corpus-level assertions count whole tables. When the bench db
  * holds live data, point DATABASE_URL at a dedicated empty database on the
  * same instance (create it once, apply supabase/migrations in order):
@@ -32,18 +32,23 @@ afterAll(async () => {
 });
 
 async function withFixture<T>(
-  run: (queries: LabQueries) => Promise<T>,
+  run: (queries: LabQueries, tx: postgres.Sql) => Promise<T>,
 ): Promise<T> {
   if (sql === null) throw new Error("gated");
-  return sql.begin(async (tx) => {
-    await tx.unsafe(fixture);
-    const result = await run(new LabQueries(tx as unknown as postgres.Sql));
-    throw Object.assign(new Error("rollback"), { result });
-  }).catch((error: Error & { result?: T }) => {
-    if (error.message === "rollback" && "result" in error)
-      return error.result as T;
-    throw error;
-  });
+  return sql
+    .begin(async (tx) => {
+      await tx.unsafe(fixture);
+      const result = await run(
+        new LabQueries(tx as unknown as postgres.Sql),
+        tx as unknown as postgres.Sql,
+      );
+      throw Object.assign(new Error("rollback"), { result });
+    })
+    .catch((error: Error & { result?: T }) => {
+      if (error.message === "rollback" && "result" in error)
+        return error.result as T;
+      throw error;
+    });
 }
 
 describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
@@ -182,6 +187,8 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
     expect(runs[0]!.cacheHits).toBe(2);
     expect(runs[0]!.config?.near_dup_threshold).toBe(0.87);
     expect(runs[1]!.summary?.multi_episode_storylines).toBe(1);
+    expect(runs[1]!.snapshot?.isBest).toBe(true);
+    expect(runs[1]!.snapshot?.reward?.score).toBe(0.68);
     const single = await withFixture((queries) =>
       queries.experimentRun("00000000-0000-4000-8000-0000000000a1"),
     );
@@ -191,6 +198,44 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
         queries.experimentRun("00000000-0000-4000-8000-00000000dead"),
       ),
     ).toBeNull();
+  });
+
+  it("replays a frozen run after the live clustering tables change", async () => {
+    const result = await withFixture(async (queries, tx) => {
+      await tx`
+        update public.storylines
+        set episode_count = 99
+        where id = '00000000-0000-4000-8000-000000000021'
+      `;
+      await tx`
+        update public.event_cards
+        set headline = 'mutated live headline'
+        where id = '00000000-0000-4000-8000-000000000044'
+      `;
+      const live = await queries.storylines({ sort: "episodes" });
+      const frozen = queries.forExperiment(
+        "00000000-0000-4000-8000-0000000000a1",
+      );
+      return {
+        detail: await frozen.storylineDetail(
+          "00000000-0000-4000-8000-000000000021",
+        ),
+        frozen: await frozen.storylines({ sort: "episodes" }),
+        live,
+        metrics: await frozen.volume(),
+      };
+    });
+
+    expect(result.live[0]!.episodeCount).toBe(99);
+    expect(result.live[0]!.headline).toBe("mutated live headline");
+    expect(result.frozen[0]!.episodeCount).toBe(2);
+    expect(result.frozen[0]!.headline).toBe("Valsatrex recall chain");
+    expect(result.detail?.episodes).toHaveLength(2);
+    expect(result.metrics).toMatchObject({
+      entries: 4,
+      episodes: 3,
+      storylines: 2,
+    });
   });
 
   it("filters storylines by theme and category and shapes theme fields", async () => {
@@ -230,14 +275,16 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
   });
 
   it("lists categories with origin badges", async () => {
-    const categories = await withFixture((queries) => queries.topicCategories());
+    const categories = await withFixture((queries) =>
+      queries.topicCategories(),
+    );
     const llm = categories.find(
       (category) => category.displayName === "Test LLM Category",
     );
     expect(llm?.origin).toBe("llm");
-    expect(
-      categories.some((category) => category.origin === "seed"),
-    ).toBe(true);
+    expect(categories.some((category) => category.origin === "seed")).toBe(
+      true,
+    );
   });
 
   it("exposes the theme attach audit on storyline detail", async () => {

@@ -49,7 +49,9 @@ export async function labCapability(
   try {
     const rows = await db.read`
       select to_regclass('public.storylines') is not null as clustering,
-             to_regclass('public.experiment_runs') is not null as runs
+             to_regclass('public.complex_v1_experiment_runs') is not null as runs,
+             to_regclass('public.complex_v1_experiment_cluster_snapshots')
+               is not null as snapshots
     `;
     if (rows[0]?.clustering !== true) {
       return {
@@ -63,8 +65,16 @@ export async function labCapability(
       return {
         experimentsEnabled: false,
         experimentsReason:
-          "The experiment_runs migration (20260718100200) is not applied.",
+          "The complex_v1_experiment_runs migrations are not applied.",
         status: "available",
+      };
+    }
+    if (rows[0]?.snapshots === false) {
+      return {
+        experimentsEnabled: false,
+        reason:
+          "The complex_v1 experiment snapshot migrations are not applied.",
+        status: "not_enabled",
       };
     }
     if (databaseUrl === undefined || !isLocalDsn(databaseUrl)) {

@@ -139,9 +139,7 @@ export const ExperimentSummarySchema = z.looseObject({
   multi_episode_storylines: z.number(),
   singleton_episode_rate: z.number().nullable(),
   storylines: z.number(),
-  top_chains: z.array(
-    z.object({ episodes: z.number(), headline: z.string() }),
-  ),
+  top_chains: z.array(z.object({ episodes: z.number(), headline: z.string() })),
 });
 
 export const ExperimentRunSchema = z.object({
@@ -156,6 +154,17 @@ export const ExperimentRunSchema = z.object({
   finishedAt: z.string(),
   id: z.string(),
   name: z.string(),
+  snapshot: z
+    .object({
+      capturedAt: z.string(),
+      isBest: z.boolean(),
+      note: z.string().nullable(),
+      reward: z.record(z.string(), z.unknown()).nullable(),
+      rowCounts: z.record(z.string(), z.number()),
+      schemaVersion: z.number(),
+    })
+    .nullable()
+    .default(null),
   startedAt: z.string(),
   summary: ExperimentSummarySchema.nullable(),
 });

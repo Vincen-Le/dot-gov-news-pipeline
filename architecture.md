@@ -44,7 +44,7 @@ TypeScript is the default implementation language for inventory, discovery, back
 | News corpus backfill                     | Implemented                  | `apps/news-backfill`: manifest-driven fetch, R2 raw-artifact archival, `ingest_news_entries_v2` |
 | Entry normalization/deduplication        | Implemented                  | `news_entries` schema, extraction/normalization in backfill + `pipeline/normalize.py`           |
 | Clustering, ranking, cards, topics       | Implemented (offline)        | `pipeline/` stages: episodes → storylines → event/overview cards → topic themes                 |
-| Clustering lab                           | Implemented                  | Operator-console lab surface (`pnpm ops lab …`) plus `experiment_runs` history                  |
+| Clustering lab                           | Implemented                  | Operator-console lab surface (`pnpm ops lab …`) plus `complex_v1_experiment_runs` history       |
 | Recurring source fetching                | Architected, not implemented | Add adaptive due-source scheduler and adapter-based TypeScript fetchers                         |
 | Public API, UI                           | Future                       | Serve materialized ranked results downstream of collection                                      |
 
@@ -252,7 +252,7 @@ summary RPCs. The prior feed-only relations are absent after the migration.
 The entry and clustering migrations (`20260718000400` through
 `20260718100400`) add the downstream model: `news_entries` (with fp16 `bytea`
 embeddings and `body_text`), `entity_stats`, `storylines`, `episodes`,
-`episode_entries`, `event_cards`, `rubric_weights`, `experiment_runs`, the
+`episode_entries`, `event_cards`, `rubric_weights`, `complex_v1_experiment_runs`, the
 backfill control tables (`news_backfill_runs`, `news_backfill_targets`,
 `news_backfill_run_entries`, candidate/identity audit tables,
 `news_entry_origins`), the topic-clustering tables (`topic_categories`,
@@ -599,7 +599,7 @@ fetching:
   storyline overview card, including for single-episode storylines, with a
   deterministic fallback when the LLM call fails.
 - The operator-console clustering lab (`pnpm ops lab …`, dashboard Lab pages)
-  provides corpus inspection, experiment runs recorded in `experiment_runs`,
+  provides corpus inspection, experiment runs recorded in `complex_v1_experiment_runs`,
   storyline QA, quality metrics, and borderline labeling. See
   `docs/operations/clustering-lab.md`.
 
