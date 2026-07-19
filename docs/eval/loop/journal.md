@@ -250,3 +250,27 @@ sweeps will use only keys verified in the live `load_config()` implementation.
   1/8 members and was judged too broad.
 - Decision: **REJECT**; deterministic guard reverted by `5503dee`.
 - Status: complete
+
+## Pause handoff — recovered incumbent checkpoint
+
+- Run ID: `a9dc9c1a-3e78-4fb6-ba4f-1d72294b8c70`
+- Run name: `jul19-final-best-checkpoint`
+- Duration: 4,610.4s; processed 150 entries into 141 episodes, 127
+  storylines, 282 cards, and 3 live themes; cache 32 hits / 104 misses.
+- Deterministic topology: label set
+  `361d307e-0718-49a0-8e81-77a754f635ad`, seed
+  `jul19-loop-window`, with 44 multi-episode, 15 multi-entry single-episode,
+  and 91 singleton-storyline entries.
+- Persistence: the completed run is in `complex_v1_experiment_runs`; its
+  immutable replay payload is in `complex_v1_experiment_cluster_snapshots`
+  with all 150 memberships and evidence rows. It is marked as the provisional
+  dashboard incumbent.
+- Evaluation status: fresh six-vector blinded judging was deliberately not
+  started after this replay, per the requested stop boundary while separate
+  databases are prepared for `complex_v1` and `simple_v1`. Snapshot reward
+  metadata says `pending_blind_evaluation`; no row was added to `scorecard.csv`.
+- Historical context: the matching incumbent configuration previously scored
+  R=0.689038 on run `aa4e1564-5055-47d3-a6f7-2e5288e3371c`; that database
+  snapshot was lost during a local reset, so its score is stored only as
+  historical metadata and is not attributed to this fresh run.
+- Status: paused after successful capture; no further experiment launched.
