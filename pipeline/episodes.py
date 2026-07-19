@@ -58,7 +58,8 @@ class EpisodeEngine:
         self.store.attach_entry(
             entry["id"], str(episode["id"]), entry["agency"], is_syndicated, method,
             similarity, matched_entry_id, threshold, self.cfg.embedding_model,
-            pack_fp16(new_centroid), entry["published_at"])
+            pack_fp16(new_centroid), entry["published_at"],
+            publisher_weight_version=self.cfg.publisher_weight_version)
         self._refresh_episode(str(episode["id"]), entry, vec, entry["published_at"])
         return {"entry_id": entry["id"], "episode_id": str(episode["id"]), "method": method,
                 "similarity": similarity, "matched_entry_id": matched_entry_id,

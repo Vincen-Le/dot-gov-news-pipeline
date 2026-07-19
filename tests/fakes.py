@@ -43,7 +43,7 @@ class FakeStore:
 
     def attach_entry(self, entry_id, episode_id, agency, is_syndicated, method,
                      similarity, matched_entry_id, threshold, embedding_model,
-                     episode_centroid, published_at):
+                     episode_centroid, published_at, publisher_weight_version=1):
         self.attaches.append({"entry_id": entry_id, "episode_id": episode_id,
                               "method": method, "similarity": similarity,
                               "is_syndicated": is_syndicated})

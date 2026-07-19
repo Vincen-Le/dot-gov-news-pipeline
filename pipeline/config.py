@@ -30,6 +30,7 @@ class Config:
     theme_sim_floor: float = 0.55
     theme_stick_floor: float = 0.50
     theme_knn_k: int = 5
+    publisher_weight_version: int = 1
 
 
 def _f(key: str, default: float) -> float:
@@ -67,4 +68,6 @@ def load_config() -> Config:
         theme_sim_floor=_f("THEME_SIM_FLOOR", Config.theme_sim_floor),
         theme_stick_floor=_f("THEME_STICK_FLOOR", Config.theme_stick_floor),
         theme_knn_k=int(os.environ.get("THEME_KNN_K", Config.theme_knn_k)),
+        publisher_weight_version=int(os.environ.get(
+            "PUBLISHER_WEIGHT_VERSION", Config.publisher_weight_version)),
     )

@@ -62,7 +62,8 @@ class Store:
     def attach_entry(self, entry_id: str, episode_id: str, agency: str, is_syndicated: bool,
                      method: str, similarity: float | None, matched_entry_id: str | None,
                      threshold: float | None, embedding_model: str | None,
-                     episode_centroid: bytes | None, published_at: datetime) -> None:
+                     episode_centroid: bytes | None, published_at: datetime,
+                     publisher_weight_version: int = 1) -> None:
         self.db.rpc(
             "attach_entry_to_episode", p_entry_id=entry_id, p_episode_id=episode_id,
             p_agency=agency, p_is_syndicated=is_syndicated, p_attach_method=method,
@@ -70,7 +71,8 @@ class Store:
             p_matched_entry_id=matched_entry_id,
             p_threshold_used=Float4(threshold) if threshold is not None else None,
             p_embedding_model=embedding_model,
-            p_episode_centroid=episode_centroid, p_published_at=published_at)
+            p_episode_centroid=episode_centroid, p_published_at=published_at,
+            p_publisher_weight_version=publisher_weight_version)
 
     def close_episode(self, episode_id: str) -> bool:
         return bool(self.db.rpc("close_episode", p_episode_id=episode_id))
