@@ -184,6 +184,40 @@ input:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.pipeline-environment-selector {
+  display: grid;
+  grid-template-columns: auto minmax(155px, 210px);
+  align-items: center;
+  gap: 0.12rem 0.45rem;
+}
+.pipeline-environment-selector label,
+.pipeline-environment-selector small {
+  color: var(--muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.pipeline-environment-selector select {
+  min-width: 0;
+  padding: 0.36rem 0.5rem;
+  border: 1px solid var(--rule);
+  background: var(--canvas);
+  color: var(--text);
+  font: 0.7rem var(--mono);
+}
+.pipeline-environment-selector small {
+  grid-column: 2;
+}
+.row-view-actions {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 400;
+}
+.row-view-actions a {
+  color: var(--muted);
+}
 .command-trigger,
 .theme-button,
 .text-button {

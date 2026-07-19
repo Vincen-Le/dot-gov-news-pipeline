@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useRef } from "react";
 import { z } from "zod";
 import { Link, useSearchParams } from "react-router-dom";
 
 import {
+  AgencyOptionSchema,
   LabCapabilitySchema,
   StorylineListItemSchema,
   TopicCategorySchema,
@@ -12,7 +13,12 @@ import {
 } from "../../lab/contracts";
 import { LabMetricsSchema } from "../../lab/metrics";
 import { fetchLab } from "../lab-api";
-import { useExperimentView, withExperiment } from "../experiment-view";
+import {
+  ExperimentViewSelector,
+  useExperimentRuns,
+  withExperiment,
+} from "../experiment-view";
+import { usePipelineEnvironment } from "../pipeline-environment";
 import {
   CopyCommand,
   ErrorState,
@@ -43,8 +49,13 @@ function compareGroups(
 }
 
 export function StorylinesPage() {
-  const { selectedId } = useExperimentView();
+  const { pipeline, ready } = usePipelineEnvironment();
   const [params, setParams] = useSearchParams();
+  const selectedId = params.get("experiment");
+  const { captured, experiments } = useExperimentRuns(pipeline, ready);
+  const filterStorageKey =
+    pipeline === undefined ? null : `ops-storyline-filters:${pipeline}`;
+  const activeStorageKey = useRef<string | null>(null);
   const entity = params.get("entity") ?? "";
   const agency = params.get("agency") ?? "";
   const minEpisodes = params.get("minEpisodes") ?? "";
@@ -58,15 +69,44 @@ export function StorylinesPage() {
   const page = Number.isInteger(parsedPage) && parsedPage > 1 ? parsedPage : 1;
   const offset = (page - 1) * PAGE_SIZE;
 
+  useEffect(() => {
+    if (!ready || filterStorageKey === null) return;
+    if (activeStorageKey.current === filterStorageKey) return;
+    activeStorageKey.current = filterStorageKey;
+    setParams(localStorage.getItem(filterStorageKey) ?? "", { replace: true });
+  }, [filterStorageKey, ready, setParams]);
+
+  useEffect(() => {
+    if (
+      filterStorageKey === null ||
+      activeStorageKey.current !== filterStorageKey
+    )
+      return;
+    localStorage.setItem(filterStorageKey, params.toString());
+  }, [filterStorageKey, params]);
+
+  useEffect(() => {
+    if (selectedId === null || experiments.data === undefined) return;
+    if (captured.some((run) => run.id === selectedId)) return;
+    const next = new URLSearchParams(params);
+    next.delete("experiment");
+    setParams(next, { replace: true });
+  }, [captured, experiments.data, params, selectedId, setParams]);
+
   const capability = useQuery({
-    queryFn: () => fetchLab("/capability", LabCapabilitySchema),
-    queryKey: ["lab-capability"],
+    enabled: ready,
+    queryFn: () => fetchLab("/capability", LabCapabilitySchema, pipeline),
+    queryKey: ["lab-capability", pipeline],
   });
   const metrics = useQuery({
     enabled: capability.data?.status === "available",
     queryFn: () =>
-      fetchLab(withExperiment("/metrics", selectedId), LabMetricsSchema),
-    queryKey: ["lab-metrics", selectedId],
+      fetchLab(
+        withExperiment("/metrics", selectedId),
+        LabMetricsSchema,
+        pipeline,
+      ),
+    queryKey: ["lab-metrics", pipeline, selectedId],
     refetchInterval: 60_000,
   });
   const agencies = useQuery({
@@ -74,9 +114,10 @@ export function StorylinesPage() {
     queryFn: () =>
       fetchLab(
         withExperiment("/agencies", selectedId),
-        z.object({ agencies: z.string().array() }),
+        z.object({ agencies: AgencyOptionSchema.array() }),
+        pipeline,
       ),
-    queryKey: ["lab-agencies", selectedId],
+    queryKey: ["lab-agencies", pipeline, selectedId],
   });
   const categories = useQuery({
     enabled: capability.data?.status === "available",
@@ -84,8 +125,9 @@ export function StorylinesPage() {
       fetchLab(
         withExperiment("/topics/categories", selectedId),
         z.object({ categories: TopicCategorySchema.array() }),
+        pipeline,
       ),
-    queryKey: ["lab-topic-categories", selectedId],
+    queryKey: ["lab-topic-categories", pipeline, selectedId],
   });
   const themes = useQuery({
     enabled: capability.data?.status === "available",
@@ -96,8 +138,9 @@ export function StorylinesPage() {
           selectedId,
         ),
         z.object({ themes: TopicThemeSchema.array() }),
+        pipeline,
       ),
-    queryKey: ["lab-topic-themes", selectedId, category],
+    queryKey: ["lab-topic-themes", pipeline, selectedId, category],
   });
   const query = new URLSearchParams();
   if (entity !== "") query.set("entity", entity);
@@ -107,6 +150,7 @@ export function StorylinesPage() {
   if (theme !== "") query.set("theme", theme);
   if (category !== "") query.set("category", category);
   if (groupBy !== "") query.set("groupBy", groupBy);
+  if (groupBy !== "") query.set("limit", "5000");
   if (offset > 0) query.set("offset", String(offset));
   if (selectedId !== null) query.set("experiment", selectedId);
   const storylines = useQuery({
@@ -118,9 +162,11 @@ export function StorylinesPage() {
           hasMore: z.boolean(),
           items: StorylineListItemSchema.array(),
         }),
+        pipeline,
       ),
     queryKey: [
       "lab-storylines",
+      pipeline,
       selectedId,
       entity,
       agency,
@@ -167,9 +213,9 @@ export function StorylinesPage() {
   };
   const knownAgencies = agencies.data?.agencies ?? [];
   const agencyOptions =
-    agency === "" || knownAgencies.includes(agency)
+    agency === "" || knownAgencies.some((option) => option.key === agency)
       ? knownAgencies
-      : [agency, ...knownAgencies];
+      : [{ displayName: agency, key: agency }, ...knownAgencies];
 
   return (
     <div className="page-stack">
@@ -178,6 +224,18 @@ export function StorylinesPage() {
         <div>
           <p className="eyebrow">Cluster QA</p>
           <h1>Storylines</h1>
+          <ExperimentViewSelector
+            onChange={(id) => {
+              const next = new URLSearchParams(params);
+              if (id === null) next.delete("experiment");
+              else next.set("experiment", id);
+              next.delete("page");
+              setParams(next);
+            }}
+            pipeline={pipeline}
+            ready={ready}
+            selectedId={selectedId}
+          />
           <p>
             Chains reconstructed from the synced corpus: every attach decision
             carries its method, similarity, and threshold as evidence.
@@ -242,6 +300,7 @@ export function StorylinesPage() {
             event.preventDefault();
             const data = new FormData(event.currentTarget);
             const next: Record<string, string> = {};
+            if (selectedId !== null) next.experiment = selectedId;
             for (const key of [
               "entity",
               "agency",
@@ -277,8 +336,8 @@ export function StorylinesPage() {
             >
               <option value="">All agencies</option>
               {agencyOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+                <option key={option.key} value={option.key}>
+                  {option.displayName}
                 </option>
               ))}
             </select>
@@ -295,8 +354,8 @@ export function StorylinesPage() {
               {(categories.data?.categories ?? []).map((option) => (
                 <option key={option.id} value={option.id}>
                   {option.origin === "llm"
-                    ? `${option.displayName} (LLM)`
-                    : option.displayName}
+                    ? `${option.displayName} (LLM)${option.storylineCount > 0 ? ` · ${option.storylineCount}` : ""}`
+                    : `${option.displayName}${option.storylineCount > 0 ? ` · ${option.storylineCount}` : ""}`}
                 </option>
               ))}
             </select>
@@ -340,9 +399,23 @@ export function StorylinesPage() {
             <select defaultValue={sort} id="sort" name="sort">
               <option value="">Newest first</option>
               <option value="episodes">Most episodes</option>
+              <option value="rank">Highest rank_key</option>
             </select>
           </div>
           <button type="submit">Apply filter</button>
+          <button
+            className="secondary-button"
+            onClick={() => {
+              const next = new URLSearchParams();
+              if (selectedId !== null) next.set("experiment", selectedId);
+              if (filterStorageKey !== null)
+                localStorage.removeItem(filterStorageKey);
+              setParams(next);
+            }}
+            type="button"
+          >
+            Reset all filters
+          </button>
         </form>
         {storylines.isLoading ? (
           <LoadingState />
@@ -357,6 +430,7 @@ export function StorylinesPage() {
                 <thead>
                   <tr>
                     <th>Storyline</th>
+                    <th>rank_key</th>
                     <th>Episodes</th>
                     <th>Entries</th>
                     <th>Feeds</th>
@@ -379,11 +453,24 @@ export function StorylinesPage() {
                       <Fragment key={item.id}>
                         {label !== null && label !== previousLabel ? (
                           <tr className="storyline-group-row">
-                            <th colSpan={9} scope="rowgroup">
+                            <th colSpan={10} scope="rowgroup">
                               <span>
                                 {groupBy === "theme" ? "Theme" : "Category"}
                               </span>
                               <strong>{label}</strong>
+                              <small>
+                                {
+                                  items.filter(
+                                    (candidate) =>
+                                      (groupBy === "theme"
+                                        ? (candidate.themeName ??
+                                          "Unassigned theme")
+                                        : (candidate.categoryName ??
+                                          "Unassigned category")) === label,
+                                  ).length
+                                }{" "}
+                                storylines
+                              </small>
                             </th>
                           </tr>
                         ) : null}
@@ -391,11 +478,30 @@ export function StorylinesPage() {
                           <th scope="row">
                             <Link
                               className="row-button"
-                              to={`/storylines/${item.id}`}
+                              to={`/storylines/${item.id}?${params.toString()}`}
                             >
                               {item.headline ?? "(no card yet)"}
                             </Link>
+                            <span className="row-view-actions">
+                              <Link
+                                to={`/storylines/${item.id}?${params.toString()}`}
+                              >
+                                expand
+                              </Link>
+                              <a
+                                href={`/storylines/${item.id}?${params.toString()}`}
+                                rel="noreferrer"
+                                target="_blank"
+                              >
+                                popout ↗
+                              </a>
+                            </span>
                           </th>
+                          <td className="numeric">
+                            {item.rankKey === null
+                              ? "—"
+                              : item.rankKey.toFixed(2)}
+                          </td>
                           <td className="numeric">{item.episodeCount}</td>
                           <td className="numeric">{item.entryCount}</td>
                           <td className="numeric">{item.distinctFeeds}</td>
@@ -418,23 +524,25 @@ export function StorylinesPage() {
             {storylines.data?.items.length === 0 ? (
               <p className="empty-row">Nothing on this page.</p>
             ) : null}
-            <div className="pagination">
-              <button
-                disabled={page <= 1}
-                onClick={() => goToPage(page - 1)}
-                type="button"
-              >
-                Previous
-              </button>
-              <span>Page {page}</span>
-              <button
-                disabled={storylines.data?.hasMore !== true}
-                onClick={() => goToPage(page + 1)}
-                type="button"
-              >
-                Next
-              </button>
-            </div>
+            {groupBy === "" ? (
+              <div className="pagination">
+                <button
+                  disabled={page <= 1}
+                  onClick={() => goToPage(page - 1)}
+                  type="button"
+                >
+                  Previous
+                </button>
+                <span>Page {page}</span>
+                <button
+                  disabled={storylines.data?.hasMore !== true}
+                  onClick={() => goToPage(page + 1)}
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
+            ) : null}
           </>
         )}
       </section>

@@ -11,14 +11,8 @@ import {
 } from "../../lab/contracts";
 import type { RunStage } from "../../lab/harness";
 import { LabMetricsSchema } from "../../lab/metrics";
-import {
-  fetchLab,
-  fetchPipelines,
-  labBasePath,
-  postLab,
-  LabApiError,
-} from "../lab-api";
-import { useExperimentView, withExperiment } from "../experiment-view";
+import { fetchLab, labBasePath, postLab, LabApiError } from "../lab-api";
+import { usePipelineEnvironment } from "../pipeline-environment";
 import {
   CopyCommand,
   ErrorState,
@@ -46,28 +40,197 @@ const SnapshotEventSchema = ActiveRunSchema.nullable();
 
 // hints mirror pipeline/config.py defaults and the attach tiers in
 // pipeline/episodes.py + pipeline/storylines.py — update together
-const OVERRIDE_FIELDS = [
+const OVERRIDE_FIELDS: {
+  engines: ("classic" | "spine")[];
+  hint: string;
+  key: string;
+}[] = [
   {
+    engines: ["classic", "spine"],
     hint: "Similarity at or above which an entry attaches to an episode as a syndicated near-duplicate. Default 0.90.",
     key: "NEAR_DUP_THRESHOLD",
   },
   {
+    engines: ["classic"],
     hint: "Minimum centroid similarity to join an open episode — rare shared entities join outright, the rest go to the adjudicator. Default 0.78.",
     key: "CLUSTER_JOIN_THRESHOLD",
   },
   {
+    engines: ["classic"],
     hint: "Entities with a daily EMA at or above this are ambient (seen everywhere) and never justify a join on their own. Default 3.",
     key: "AMBIENT_EMA_CEILING",
   },
   {
+    engines: ["classic"],
     hint: "Open episodes close after this many hours without a new entry; later matches start a new episode in the chain. Default 4.",
     key: "EPISODE_DORMANCY_HOURS",
   },
   {
+    engines: ["classic", "spine"],
     hint: "Set false to embed raw titles instead of LLM-enriched text — isolates enrichment's effect on clustering. Default true.",
     key: "ENRICHMENT_ENABLED",
   },
-] as const;
+  {
+    engines: ["classic", "spine"],
+    hint: "Content-hash duplicate window in hours. Default 72.",
+    key: "DEDUPE_WINDOW_HOURS",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Embedding model identifier.",
+    key: "EMBEDDING_MODEL",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Enrichment model identifier.",
+    key: "ENRICHER_MODEL",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Enrichment cache version. Default 1.",
+    key: "ENRICHER_VERSION",
+  },
+  {
+    engines: ["classic"],
+    hint: "Classic adjudication model identifier.",
+    key: "ADJUDICATOR_MODEL",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Link/ranking judge model identifier.",
+    key: "JUDGE_MODEL",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Model used for pairwise ranking audits.",
+    key: "AUDIT_MODEL",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Number of top-ranked items included in ranking audits. Default 30.",
+    key: "RANK_AUDIT_TOP_K",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Adjacent-position window used to build audit pairs. Default 3.",
+    key: "RANK_AUDIT_WINDOW",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Comma-separated facets audited after ranking. Default global,category.",
+    key: "RANK_AUDIT_FACETS",
+  },
+  {
+    engines: ["classic"],
+    hint: "Prompt contract version. Default 1.",
+    key: "PROMPT_VERSION",
+  },
+  {
+    engines: ["classic"],
+    hint: "Ranking rubric version. Default 1.",
+    key: "RUBRIC_VERSION",
+  },
+  {
+    engines: ["classic"],
+    hint: "Minimum similarity for storyline attachment. Default 0.60.",
+    key: "STORYLINE_SIM_FLOOR",
+  },
+  {
+    engines: ["classic"],
+    hint: "Enable classic topic/theme processing. Default false.",
+    key: "TOPICS_ENABLED",
+  },
+  {
+    engines: ["classic"],
+    hint: "Theme candidate similarity floor. Default 0.55.",
+    key: "THEME_SIM_FLOOR",
+  },
+  {
+    engines: ["classic"],
+    hint: "Nearest themes considered during assignment. Default 5.",
+    key: "THEME_KNN_K",
+  },
+  {
+    engines: ["classic"],
+    hint: "Storylines required to promote a theme. Default 4.",
+    key: "THEME_PROMOTION_MIN_STORYLINES",
+  },
+  {
+    engines: ["classic"],
+    hint: "Active days required to promote a theme. Default 3.",
+    key: "THEME_PROMOTION_MIN_ACTIVE_DAYS",
+  },
+  {
+    engines: ["classic"],
+    hint: "Promotion cohesion floor. Default 0.55.",
+    key: "THEME_PROMOTION_COHESION_FLOOR",
+  },
+  {
+    engines: ["classic"],
+    hint: "Promotion clustering floor. Default 0.60.",
+    key: "THEME_PROMOTION_CLUSTER_FLOOR",
+  },
+  {
+    engines: ["classic"],
+    hint: "Demotion cohesion floor. Default 0.40.",
+    key: "THEME_DEMOTION_COHESION_FLOOR",
+  },
+  {
+    engines: ["classic"],
+    hint: "Hours between classic theme sweeps. Default 24.",
+    key: "THEME_SWEEP_INTERVAL_HOURS",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Publisher weighting contract version. Default 1.",
+    key: "PUBLISHER_WEIGHT_VERSION",
+  },
+  {
+    engines: ["classic", "spine"],
+    hint: "Freshness decay constant in seconds. Default 124600.",
+    key: "TAU_SECONDS",
+  },
+  {
+    engines: ["spine"],
+    hint: "Minimum storyline candidate similarity. Default 0.60.",
+    key: "SPINE_SIM_FLOOR",
+  },
+  {
+    engines: ["spine"],
+    hint: "Candidates sent to the listwise judge. Default 3.",
+    key: "SPINE_TOP_K",
+  },
+  {
+    engines: ["spine"],
+    hint: "Hours before a new episode starts. Default 48.",
+    key: "SPINE_EPISODE_GAP_HOURS",
+  },
+  {
+    engines: ["spine"],
+    hint: "Embedding source: enriched or raw.",
+    key: "SPINE_EMBED_SOURCE",
+  },
+  {
+    engines: ["spine"],
+    hint: "Minimum storylines required for a theme. Default 5.",
+    key: "SPINE_THEME_MIN_SIZE",
+  },
+  {
+    engines: ["spine"],
+    hint: "Theme linkage similarity floor. Default 0.55.",
+    key: "SPINE_THEME_LINK_SIM",
+  },
+  {
+    engines: ["spine"],
+    hint: "Hours between theme sweeps. Default 168.",
+    key: "SPINE_THEME_SWEEP_INTERVAL_HOURS",
+  },
+  {
+    engines: ["spine"],
+    hint: "Overlap required to retain a theme ID. Default 0.5.",
+    key: "SPINE_THEME_KEEP_OVERLAP",
+  },
+];
 
 function stageStatus(stage: RunStage) {
   return stage.status === "running"
@@ -121,9 +284,11 @@ function Meter({ count, max }: { count: number; max: number }) {
 
 function RunSection({
   disabledReason,
+  engine,
   pipeline,
 }: {
   disabledReason: string | null;
+  engine?: string;
   pipeline?: string;
 }) {
   const queryClient = useQueryClient();
@@ -226,7 +391,9 @@ function RunSection({
             setNotice(null);
             const data = new FormData(event.currentTarget);
             const env: Record<string, string> = {};
-            for (const { key } of OVERRIDE_FIELDS) {
+            for (const { key } of OVERRIDE_FIELDS.filter(({ engines }) =>
+              engines.includes(engine === "spine" ? "spine" : "classic"),
+            )) {
               const value = data.get(key);
               if (typeof value === "string" && value.trim() !== "")
                 env[key] = value.trim();
@@ -242,6 +409,7 @@ function RunSection({
                 noCache: data.get("noCache") === "on",
                 prepare: data.get("prepare") === "on" ? true : undefined,
                 stub: data.get("stub") === "on",
+                until: String(data.get("until") ?? "") || null,
               },
               ActiveRunSchema,
               pipeline,
@@ -267,7 +435,9 @@ function RunSection({
             <label htmlFor="exp-name">Name</label>
             <input id="exp-name" name="name" placeholder="baseline" required />
           </div>
-          {OVERRIDE_FIELDS.map(({ hint, key }) => (
+          {OVERRIDE_FIELDS.filter(({ engines }) =>
+            engines.includes(engine === "spine" ? "spine" : "classic"),
+          ).map(({ hint, key }) => (
             <div key={key}>
               <label htmlFor={`exp-${key}`}>{key.toLowerCase()}</label>
               <input
@@ -287,6 +457,11 @@ function RunSection({
               name="limit"
               placeholder="all prepared entries"
             />
+          </div>
+          <div>
+            <label htmlFor="exp-until">Replay through</label>
+            <input id="exp-until" name="until" placeholder="YYYY-MM-DD" />
+            <p className="field-hint">Inclusive event-time upper bound.</p>
           </div>
           <div className="lab-form-actions">
             <span className="checkbox-row">
@@ -360,24 +535,12 @@ function RunSection({
 
 export function LabPage() {
   const queryClient = useQueryClient();
-  const { selectedId, selectedRun } = useExperimentView();
+  const { engine, pipeline, ready } = usePipelineEnvironment();
   const [baselineId, setBaselineId] = useState<string>("");
-  const [pipeline, setPipeline] = useState<string | undefined>(undefined);
-
-  const pipelines = useQuery({
-    queryFn: fetchPipelines,
-    queryKey: ["lab-pipelines"],
-  });
-  // Once the registry loads, default to its first pipeline rather than the
-  // env-only connection — with a registry present that env DSN is not
-  // guaranteed to be either registered pipeline's own database.
-  useEffect(() => {
-    if (pipeline === undefined && (pipelines.data?.length ?? 0) > 0) {
-      setPipeline(pipelines.data?.[0]?.name);
-    }
-  }, [pipeline, pipelines.data]);
+  useEffect(() => setBaselineId(""), [pipeline]);
 
   const capability = useQuery({
+    enabled: ready,
     queryFn: () => fetchLab("/capability", LabCapabilitySchema, pipeline),
     queryKey: ["lab-capability", pipeline],
   });
@@ -389,14 +552,12 @@ export function LabPage() {
   });
   const metrics = useQuery({
     enabled,
-    queryFn: () =>
-      fetchLab(withExperiment("/metrics", selectedId), LabMetricsSchema, pipeline),
-    queryKey: ["lab-metrics", pipeline, selectedId],
+    queryFn: () => fetchLab("/metrics", LabMetricsSchema, pipeline),
+    queryKey: ["lab-metrics", pipeline],
   });
   const experiments = useQuery({
     enabled,
-    queryFn: () =>
-      fetchLab("/experiments", ExperimentListSchema, pipeline),
+    queryFn: () => fetchLab("/experiments", ExperimentListSchema, pipeline),
     queryKey: ["lab-experiments", pipeline],
     refetchInterval: 30_000,
   });
@@ -404,11 +565,11 @@ export function LabPage() {
     enabled,
     queryFn: () =>
       fetchLab(
-        withExperiment("/borderline?limit=25", selectedId),
+        "/borderline?limit=25",
         z.object({ items: BorderlinePairSchema.array() }),
         pipeline,
       ),
-    queryKey: ["lab-borderline", pipeline, selectedId],
+    queryKey: ["lab-borderline", pipeline],
   });
   const labels = useQuery({
     enabled,
@@ -447,82 +608,16 @@ export function LabPage() {
         <div>
           <p className="eyebrow">Experiment bench</p>
           <h1>Lab</h1>
-          {(pipelines.data?.length ?? 0) > 0 ? (
-            <div className="pipeline-switcher">
-              <label htmlFor="pipeline-select">Pipeline</label>
-              <select
-                id="pipeline-select"
-                onChange={(event) => {
-                  setBaselineId("");
-                  setPipeline(event.currentTarget.value);
-                }}
-                value={pipeline ?? ""}
-              >
-                {pipelines.data?.map((entry) => (
-                  <option key={entry.name} value={entry.name}>
-                    {entry.name} ({entry.engine})
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
+          <p className="source-note">
+            Active environment: <strong>{pipeline ?? "default"}</strong> ·{" "}
+            {engine ?? "classic"}
+          </p>
           <p>
             Replay the synced corpus through the clustering pipeline, measure
             the chains it builds, and label its borderline decisions.
           </p>
         </div>
       </section>
-
-      {selectedRun?.snapshot === null || selectedRun === null ? null : (
-        <section className="experiment-view-receipt">
-          <div>
-            <span className="eyebrow">
-              {selectedRun.snapshot.isBest
-                ? "Best captured run"
-                : "Captured run"}
-            </span>
-            <strong>{selectedRun.name}</strong>
-            <code>{selectedRun.id}</code>
-          </div>
-          <p>
-            {selectedRun.snapshot.note ?? "No experiment note has been added."}
-          </p>
-          <dl>
-            <div>
-              <dt>Reward</dt>
-              <dd>
-                {typeof selectedRun.snapshot.reward?.score === "number"
-                  ? Number(selectedRun.snapshot.reward.score).toFixed(6)
-                  : "not judged"}
-              </dd>
-            </div>
-            <div>
-              <dt>Formula</dt>
-              <dd>
-                {typeof selectedRun.snapshot.reward?.formula === "string"
-                  ? selectedRun.snapshot.reward.formula
-                  : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt>Vectors</dt>
-              <dd className="mono">
-                {selectedRun.snapshot.reward?.vectors === undefined
-                  ? "—"
-                  : JSON.stringify(selectedRun.snapshot.reward.vectors)}
-              </dd>
-            </div>
-            <div>
-              <dt>Rows</dt>
-              <dd className="mono">
-                {Object.entries(selectedRun.snapshot.rowCounts)
-                  .map(([key, value]) => `${key} ${value}`)
-                  .join(" · ")}
-              </dd>
-            </div>
-          </dl>
-        </section>
-      )}
 
       <section className="receipt-grid" id="corpus">
         {corpus.isLoading ? (
@@ -581,6 +676,7 @@ export function LabPage() {
                 ? `Experiment "${experiments.data.active.name}" is running`
                 : null
         }
+        engine={engine}
         pipeline={pipeline}
       />
 

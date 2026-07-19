@@ -111,7 +111,7 @@ describe("lab routes", () => {
     const agencies = await fetch(`${base}/agencies`);
     expect(agencies.status).toBe(200);
     expect(((await agencies.json()) as { data: unknown }).data).toEqual({
-      agencies: ["fda"],
+      agencies: [{ displayName: "fda", key: "fda" }],
     });
 
     const experiments = await fetch(`${base}/experiments`);

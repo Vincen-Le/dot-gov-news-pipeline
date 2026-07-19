@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 export const LAB_ENV_WHITELIST = [
   "ADJUDICATOR_MODEL",
   "AMBIENT_EMA_CEILING",
+  "AUDIT_MODEL",
   "CLUSTER_JOIN_THRESHOLD",
   "DEDUPE_WINDOW_HOURS",
   "EMBEDDING_MODEL",
@@ -15,7 +16,12 @@ export const LAB_ENV_WHITELIST = [
   "LAB_ENGINE",
   "NEAR_DUP_THRESHOLD",
   "PROMPT_VERSION",
+  "PUBLISHER_WEIGHT_VERSION",
+  "RANK_AUDIT_FACETS",
+  "RANK_AUDIT_TOP_K",
+  "RANK_AUDIT_WINDOW",
   "RUBRIC_VERSION",
+  "STORYLINE_SIM_FLOOR",
   "SPINE_EMBED_SOURCE",
   "SPINE_EPISODE_GAP_HOURS",
   "SPINE_SIM_FLOOR",
@@ -25,6 +31,15 @@ export const LAB_ENV_WHITELIST = [
   "SPINE_THEME_SWEEP_INTERVAL_HOURS",
   "SPINE_TOP_K",
   "TAU_SECONDS",
+  "THEME_DEMOTION_COHESION_FLOOR",
+  "THEME_KNN_K",
+  "THEME_PROMOTION_CLUSTER_FLOOR",
+  "THEME_PROMOTION_COHESION_FLOOR",
+  "THEME_PROMOTION_MIN_ACTIVE_DAYS",
+  "THEME_PROMOTION_MIN_STORYLINES",
+  "THEME_SIM_FLOOR",
+  "THEME_SWEEP_INTERVAL_HOURS",
+  "TOPICS_ENABLED",
 ] as const;
 
 const NAME_PATTERN = /^[a-z0-9][a-z0-9._-]{0,63}$/i;
@@ -237,8 +252,7 @@ export class ExperimentHarness {
       } catch (error) {
         failed = true;
         stage.status = "failed";
-        stage.detail =
-          error instanceof Error ? error.message : "stage failed";
+        stage.detail = error instanceof Error ? error.message : "stage failed";
       }
       this.emit({ stage: { ...stage }, type: "stage" });
     }
@@ -262,7 +276,9 @@ export interface LineSplitter {
  * (or contain several lines), so the last (possibly incomplete) segment is
  * held back as the new remainder instead of being emitted right away.
  */
-export function createLineSplitter(onLine: (line: string) => void): LineSplitter {
+export function createLineSplitter(
+  onLine: (line: string) => void,
+): LineSplitter {
   let remainder = "";
   return {
     flush(): void {

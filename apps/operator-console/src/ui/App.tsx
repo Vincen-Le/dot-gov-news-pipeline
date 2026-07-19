@@ -3,9 +3,9 @@ import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 
 import { operatorRecipes } from "../recipes";
 import {
-  ExperimentViewProvider,
-  ExperimentViewSelector,
-} from "./experiment-view";
+  PipelineEnvironmentProvider,
+  PipelineEnvironmentSelector,
+} from "./pipeline-environment";
 import { CapabilityPage } from "./pages/CapabilityPage";
 import { EventsPage } from "./pages/EventsPage";
 import { InventoryPage } from "./pages/InventoryPage";
@@ -121,7 +121,7 @@ export function App() {
   }, []);
 
   return (
-    <ExperimentViewProvider>
+    <PipelineEnvironmentProvider>
       <div className="app-shell">
         <header className="app-header">
           <Link className="brand" to="/">
@@ -147,7 +147,7 @@ export function App() {
             ))}
           </nav>
           <div className="header-actions">
-            <ExperimentViewSelector />
+            <PipelineEnvironmentSelector />
             <button
               className="command-trigger"
               onClick={() => setPaletteOpen(true)}
@@ -197,6 +197,6 @@ export function App() {
           <CommandPalette close={() => setPaletteOpen(false)} />
         ) : null}
       </div>
-    </ExperimentViewProvider>
+    </PipelineEnvironmentProvider>
   );
 }

@@ -1,6 +1,6 @@
 // apps/operator-console/src/lab/routes.ts
 import express, { type Request, type Response, Router } from "express";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 
@@ -63,6 +63,28 @@ function sendError(
 export function createLabRouter(deps: LabRouteDeps): Router {
   const router = Router();
   router.use(express.json({ limit: "64kb" }));
+  const agencyNames = new Map<string, string>();
+  const manifestsDir = join(deps.repoRoot, "config", "news-backfill");
+  if (existsSync(manifestsDir)) {
+    for (const file of readdirSync(manifestsDir).filter((name) =>
+      name.endsWith(".json"),
+    )) {
+      try {
+        const manifest = JSON.parse(
+          readFileSync(join(manifestsDir, file), "utf8"),
+        ) as {
+          publishers?: { displayName?: string; publisherKey?: string }[];
+        };
+        for (const publisher of manifest.publishers ?? []) {
+          if (publisher.publisherKey && publisher.displayName) {
+            agencyNames.set(publisher.publisherKey, publisher.displayName);
+          }
+        }
+      } catch {
+        // A malformed optional curation manifest must not disable the lab router.
+      }
+    }
+  }
 
   const requireQueries = async (
     response: Response,
@@ -158,7 +180,7 @@ export function createLabRouter(deps: LabRouteDeps): Router {
         return Number.isFinite(parsed) ? parsed : undefined;
       };
       // fetch one row past the page so hasMore is exact without a count query
-      const requested = Math.min(asNumber(request.query.limit) ?? 50, 500);
+      const requested = Math.min(asNumber(request.query.limit) ?? 50, 5000);
       const rows = await queries.storylines({
         agency: asString(request.query.agency),
         category: asString(request.query.category),
@@ -171,7 +193,10 @@ export function createLabRouter(deps: LabRouteDeps): Router {
         limit: requested + 1,
         minEpisodes: asNumber(request.query.minEpisodes),
         offset: Math.max(asNumber(request.query.offset) ?? 0, 0),
-        sort: request.query.sort === "episodes" ? "episodes" : undefined,
+        sort:
+          request.query.sort === "episodes" || request.query.sort === "rank"
+            ? request.query.sort
+            : undefined,
         theme: asString(request.query.theme),
       });
       response.json({
@@ -319,7 +344,15 @@ export function createLabRouter(deps: LabRouteDeps): Router {
     handle(async (request, response) => {
       const queries = await viewQueries(request, response);
       if (queries === null) return;
-      response.json({ data: { agencies: await queries.storylineAgencies() } });
+      const agencies = await queries.storylineAgencies();
+      response.json({
+        data: {
+          agencies: agencies.map((key) => ({
+            displayName: agencyNames.get(key) ?? key,
+            key,
+          })),
+        },
+      });
     }),
   );
 

@@ -142,7 +142,7 @@ export class LabQueries {
     limit?: number;
     minEpisodes?: number;
     offset?: number;
-    sort?: "episodes";
+    sort?: "episodes" | "rank";
     theme?: string;
   }): Promise<StorylineListItem[]> {
     if (this.snapshot !== null) return this.snapshot.storylines(filter);
@@ -151,7 +151,7 @@ export class LabQueries {
       select s.id, s.entity_set, s.event_keys, s.agency_ids, s.distinct_feeds,
              s.entry_count, s.episode_count, s.first_entry_at, s.newest_entry_at,
              s.theme_id, tt.display_name as theme_name, tc.display_name as category_name,
-             c.headline
+             c.headline, c.rank_key
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
       left join public.topic_themes tt on tt.id = s.theme_id
@@ -166,16 +166,22 @@ export class LabQueries {
         filter.groupBy === "theme"
           ? filter.sort === "episodes"
             ? sql`order by tt.display_name asc nulls last, s.episode_count desc, s.newest_entry_at desc, s.id`
-            : sql`order by tt.display_name asc nulls last, s.newest_entry_at desc, s.entry_count desc, s.id`
+            : filter.sort === "rank"
+              ? sql`order by tt.display_name asc nulls last, c.rank_key desc nulls last, s.id`
+              : sql`order by tt.display_name asc nulls last, s.newest_entry_at desc, s.entry_count desc, s.id`
           : filter.groupBy === "category"
             ? filter.sort === "episodes"
               ? sql`order by tc.display_name asc nulls last, s.episode_count desc, s.newest_entry_at desc, s.id`
-              : sql`order by tc.display_name asc nulls last, s.newest_entry_at desc, s.entry_count desc, s.id`
+              : filter.sort === "rank"
+                ? sql`order by tc.display_name asc nulls last, c.rank_key desc nulls last, s.id`
+                : sql`order by tc.display_name asc nulls last, s.newest_entry_at desc, s.entry_count desc, s.id`
             : filter.sort === "episodes"
               ? sql`order by s.episode_count desc, s.newest_entry_at desc, s.id`
-              : sql`order by s.newest_entry_at desc, s.entry_count desc, s.id`
+              : filter.sort === "rank"
+                ? sql`order by c.rank_key desc nulls last, s.newest_entry_at desc, s.id`
+                : sql`order by s.newest_entry_at desc, s.entry_count desc, s.id`
       }
-      limit ${Math.min(filter.limit ?? 50, 500)}
+      limit ${Math.min(filter.limit ?? 50, 5000)}
       offset ${Math.max(filter.offset ?? 0, 0)}
     `;
     return rows.map((row) => ({
@@ -190,6 +196,7 @@ export class LabQueries {
       headline: (row.headline as string | null) ?? null,
       id: String(row.id),
       newestEntryAt: (row.newest_entry_at as Date).toISOString(),
+      rankKey: row.rank_key === null ? null : Number(row.rank_key),
       themeId: row.theme_id === null ? null : String(row.theme_id),
       themeName: (row.theme_name as string | null) ?? null,
     }));
@@ -238,7 +245,9 @@ export class LabQueries {
     const rows = await this.sql`
       select c.id, c.display_name, c.origin, c.proposal_reason,
              (select count(*)::integer from public.topic_themes t
-              where t.category_id = c.id and t.merged_into is null) as theme_count
+              where t.category_id = c.id and t.merged_into is null) as theme_count,
+             (select count(*)::integer from public.storylines s
+              where s.category_id = c.id and s.merged_into is null) as storyline_count
       from public.topic_categories c
       order by c.display_name
     `;
@@ -247,6 +256,7 @@ export class LabQueries {
       id: String(row.id),
       origin: String(row.origin) as "seed" | "llm",
       proposalReason: (row.proposal_reason as string | null) ?? null,
+      storylineCount: Number(row.storyline_count),
       themeCount: Number(row.theme_count),
     }));
   }
@@ -259,7 +269,7 @@ export class LabQueries {
              s.theme_id, s.theme_attach_method, s.theme_similarity, s.theme_reason,
              tt.display_name as theme_name, s.category_id,
              tc.display_name as category_name,
-             c.headline
+             c.headline, c.rank_key
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
       left join public.topic_themes tt on tt.id = s.theme_id
@@ -372,6 +382,7 @@ export class LabQueries {
       headline: (storyline.headline as string | null) ?? null,
       id: String(storyline.id),
       newestEntryAt: (storyline.newest_entry_at as Date).toISOString(),
+      rankKey: storyline.rank_key === null ? null : Number(storyline.rank_key),
       overviewCards,
       themeAttachMethod:
         storyline.theme_attach_method === null

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import {
   StorylineDetailSchema,
@@ -8,7 +8,8 @@ import {
   type EventCard,
 } from "../../lab/contracts";
 import { fetchLab } from "../lab-api";
-import { useExperimentView, withExperiment } from "../experiment-view";
+import { withExperiment } from "../experiment-view";
+import { usePipelineEnvironment } from "../pipeline-environment";
 import {
   CopyCommand,
   ErrorState,
@@ -150,16 +151,19 @@ function OverviewCardBlock({ card }: { card: EventCard }) {
 
 export function StorylineDetailPage() {
   const { id } = useParams();
-  const { selectedId } = useExperimentView();
+  const { pipeline, ready } = usePipelineEnvironment();
+  const [searchParams] = useSearchParams();
+  const selectedId = searchParams.get("experiment");
   const [selected, setSelected] = useState<EntryEvidence | null>(null);
   const detail = useQuery({
-    enabled: id !== undefined,
+    enabled: id !== undefined && ready,
     queryFn: () =>
       fetchLab(
         withExperiment(`/storylines/${id}`, selectedId),
         StorylineDetailSchema,
+        pipeline,
       ),
-    queryKey: ["lab-storyline", selectedId, id],
+    queryKey: ["lab-storyline", pipeline, selectedId, id],
   });
 
   if (detail.isLoading) return <LoadingState label="Loading chain" />;
@@ -171,7 +175,10 @@ export function StorylineDetailPage() {
     <div className="page-stack">
       <section className="page-intro">
         <span className="section-index">
-          <Link className="row-button" to="/storylines">
+          <Link
+            className="row-button"
+            to={`/storylines?${searchParams.toString()}`}
+          >
             ← Storylines
           </Link>
         </span>

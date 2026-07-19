@@ -18,7 +18,7 @@ type StorylineFilter = {
   limit?: number;
   minEpisodes?: number;
   offset?: number;
-  sort?: "episodes";
+  sort?: "episodes" | "rank";
   theme?: string;
 };
 
@@ -226,6 +226,10 @@ export class SnapshotQueries {
           row.category_id === null
             ? undefined
             : categories.get(row.category_id);
+        const latestCard =
+          row.latest_card_id === null
+            ? undefined
+            : cards.get(row.latest_card_id);
         return {
           agencies: row.agency_ids,
           categoryName: category?.display_name ?? null,
@@ -241,6 +245,10 @@ export class SnapshotQueries {
               : (cards.get(row.latest_card_id)?.headline ?? null),
           id: row.id,
           newestEntryAt: new Date(row.newest_entry_at).toISOString(),
+          rankKey:
+            latestCard?.rank_key === undefined
+              ? null
+              : Number(latestCard.rank_key),
           themeId: row.theme_id,
           themeName: theme?.display_name ?? null,
         };
@@ -252,7 +260,9 @@ export class SnapshotQueries {
           compareText(left.themeName, right.themeName) ||
           (filter.sort === "episodes"
             ? right.episodeCount - left.episodeCount
-            : newestFirst(left.newestEntryAt, right.newestEntryAt)) ||
+            : filter.sort === "rank"
+              ? (right.rankKey ?? -Infinity) - (left.rankKey ?? -Infinity)
+              : newestFirst(left.newestEntryAt, right.newestEntryAt)) ||
           left.id.localeCompare(right.id)
         );
       }
@@ -261,20 +271,24 @@ export class SnapshotQueries {
           compareText(left.categoryName, right.categoryName) ||
           (filter.sort === "episodes"
             ? right.episodeCount - left.episodeCount
-            : newestFirst(left.newestEntryAt, right.newestEntryAt)) ||
+            : filter.sort === "rank"
+              ? (right.rankKey ?? -Infinity) - (left.rankKey ?? -Infinity)
+              : newestFirst(left.newestEntryAt, right.newestEntryAt)) ||
           left.id.localeCompare(right.id)
         );
       }
       return (
         (filter.sort === "episodes"
           ? right.episodeCount - left.episodeCount
-          : newestFirst(left.newestEntryAt, right.newestEntryAt)) ||
+          : filter.sort === "rank"
+            ? (right.rankKey ?? -Infinity) - (left.rankKey ?? -Infinity)
+            : newestFirst(left.newestEntryAt, right.newestEntryAt)) ||
         right.entryCount - left.entryCount ||
         left.id.localeCompare(right.id)
       );
     });
     const offset = Math.max(filter.offset ?? 0, 0);
-    return shaped.slice(offset, offset + Math.min(filter.limit ?? 50, 500));
+    return shaped.slice(offset, offset + Math.min(filter.limit ?? 50, 5000));
   }
 
   async storylineAgencies(): Promise<string[]> {
@@ -332,6 +346,10 @@ export class SnapshotQueries {
         id: row.id,
         origin: row.origin,
         proposalReason: row.proposal_reason,
+        storylineCount: snapshot.storylines.filter(
+          (storyline) =>
+            storyline.category_id === row.id && storyline.merged_into === null,
+        ).length,
         themeCount: snapshot.topic_themes.filter(
           (theme) => theme.category_id === row.id && theme.merged_into === null,
         ).length,
@@ -377,6 +395,12 @@ export class SnapshotQueries {
         ? undefined
         : snapshot.topic_categories.find(
             (row) => row.id === storyline.category_id,
+          );
+    const latestCard =
+      storyline.latest_card_id === null
+        ? undefined
+        : snapshot.event_cards.find(
+            (card) => card.id === storyline.latest_card_id,
           );
 
     return {
@@ -450,6 +474,8 @@ export class SnapshotQueries {
             )?.headline ?? null),
       id: storyline.id,
       newestEntryAt: new Date(storyline.newest_entry_at).toISOString(),
+      rankKey:
+        latestCard?.rank_key === undefined ? null : Number(latestCard.rank_key),
       overviewCards,
       themeAttachMethod: storyline.theme_attach_method,
       themeId: storyline.theme_id,

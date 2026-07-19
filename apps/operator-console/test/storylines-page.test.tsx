@@ -74,6 +74,7 @@ const STORYLINES_PAYLOAD = {
         headline: "Valsatrex recall chain",
         id: "00000000-0000-4000-8000-000000000021",
         newestEntryAt: "2026-05-17T15:00:00.000Z",
+        rankKey: 8.75,
         themeId: "00000000-0000-4000-8000-0000000000d1",
         themeName: "Valsatrex recall fallout",
       },
@@ -105,7 +106,12 @@ const STORYLINES_PAGE_2_PAYLOAD = {
 };
 
 const AGENCIES_PAYLOAD = {
-  data: { agencies: ["cdc", "fda"] },
+  data: {
+    agencies: [
+      { displayName: "Centers for Disease Control and Prevention", key: "cdc" },
+      { displayName: "Food and Drug Administration", key: "fda" },
+    ],
+  },
 };
 
 const CATEGORIES_PAYLOAD = {
@@ -116,6 +122,7 @@ const CATEGORIES_PAYLOAD = {
         id: "00000000-0000-4000-8000-0000000000c1",
         origin: "seed",
         proposalReason: null,
+        storylineCount: 12,
         themeCount: 1,
       },
       {
@@ -123,6 +130,7 @@ const CATEGORIES_PAYLOAD = {
         id: "00000000-0000-4000-8000-0000000000c9",
         origin: "llm",
         proposalReason: "proposed by classifier",
+        storylineCount: 2,
         themeCount: 0,
       },
     ],
@@ -149,25 +157,25 @@ function mockFetchRoutes(
   storylinesPayload: unknown = STORYLINES_PAYLOAD,
 ): ReturnType<typeof vi.fn> {
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-      const url = String(input);
-      if (url.includes("/api/lab/capability")) {
-        return jsonResponse({
-          data: { experimentsEnabled: true, status: "available" },
-        });
-      }
-      if (url.includes("/api/lab/metrics")) {
-        return jsonResponse(METRICS_PAYLOAD);
-      }
-      if (url.includes("/api/lab/agencies")) {
-        return jsonResponse(AGENCIES_PAYLOAD);
-      }
-      if (url.includes("/api/lab/topics/categories")) {
-        return jsonResponse(CATEGORIES_PAYLOAD);
-      }
-      if (url.includes("/api/lab/topics/themes")) {
-        return jsonResponse(THEMES_PAYLOAD);
-      }
-      return jsonResponse(storylinesPayload);
+    const url = String(input);
+    if (url.includes("/api/lab/capability")) {
+      return jsonResponse({
+        data: { experimentsEnabled: true, status: "available" },
+      });
+    }
+    if (url.includes("/api/lab/metrics")) {
+      return jsonResponse(METRICS_PAYLOAD);
+    }
+    if (url.includes("/api/lab/agencies")) {
+      return jsonResponse(AGENCIES_PAYLOAD);
+    }
+    if (url.includes("/api/lab/topics/categories")) {
+      return jsonResponse(CATEGORIES_PAYLOAD);
+    }
+    if (url.includes("/api/lab/topics/themes")) {
+      return jsonResponse(THEMES_PAYLOAD);
+    }
+    return jsonResponse(storylinesPayload);
   });
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
@@ -198,6 +206,8 @@ describe("StorylinesPage", () => {
       await screen.findByText("Valsatrex recall chain"),
     ).toBeInTheDocument();
     expect(await screen.findByText("z-2026-0143")).toBeInTheDocument();
+    expect(await screen.findByText("8.75")).toBeInTheDocument();
+    expect(screen.getByText("Reset all filters")).toBeInTheDocument();
   });
 
   it("offers an agency quick filter and episode-count sort", async () => {
@@ -220,9 +230,15 @@ describe("StorylinesPage", () => {
     renderPage("/storylines?sort=episodes");
     // agency dropdown lists the filterable agency ids
     expect(
-      await screen.findByRole("option", { name: "fda" }),
+      await screen.findByRole("option", {
+        name: "Food and Drug Administration",
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "cdc" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", {
+        name: "Centers for Disease Control and Prevention",
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Agency")).toHaveValue("");
     // sort param round-trips: select reflects it, the api call carries it
     expect(screen.getByLabelText("Sort")).toHaveValue("episodes");
@@ -259,7 +275,9 @@ describe("StorylinesPage", () => {
     await screen.findByText("Valsatrex recall chain");
     expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    expect(await screen.findByText("SSA opens Tulsa office")).toBeInTheDocument();
+    expect(
+      await screen.findByText("SSA opens Tulsa office"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Page 2")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Previous" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
@@ -275,9 +293,7 @@ describe("StorylinesPage", () => {
     expect(await screen.findByLabelText("Category")).toBeTruthy();
     expect(await screen.findByLabelText("Theme")).toBeTruthy();
     // llm-origin categories are visibly marked for auditability
-    expect(
-      await screen.findByText("Test LLM Category (LLM)"),
-    ).toBeTruthy();
+    expect(await screen.findByText("Test LLM Category (LLM) · 2")).toBeTruthy();
     expect(
       screen.getByRole("columnheader", { name: "Category" }),
     ).toBeInTheDocument();
@@ -286,9 +302,7 @@ describe("StorylinesPage", () => {
 
   it("shows the theme chip on storyline rows and filters the api call", async () => {
     const fetchMock = mockFetchRoutes();
-    renderPage(
-      "/storylines?theme=00000000-0000-4000-8000-0000000000d1",
-    );
+    renderPage("/storylines?theme=00000000-0000-4000-8000-0000000000d1");
     // theme chip on the row (the Theme column renders the storyline's theme)
     expect(
       await screen.findAllByText("Valsatrex recall fallout"),

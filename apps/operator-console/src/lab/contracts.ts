@@ -32,6 +32,7 @@ export const StorylineListItemSchema = z.object({
   headline: z.string().nullable(),
   id: z.string(),
   newestEntryAt: z.string(),
+  rankKey: z.number().nullable().default(null),
   themeId: z.string().nullable(),
   themeName: z.string().nullable(),
 });
@@ -105,8 +106,15 @@ export const TopicCategorySchema = z.object({
   id: z.string(),
   origin: z.enum(["seed", "llm"]),
   proposalReason: z.string().nullable(),
+  storylineCount: z.number().default(0),
   themeCount: z.number(),
 });
+
+export const AgencyOptionSchema = z
+  .union([z.string(), z.object({ displayName: z.string(), key: z.string() })])
+  .transform((value) =>
+    typeof value === "string" ? { displayName: value, key: value } : value,
+  );
 
 export const TopicThemeSchema = z.object({
   categoryId: z.string().nullable(),

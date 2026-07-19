@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 
@@ -14,6 +14,7 @@ import {
 } from "../../lab/contracts";
 import { ErrorState, LoadingState, SectionHeading } from "../components";
 import { fetchLab, postLab } from "../lab-api";
+import { usePipelineEnvironment } from "../pipeline-environment";
 import "../rank.css";
 
 const ExperimentListSchema = z.object({
@@ -70,10 +71,12 @@ function TermBar({ row }: { row: RankSnapshotRow }) {
 
 function AuditDetail({
   pair,
+  pipeline,
   rows,
   runId,
 }: {
   pair: RankAuditPair;
+  pipeline?: string;
   rows: RankSnapshotRow[];
   runId: string;
 }) {
@@ -89,9 +92,12 @@ function AuditDetail({
           storylineB: pair.storylineB,
         },
         OkSchema,
+        pipeline,
       ),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["rank-audit"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["rank-audit", pipeline],
+      });
     },
   });
   const headline = (position: number): string =>
@@ -103,7 +109,8 @@ function AuditDetail({
         {pair.positionB} {headline(pair.positionB)}
       </p>
       <p>
-        <b>llm says:</b> {pair.llmPrefers === "b" ? "swap them" : pair.llmPrefers}
+        <b>llm says:</b>{" "}
+        {pair.llmPrefers === "b" ? "swap them" : pair.llmPrefers}
         {pair.llmReason === null ? null : <> — {pair.llmReason}</>}
       </p>
       <p className="rank-audit-actions">
@@ -121,25 +128,43 @@ function AuditDetail({
         >
           LLM is right
         </button>
-        {label.isSuccess ? <span className="rank-labeled">labeled ✓</span> : null}
+        {label.isSuccess ? (
+          <span className="rank-labeled">labeled ✓</span>
+        ) : null}
       </p>
     </div>
   );
 }
 
 export function RankingPage() {
+  const { pipeline, ready } = usePipelineEnvironment();
   const [params, setParams] = useSearchParams();
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const runs = useQuery({
-    queryFn: () => fetchLab("/experiments", ExperimentListSchema),
-    queryKey: ["lab-experiments"],
+    enabled: ready,
+    queryFn: () => fetchLab("/experiments", ExperimentListSchema, pipeline),
+    queryKey: ["lab-experiments", pipeline],
   });
   const runId = params.get("run") ?? runs.data?.items[0]?.id ?? "";
   const compareId = params.get("compare") ?? "";
   const facetType = params.get("facetType") ?? "global";
   const facetKey = params.get("facetKey") ?? "";
   const facetParam = `run=${runId}&facetType=${encodeURIComponent(facetType)}&facetKey=${encodeURIComponent(facetKey)}`;
+  const runIsValid =
+    runId !== "" && runs.data?.items.some((run) => run.id === runId) === true;
+
+  useEffect(() => {
+    const requested = params.get("run");
+    if (requested === null || runs.data === undefined) return;
+    if (runs.data.items.some((run) => run.id === requested)) return;
+    const next = new URLSearchParams(params);
+    next.delete("run");
+    next.delete("compare");
+    next.delete("facetType");
+    next.delete("facetKey");
+    setParams(next, { replace: true });
+  }, [params, runs.data, setParams]);
 
   const setParam = (key: string, value: string): void => {
     setParams((current) => {
@@ -158,33 +183,43 @@ export function RankingPage() {
   };
 
   const facets = useQuery({
-    enabled: runId !== "",
-    queryFn: () => fetchLab(`/rank/facets?run=${runId}`, FacetsSchema),
-    queryKey: ["rank-facets", runId],
+    enabled: runIsValid,
+    queryFn: () =>
+      fetchLab(`/rank/facets?run=${runId}`, FacetsSchema, pipeline),
+    queryKey: ["rank-facets", pipeline, runId],
   });
   const snapshot = useQuery({
-    enabled: runId !== "",
-    queryFn: () => fetchLab(`/rank/snapshot?${facetParam}&limit=50`, SnapshotSchema),
-    queryKey: ["rank-snapshot", runId, facetType, facetKey],
+    enabled: runIsValid,
+    queryFn: () =>
+      fetchLab(
+        `/rank/snapshot?${facetParam}&limit=50`,
+        SnapshotSchema,
+        pipeline,
+      ),
+    queryKey: ["rank-snapshot", pipeline, runId, facetType, facetKey],
   });
   const audit = useQuery({
-    enabled: runId !== "",
-    queryFn: () => fetchLab(`/rank/audit?${facetParam}`, AuditSchema),
-    queryKey: ["rank-audit", runId, facetType, facetKey],
+    enabled: runIsValid,
+    queryFn: () => fetchLab(`/rank/audit?${facetParam}`, AuditSchema, pipeline),
+    queryKey: ["rank-audit", pipeline, runId, facetType, facetKey],
   });
   const auditRuns = useQuery({
-    enabled: runId !== "",
-    queryFn: () => fetchLab(`/rank/audit-runs?run=${runId}`, AuditRunsSchema),
-    queryKey: ["rank-audit-runs", runId],
+    enabled: runIsValid,
+    queryFn: () =>
+      fetchLab(`/rank/audit-runs?run=${runId}`, AuditRunsSchema, pipeline),
+    queryKey: ["rank-audit-runs", pipeline, runId],
   });
   const compare = useQuery({
-    enabled: compareId !== "",
+    enabled:
+      compareId !== "" &&
+      runs.data?.items.some((run) => run.id === compareId) === true,
     queryFn: () =>
       fetchLab(
         `/rank/snapshot?run=${compareId}&facetType=${encodeURIComponent(facetType)}&facetKey=${encodeURIComponent(facetKey)}&limit=200`,
         SnapshotSchema,
+        pipeline,
       ),
-    queryKey: ["rank-snapshot", compareId, facetType, facetKey],
+    queryKey: ["rank-snapshot", pipeline, compareId, facetType, facetKey],
   });
 
   if (runs.isPending) return <LoadingState label="Loading experiment runs" />;
@@ -224,7 +259,10 @@ export function RankingPage() {
       <div className="rank-controls">
         <label>
           Run{" "}
-          <select onChange={(e) => setParam("run", e.target.value)} value={runId}>
+          <select
+            onChange={(e) => setParam("run", e.target.value)}
+            value={runId}
+          >
             {runs.data.items.map((run) => (
               <option key={run.id} value={run.id}>
                 {run.name} · {new Date(run.createdAt).toLocaleString()}
@@ -280,7 +318,8 @@ export function RankingPage() {
       {metrics ? (
         <p className="rank-metrics-strip">
           audit: {metrics.pairs ?? 0} pairs · agreement{" "}
-          {metrics.agreement_rate === null || metrics.agreement_rate === undefined
+          {metrics.agreement_rate === null ||
+          metrics.agreement_rate === undefined
             ? "—"
             : `${(100 * metrics.agreement_rate).toFixed(0)}%`}{" "}
           · τ{" "}
@@ -344,6 +383,7 @@ export function RankingPage() {
                           <AuditDetail
                             key={`${pair.positionA}-${pair.positionB}`}
                             pair={pair}
+                            pipeline={pipeline}
                             rows={snapshot.data.rows}
                             runId={runId}
                           />
@@ -362,7 +402,9 @@ export function RankingPage() {
                     </td>
                   )}
                   <td className="rank-headline">
-                    <Link to={`/storylines/${row.storylineId}`}>
+                    <Link
+                      to={`/storylines/${row.storylineId}?experiment=${encodeURIComponent(runId)}`}
+                    >
                       {row.headline ?? "(no headline)"}
                     </Link>
                     {row.interestReason === null ? null : (
