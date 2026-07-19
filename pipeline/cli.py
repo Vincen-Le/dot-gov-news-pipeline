@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from datetime import datetime
 
 from pipeline.cache import CachedModels, DecisionCache
@@ -148,6 +147,10 @@ def main() -> None:
         if args.per_agency is not None or args.topology_label_set is not None:
             parser.error("--use-golden cannot be combined with per-agency/topology sampling")
     cfg = load_config()
+    # Experiments are local-only; hosted writes go through the worker RPCs.
+    # Direct hosted reads use psql with HOSTED_READONLY_DATABASE_URL instead.
+    from pipeline.bench import assert_local_dsn
+    assert_local_dsn(cfg.database_url)
     db = Db(cfg.database_url)
     store = Store(db)
 
