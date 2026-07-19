@@ -35,10 +35,25 @@ export function isLocalDsn(dsn: string): boolean {
   }
 }
 
+/** dbname parsed from a postgres:// URL's path, e.g. "complex_db". Empty
+ * string if the DSN cannot be parsed as a URL. */
+export function dbNameFromDsn(dsn: string): string {
+  try {
+    return new URL(dsn).pathname.replace(/^\//u, "");
+  } catch {
+    return "";
+  }
+}
+
 export async function labCapability(
   db: LabDb | null,
   databaseUrl?: string,
   engine?: string,
+  /** True only for registry-mounted pipeline connections whose harness is
+   * withheld from the primary database (see buildLabConnection in
+   * server.ts) — surfaces *why* runs are disabled instead of leaving the
+   * dashboard's run button mysteriously absent. */
+  primaryReadOnly = false,
 ): Promise<LabCapability> {
   if (db === null) {
     return {
@@ -74,6 +89,14 @@ export async function labCapability(
         experimentsEnabled: false,
         experimentsReason:
           "Experiments only run against a local database — the pipeline bench tools structurally refuse remote DSNs.",
+        status: "available",
+      };
+    }
+    if (primaryReadOnly && dbNameFromDsn(databaseUrl) === "postgres") {
+      return {
+        experimentsEnabled: false,
+        experimentsReason:
+          "Runs disabled: primary database is read-only from the dashboard — this pipeline points at the live primary, and the experiment harness resets derived clustering state.",
         status: "available",
       };
     }

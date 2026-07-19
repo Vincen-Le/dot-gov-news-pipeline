@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 
 import type { PipelineEntry } from "../config";
-import { isLocalDsn, type LabDb } from "./db";
+import { dbNameFromDsn, isLocalDsn, type LabDb } from "./db";
 import { namespaceForEngine, namespaceTables } from "./namespace";
 
 /** Tables every pipeline database must have, beyond the
@@ -46,11 +46,7 @@ export interface PipelineSetupDeps {
 /** dbname parsed from a postgres:// URL's path, e.g. "complex_db". Empty
  * string if the DSN cannot be parsed as a URL. */
 export function pipelineDbName(entry: PipelineEntry): string {
-  try {
-    return new URL(entry.databaseUrl).pathname.replace(/^\//u, "");
-  } catch {
-    return "";
-  }
+  return dbNameFromDsn(entry.databaseUrl);
 }
 
 /** A pipeline is "managed" when its databaseUrl dbname follows the

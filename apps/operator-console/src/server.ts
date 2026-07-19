@@ -16,7 +16,13 @@ import {
   type PipelineEntry,
   type RequiredOperatorConsoleConfig,
 } from "./config";
-import { createLabDb, isLocalDsn, labCapability, type LabCapability } from "./lab/db";
+import {
+  createLabDb,
+  dbNameFromDsn,
+  isLocalDsn,
+  labCapability,
+  type LabCapability,
+} from "./lab/db";
 import { ExperimentHarness, defaultSpawner } from "./lab/harness";
 import { LabelStore, RankLabelStore } from "./lab/labels";
 import { namespaceForEngine, namespaceTables } from "./lab/namespace";
@@ -193,17 +199,32 @@ interface LabConnection {
  * harness. `engine` seeds LAB_ENGINE for every stage the harness spawns so a
  * registered pipeline's runs default to its own engine without the caller
  * having to pass it every time (the run form's env still wins if set).
+ *
+ * `primaryReadOnly` withholds the harness (and explains why via capability)
+ * when the DSN's dbname is the primary `postgres` database — a registered
+ * pipeline (config/pipelines.json) can point there, and the harness's
+ * `experiment` stage resets derived clustering state, which would clobber
+ * whatever autoresearch iteration is live on the primary. This guard is
+ * opt-in and applied only to registry-mounted connections below; the
+ * env-only default connection (DATABASE_URL, `pnpm ops lab run`'s classic
+ * single-DB workflow) keeps its existing behavior even though its own
+ * default DSN also names `postgres` — that path is a deliberate opt-in by
+ * the operator setting DATABASE_URL, not a dashboard click.
  */
-function buildLabConnection(
+export function buildLabConnection(
   databaseUrl: string | undefined,
   engine?: string,
+  primaryReadOnly = false,
 ): LabConnection {
   const { experimentRuns, rankSnapshots } = namespaceTables(namespaceForEngine(engine));
   const labDb = databaseUrl === undefined ? null : createLabDb(databaseUrl);
   const queries = labDb === null ? null : new LabQueries(labDb.read, experimentRuns);
   const rankQueries = labDb === null ? null : new RankQueries(labDb.read, rankSnapshots);
   const harness =
-    queries !== null && databaseUrl !== undefined && isLocalDsn(databaseUrl)
+    queries !== null &&
+    databaseUrl !== undefined &&
+    isLocalDsn(databaseUrl) &&
+    !(primaryReadOnly && dbNameFromDsn(databaseUrl) === "postgres")
       ? new ExperimentHarness({
           needsPrepare: () =>
             queries.corpusSummary().then((summary) => summary.needsPrepare),
@@ -214,7 +235,7 @@ function buildLabConnection(
         })
       : null;
   return {
-    capability: () => labCapability(labDb, databaseUrl, engine),
+    capability: () => labCapability(labDb, databaseUrl, engine, primaryReadOnly),
     close: async () => {
       await labDb?.close();
     },
@@ -317,7 +338,7 @@ export async function startDashboard(
     options.pipelines ?? safeLoadRegistryPipelines();
   const pipelineConnections = new Map<string, LabConnection>();
   for (const entry of registryPipelines) {
-    const connection = buildLabConnection(entry.databaseUrl, entry.engine);
+    const connection = buildLabConnection(entry.databaseUrl, entry.engine, true);
     pipelineConnections.set(entry.name, connection);
     app.use(
       `/api/lab/p/${entry.name}`,

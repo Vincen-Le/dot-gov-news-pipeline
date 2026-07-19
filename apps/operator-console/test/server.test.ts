@@ -9,7 +9,11 @@ import {
   vi,
 } from "vitest";
 
-import { safeLoadRegistryPipelines, startDashboard } from "../src/server";
+import {
+  buildLabConnection,
+  safeLoadRegistryPipelines,
+  startDashboard,
+} from "../src/server";
 
 let closeDashboard: (() => Promise<void>) | undefined;
 
@@ -131,6 +135,38 @@ describe("pipeline registry connection selection", () => {
     const bBody = (await b.json()) as { data: { reason?: string } };
     expect(bBody.data.reason).toBeDefined();
     expect(bBody.data.reason).not.toContain("DATABASE_URL");
+  });
+});
+
+describe("buildLabConnection primary-database guard", () => {
+  it("withholds the harness for a registry connection pointed at the primary postgres database", async () => {
+    const connection = buildLabConnection(
+      "postgresql://postgres:postgres@127.0.0.1:1/postgres",
+      "classic",
+      true,
+    );
+    expect(connection.harness).toBeNull();
+    await connection.close();
+  });
+
+  it("still builds a harness for a registry connection on a managed (non-primary) pipeline database", async () => {
+    const connection = buildLabConnection(
+      "postgresql://postgres:postgres@127.0.0.1:1/simple_v1_db",
+      "spine",
+      true,
+    );
+    expect(connection.harness).not.toBeNull();
+    await connection.close();
+  });
+
+  it("leaves the env-only default connection's harness enabled on the primary database (guard is opt-in)", async () => {
+    // Mirrors config.ts's LOCAL_DATABASE_URL default, which also names the
+    // primary `postgres` database — the guard must not regress that path.
+    const connection = buildLabConnection(
+      "postgresql://postgres:postgres@127.0.0.1:1/postgres",
+    );
+    expect(connection.harness).not.toBeNull();
+    await connection.close();
   });
 });
 

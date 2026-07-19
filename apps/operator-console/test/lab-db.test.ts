@@ -60,6 +60,24 @@ describe("labCapability", () => {
     expect(noRuns.experimentsReason).toContain("experiment_runs");
   });
 
+  it("disables experiments on the primary database only when primaryReadOnly is set", async () => {
+    const guarded = await labCapability(
+      fakeDb(async () => [{ clustering: true, runs: true }]),
+      LOCAL,
+      undefined,
+      true,
+    );
+    expect(guarded.status).toBe("available");
+    expect(guarded.experimentsEnabled).toBe(false);
+    expect(guarded.experimentsReason).toContain("read-only");
+
+    const unguarded = await labCapability(
+      fakeDb(async () => [{ clustering: true, runs: true }]),
+      LOCAL,
+    );
+    expect(unguarded.experimentsEnabled).toBe(true);
+  });
+
   it("surfaces connection failures as the reason", async () => {
     const capability = await labCapability(
       fakeDb(async () => {
