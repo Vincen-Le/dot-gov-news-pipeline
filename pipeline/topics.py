@@ -69,8 +69,14 @@ class ThemeEngine:
             return
 
         valid = [c["theme_id"] for c in candidates]
+        merge_ids = list(dict.fromkeys(
+            i for i in verdict.get("merge_theme_ids") or [] if i in valid))
+        survivor = self._merge(merge_ids, top) if len(merge_ids) >= 2 else None
+
         target = verdict.get("theme_id")
         if verdict.get("decision") == "join" and target in valid:
+            if survivor is not None and target in merge_ids:
+                target = survivor
             self._join(storyline_id, state, vec, target, method,
                        verdict.get("reason") or "adjudicated join", storyline)
             return
@@ -100,6 +106,17 @@ class ThemeEngine:
             self._refresh_centroid(str(old_theme_id))
         if theme is not None and theme.get("category_id") is None:
             self._classify(theme_id, theme["display_name"], storyline)
+
+    def _merge(self, merge_ids: list[str], top) -> str:
+        themes = {str(t["id"]): t for _, t in top}
+        ordered = sorted(merge_ids,
+                         key=lambda i: (-themes[i]["storyline_count"],
+                                        themes[i]["created_at"]))
+        winner = ordered[0]
+        for loser in ordered[1:]:
+            self.store.merge_theme(loser, winner)
+        self._refresh_centroid(winner)
+        return winner
 
     def _knn_fallback(self, storyline_id: str, state: dict, vec: np.ndarray,
                       method: str | None, note: str) -> None:

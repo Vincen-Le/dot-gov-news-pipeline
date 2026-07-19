@@ -188,3 +188,52 @@ def test_adjudicator_spawn_uses_provided_name_without_namer_call():
     assert "Harvard exchange program" in names
     assert store.storylines[second]["theme_attach_method"] == "new_theme"
     assert store.storylines[second]["theme_reason"] == "different subject than candidates"
+
+
+def make_merging_models(merge_ids, join_id):
+    class MergingModels(StubModels):
+        def adjudicate_theme(self, storyline, candidates):
+            return {"decision": "join", "theme_id": join_id,
+                    "new_theme_name": None, "merge_theme_ids": merge_ids,
+                    "reason": "same subject; candidates duplicate"}
+    return MergingModels()
+
+
+def seed_two_close_themes(store):
+    """Two themes on nearby vectors, theme A with 2 members, theme B with 1."""
+    engine = ThemeEngine(store, StubModels(), CFG)
+    a1 = add_storyline(store, "Houthi petroleum sanctions", vec(0, 1))
+    engine.sync(a1)
+    a2 = add_storyline(store, "Houthi network sanctions expand", vec(0, 1))
+    engine.sync(a2)
+    theme_a = store.storylines[a1]["theme_id"]
+    b1 = add_storyline(store, "Treasury sanctions Houthi smugglers", vec(0, 1, 2))
+    theme_b = store.create_theme("Houthi smuggling", pack_fp16(vec(0, 1, 2)), None, None)
+    store.assign_theme(b1, theme_b, "new_theme", None, "seed", None, None)
+    return theme_a, theme_b
+
+
+def test_merge_directive_tombstones_loser_and_join_lands_on_survivor():
+    store = FakeStore()
+    theme_a, theme_b = seed_two_close_themes(store)
+    new = add_storyline(store, "New Houthi sanctions action", vec(0, 1, 2))
+    models = make_merging_models([theme_a, theme_b], join_id=theme_b)
+    ThemeEngine(store, models, CFG).sync(new)
+    # winner by storyline_count is theme_a; join into loser theme_b redirects
+    assert store.themes[theme_b]["merged_into"] == theme_a
+    assert store.themes[theme_b]["storyline_count"] == 0
+    assert store.storylines[new]["theme_id"] == theme_a
+    assert all(s.get("theme_id") != theme_b for s in store.storylines.values())
+    assert store.themes[theme_a]["centroid"] is not None
+    # merged theme is gone from the candidate surface
+    assert all(t["id"] != theme_b for t in store.all_themes())
+
+
+def test_merge_with_fewer_than_two_valid_ids_is_ignored():
+    store = FakeStore()
+    theme_a, theme_b = seed_two_close_themes(store)
+    new = add_storyline(store, "New Houthi sanctions action", vec(0, 1, 2))
+    models = make_merging_models([theme_a, "hallucinated-id"], join_id=theme_a)
+    ThemeEngine(store, models, CFG).sync(new)
+    assert store.themes[theme_b].get("merged_into") is None
+    assert store.storylines[new]["theme_id"] == theme_a
