@@ -84,3 +84,40 @@ def test_attach_entry_and_create_episode_accept_non_none_similarity():
             db.conn.execute(
                 "delete from public.news_sources where id = %(s)s", {"s": source_id},
             )
+
+
+@pytest.mark.integration
+def test_entries_needing_features_per_agency_caps_each_agency():
+    db = Db(os.environ["DATABASE_URL"])
+    store = Store(db)
+
+    ts = datetime.now(timezone.utc)
+    unique = uuid.uuid4().hex
+    source_ids = []
+    entry_ids = []
+    try:
+        # two agencies, 3 and 1 unprepared entries respectively
+        for agency, count in (("alpha", 3), ("beta", 1)):
+            source_id = store.upsert_news_source(
+                f"https://{agency}-{unique}.gov/feed.xml", "rss", None)
+            source_ids.append(source_id)
+            for i in range(count):
+                url = f"https://{agency}-{unique}.gov/article-{i}"
+                entry_id = store.ingest_entry(
+                    source_id, url, url, f"{agency} title {i}", None, ts,
+                    hashlib.sha256(f"{agency}{unique}{i}".encode()).hexdigest(),
+                    [], [], 1)
+                assert entry_id is not None
+                entry_ids.append(entry_id)
+
+        rows = store.entries_needing_features(per_agency=2)
+        mine = [r for r in rows if str(r["id"]) in {str(e) for e in entry_ids}]
+        # capped at 2 for alpha, beta keeps its single entry
+        assert len(mine) == 3
+    finally:
+        for entry_id in entry_ids:
+            db.conn.execute(
+                "delete from public.news_entries where id = %(n)s", {"n": entry_id})
+        for source_id in source_ids:
+            db.conn.execute(
+                "delete from public.news_sources where id = %(s)s", {"s": source_id})

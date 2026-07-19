@@ -13,8 +13,10 @@ class PrepFakeStore:
     def __init__(self, rows):
         self.rows = rows
         self.features: dict[str, dict] = {}
+        self.seen_per_agency = "unset"
 
-    def entries_needing_features(self, limit=None):
+    def entries_needing_features(self, limit=None, per_agency=None):
+        self.seen_per_agency = per_agency
         return self.rows[:limit] if limit else self.rows
 
     def update_entry_features(self, entry_id, enriched_text, enricher_version,
@@ -28,6 +30,8 @@ class PrepFakeStore:
 
 
 class PrepModels:
+    embedding_tag = "fake-embedder"
+
     def __init__(self, fail_enrich_for=()):
         self.embed_batches = []
         self.embed_texts = []
@@ -62,7 +66,7 @@ def test_prepare_enriches_embeds_and_backfills_extraction():
     feat = store.features["n1"]
     assert feat["enriched_text"].startswith("ENRICHED")
     assert feat["embedding"] is not None
-    assert feat["embedding_model"] == CFG.embedding_model
+    assert feat["embedding_model"] == "fake-embedder"  # the producing client's tag, never cfg
     assert "valsatrex" in feat["entity_set"]          # extraction backfilled from RAW text
     assert feat["extractor_version"] == 1
 
@@ -101,6 +105,28 @@ def test_prepare_enrich_failure_falls_back_to_raw_text():
     report = prepare(store, models, CFG)
     assert report == {"prepared": 2, "failed": 0}     # fallback, not failure
     assert store.features["BOOM" and "n1"]["embedding"] is not None
+
+
+def test_prepare_records_stub_tag_not_config_model():
+    """Regression: --stub prepare used to label 256-dim stub vectors with the
+    real cfg.embedding_model, so a later real-model run crashed on a
+    256-vs-1024 dim mismatch instead of failing loudly at prepare time."""
+    from pipeline.stub import StubModels
+
+    store = PrepFakeStore([row(1)])
+    prepare(store, StubModels(), CFG)
+    feat = store.features["n1"]
+    assert feat["embedding_model"] == StubModels.embedding_tag
+    assert feat["embedding_model"] != CFG.embedding_model
+
+
+def test_prepare_passes_per_agency_sampling_to_store():
+    store = PrepFakeStore([row(1)])
+    prepare(store, PrepModels(), CFG, per_agency=75)
+    assert store.seen_per_agency == 75
+    store2 = PrepFakeStore([row(1)])
+    prepare(store2, PrepModels(), CFG)
+    assert store2.seen_per_agency is None
 
 
 def test_prepare_batches_embeddings():

@@ -30,8 +30,9 @@ def _fallback_text(row: dict) -> str:
 
 
 def prepare(store, models, cfg: Config, limit: int | None = None,
-            concurrency: int = 8, embed_batch: int = 96) -> dict:
-    rows = store.entries_needing_features(limit)
+            concurrency: int = 8, embed_batch: int = 96,
+            per_agency: int | None = None) -> dict:
+    rows = store.entries_needing_features(limit, per_agency=per_agency)
     if not rows:
         return {"prepared": 0, "failed": 0}
 
@@ -71,7 +72,7 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
                 row["id"],
                 new_enrichment,
                 cfg.enricher_version if new_enrichment else None,
-                pack_fp16(vec), cfg.embedding_model,
+                pack_fp16(vec), models.embedding_tag,
                 entity_set=entities, event_keys=keys,
                 extractor_version=EXTRACTOR_VERSION if needs_anchors else None)
             prepared += 1

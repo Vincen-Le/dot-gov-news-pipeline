@@ -22,6 +22,10 @@ def _tokens(text: str) -> set[str]:
 
 
 class StubModels:
+    # recorded as news_entries.embedding_model so stub vectors are never
+    # mistaken for real ones (they are 256-dim; bge-m3 is 1024-dim)
+    embedding_tag = "stub-bow-256"
+
     def embed(self, texts: list[str]) -> list[np.ndarray]:
         out: list[np.ndarray] = []
         for text in texts:

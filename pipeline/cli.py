@@ -37,6 +37,8 @@ def main() -> None:
 
     p = sub.add_parser("prepare", help="enrich+embed+extract unfeatured entries")
     p.add_argument("--limit", type=int)
+    p.add_argument("--per-agency", type=int, dest="per_agency",
+                   help="cap entries per agency host (balanced sampling)")
     p.add_argument("--concurrency", type=int, default=8)
     p.add_argument("--stub", action="store_true")
 
@@ -70,7 +72,8 @@ def main() -> None:
     elif args.command == "prepare":
         from pipeline.runner import prepare
         out = prepare(store, _models(cfg, args.stub, no_cache=True), cfg,
-                      limit=args.limit, concurrency=args.concurrency)
+                      limit=args.limit, concurrency=args.concurrency,
+                      per_agency=args.per_agency)
     elif args.command == "cluster":
         from pipeline.runner import cluster
         out = cluster(store, _models(cfg, args.stub, args.no_cache), cfg,

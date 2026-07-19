@@ -69,3 +69,8 @@ def test_stub_classify_category_matches_token_else_none():
         [{"id": "c-1", "display_name": "Drug Safety", "origin": "seed"}])
     assert miss["category_id"] is None
     assert miss["new_category_name"] == "General Government"
+
+
+def test_stub_embedding_tag_never_collides_with_real_models():
+    assert StubModels.embedding_tag == "stub-bow-256"
+    assert "bge" not in StubModels.embedding_tag

@@ -216,17 +216,41 @@ class Store:
             {"s": storyline_id},
         )
 
-    def entries_needing_features(self, limit: int | None = None) -> list[dict]:
+    def entries_needing_features(self, limit: int | None = None,
+                                 per_agency: int | None = None) -> list[dict]:
+        if per_agency is None:
+            return self.db.all(
+                """
+                select id, title, summary, body_text, published_at, enriched_text,
+                       enricher_version, entity_set, event_keys
+                from public.news_entries
+                where embedding is null and published_at is not null
+                order by published_at, id
+                limit %(limit)s
+                """,
+                {"limit": limit},
+            )
         return self.db.all(
             """
             select id, title, summary, body_text, published_at, enriched_text,
                    enricher_version, entity_set, event_keys
-            from public.news_entries
-            where embedding is null and published_at is not null
+            from (
+                select ne.id, ne.title, ne.summary, ne.body_text, ne.published_at,
+                       ne.enriched_text, ne.enricher_version, ne.entity_set,
+                       ne.event_keys,
+                       row_number() over (
+                           partition by split_part(ns.canonical_url, '/', 3)
+                           order by ne.published_at, ne.id
+                       ) as agency_rank
+                from public.news_entries ne
+                join public.news_sources ns on ns.id = ne.news_source_id
+                where ne.embedding is null and ne.published_at is not null
+            ) ranked
+            where agency_rank <= %(per_agency)s
             order by published_at, id
             limit %(limit)s
             """,
-            {"limit": limit},
+            {"limit": limit, "per_agency": per_agency},
         )
 
     def prepared_unclustered(self, limit: int | None = None,

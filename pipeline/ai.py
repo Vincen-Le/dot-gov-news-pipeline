@@ -27,6 +27,7 @@ def _extract_json(text: str) -> dict:
 class WorkersAI:
     def __init__(self, cfg: Config, transport: httpx.BaseTransport | None = None) -> None:
         self.cfg = cfg
+        self.embedding_tag = cfg.embedding_model
         self.base = f"https://api.cloudflare.com/client/v4/accounts/{cfg.cf_account_id}/ai/run/"
         self.http = httpx.Client(
             headers={"Authorization": f"Bearer {cfg.cf_api_token}"},
