@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 import unicodedata
 
-EXTRACTOR_VERSION = 4
+EXTRACTOR_VERSION = 3
 
 # v2: CFR citations dropped (legal-authority references shared by unrelated
 # notices — 36 CFR 261.50 appeared in 6 different park announcements) and bare
@@ -81,16 +81,6 @@ _MIN_LEN = 4
 
 
 _NAV_BLOB_HORIZON = 240
-
-
-def extraction_content(summary: str | None, body_text: str | None) -> str | None:
-    """Return the stable raw-text source used by every extraction path.
-
-    Feed summaries are the preferred, human-condensed event description. Full
-    article bodies are a fallback because they contain substantially more
-    navigation, quotes, and boilerplate.
-    """
-    return summary or body_text
 
 
 def _first_sentence(text: str | None) -> str:
