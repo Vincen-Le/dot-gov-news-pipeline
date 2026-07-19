@@ -8,6 +8,7 @@ import postgres from "postgres";
 import {
   repositoryRoot,
   loadPipelineRegistry,
+  LOCAL_DATABASE_URL,
   type PipelineEntry,
   type PipelineRegistry,
 } from "../config";
@@ -15,8 +16,7 @@ import { createLabDb } from "../lab/db";
 import { namespaceForEngine, namespaceTables } from "../lab/namespace";
 import { pipelineDbName, probePipelineDatabase } from "../lab/setup";
 
-export const LOCAL_DSN =
-  "postgresql://postgres:postgres@127.0.0.1:57422/postgres";
+export const LOCAL_DSN = LOCAL_DATABASE_URL;
 
 export interface CheckResult {
   name: string;
