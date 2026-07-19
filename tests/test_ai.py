@@ -27,6 +27,22 @@ def test_embed_parses_batch():
     assert isinstance(vecs[0], np.ndarray)
 
 
+def test_transport_timeout_is_retried_before_embedding_fails():
+    calls = 0
+
+    def handler(request):
+        nonlocal calls
+        calls += 1
+        if calls < 3:
+            raise httpx.ReadTimeout("transient", request=request)
+        return httpx.Response(200, json={
+            "result": {"data": [[0.1, 0.2]]}, "success": True})
+
+    vecs = WorkersAI(_cfg(), transport=_transport(handler)).embed(["a"])
+    assert len(vecs) == 1
+    assert calls == 3
+
+
 def test_adjudicate_parses_json_and_defaults_to_split_on_error():
     def ok(request):
         body = json.loads(request.content)

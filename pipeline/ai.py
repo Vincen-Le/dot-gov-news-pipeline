@@ -20,6 +20,8 @@ from pipeline.prompts import (
     build_theme_review_prompt,
 )
 
+_TRANSPORT_ATTEMPTS = 3
+
 
 def _extract_json(text: str | dict) -> dict:
     if isinstance(text, dict):  # workers ai may return pre-parsed json
@@ -43,7 +45,13 @@ class WorkersAI:
         )
 
     def _run(self, model: str, payload: dict) -> dict:
-        response = self.http.post(self.base + model, json=payload)
+        for attempt in range(_TRANSPORT_ATTEMPTS):
+            try:
+                response = self.http.post(self.base + model, json=payload)
+                break
+            except httpx.TransportError:
+                if attempt + 1 == _TRANSPORT_ATTEMPTS:
+                    raise
         response.raise_for_status()
         body = response.json()
         if not body.get("success", False):
