@@ -31,7 +31,9 @@ COMPRESSOR_SYSTEM = (
     '"rubric": {' + ", ".join(f'"{c}": 0 or 1' for c in RUBRIC_CRITERIA) + '}, '
     '"reason": "one sentence explaining the rubric"}. '
     "Every timeline item MUST cite one episode_id from the input verbatim. "
-    "Use only facts present in the input episodes."
+    "Use only facts present in the input episodes. "
+    "Rubric bits evaluate the entire chain of episodes collectively — "
+    "the cumulative real-world event, not only the latest development."
 )
 
 

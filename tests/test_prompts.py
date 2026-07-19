@@ -48,3 +48,9 @@ def test_category_prompt_lists_categories_with_origin():
         [{"id": "c-1", "display_name": "Food & Drug Safety", "origin": "seed"}])
     assert "category_id" in system and "new_category_name" in system
     assert "c-1" in user and "Food & Drug Safety" in user
+
+
+def test_compressor_rubric_judges_whole_chain():
+    from pipeline.prompts import COMPRESSOR_SYSTEM
+    assert "entire chain" in COMPRESSOR_SYSTEM
+    assert "not only the latest" in COMPRESSOR_SYSTEM
