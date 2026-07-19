@@ -103,3 +103,15 @@ def test_adjudicate_theme_raises_on_transport_error():
         ai.adjudicate_theme({"headline": "h", "summary": ""},
                             [{"theme_id": "t-1", "name": "A",
                               "storyline_count": 1, "recent_headlines": []}])
+
+
+def test_workers_ai_counts_swallowed_errors():
+    def boom(request):
+        return httpx.Response(200, json={"result": {"response": "not json"},
+                                         "success": True})
+
+    ai = WorkersAI(_cfg(), transport=_transport(boom))
+    ai.adjudicate_same_event({"title": "a"}, {"title": "b"}, "")
+    ai.classify_category("t", {"headline": "h"}, [])
+    assert ai.errors["adjudicator"] == 1
+    assert ai.errors["classifier"] == 1

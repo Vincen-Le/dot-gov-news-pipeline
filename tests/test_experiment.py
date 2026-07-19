@@ -18,6 +18,8 @@ def test_render_report_contains_config_stats_and_chains():
                                    "category": "Food & Drug Safety",
                                    "storylines": 3}],
                    "singleton_theme_rate": 0.4},
+        "llm_health": {"overview_fallback_rate": 0.02, "uncategorized_themes": 1,
+                       "namer_errors": 0, "model_errors": {"classifier": 2}},
     }
     report = render_report(
         "baseline", CFG, {"processed": 1000, "episodes_closed": 420},
@@ -39,7 +41,10 @@ def test_render_report_empty_run():
                             "topics": {"themes": 0, "categories_seed": 23,
                                        "categories_llm": 0, "theme_attach_mix": {},
                                        "top_themes": [],
-                                       "singleton_theme_rate": None}},
+                                       "singleton_theme_rate": None},
+                            "llm_health": {"overview_fallback_rate": None,
+                                           "uncategorized_themes": 0,
+                                           "namer_errors": 0}},
                            {"hits": 0, "misses": 0}, duration_s=0.1)
     assert "# Experiment: empty" in report
 
@@ -92,6 +97,12 @@ def make_summary_db():
                 return {"rate": None}
             if "episode_count >= 2" in s:
                 return {"n": 0}
+            if "compressor_error" in s:
+                return {"rate": None}
+            if "namer_error" in s:
+                return {"n": 0}
+            if "category_id is null" in s:
+                return {"n": 0}
             raise AssertionError(f"unexpected db.one: {s}")
 
         def all(self, sql):
@@ -108,3 +119,12 @@ def test_summary_includes_topics_section():
     for key in ("themes", "categories_seed", "categories_llm",
                 "theme_attach_mix", "top_themes", "singleton_theme_rate"):
         assert key in summary["topics"]
+
+
+def test_summary_reports_llm_health():
+    from pipeline.experiment import summarize
+
+    summary = summarize(make_summary_db())
+    health = summary["llm_health"]
+    for key in ("overview_fallback_rate", "uncategorized_themes", "namer_errors"):
+        assert key in health

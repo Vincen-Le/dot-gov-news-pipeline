@@ -72,8 +72,27 @@ def summarize(db) -> dict:
         "singleton_theme_rate": (
             float(singleton_theme["rate"]) if singleton_theme["rate"] is not None else None),
     }
+    fallback = db.one("""
+        select round(avg((interest_reason like 'compressor_error%')::int)::numeric, 3) as rate
+        from public.event_cards where kind = 'overview'
+    """)
+    namer_errors = db.one("""
+        select count(*) as n from public.storylines
+        where theme_reason like '%namer_error%'
+    """)
+    uncategorized = db.one("""
+        select count(*) as n from public.topic_themes
+        where merged_into is null and category_id is null
+    """)
+    llm_health = {
+        "overview_fallback_rate": (
+            float(fallback["rate"]) if fallback["rate"] is not None else None),
+        "uncategorized_themes": uncategorized["n"],
+        "namer_errors": namer_errors["n"],
+    }
     return {
         **totals,
+        "llm_health": llm_health,
         "entry_attach_mix": mix(
             "select attach_method, count(*) as n from public.episode_entries "
             "group by 1 order by n desc"),
@@ -116,6 +135,13 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
         f"categories: {summary['topics']['categories_seed']} seed "
         f"+ {summary['topics']['categories_llm']} llm",
         f"- singleton-theme rate: {summary['topics']['singleton_theme_rate']}",
+        "", "## LLM health", "",
+        f"- overview fallback rate: {summary['llm_health']['overview_fallback_rate']}"
+        + ("  ⚠ compressor mostly failing"
+           if (summary['llm_health']['overview_fallback_rate'] or 0) > 0.5 else ""),
+        f"- uncategorized themes: {summary['llm_health']['uncategorized_themes']}",
+        f"- namer errors: {summary['llm_health']['namer_errors']}",
+        f"- model errors: {summary['llm_health'].get('model_errors', {})}",
         "", "## Theme attach mix (storyline -> theme)", "",
         *[f"- {m}: {n}" for m, n in summary["topics"]["theme_attach_mix"].items()],
         "", "## Top themes", "",
@@ -155,6 +181,7 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     finished = datetime.now(timezone.utc)
     duration = round((finished - started).total_seconds(), 1)
     summary = summarize(db)
+    summary["llm_health"]["model_errors"] = dict(getattr(models, "errors", {}))
     cache_stats = {"hits": getattr(models, "hits", 0), "misses": getattr(models, "misses", 0)}
     report = render_report(name, cfg, cluster_report, summary, cache_stats, duration)
     path = os.path.join(out_dir, name, "report.md")

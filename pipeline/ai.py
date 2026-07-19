@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections import Counter
 
 import httpx
 import numpy as np
@@ -32,6 +33,7 @@ class WorkersAI:
     def __init__(self, cfg: Config, transport: httpx.BaseTransport | None = None) -> None:
         self.cfg = cfg
         self.embedding_tag = cfg.embedding_model
+        self.errors: Counter = Counter()  # swallowed-failure tallies for report health
         self.base = f"https://api.cloudflare.com/client/v4/accounts/{cfg.cf_account_id}/ai/run/"
         self.http = httpx.Client(
             headers={"Authorization": f"Bearer {cfg.cf_api_token}"},
@@ -71,6 +73,7 @@ class WorkersAI:
             parsed = _extract_json(self._chat(self.cfg.adjudicator_model, system, user))
             return bool(parsed.get("same_event", False)), str(parsed.get("reason", ""))
         except Exception as exc:  # split-biased: any failure means "not the same event"
+            self.errors["adjudicator"] += 1
             return False, f"adjudicator_error: {exc}"
 
     def compress_overview(self, storyline_summary: dict, episode_cards: list[dict]) -> dict:
@@ -91,6 +94,7 @@ class WorkersAI:
                         "reason": f"rank_audit_error: unparseable verdict {parsed!r}"}
             return {"prefers": prefers, "reason": str(parsed.get("reason", ""))[:2048]}
         except Exception as exc:  # audit failure is recorded, never raised
+            self.errors["rank_audit"] += 1
             return {"prefers": "invalid", "reason": f"rank_audit_error: {exc}"}
 
     def name_theme(self, storyline: dict) -> str:
@@ -113,6 +117,7 @@ class WorkersAI:
                 "reason": str(parsed.get("reason", "")),
             }
         except Exception as exc:  # engine leaves category null on failure
+            self.errors["classifier"] += 1
             return {"category_id": None, "new_category_name": None,
                     "reason": f"classifier_error: {exc}"}
 
