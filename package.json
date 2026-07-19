@@ -21,7 +21,7 @@
     "ops:setup": "pnpm --filter @dot-gov-news/operator-console run setup",
     "ops:start": "pnpm ops dashboard",
     "supabase": "supabase",
-    "test": "pnpm --recursive --if-present test && vitest run scripts",
+    "test": "pnpm --recursive --if-present test && vitest run scripts --exclude '**/.claude/**' --exclude '**/.superpowers/**'",
     "test:migration": "bash scripts/test-news-source-migration.sh",
     "typecheck": "pnpm --recursive --if-present typecheck && tsc --project tsconfig.scripts.json"
   },

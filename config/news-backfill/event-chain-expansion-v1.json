@@ -1,0 +1,215 @@
+{
+  "cohortId": "event-chain-expansion-v1",
+  "version": 1,
+  "windowStart": "2025-07-18T00:00:00.000Z",
+  "windowEnd": "2026-07-18T00:00:00.000Z",
+  "publishers": [
+    {
+      "publisherKey": "eeoc",
+      "displayName": "Equal Employment Opportunity Commission",
+      "trafficVisits": 1813830,
+      "sources": [
+        {
+          "sourceKey": "eeoc-newsroom-sitemap",
+          "title": "EEOC Newsroom",
+          "sourceUrl": "https://www.eeoc.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["eeoc.gov"],
+          "includeUrlPattern": "^https://www\\.eeoc\\.gov/newsroom/(?!search(?:[/?#]|$))[^?#]+$",
+          "hydrate": true,
+          "maxPages": 3
+        }
+      ]
+    },
+    {
+      "publisherKey": "epa",
+      "displayName": "Environmental Protection Agency",
+      "trafficVisits": 9806306,
+      "sources": [
+        {
+          "sourceKey": "epa-news-release-sitemap",
+          "title": "EPA News Releases",
+          "sourceUrl": "https://www.epa.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["epa.gov"],
+          "includeUrlPattern": "^https://www\\.epa\\.gov/newsreleases/[^?#]+$",
+          "hydrate": true,
+          "maxPages": 39
+        }
+      ]
+    },
+    {
+      "publisherKey": "cisa",
+      "displayName": "Cybersecurity and Infrastructure Security Agency",
+      "trafficVisits": 1843238,
+      "sources": [
+        {
+          "sourceKey": "cisa-operational-advisory-sitemap",
+          "title": "CISA Operational Advisories, Alerts, Reports, and Directives",
+          "sourceUrl": "https://www.cisa.gov/sitemap.xml",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "advisory",
+          "allowedHosts": ["cisa.gov"],
+          "includeUrlPattern": "^https://www\\.cisa\\.gov/news-events/(?:cybersecurity-advisories|alerts|analysis-reports|directives)/[^?#]+$",
+          "hydrate": true,
+          "maxPages": 3
+        }
+      ]
+    },
+    {
+      "publisherKey": "ftc",
+      "displayName": "Federal Trade Commission",
+      "trafficVisits": 3523630,
+      "sources": [
+        {
+          "sourceKey": "ftc-press-release-archive",
+          "title": "FTC Press Release Archive",
+          "sourceUrl": "https://www.ftc.gov/news-events/news/press-releases?page=0",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["ftc.gov"],
+          "urlTemplate": "https://www.ftc.gov/news-events/news/press-releases?page={page}",
+          "includeUrlPattern": "^https://www\\.ftc\\.gov/news-events/news/press-releases/20\\d{2}/\\d{2}/[^?#]+$",
+          "hydrate": true,
+          "pageStart": 0,
+          "maxPages": 12
+        }
+      ]
+    },
+    {
+      "publisherKey": "fema",
+      "displayName": "Federal Emergency Management Agency",
+      "trafficVisits": 4159726,
+      "sources": [
+        {
+          "sourceKey": "fema-region-1-live",
+          "title": "FEMA Region 1 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-i.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-2-live",
+          "title": "FEMA Region 2 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-ii.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-3-live",
+          "title": "FEMA Region 3 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-iii.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-4-live",
+          "title": "FEMA Region 4 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-iv.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-6-live",
+          "title": "FEMA Region 6 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-vi.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-7-live",
+          "title": "FEMA Region 7 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-vii.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-8-live",
+          "title": "FEMA Region 8 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-viii.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-9-live",
+          "title": "FEMA Region 9 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-ix.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-10-live",
+          "title": "FEMA Region 10 News",
+          "sourceUrl": "https://www.fema.gov/news/news_region-x.rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["fema.gov"],
+          "maxPages": 1
+        },
+        {
+          "sourceKey": "fema-region-4-wayback",
+          "title": "FEMA Region 4 News Archive",
+          "sourceUrl": "https://web.archive.org/cdx/search/cdx?url=www.fema.gov/news/news_region-iv.rss",
+          "sourceType": "publisher_api",
+          "adapter": "publisher_api",
+          "adapterVariant": "wayback_feed",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["web.archive.org", "fema.gov"],
+          "maxPages": 1
+        }
+      ]
+    },
+    {
+      "publisherKey": "sec-enforcement",
+      "displayName": "Securities and Exchange Commission — Enforcement",
+      "trafficVisits": 6787736,
+      "sources": [
+        {
+          "sourceKey": "sec-litigation-release-archive",
+          "title": "SEC Litigation Releases",
+          "sourceUrl": "https://www.sec.gov/enforcement-litigation/litigation-releases?page=0",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "release",
+          "allowedHosts": ["sec.gov"],
+          "urlTemplate": "https://www.sec.gov/enforcement-litigation/litigation-releases?page={page}",
+          "includeUrlPattern": "^https://www\\.sec\\.gov/enforcement-litigation/litigation-releases/lr-[^?#]+$",
+          "hydrate": true,
+          "pageStart": 0,
+          "maxPages": 4
+        }
+      ]
+    }
+  ]
+}

@@ -526,7 +526,7 @@ Create:
 - `apps/operator-console/src/ui/styles/layout.css`
 - `apps/operator-console/src/ui/styles/components.css`
 
-Translate, rather than iframe or embed, the approved artifact at `docs/design/operator-dashboard-nds-preview.html`. Preserve the monochrome canvas, top navigation, asymmetric heading, Roman-numbered sections, thin rules, status-only colors, dark/light themes, and compact data typography.
+Translate, rather than iframe or embed, the approved standalone dashboard artifact. Preserve the monochrome canvas, top navigation, asymmetric heading, Roman-numbered sections, thin rules, status-only colors, dark/light themes, and compact data typography. The artifact was removed after implementation; `apps/operator-console` is now authoritative.
 
 Implement shared loading, stale, disconnected, partial-failure, empty, and not-enabled states before view-specific happy paths. Serialize environment, run, time range, filters, and inspector entity in the URL.
 
@@ -796,7 +796,7 @@ Implementation can proceed with these defaults:
 ## References
 
 - [Operator dashboard design proposal](../../docs/superpowers/specs/2026-07-17-operator-dashboard-nds-design.md)
-- [Interactive dashboard preview](../../docs/design/operator-dashboard-nds-preview.html)
+- Historical standalone dashboard preview (removed after implementation)
 - [Pipeline architecture](../../architecture.md)
 - [Cloudflare site feed discovery plan](cloudflare-site-feed-discovery-implementation-plan.md)
 - [Infrastructure runbook](../../docs/infrastructure/runbook.md)

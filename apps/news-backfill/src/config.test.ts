@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { loadManifest } from "./config";
 
-describe("top-20 manifest", () => {
+describe("backfill manifests", () => {
   it("loads one unique, fixed-window source cohort", async () => {
     const manifest = await loadManifest(
       path.resolve(
@@ -17,6 +17,22 @@ describe("top-20 manifest", () => {
     expect(
       new Set(manifest.publishers.map(({ publisherKey }) => publisherKey)).size,
     ).toBe(20);
+    expect(manifest.windowStart).toBe("2025-07-18T00:00:00.000Z");
+    expect(manifest.windowEnd).toBe("2026-07-18T00:00:00.000Z");
+  });
+
+  it("loads an additive event-chain cohort", async () => {
+    const manifest = await loadManifest(
+      path.resolve(
+        import.meta.dirname,
+        "../../../config/news-backfill/event-chain-expansion-v1.json",
+      ),
+    );
+
+    expect(manifest.publishers).toHaveLength(6);
+    expect(
+      new Set(manifest.publishers.map(({ publisherKey }) => publisherKey)).size,
+    ).toBe(6);
     expect(manifest.windowStart).toBe("2025-07-18T00:00:00.000Z");
     expect(manifest.windowEnd).toBe("2026-07-18T00:00:00.000Z");
   });

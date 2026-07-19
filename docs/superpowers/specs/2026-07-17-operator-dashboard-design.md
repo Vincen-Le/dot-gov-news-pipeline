@@ -1,15 +1,10 @@
 # Operator Dashboard Design Proposal
 
 **Date:** 2026-07-17
-
 **Status:** Proposed, pre-implementation
-
 **Scope:** A local-first operations dashboard paired with the pipeline CLI and
 query cheatsheet. This document defines the product and visual design; it is
 not an implementation plan.
-
-**Interactive artifact:** The original standalone preview was removed after
-the design was implemented in `apps/operator-console`.
 
 ## Product definition
 
@@ -79,10 +74,8 @@ portfolio. The transferable patterns are:
 National Design Studio uses the licensed PP Neue Montreal family on its studio
 site. This dashboard uses Instrument Sans as an open, close-in-spirit alternative
 rather than copying or redistributing a proprietary font. The adaptation also
-follows the studio's stated
-[accessibility emphasis](https://ndstudio.gov/posts/accessibility-matters):
-structural simplicity, plain language, keyboard navigation, WCAG AA contrast,
-and reduced motion.
+follows the studio's stated accessibility emphasis: structural simplicity,
+plain language, keyboard navigation, WCAG AA contrast, and reduced motion.
 
 ## Experience modes
 
@@ -492,11 +485,11 @@ state.
 
 ## Decision log
 
-| Date       | Decision                                                              | Rationale                                                                                                                                                      |
-| ---------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-17 | Use a pipeline spine as the overview's primary composition            | The operator reasons about handoffs and backlog across stages, not isolated KPIs                                                                               |
-| 2026-07-17 | Default to dark, compact, desktop-first presentation                  | The dashboard is an ambient local monitor and investigative tool                                                                                               |
-| 2026-07-17 | Join leases with live events for active-work presentation             | Durable state and transient telemetry answer different parts of “currently processing”                                                                         |
-| 2026-07-17 | Keep initial controls read-only                                       | Monitoring should not accidentally change pipeline state                                                                                                       |
-| 2026-07-17 | Generate dashboard recipes, CLI help, and cheatsheet from one catalog | Prevent documentation and query behavior from drifting                                                                                                         |
-| 2026-07-17 | Adopt an NDS-inspired civic editorial shell                           | Numbered sections, asymmetric composition, monochrome surfaces, and thin rules create a recognizable public-service identity without compromising data density |
+| Date       | Decision                                                              | Rationale                                                                              |
+| ---------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 2026-07-17 | Use a pipeline spine as the overview's primary composition            | The operator reasons about handoffs and backlog across stages, not isolated KPIs       |
+| 2026-07-17 | Default to dark, compact, desktop-first presentation                  | The dashboard is an ambient local monitor and investigative tool                       |
+| 2026-07-17 | Join leases with live events for active-work presentation             | Durable state and transient telemetry answer different parts of “currently processing” |
+| 2026-07-17 | Keep initial controls read-only                                       | Monitoring should not accidentally change pipeline state                               |
+| 2026-07-17 | Generate dashboard recipes, CLI help, and cheatsheet from one catalog | Prevent documentation and query behavior from drifting                                 |
+| 2026-07-17 | Adopt an NDS-inspired civic editorial shell                          | Numbered sections, asymmetric composition, monochrome surfaces, and thin rules create a recognizable public-service identity without compromising data density |

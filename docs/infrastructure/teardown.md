@@ -54,8 +54,9 @@ docker volume rm dot-gov-news-chroma-data
 
 ## 6. Supabase rollback
 
-Do not automatically drop `public.pipeline_events`, `public.feeds`,
-`public.government_site_feeds`, or `public.feed_fetch_state`. Retain them for
-diagnostics unless the project owner explicitly approves data deletion. The
-discovery migration is additive and leaving its tables in place is the safe
-Worker rollback.
+Do not automatically drop `public.pipeline_events`, `public.news_sources`,
+`public.government_site_news_sources`, or `public.news_source_fetch_state`.
+(The legacy `feeds` tables were replaced by these generalized relations in
+migration `20260718000300`.) Retain them for diagnostics unless the project
+owner explicitly approves data deletion. Leaving the discovery tables in place
+is the safe Worker rollback.

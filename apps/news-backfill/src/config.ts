@@ -48,10 +48,11 @@ export async function loadManifest(path: string): Promise<BackfillManifest> {
     typeof manifest.version !== "number" ||
     !Number.isInteger(manifest.version) ||
     !Array.isArray(manifest.publishers) ||
-    manifest.publishers.length !== 20
+    manifest.publishers.length < 1 ||
+    manifest.publishers.length > 100
   ) {
     throw new Error(
-      "manifest must define one versioned cohort of 20 publishers",
+      "manifest must define one versioned cohort of 1 to 100 publishers",
     );
   }
 

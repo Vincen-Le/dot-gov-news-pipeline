@@ -120,7 +120,7 @@ pnpm ops lab experiments
 
 ### Open the label queue
 
-Label borderline attach decisions for future eval scoring.
+List borderline attach decisions awaiting labels; label them in the dashboard.
 
 ```bash
 pnpm ops lab borderline --limit 50

@@ -5,29 +5,32 @@ before changing or operating the pipeline.
 
 ## Find the right source
 
-| Goal                                                           | Read first                                                                                      | Then inspect                                                                                                                                       |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Orient to the project, status, and architecture diagram        | [NDS project hub](https://app.notion.com/p/3a02b47c562f80458178c5134d15dab3)                    | [Architecture](../architecture.md) and the current live provider state                                                                             |
-| Understand the architecture, current state, and planned phases | [Architecture](../architecture.md)                                                              | [Repository README](../README.md)                                                                                                                  |
-| Authenticate to Supabase or Cloudflare                         | [Provider access](infrastructure/access.md)                                                     | The relevant provider CLI output                                                                                                                   |
-| Install dependencies or verify the repository                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`package.json`](../package.json), [`mise.toml`](../mise.toml), and CI configuration                                                               |
-| Inspect, run, or recover the GSA inventory sync                | [GSA inventory runbook](infrastructure/runbook.md#gsa-government-site-inventory)                | [`apps/inventory-sync`](../apps/inventory-sync) and the inventory migration                                                                        |
-| Query government sites or discovery due state                  | [Service-only inventory API](infrastructure/runbook.md#service-only-inventory-api)              | [`20260717000300_create_government_site_inventory.sql`](../supabase/migrations/20260717000300_create_government_site_inventory.sql)                |
-| Monitor health, inventory, queues, or Worker activity          | [Operator CLI cheatsheet](operations/cli-cheatsheet.md)                                         | [Operator dashboard design](superpowers/specs/2026-07-17-operator-dashboard-nds-design.md) and [`apps/operator-console`](../apps/operator-console) |
-| Run or deploy the Worker                                       | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`wrangler.jsonc`](../apps/pipeline-worker/wrangler.jsonc) and Worker source                                                                       |
-| Add or change durable database state                           | [Architecture](../architecture.md)                                                              | [`supabase/migrations`](../supabase/migrations) and [`supabase/config.toml`](../supabase/config.toml)                                              |
-| Work with the event envelope                                   | [`pipeline-event.ts`](../packages/contracts/src/pipeline-event.ts)                              | Contract and Worker tests                                                                                                                          |
-| Work with generalized news-source contracts                    | [`news-source.ts`](../packages/contracts/src/news-source.ts)                                    | Generalized schema migration and database tests                                                                                                    |
-| Start or recover local Chroma                                  | [Infrastructure runbook](infrastructure/runbook.md)                                             | [`infra/chroma/compose.yaml`](../infra/chroma/compose.yaml)                                                                                        |
-| Rotate credentials or investigate failures                     | [Infrastructure runbook](infrastructure/runbook.md)                                             | [Provider access](infrastructure/access.md)                                                                                                        |
-| Remove infrastructure                                          | [Teardown procedure](infrastructure/teardown.md)                                                | Live provider inventory before taking action                                                                                                       |
-| Understand the original bootstrap decisions                    | [Implementation plan](../.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md) | Current configuration and runbook for implemented state                                                                                            |
+| Goal                                                           | Read first                                                                                       | Then inspect                                                                                                                                       |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Orient to the project, status, and architecture diagram        | [NDS project hub](https://app.notion.com/p/3a02b47c562f80458178c5134d15dab3)                     | [Architecture](../architecture.md) and the current live provider state                                                                             |
+| Understand the architecture, current state, and planned phases | [Architecture](../architecture.md)                                                               | [Repository README](../README.md)                                                                                                                  |
+| Authenticate to Supabase or Cloudflare                         | [Provider access](infrastructure/access.md)                                                      | The relevant provider CLI output                                                                                                                   |
+| Install dependencies or verify the repository                  | [Infrastructure runbook](infrastructure/runbook.md)                                              | [`package.json`](../package.json), [`mise.toml`](../mise.toml), and CI configuration                                                               |
+| Inspect, run, or recover the GSA inventory sync                | [GSA inventory runbook](infrastructure/runbook.md#gsa-government-site-inventory)                 | [`apps/inventory-sync`](../apps/inventory-sync) and the inventory migration                                                                        |
+| Query government sites or discovery due state                  | [Service-only inventory API](infrastructure/runbook.md#service-only-inventory-api)               | [`20260717000300_create_government_site_inventory.sql`](../supabase/migrations/20260717000300_create_government_site_inventory.sql)                |
+| Monitor health, inventory, queues, or Worker activity          | [Operator CLI cheatsheet](operations/cli-cheatsheet.md)                                          | [Operator dashboard design](superpowers/specs/2026-07-17-operator-dashboard-nds-design.md) and [`apps/operator-console`](../apps/operator-console) |
+| Backfill the news corpus from curated manifests                | [Runbook backfill section](infrastructure/runbook.md#news-corpus-backfill-artifacts-and-content) | [`apps/news-backfill`](../apps/news-backfill) and [`config/news-backfill`](../config/news-backfill)                                                |
+| Run or QA the clustering pipeline and experiments              | [Clustering lab guide](operations/clustering-lab.md)                                             | [`pipeline/`](../pipeline) and [`apps/operator-console/src/lab`](../apps/operator-console/src/lab)                                                 |
+| Run or deploy the Worker                                       | [Infrastructure runbook](infrastructure/runbook.md)                                              | [`wrangler.jsonc`](../apps/pipeline-worker/wrangler.jsonc) and Worker source                                                                       |
+| Add or change durable database state                           | [Architecture](../architecture.md)                                                               | [`supabase/migrations`](../supabase/migrations) and [`supabase/config.toml`](../supabase/config.toml)                                              |
+| Work with the event envelope                                   | [`pipeline-event.ts`](../packages/contracts/src/pipeline-event.ts)                               | Contract and Worker tests                                                                                                                          |
+| Work with generalized news-source contracts                    | [`news-source.ts`](../packages/contracts/src/news-source.ts)                                     | Generalized schema migration and database tests                                                                                                    |
+| Start or recover local Chroma                                  | [Infrastructure runbook](infrastructure/runbook.md)                                              | [`infra/chroma/compose.yaml`](../infra/chroma/compose.yaml)                                                                                        |
+| Rotate credentials or investigate failures                     | [Infrastructure runbook](infrastructure/runbook.md)                                              | [Provider access](infrastructure/access.md)                                                                                                        |
+| Remove infrastructure                                          | [Teardown procedure](infrastructure/teardown.md)                                                 | Live provider inventory before taking action                                                                                                       |
+| Understand the original bootstrap decisions                    | [Implementation plan](../.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)  | Current configuration and runbook for implemented state                                                                                            |
 
 ## Core documents
 
 - [Architecture](../architecture.md) is the primary technical handoff. It
-  distinguishes implemented infrastructure from proposed ingestion, discovery,
-  polling, and downstream phases.
+  distinguishes the implemented infrastructure, inventory, discovery,
+  backfill, and offline clustering stages from the proposed recurring-fetch
+  and serving phases.
 - [Provider access](infrastructure/access.md) contains non-secret project
   identifiers and safe authentication procedures.
 - [Infrastructure runbook](infrastructure/runbook.md) is the primary operating
@@ -40,10 +43,13 @@ before changing or operating the pipeline.
 - [Inventory and news-source-discovery plan](../.claude/plans/gsa-inventory-and-news-source-discovery-implementation-plan.md)
   records the detailed inventory decisions and the remaining discovery work.
 - [Operator CLI cheatsheet](operations/cli-cheatsheet.md) is the generated
-  command catalog for health, inventory, queue, event, and Worker-tail queries.
+  command catalog for health, inventory, queue, event, Worker-tail, and
+  clustering-lab queries.
+- [Clustering lab guide](operations/clustering-lab.md) is the QA and
+  experiment loop for the Python clustering pipeline.
 - [Operator dashboard design](superpowers/specs/2026-07-17-operator-dashboard-nds-design.md)
-  records the private local console's interaction and visual design, with a
-  linked browser preview.
+  records the private local console's interaction and visual design. (Its
+  linked browser preview HTML has since been removed from the repository.)
 - [Ranking pipeline design](superpowers/specs/2026-07-17-ranking-pipeline-design.md)
   records the proposed downstream clustering, ranking, and serving system.
 
@@ -99,10 +105,19 @@ The repository currently provides:
 - A separately deployable, token-protected read-only Operator API plus an ad
   hoc CLI and loopback-only dashboard for health, inventory, queue, event, and
   sampled Worker lifecycle visibility.
+- A manifest-driven news-corpus backfill (`apps/news-backfill`) with
+  content-addressed R2 raw-artifact archival and idempotent entry ingestion.
+- A Python clustering pipeline (`pipeline/`) covering extraction,
+  normalization, fp16 embeddings in Postgres, episode/storyline clustering,
+  event and overview cards with rubric rank keys, and topic themes against a
+  seeded taxonomy.
+- An operator-console clustering lab (`pnpm ops lab …`) for corpus QA,
+  experiments recorded in `experiment_runs`, quality metrics, and borderline
+  labeling.
 - Local persistent Chroma development service, shared event contracts, unit
   and database tests, CI verification, and operations guidance.
 
-News-source fetching, news-item parsing, embeddings, search, ranking, public
+Recurring news-source fetching at scale, learned ranking, search, public
 APIs, and the user interface remain follow-up work. Do not infer that they
 exist from their architectural designs or from seeded source records.
 

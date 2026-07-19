@@ -100,7 +100,8 @@ export const operatorRecipes: OperatorRecipe[] = [
   },
   {
     cli: "pnpm ops lab borderline --limit 50",
-    description: "Label borderline attach decisions for future eval scoring.",
+    description:
+      "List borderline attach decisions awaiting labels; label them in the dashboard.",
     id: "lab-label-queue",
     title: "Open the label queue",
     view: "/lab#labels",

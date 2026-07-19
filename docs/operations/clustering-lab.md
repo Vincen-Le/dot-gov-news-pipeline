@@ -14,30 +14,30 @@ records every completed run in the `experiment_runs` table and writes
    stages it spawns. Set the variable to target a different database — reads
    work against any DSN; experiments require a local one (the pipeline bench
    tools structurally refuse remote hosts). Direct `uv run python -m
-   pipeline.cli …` invocations still need it exported (the pipeline's own
+pipeline.cli …` invocations still need it exported (the pipeline's own
    fallback is the stock Supabase port 54322). Caveat: `pipeline/config.py`
    loads the root `.env`, and `tests/test_cache.py` asserts the built-in
    default — export the variable in your shell (or per command) instead of
    committing it to `.env` if you also run `uv run pytest`.
 2. Local stack + migrations: `pnpm supabase start` (schema through
-   `20260718100200_create_experiment_runs`).
+   `20260718100400_create_news_source_publishers`).
 3. Corpus synced: `uv run python -m pipeline.cli sync` (hosted → local,
    id-preserving). Features prepared once: `uv run python -m pipeline.cli
-   prepare` — the lab's run form auto-includes this when entries still need it.
+prepare` — the lab's run form auto-includes this when entries still need it.
 4. The `uv` toolchain (experiment stages spawn the pipeline CLI).
 
 ## The loop
 
-| Step | Dashboard | CLI |
-| --- | --- | --- |
-| Inspect the corpus | Lab § Corpus | `pnpm ops lab corpus` |
-| Run an experiment | Lab § Run experiment | `pnpm ops lab run --name baseline --stub` |
-| Sweep a threshold | Lab § Run (override fields) | `pnpm ops lab run --name sweep --set NEAR_DUP_THRESHOLD=0.87` |
-| Feature-level A/B | Lab § Run ("Re-embed") | `pnpm ops lab run --name no-enrich --clear-features --set ENRICHMENT_ENABLED=false` |
-| QA the chains | Storylines → chain detail | `pnpm ops lab storyline <id>` |
-| Read quality metrics | Lab § Quality | `pnpm ops lab metrics` |
-| Compare runs | Lab § Experiment runs (baseline + config diff) | `pnpm ops lab experiments` + `diff docs/eval/<a>/report.md docs/eval/<b>/report.md` |
-| Label borderline pairs | Lab § Label queue | `pnpm ops lab borderline` (labels land in `docs/eval/labels.csv`) |
+| Step                   | Dashboard                                         | CLI                                                                                 |
+| ---------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Inspect the corpus     | Lab § Corpus                                      | `pnpm ops lab corpus`                                                               |
+| Run an experiment      | Lab § Run experiment                              | `pnpm ops lab run --name baseline --stub`                                           |
+| Sweep a threshold      | Lab § Run (override fields)                       | `pnpm ops lab run --name sweep --set NEAR_DUP_THRESHOLD=0.87`                       |
+| Feature-level A/B      | Lab § Run ("Re-embed")                            | `pnpm ops lab run --name no-enrich --clear-features --set ENRICHMENT_ENABLED=false` |
+| QA the chains          | Storylines → chain detail                         | `pnpm ops lab storyline <id>`                                                       |
+| Read quality metrics   | Lab § Quality                                     | `pnpm ops lab metrics`                                                              |
+| Compare runs           | Lab § Experiment runs (baseline + config diff)    | `pnpm ops lab experiments` + `diff docs/eval/<a>/report.md docs/eval/<b>/report.md` |
+| Label borderline pairs | Lab § Label queue (writes `docs/eval/labels.csv`) | `pnpm ops lab borderline` (read-only listing)                                       |
 
 Notes:
 

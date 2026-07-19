@@ -14,14 +14,25 @@ The repository currently implements:
 - A scheduled and manually dispatchable GitHub Actions inventory workflow.
 - Cloudflare Workers, Cron Triggers, Queues, and R2 for asynchronous compute
   and artifacts, including bounded site feed discovery.
-- Canonical `feeds`, site-to-feed provenance, feed-fetch handoff state, and a
-  resumable direct backfill runner for initial database seeding.
-- Local Chroma through Docker for future semantic-search development.
+- Canonical `news_sources`, site-to-source provenance, source-fetch handoff
+  state, and a resumable direct discovery backfill runner for initial database
+  seeding.
+- A Node/TypeScript news-corpus backfill (`apps/news-backfill`) that fetches
+  curated publisher histories from manifests in `config/news-backfill/`,
+  archives every raw response in R2, and ingests normalized entries.
+- A Python clustering pipeline (`pipeline/`) that prepares entries
+  (extraction, normalization, fp16 embeddings stored in Postgres), clusters
+  them into episodes and storylines, assigns topics and themes, and generates
+  event and overview cards.
+- A clustering lab in the operator console (`pnpm ops lab …`) for corpus QA,
+  experiments, quality metrics, and borderline labeling.
+- Local Chroma through Docker, retained as unused scaffolding for a possible
+  future vector store; pipeline embeddings currently live in Postgres.
 
 The database and shared TypeScript contracts support RSS, Atom, JSON Feed,
 publisher APIs, HTML archives, and sitemaps through the generalized
-`news_sources` model. Source fetching, news-item normalization, embeddings,
-ranking, search, and the public UI remain follow-up work.
+`news_sources` model. Recurring source fetching at scale, learned ranking,
+search, the public API, and the user interface remain follow-up work.
 
 ## Architecture smoke path
 
@@ -68,10 +79,10 @@ queries are documented in the
 ```text
 site_discovery_state
     -> lease-safe claim with bounded base-domain lanes
-        -> bounded publisher crawl and feed validation
-            -> feeds
-            -> government_site_feeds
-            -> feed_fetch_state
+        -> bounded publisher crawl and source validation
+            -> news_sources
+            -> government_site_news_sources
+            -> news_source_fetch_state
 ```
 
 Cloudflare Queue/Cron is the recurring path and keeps one active lane per base
@@ -79,6 +90,28 @@ domain. The initial inventory seed can run directly with
 `pnpm discovery:backfill` using a wider, explicit lane cap; Supabase remains the
 checkpoint, so the job is safe to resume after interruption. See the
 [discovery operations guide](docs/operations/site-feed-discovery.md).
+
+## News corpus backfill and clustering lab
+
+Seed the corpus from a curated manifest (raw responses archive to R2 by
+default):
+
+```sh
+mise exec -- pnpm news:backfill --manifest ../../config/news-backfill/top-20-diversity-v3.json
+```
+
+Then sync, prepare, and cluster locally with the Python pipeline, and QA the
+result in the lab:
+
+```sh
+uv run python -m pipeline.cli sync
+uv run python -m pipeline.cli prepare
+pnpm ops lab run --name baseline --stub
+pnpm ops lab storylines --min-episodes 2
+```
+
+See the [clustering lab guide](docs/operations/clustering-lab.md) and the
+[runbook's backfill section](docs/infrastructure/runbook.md#news-corpus-backfill-artifacts-and-content).
 
 ## Dependency management
 
@@ -103,7 +136,9 @@ Do not install or commit individual files from `node_modules`. The committed `pa
 
 ### Python tooling
 
-Python is not required by the infrastructure bootstrap, but the repository preserves an empty uv environment for later pipeline work.
+Python 3.12+ hosts the clustering pipeline in `pipeline/` (sync, prepare,
+cluster, reset, and experiment stages behind `uv run python -m pipeline.cli`)
+with its test suite in `tests/`.
 
 Create `.venv` and install the exact dependencies from `uv.lock`:
 
@@ -191,10 +226,11 @@ The individual CLI queries remain available without Mise:
 pnpm ops health --deep
 pnpm ops queues
 pnpm ops inventory summary
+pnpm ops lab corpus
 ```
 
 See [the generated CLI cheatsheet](docs/operations/cli-cheatsheet.md) for the
-complete read-only command catalog.
+complete read-only command catalog, including the clustering lab commands.
 
 ## Infrastructure documentation
 

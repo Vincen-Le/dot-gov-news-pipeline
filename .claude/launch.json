@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "operator-dashboard",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@dot-gov-news/operator-console",
+        "ops",
+        "dashboard",
+        "--port",
+        "4174",
+        "--no-open"
+      ],
+      "port": 4174
+    }
+  ]
+}

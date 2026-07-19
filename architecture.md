@@ -2,7 +2,7 @@
 
 **Architecture snapshot:** 2026-07-18
 **Repository:** `dot-gov-news-pipeline`
-**Status:** Infrastructure and GSA inventory reconciliation hosted-verified; bounded news-source discovery implemented locally and provisioned disabled; the generalized news-source database model is implemented; source fetching and news processing remain planned work
+**Status:** Infrastructure and GSA inventory reconciliation hosted-verified; bounded news-source discovery implemented locally and provisioned disabled; the generalized news-source database model is implemented; a manifest-driven news-corpus backfill (`apps/news-backfill`) and an offline Python clustering pipeline (`pipeline/`: entries → episodes → storylines → cards → topic themes) are implemented with an operator-console clustering lab; recurring hosted source fetching and the public API/UI remain planned work
 **Primary design context:** Codex tasks `019f7117-db3b-7eb2-bf27-dda5fae1cf23` and `019f7129-622b-7bf3-93f1-f5de84d2e559`
 
 This document is the architectural handoff for a new implementation session. It combines the proposed end-state design with the infrastructure that exists in this working tree. Where an older plan conflicts with code, migrations, or the hosted verification record, the repository and hosted evidence in `docs/infrastructure/runbook.md` are authoritative.
@@ -24,26 +24,29 @@ publisher offers them, but scheduled fetching remains the universal fallback.
 
 Supabase Postgres is the durable system of record and authoritative scheduler state. Cloudflare Cron and Queues wake bounded work; they are not the permanent backlog. R2 stores raw snapshots and large artifacts. The current Cloudflare Worker and event contract prove the asynchronous path end to end. GitHub Actions is the implemented batch runtime for the GSA inventory import because the source CSV is too CPU-heavy for the Cloudflare Workers Free budget.
 
-TypeScript is the default implementation language for inventory, discovery, and polling because these are I/O-bound workloads and the active runtime is Cloudflare Workers. SQL owns atomic reconciliation and leasing. Python is deliberately deferred until ranking, NLP, embeddings, or analytical workloads create a concrete ecosystem advantage.
+TypeScript is the default implementation language for inventory, discovery, backfill, and polling because these are I/O-bound workloads and the active runtime is Cloudflare Workers. SQL owns atomic reconciliation and leasing. Python now hosts the implemented clustering/ranking pipeline (`pipeline/`): embeddings, enrichment, episode/storyline clustering, event cards, and topic themes run offline against the same Postgres state through language-neutral contracts.
 
 ## Status at a glance
 
-| Area                                     | Status                       | Evidence / next step                                                            |
-| ---------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------- |
-| TypeScript monorepo and pinned toolchain | Implemented                  | pnpm workspace, Node 24 via `mise`, strict TypeScript, ESLint, Prettier, Vitest |
-| Cloudflare Worker                        | Implemented and deployed     | HTTP, scheduled, and queue handlers under `apps/pipeline-worker/`               |
-| Cloudflare Queue and DLQ                 | Provisioned and smoke-tested | Main queue retry and poison-message DLQ behavior recorded in the runbook        |
-| Cloudflare R2                            | Provisioned and smoke-tested | Deterministic heartbeat artifact was retrieved remotely                         |
-| Supabase                                 | Provisioned and migrated     | Event and GSA inventory schemas are hosted with service-role-only access        |
-| End-to-end heartbeat                     | Implemented and verified     | `Cron -> Queue -> Worker -> R2 + Supabase`, including replay idempotency        |
-| CI                                       | Implemented                  | App verification plus migration reset and database assertions                   |
-| Chroma                                   | Local-only bootstrap         | Docker Compose with persistent named volume; not part of hosted ingestion       |
-| GSA inventory sync                       | Implemented and hosted       | 29,569 rows reconciled; 25,367 usable sites; checksum replay verified unchanged |
-| Site news-source discovery               | Implemented, disabled        | Lease RPCs, dedicated Queue/DLQ, bounded Worker, provenance, and canary tooling |
-| Operator observability                   | Implemented                  | Read-only Worker API, CLI, local dashboard, and sampled lifecycle log tail      |
-| News-source fetching                     | Architected, not implemented | Add adaptive due-source scheduler and adapter-based TypeScript fetchers         |
-| Entry normalization/deduplication        | Architected, not implemented | Add durable entry model and idempotent new-entry events                         |
-| Clustering, ranking, API, UI             | Future                       | Keep downstream from collection and serve materialized ranked results           |
+| Area                                     | Status                       | Evidence / next step                                                                            |
+| ---------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| TypeScript monorepo and pinned toolchain | Implemented                  | pnpm workspace, Node 24 via `mise`, strict TypeScript, ESLint, Prettier, Vitest                 |
+| Cloudflare Worker                        | Implemented and deployed     | HTTP, scheduled, and queue handlers under `apps/pipeline-worker/`                               |
+| Cloudflare Queue and DLQ                 | Provisioned and smoke-tested | Main queue retry and poison-message DLQ behavior recorded in the runbook                        |
+| Cloudflare R2                            | Provisioned and smoke-tested | Deterministic heartbeat artifact was retrieved remotely                                         |
+| Supabase                                 | Provisioned and migrated     | Event and GSA inventory schemas are hosted with service-role-only access                        |
+| End-to-end heartbeat                     | Implemented and verified     | `Cron -> Queue -> Worker -> R2 + Supabase`, including replay idempotency                        |
+| CI                                       | Implemented                  | App verification plus migration reset and database assertions                                   |
+| Chroma                                   | Local-only bootstrap         | Docker Compose with persistent named volume; not part of hosted ingestion                       |
+| GSA inventory sync                       | Implemented and hosted       | 29,569 rows reconciled; 25,367 usable sites; checksum replay verified unchanged                 |
+| Site news-source discovery               | Implemented, disabled        | Lease RPCs, dedicated Queue/DLQ, bounded Worker, provenance, and canary tooling                 |
+| Operator observability                   | Implemented                  | Read-only Worker API, CLI, local dashboard, and sampled lifecycle log tail                      |
+| News corpus backfill                     | Implemented                  | `apps/news-backfill`: manifest-driven fetch, R2 raw-artifact archival, `ingest_news_entries_v2` |
+| Entry normalization/deduplication        | Implemented                  | `news_entries` schema, extraction/normalization in backfill + `pipeline/normalize.py`           |
+| Clustering, ranking, cards, topics       | Implemented (offline)        | `pipeline/` stages: episodes → storylines → event/overview cards → topic themes                 |
+| Clustering lab                           | Implemented                  | Operator-console lab surface (`pnpm ops lab …`) plus `experiment_runs` history                  |
+| Recurring source fetching                | Architected, not implemented | Add adaptive due-source scheduler and adapter-based TypeScript fetchers                         |
+| Public API, UI                           | Future                       | Serve materialized ranked results downstream of collection                                      |
 
 ## System context and end-state flow
 
@@ -98,6 +101,12 @@ flowchart LR
     API --> UI
 ```
 
+The diagram is the end-state flow. Today the `NORM -> ENTRY -> CLUSTER ->
+RANK` path is realized without the adaptive fetch loop: `apps/news-backfill`
+ingests curated publisher histories directly into `news_entries`, and the
+offline Python pipeline produces episodes, storylines, cards, and topic
+themes from that corpus.
+
 The pipeline has two scheduling clocks that must remain separate:
 
 ```text
@@ -133,13 +142,19 @@ The repository is a pnpm monorepo:
 ```text
 apps/pipeline-worker/       Cloudflare Worker
 apps/inventory-sync/        GSA inventory batch importer
+apps/news-backfill/         Manifest-driven news-corpus backfill batch
+apps/operator-api/          Read-only token-protected operator Worker
+apps/operator-console/      Local CLI, dashboard, and clustering lab
 packages/contracts/         Provider-neutral runtime-validated event contract
+pipeline/                   Python clustering pipeline (sync/prepare/cluster/experiment)
+config/news-backfill/       Curated backfill manifests
+scripts/                    Discovery backfill and canary operator scripts
 supabase/                   Local project config and additive SQL migrations
 infra/chroma/               Local Chroma Docker Compose service
 docs/infrastructure/        Access, operations, and teardown procedures
 ```
 
-Node 24 is pinned with `mise`. The root package uses pnpm 11.9.0. An empty Python 3.12+ `uv` environment is retained for later workloads but is not required by the infrastructure bootstrap.
+Node 24 is pinned with `mise`. The root package uses pnpm 11.9.0. The Python 3.12+ `uv` environment hosts the implemented clustering pipeline (`pipeline/`) and its pytest suite (`tests/`).
 
 CI runs on pushes to `main` and pull requests. The application job installs the
 locked pnpm dependencies and runs formatting, linting, typechecking, Vitest,
@@ -233,6 +248,20 @@ The generalized source migration provides `news_sources`,
 Atom, JSON Feed, publisher APIs, HTML archives, and sitemaps, preserves
 many-to-many provenance, and exposes service-only generalized completion and
 summary RPCs. The prior feed-only relations are absent after the migration.
+
+The entry and clustering migrations (`20260718000400` through
+`20260718100400`) add the downstream model: `news_entries` (with fp16 `bytea`
+embeddings and `body_text`), `entity_stats`, `storylines`, `episodes`,
+`episode_entries`, `event_cards`, `rubric_weights`, `experiment_runs`, the
+backfill control tables (`news_backfill_runs`, `news_backfill_targets`,
+`news_backfill_run_entries`, candidate/identity audit tables,
+`news_entry_origins`), the topic-clustering tables (`topic_categories`,
+`topic_themes`, seeded with a 23-category taxonomy), and
+`news_source_publishers`. Service-only RPCs cover entry ingestion
+(`ingest_news_entries_v2`), episode/storyline lifecycle
+(`create_episode_with_storyline`, `attach_entry_to_episode`, `close_episode`),
+cards and ranking (`insert_event_card`, `compute_rank_key`), backfill run
+lifecycle, and topic-theme management.
 
 ## Phase 1: GSA inventory reconciliation
 
@@ -537,6 +566,43 @@ WebSub subscriptions still require lease renewal and periodic safety polling. Th
 
 ## Phase 4: Entries, clustering, ranking, and serving
 
+### Implemented state
+
+The entries → clustering → cards → topics path is implemented and runs
+offline against local Postgres, seeded by the backfill rather than recurring
+fetching:
+
+- `apps/news-backfill` fetches curated publisher histories from
+  `config/news-backfill/*.json` manifests, archives every raw response
+  content-addressed in R2 (`news-backfill/objects/<sha256>`), records each
+  run's reference in `news_backfill_run_entries.raw_artifact_key`, extracts and
+  normalizes entries, and ingests them idempotently through
+  `ingest_news_entries_v2`. `upload-artifacts` migrates legacy local artifacts
+  to R2; `probe.ts` holds the alternate-source probe tooling.
+- `pipeline/` (Python) implements the processing stages behind
+  `uv run python -m pipeline.cli`: `sync` copies the hosted corpus into the
+  local bench database id-preserved; `prepare` runs extraction, enrichment,
+  and fp16 embeddings (stored in `news_entries.embedding`, not Chroma);
+  `cluster` runs stage 1 episodes (`episodes.py`), stage 2 storylines
+  (`storylines.py`), stage 3 event and overview cards with rubric rank keys
+  (`cards.py`, `compute_rank_key`), and stage 4 topic themes (`topics.py`,
+  nearest-centroid assignment with LLM adjudication against the seeded
+  taxonomy).
+- The model layer (`pipeline/ai.py`, `prompts.py`, `cache.py`, `stub.py`)
+  provides the adjudicator/judge/enricher/embedder behind a decision cache
+  (`.cache/decisions.sqlite`) and a stub mode for deterministic runs.
+- Every episode close writes an immutable episode card and regenerates the
+  storyline overview card, including for single-episode storylines, with a
+  deterministic fallback when the LLM call fails.
+- The operator-console clustering lab (`pnpm ops lab …`, dashboard Lab pages)
+  provides corpus inspection, experiment runs recorded in `experiment_runs`,
+  storyline QA, quality metrics, and borderline labeling. See
+  `docs/operations/clustering-lab.md`.
+
+Recurring hosted fetching, learned ranking, and the public API/UI remain
+unimplemented; the design below covers both the implemented offline path and
+those future stages.
+
 ### Two distinct kinds of deduplication
 
 Per-source idempotency determines whether a news item has already been ingested.
@@ -587,9 +653,11 @@ erDiagram
     GOVERNMENT_SITES ||--o{ GOVERNMENT_SITE_NEWS_SOURCES : exposes
     NEWS_SOURCES ||--o{ GOVERNMENT_SITE_NEWS_SOURCES : discovered_from
     NEWS_SOURCES ||--|| NEWS_SOURCE_FETCH_STATE : schedules
-    NEWS_SOURCES ||--o{ NEWS_ITEMS : publishes
-    STORY_CLUSTERS ||--o{ STORY_CLUSTER_ENTRIES : groups
-    NEWS_ITEMS ||--o{ STORY_CLUSTER_ENTRIES : participates_in
+    NEWS_SOURCES ||--o{ NEWS_ENTRIES : publishes
+    STORYLINES ||--o{ EPISODES : chains
+    EPISODES ||--o{ EPISODE_ENTRIES : groups
+    NEWS_ENTRIES ||--o{ EPISODE_ENTRIES : participates_in
+    STORYLINES ||--o{ EVENT_CARDS : summarized_by
 
     INVENTORY_SYNC_RUNS {
         uuid id PK
@@ -677,9 +745,9 @@ The authoritative migration sequence provides:
 
 Use `TIMESTAMPTZ`, database-generated UUIDs, check constraints, and narrowly targeted indexes. Public tables must have RLS enabled and no anonymous write path. Staging belongs in a non-exposed `private` schema.
 
-### Planned database RPCs
+### Inventory and discovery RPCs
 
-Service-only functions should include:
+The implemented service-only functions include:
 
 - Create/start an inventory sync run.
 - Stage an idempotent batch of GSA rows.
@@ -775,8 +843,11 @@ The operator surface has three deliberately separate layers:
    It reads bounded Supabase models, Queue metrics, R2 metadata, and the pipeline
    Worker's health endpoint through a Service Binding. It has no mutation route.
 3. `operator-console` is a localhost-only Node process containing the CLI,
-   browser credential boundary, React dashboard, query recipes, and optional
-   Wrangler tail adapter. Closing it does not stop hosted processing.
+   browser credential boundary, React dashboard, query recipes, optional
+   Wrangler tail adapter, and the clustering lab (corpus inspection,
+   experiment runs, storyline QA, theme browsing, and borderline labeling
+   against the local bench database). Closing it does not stop hosted
+   processing.
 
 Durable Supabase state answers what is due, leased, or complete. Queue metrics
 describe transient provider pressure. Sampled real-time logs explain recent
@@ -821,15 +892,15 @@ Backups are also a production gate. The current runbook uses manual Supabase dum
 
 ## Next implementation sequence
 
-The infrastructure and inventory phases are complete. Bounded news-source
-discovery, typed routing, dedicated Queue bindings, and lease-aware persistence
-are implemented behind `DISCOVERY_ENABLED=false`. The next step is the
-controlled hosted rollout documented in
-`docs/operations/site-feed-discovery.md`: one reviewed site, then 25 and 250
-sites, with review between each gate. Source fetching must be designed and
-benchmarked separately before consuming `news_source_fetch_state` at scale.
-Entry normalization, clustering/ranking, and the materialized API/UI follow
-fetching.
+The infrastructure and inventory phases are complete, and the hosted
+discovery rollout (1/25/250-site gates plus the full 25,367-site direct seed)
+finished on 2026-07-18 with recurring discovery still disabled. The curated
+news-corpus backfill, entry normalization, offline clustering/ranking/cards,
+topic themes, and the clustering lab are implemented. The remaining sequence:
+select the recurring-discovery steady-state rate and Workers tier; design and
+benchmark adaptive source fetching before consuming `news_source_fetch_state`
+at scale; then productionize the clustering output behind a materialized
+public API/UI.
 
 ## Rollout gates
 
@@ -846,14 +917,15 @@ Do not enable unattended schedules until the preceding gate passes:
 7. Expand the controlled discovery backlog.
 8. Benchmark full source polling separately; upgrade/change infrastructure before free-tier limits are approached.
 
-## Explicit non-goals for the next inventory/discovery phase
+## Explicit non-goals for the hosted inventory/discovery phase
 
-- Polling discovered news sources for entries.
-- Article-body crawling or unbounded website crawling.
-- Unbounded HTML crawling beyond the configured archive adapter.
+- Recurring polling of discovered news sources for entries (the curated
+  backfill is the implemented, bounded exception).
+- Unbounded website or HTML crawling beyond the configured adapters.
 - WebSub subscription delivery.
-- Embeddings, semantic clustering, learned ranking, or search.
-- A public API, administrative dashboard, or central UI.
+- Hosted embeddings, clustering, or ranking (these run offline in
+  `pipeline/` today), learned ranking, or search.
+- A public API or central UI (the operator console and lab remain local-only).
 - Multi-region or multiple deployment environments.
 - Hosted Chroma.
 
@@ -883,6 +955,10 @@ Use these files rather than reconstructing context from scratch:
 - `README.md`: local setup and bootstrap summary.
 - `apps/inventory-sync/`: implemented GSA downloader, parser, R2 snapshot store, and reconciliation orchestration.
 - `apps/pipeline-worker/`: the implemented Worker entry points and current heartbeat behavior.
+- `apps/news-backfill/`: manifest-driven corpus backfill, R2 artifact store, extraction, and probe tooling.
+- `pipeline/`: the Python clustering pipeline (sync/prepare/cluster stages, experiment harness, model layer).
+- `config/news-backfill/`: curated backfill manifests.
+- `docs/operations/clustering-lab.md`: the lab QA/experiment loop.
 - `packages/contracts/`: the current versioned Zod event envelope.
 - `supabase/migrations/20260717000300_create_government_site_inventory.sql`: authoritative inventory schema, reconciliation, and discovery-claim RPCs.
 - `supabase/migrations/`: the authoritative additive migration sequence.

@@ -1,9 +1,12 @@
 .claude/
+.superpowers/
 .venv/
 .wrangler/
 apps/pipeline-worker/worker-configuration.d.ts
+config/news-backfill/top-20-diversity-v*.json
 coverage/
 dist/
+docs/superpowers/
 node_modules/
 pnpm-lock.yaml
 supabase/.temp/

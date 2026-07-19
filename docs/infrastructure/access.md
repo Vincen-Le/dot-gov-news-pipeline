@@ -68,6 +68,9 @@ CLOUDFLARE_ACCOUNT_ID=a2d6c849c1770d0e7e4fc042db14de25
 R2_BUCKET_NAME=dot-gov-news-artifacts-dev
 ```
 
+`R2_S3_API_ENDPOINT` is optional and derived from `CLOUDFLARE_ACCOUNT_ID`
+when omitted.
+
 For local use, place all four values in the ignored root `.env` file. For the
 scheduled workflow, place `CLOUDFLARE_ACCOUNT_ID`, `R2_BUCKET_NAME`, and
 `SUPABASE_URL` in the GitHub `development` environment as variables, and place
@@ -110,6 +113,7 @@ The resulting ignored local configuration contains:
 OPS_API_URL=https://dot-gov-news-operator-api-dev.<workers-subdomain>.workers.dev
 OPS_API_TOKEN=<random value of at least 32 characters>
 OPS_WORKER_NAME=dot-gov-news-pipeline-dev
+OPS_ENVIRONMENT=development
 ```
 
 The bearer token protects a single-user read-only endpoint. Rotate it before

@@ -24,9 +24,10 @@ Verified Cloudflare identifiers:
 | Discovery Queue   | `8a5a339bee9d467791dd3679233fed9a` |
 | Discovery DLQ     | `ab38d22f2cfc45f88fa8c60910f048ae` |
 
-The discovery Queue and DLQ were provisioned on 2026-07-17. They have no
-producer or consumer until the updated Worker configuration is deployed.
-`DISCOVERY_ENABLED` remains `false`, so deployment alone cannot claim sites.
+The discovery Queue and DLQ were provisioned on 2026-07-17. The committed
+Worker configuration now binds their producer and consumer, and the deployed
+Worker carries those bindings. `DISCOVERY_ENABLED` remains `false`, so
+deployment alone cannot claim sites.
 
 ## Install dependencies
 
@@ -92,8 +93,10 @@ mise exec -- pnpm supabase db dump --linked --file pipeline-backup.sql
 ## Site feed discovery
 
 Discovery uses `site_discovery_state` as its durable backlog and the dedicated
-Queue only for leased near-term work. Apply migration `00400` before deploying
-the new Worker bindings. Configure `DISCOVERY_CONTACT` before enabling dispatch;
+Queue only for leased near-term work. Apply the migration sequence through
+`20260718000300_generalize_news_sources` (discovery state arrives in `00300`,
+the feed tables in `00400`, and `...000300` generalizes them to
+`news_sources`) before deploying the Worker bindings. Configure `DISCOVERY_CONTACT` before enabling dispatch;
 the Worker refuses to claim sites when enabled without a valid email address or
 HTTPS contact page.
 
@@ -478,7 +481,7 @@ mise exec -- pnpm --filter @dot-gov-news/pipeline-worker deploy
 
 The Worker URL is `https://dot-gov-news-pipeline-dev.vincen-le.workers.dev`.
 
-For the first deployment, temporarily remove the `triggers.crons` entry, deploy and complete the manual smoke test, then restore the committed hourly schedule and deploy again. To pause future scheduled work, repeat that procedure; deleting a Cron Trigger can take several minutes to propagate.
+For the first deployment, temporarily remove the `triggers.crons` entry, deploy and complete the manual smoke test, then restore the committed schedules (`0 * * * *` heartbeat plus the `* * * * *` discovery dispatch tick, which is a no-op while `DISCOVERY_ENABLED=false`) and deploy again. To pause future scheduled work, repeat that procedure; deleting a Cron Trigger can take several minutes to propagate.
 
 ## Smoke verification
 
@@ -498,7 +501,9 @@ After a scheduled heartbeat is delivered:
 ### Hosted verification record (2026-07-17)
 
 The initial hosted smoke was completed with the Cron Trigger disabled, then the
-hourly trigger was enabled only after the durable path passed.
+hourly trigger was enabled only after the durable path passed. This record
+predates the discovery rollout; the current Worker configuration carries two
+Cron triggers and two Queue producer/consumer pairs.
 
 | Check             | Evidence                                                                                                                                                             |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
