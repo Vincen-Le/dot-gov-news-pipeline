@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the KNN-majority theme join in stage 4 with one fast-LLM adjudication call per assignment (join existing theme / spawn new / merge candidate themes inline), and fix the Workers AI dict-response bug that leaves every theme uncategorized.
+**Goal:** Replace the KNN-majority theme join in stage 4 with one fast-LLM adjudication call per assignment (join existing theme / spawn new / merge candidate themes inline), and fix the four defects the 2026-07-18 run analysis surfaced: the Workers AI dict-response bug (every theme uncategorized, every overview a fallback, adjudicator dead), the empty `entity_stats` table during replay (EMA down-weighting never runs in the lab), junk event-key extraction patterns (CFR citations and bare `No. XX-XX` boilerplate deterministically glue unrelated episodes — see storyline `aeded190`), and zero failure visibility in experiment reports (a 100% LLM failure rate looked healthy).
 
 **Architecture:** `ThemeEngine._assign` shortlists top-K themes by centroid cosine, sends the storyline plus candidate summaries to `models.adjudicate_theme`, and applies the verdict (merge first, then join or spawn) with guards: hallucinated ids → spawn, LLM failure → old KNN majority vote. Merging is a new `merge_topic_theme` Postgres RPC. Categories work once `_extract_json` accepts already-parsed dicts.
 
@@ -996,7 +996,403 @@ git commit -m "feat: adjudicator-directed inline theme merges"
 
 ---
 
-### Task 8: Full verification
+### Task 8: Repopulate entity EMAs during replay
+
+`reset_clusters` deletes `entity_stats` and nothing during the cluster replay refills it (`touch_entity_stats` only fires on ingest/prepare). `entity_emas()` therefore returns `{}` in every experiment: all tokens look "rare", so junk entities (`'great'`, `'washington'`) count as tier-2 discriminators. Fix: the replay loop touches anchors per entry in event time — mirroring what ingest does in prod, with no look-ahead bias.
+
+**Files:**
+- Create: `supabase/migrations/20260718101000_grant_replay_entity_touch.sql`
+- Modify: `pipeline/store.py` (new `touch_entities`)
+- Modify: `pipeline/runner.py` (`cluster` loop)
+- Modify: `tests/fakes.py` (`FakeStore.touch_entities`)
+- Test: `tests/test_cluster_phase.py`
+
+**Interfaces:**
+- Produces: `Store.touch_entities(tokens: list[str], t: datetime) -> None` wrapping the (now service_role-executable) `touch_entity_stats` RPC. `FakeStore` mirror bumps `self.emas[token] += 1.0` per touch (no decay — enough for unit tests) and appends to `self.touches`.
+
+- [ ] **Step 1: Write the migration**
+
+Create `supabase/migrations/20260718101000_grant_replay_entity_touch.sql`:
+
+```sql
+-- The lab replay (pipeline/runner.py cluster) emulates ingest-time entity
+-- touching in event time: bench corpora arrive via direct-SQL sync, so the
+-- ingest-path touch never happened and reset_clusters wipes the prepare-time
+-- partials. The helper therefore needs service_role execute after all.
+grant execute on function public.touch_entity_stats(text[], timestamptz)
+    to service_role;
+```
+
+- [ ] **Step 2: Apply migration locally**
+
+Run: `npx supabase migration up`
+Expected: `20260718101000` applied.
+
+- [ ] **Step 3: Write the failing test**
+
+Append to `tests/test_cluster_phase.py` (reuse its harness helpers):
+
+```python
+def test_cluster_touches_entity_stats_per_entry_in_event_time():
+    store, models, cfg = make_harness(topics_enabled=False)
+    run_cluster(store, models, cfg)
+    processed = [e for e in store.entries.values() if e.get("episode_id")]
+    assert len(store.touches) == len(processed)
+    for tokens, t in store.touches:
+        assert isinstance(tokens, list)
+    # EMA table is no longer empty during replay
+    assert store.emas
+```
+
+(Adapt `make_harness`/`run_cluster` to the file's actual helper names; entries in the harness carry `entity_set`/`event_keys`.)
+
+- [ ] **Step 4: Run test to verify it fails**
+
+Run: `uv run pytest tests/test_cluster_phase.py -q -k touches`
+Expected: FAIL with `AttributeError: 'FakeStore' object has no attribute 'touches'` (or empty `touches`).
+
+- [ ] **Step 5: Implement**
+
+`pipeline/store.py`, after `update_entry_features`:
+
+```python
+    def touch_entities(self, tokens: list[str], t: datetime) -> None:
+        if tokens:
+            self.db.rpc("touch_entity_stats", p_tokens=tokens, p_event_time=t)
+```
+
+`tests/fakes.py`, in `FakeStore.__init__` add `self.touches: list = []`; then after `entity_emas`:
+
+```python
+    def touch_entities(self, tokens, t):
+        self.touches.append((tokens, t))
+        for token in tokens:
+            self.emas[token] = self.emas.get(token, 0.0) + 1.0
+```
+
+`pipeline/runner.py`, in the `cluster` loop directly after `window.advance(t)`:
+
+```python
+        replay.touch_entities(
+            list(row["entity_set"]) + list(row["event_keys"]), t)
+```
+
+- [ ] **Step 6: Run tests to verify they pass**
+
+Run: `uv run pytest tests/test_cluster_phase.py tests/test_topics.py -q`
+Expected: all PASS (topics tests confirm the fake change broke nothing).
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add supabase/migrations/20260718101000_grant_replay_entity_touch.sql pipeline/store.py pipeline/runner.py tests/fakes.py tests/test_cluster_phase.py
+git commit -m "fix: repopulate entity emas during cluster replay in event time"
+```
+
+---
+
+### Task 9: LLM failure visibility in experiment reports
+
+The analyzed run had a 100% LLM failure rate (dict-response bug) and produced a healthy-looking report. Errors must stay non-blocking, but they must be counted.
+
+**Files:**
+- Modify: `pipeline/ai.py` (`WorkersAI.errors` counter)
+- Modify: `pipeline/experiment.py` (`summarize` llm_health, `render_report` section, `run_experiment` wiring)
+- Test: `tests/test_ai.py`, `tests/test_experiment.py`
+
+**Interfaces:**
+- Produces: `WorkersAI.errors: collections.Counter` — keys `adjudicator`, `classifier`, `rank_audit`, incremented in the existing except branches. `CachedModels` exposes it via `__getattr__` delegation (no change there).
+- `summarize(db)` gains `"llm_health": {"overview_fallback_rate": float | None, "uncategorized_themes": int, "namer_errors": int}` (SQL-side truth, independent of in-process counters).
+- `run_experiment` merges `dict(getattr(models, "errors", {}))` into the summary as `summary["llm_health"]["model_errors"]` before rendering/recording.
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `tests/test_ai.py`:
+
+```python
+def test_workers_ai_counts_swallowed_errors():
+    def boom(request):
+        return httpx.Response(200, json={"result": {"response": "not json"},
+                                         "success": True})
+
+    ai = WorkersAI(_cfg(), transport=_transport(boom))
+    ai.adjudicate_same_event({"title": "a"}, {"title": "b"}, "")
+    ai.classify_category("t", {"headline": "h"}, [])
+    assert ai.errors["adjudicator"] == 1
+    assert ai.errors["classifier"] == 1
+```
+
+Append to `tests/test_experiment.py` (extend its fake-db helper so the two new queries return rows):
+
+```python
+def test_summary_reports_llm_health():
+    summary = summarize(make_summary_db())
+    health = summary["llm_health"]
+    for key in ("overview_fallback_rate", "uncategorized_themes", "namer_errors"):
+        assert key in health
+```
+
+- [ ] **Step 2: Run tests to verify they fail**
+
+Run: `uv run pytest tests/test_ai.py tests/test_experiment.py -q -k "errors or llm_health"`
+Expected: FAIL (`AttributeError: errors` / `KeyError: llm_health`).
+
+- [ ] **Step 3: Implement**
+
+`pipeline/ai.py`: `from collections import Counter`; in `WorkersAI.__init__` add `self.errors: Counter = Counter()`; in the except branches add `self.errors["adjudicator"] += 1` (adjudicate_same_event), `self.errors["classifier"] += 1` (classify_category), `self.errors["rank_audit"] += 1` (compare_rank).
+
+`pipeline/experiment.py` `summarize()`, before the return:
+
+```python
+    fallback = db.one("""
+        select round(avg((interest_reason like 'compressor_error%%')::int)::numeric, 3) as rate
+        from public.event_cards where kind = 'overview'
+    """)
+    namer_errors = db.one("""
+        select count(*) as n from public.storylines
+        where theme_reason like '%%namer_error%%'
+    """)
+    uncategorized = db.one("""
+        select count(*) as n from public.topic_themes
+        where merged_into is null and category_id is null
+    """)
+    llm_health = {
+        "overview_fallback_rate": (
+            float(fallback["rate"]) if fallback["rate"] is not None else None),
+        "uncategorized_themes": uncategorized["n"],
+        "namer_errors": namer_errors["n"],
+    }
+```
+
+and add `"llm_health": llm_health,` to the returned dict. In `run_experiment`, after `summary = summarize(db)`:
+
+```python
+    summary["llm_health"]["model_errors"] = dict(getattr(models, "errors", {}))
+```
+
+`render_report`, after the Topics section:
+
+```python
+        "", "## LLM health", "",
+        f"- overview fallback rate: {summary['llm_health']['overview_fallback_rate']}"
+        + ("  ⚠ compressor mostly failing"
+           if (summary['llm_health']['overview_fallback_rate'] or 0) > 0.5 else ""),
+        f"- uncategorized themes: {summary['llm_health']['uncategorized_themes']}",
+        f"- namer errors: {summary['llm_health']['namer_errors']}",
+        f"- model errors: {summary['llm_health'].get('model_errors', {})}",
+```
+
+(`render_report` runs after `run_experiment` injects `model_errors`; the `.get` keeps `summarize()`-only tests passing.)
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+Run: `uv run pytest tests/test_ai.py tests/test_experiment.py -q`
+Expected: all PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add pipeline/ai.py pipeline/experiment.py tests/test_ai.py tests/test_experiment.py
+git commit -m "feat: count swallowed llm failures and surface llm health in reports"
+```
+
+---
+
+### Task 10: Extraction v2 — drop junk event-key patterns, add reextract command
+
+`36 cfr 261.50` (×6) and `no. 23-01` (×5) are shared boilerplate minted as "hard event identifiers"; tier-1 attach is deterministic, so one colliding key chains unrelated episodes (storyline `aeded190`: Employment Cost Index glued to State Employment at 0.578 cosine). CFR citations are legal-authority references, not events — dropped. Bare `No. XX-XX` now requires case/docket context. IRS `ir-2025-xxx` release keys are working as intended — untouched.
+
+**Files:**
+- Modify: `pipeline/extraction.py` (`_EVENT_KEY_PATTERNS`, `EXTRACTOR_VERSION`)
+- Modify: `pipeline/store.py` (`entries_needing_reextraction`)
+- Modify: `pipeline/cli.py` (`reextract` subcommand)
+- Test: `tests/test_extraction.py`
+
+**Interfaces:**
+- Produces: `EXTRACTOR_VERSION = 2`; `Store.entries_needing_reextraction(version: int, limit: int | None = None) -> list[dict]` (id/title/summary/body_text of rows with `extractor_version` null or `< version`); CLI `pipeline reextract [--limit N]` — pure-python re-extraction via `update_entry_features` (anchors + version only; embeddings and enrichment untouched, zero LLM cost).
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `tests/test_extraction.py`:
+
+```python
+def test_cfr_citations_are_not_event_keys():
+    _, keys = extract("Fire restrictions increase in Southeast Utah parks",
+                      "Under 36 CFR 261.50, superintendents prohibit campfires.")
+    assert keys == []
+
+
+def test_bare_release_numbering_is_not_an_event_key():
+    _, keys = extract("Employment Cost Index News Release",
+                      "USDL No. 23-01 covers the June quarter.")
+    assert not any("23-01" in k for k in keys)
+
+
+def test_docket_case_numbers_still_extracted():
+    _, keys = extract("Court ruling in visa case",
+                      "The order in Case No. 23-104 was affirmed.")
+    assert any("23-104" in k for k in keys)
+
+
+def test_extractor_version_bumped_for_pattern_change():
+    from pipeline.extraction import EXTRACTOR_VERSION
+    assert EXTRACTOR_VERSION == 2
+```
+
+- [ ] **Step 2: Run tests to verify they fail**
+
+Run: `uv run pytest tests/test_extraction.py -q`
+Expected: the four new tests FAIL.
+
+- [ ] **Step 3: Implement extraction changes**
+
+In `pipeline/extraction.py`: set `EXTRACTOR_VERSION = 2`; in `_EVENT_KEY_PATTERNS` delete the CFR pattern line and replace the case-number pattern:
+
+```python
+    re.compile(r"\b(?:case|docket)\s+no\.\s?\d{2}-\d{2,5}\b", re.IGNORECASE),  # court case numbers (context-anchored)
+```
+
+(The CFR line `re.compile(r"\b\d{1,3}\s?CFR\s?...")` is removed entirely.)
+
+- [ ] **Step 4: Implement the reextract path**
+
+`pipeline/store.py`, after `entries_needing_features`:
+
+```python
+    def entries_needing_reextraction(self, version: int,
+                                     limit: int | None = None) -> list[dict]:
+        return self.db.all(
+            """
+            select id, title, summary, body_text
+            from public.news_entries
+            where extractor_version is null or extractor_version < %(v)s
+            order by published_at, id
+            limit %(limit)s
+            """,
+            {"v": version, "limit": limit},
+        )
+```
+
+`pipeline/cli.py`: register the subcommand next to `prepare`:
+
+```python
+    p = sub.add_parser("reextract", help="re-run anchor extraction (no llm, no embeddings)")
+    p.add_argument("--limit", type=int)
+```
+
+and the dispatch branch:
+
+```python
+    elif args.command == "reextract":
+        from pipeline.extraction import EXTRACTOR_VERSION, extract
+        rows = store.entries_needing_reextraction(EXTRACTOR_VERSION, limit=args.limit)
+        for row in rows:
+            entities, keys = extract(row["title"],
+                                     row.get("body_text") or row.get("summary"))
+            store.update_entry_features(
+                row["id"], None, None, None, None,
+                entity_set=entities, event_keys=keys,
+                extractor_version=EXTRACTOR_VERSION)
+        out = {"reextracted": len(rows)}
+```
+
+- [ ] **Step 5: Run tests to verify they pass**
+
+Run: `uv run pytest tests/test_extraction.py tests/ -q`
+Expected: all PASS.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add pipeline/extraction.py pipeline/store.py pipeline/cli.py tests/test_extraction.py
+git commit -m "fix: stop minting cfr citations and bare release numbers as event keys"
+```
+
+---
+
+### Task 11: Tier-1 event-key sanity floor
+
+Defense in depth: even with v2 patterns, one colliding key deterministically wrecks a chain because tier 1 has no second signal (and EMA cannot catch monthly boilerplate — it decays below the ambient ceiling). An event-key join now also requires centroid sanity when a centroid exists; below the floor it falls through to the entity/adjudicator tiers. Similarity is recorded on event-key joins either way (was always `None` — audit gain).
+
+**Files:**
+- Modify: `pipeline/storylines.py` (tier 1 of `resolve`)
+- Test: `tests/test_storylines.py`
+
+**Interfaces:**
+- Consumes: `cfg.storyline_sim_floor` (0.60), existing `cosine`.
+- Produces: event-key joins return `(id, "event_key", sim | None, None, None)` — `sim` set when the candidate has a centroid; candidates below the floor are skipped (loop continues, then tiers 2/3 run unchanged).
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `tests/test_storylines.py` (reuse the file's engine/store fixtures; shapes below match `FakeStore`-style dicts):
+
+```python
+def test_event_key_join_requires_centroid_sanity_when_centroid_exists():
+    """Regression: storyline aeded190 — colliding boilerplate key 'no. 23-01'
+    glued Employment Cost Index (cosine 0.578) onto State Employment."""
+    engine, store = make_engine()
+    chain = seed_storyline(store, event_keys=["no. 23-01"], centroid=vec(0, 1))
+    entry = make_entry(event_keys=["no. 23-01"], entity_set=["cost", "index"])
+    sid, method, sim, _, _ = engine.resolve(entry, vec(6, 7))  # orthogonal content
+    assert method != "event_key" or sid != str(chain["id"])
+
+
+def test_event_key_join_passes_with_similar_content_and_records_sim():
+    engine, store = make_engine()
+    chain = seed_storyline(store, event_keys=["ir-2025-106"], centroid=vec(0, 1))
+    entry = make_entry(event_keys=["ir-2025-106"], entity_set=[])
+    sid, method, sim, _, _ = engine.resolve(entry, vec(0, 1))
+    assert (sid, method) == (str(chain["id"]), "event_key")
+    assert sim is not None and sim > 0.9
+
+
+def test_event_key_join_allowed_without_centroid():
+    engine, store = make_engine()
+    chain = seed_storyline(store, event_keys=["ir-2025-106"], centroid=None)
+    entry = make_entry(event_keys=["ir-2025-106"], entity_set=[])
+    sid, method, sim, _, _ = engine.resolve(entry, vec(0, 1))
+    assert (sid, method, sim) == (str(chain["id"]), "event_key", None)
+```
+
+(Adapt helper names to the file's existing fixtures — it already builds engines and seeded storylines for the tier-2/3 tests.)
+
+- [ ] **Step 2: Run tests to verify they fail**
+
+Run: `uv run pytest tests/test_storylines.py -q`
+Expected: the sanity-floor test FAILS (current tier 1 joins unconditionally).
+
+- [ ] **Step 3: Implement**
+
+In `pipeline/storylines.py` `resolve`, replace tier 1:
+
+```python
+        # tier 1: hard event keys — deterministic chain identity, but a
+        # colliding boilerplate key must not glue unrelated content: when the
+        # chain has a centroid, demand minimal semantic sanity or fall through
+        # to the entity/adjudicator tiers (storyline aeded190 regression).
+        for cand in self.store.storylines_by_event_keys(entry["event_keys"]):
+            if cand.get("centroid") is None:
+                return str(cand["id"]), "event_key", None, None, None
+            sim = cosine(vec, cand["centroid"])
+            if sim >= self.cfg.storyline_sim_floor:
+                return str(cand["id"]), "event_key", sim, None, None
+```
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+Run: `uv run pytest tests/test_storylines.py tests/ -q`
+Expected: all PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add pipeline/storylines.py tests/test_storylines.py
+git commit -m "fix: event-key joins demand centroid sanity so colliding keys cannot glue chains"
+```
+
+---
+
+### Task 12: Full verification
 
 **Files:** none new.
 
