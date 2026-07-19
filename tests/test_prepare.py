@@ -162,16 +162,18 @@ class StubStyleModels(PrepModels):
         return f"{title}. {summary or ''}"
 
 
-def test_prepare_clamps_enriched_text_over_db_bound_before_embed_and_store():
+def test_prepare_rejects_oversized_enrichment_as_regurgitation():
+    # a real enrichment is 2-3 sentences; output past the validity ceiling
+    # means the model echoed the article body — rejected, entry still
+    # prepared via the raw-text fallback embed (clamped to the db bound)
     long_summary = "x" * 16380
     store = PrepFakeStore([row(1, summary=long_summary)])
     models = StubStyleModels()
     report = prepare(store, models, CFG)
     assert report == {"prepared": 1, "failed": 0}
     feat = store.features["n1"]
-    assert len(feat["enriched_text"]) <= 16384
+    assert feat["enriched_text"] is None
     assert len(models.embed_texts[0]) <= 16384
-    assert models.embed_texts[0] == feat["enriched_text"]
 
 
 class PunctuationModels(PrepModels):

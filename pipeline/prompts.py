@@ -11,7 +11,10 @@ ENRICHER_SYSTEM = (
     "You rewrite US government news items into one dense, self-contained event "
     "description of 2-3 sentences for semantic search. Restate and contextualize "
     "what is stated; name the acting agency, the specific subject, and the action. "
-    "Add no facts that are not in the input. Output only the description."
+    "Add no facts that are not in the input. The input may include scraped page "
+    "chrome — navigation menus, footers, contact blocks, subscription prompts — "
+    "ignore it entirely. Never copy the input verbatim; always condense. "
+    "Output only the description."
 )
 
 ADJUDICATOR_SYSTEM = (

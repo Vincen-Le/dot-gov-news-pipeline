@@ -51,7 +51,11 @@ class WorkersAI:
         self.base = f"https://api.cloudflare.com/client/v4/accounts/{cfg.cf_account_id}/ai/run/"
         self.http = httpx.Client(
             headers={"Authorization": f"Bearer {cfg.cf_api_token}"},
-            timeout=120.0,
+            # p90 Workers AI stragglers ran ~2min; cutting at 60s and
+            # retrying (timeouts are TransportErrors — _run retries them)
+            # beats waiting out a hung call. Healthy JSON-mode calls run
+            # 2-4s; the compressor's worst observed median was ~27s.
+            timeout=httpx.Timeout(60.0, connect=10.0),
             transport=transport,
         )
 

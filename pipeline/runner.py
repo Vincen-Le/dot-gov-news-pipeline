@@ -27,20 +27,37 @@ from pipeline.window import ReplayStore, ReplayWindow
 _MAX_ENRICHED_LEN = 16384
 
 
+# a real enrichment is 2-3 dense sentences; longer output means the model
+# regurgitated the article body instead of condensing it
+_MAX_VALID_ENRICHMENT = 600
+# page chrome that only appears when scraped boilerplate leaked through
+_BOILERPLATE_MARKERS = (
+    "contact us", "site index", "stay connected", "subscribe |",
+    "mailing address:", "park footer", "last updated:", "what is rss",
+)
+
+
 def _valid_enrichment(text: str | None) -> bool:
     """Reject non-semantic model output before it poisons the vector space."""
     if not text:
         return False
     words = [token for token in text.split() if any(ch.isalnum() for ch in token)]
     alphanumeric = sum(ch.isalnum() for ch in text)
-    return bool(words) and alphanumeric >= 8
+    if not words or alphanumeric < 8:
+        return False
+    if len(text) > _MAX_VALID_ENRICHMENT:
+        return False
+    lowered = text.lower()
+    return not any(marker in lowered for marker in _BOILERPLATE_MARKERS)
 
 
 def _semantic_content(row: dict) -> str | None:
     # summary first: it is a human-condensed description of the event, so
     # title+summary embeds nearer related events than full article body,
-    # which drowns the signal in quotes and boilerplate
-    return row.get("summary") or row.get("body_text")
+    # which drowns the signal in quotes and boilerplate. Scraped body text
+    # is capped: the event is in the lede, the tail is page chrome.
+    body = row.get("body_text")
+    return row.get("summary") or (body[:4000] if body else None)
 
 
 def _fallback_text(row: dict) -> str:

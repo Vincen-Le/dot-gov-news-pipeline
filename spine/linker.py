@@ -148,7 +148,9 @@ class Linker:
             representative_entry_id=str(row["id"]),
             judge_model=None, prompt_version=self.cfg.prompt_version,
             overview_embedding=pack_fp16(vec), tau=self.cfg.tau_seconds)
-        self.categories.classify(storyline_id)
+        # category assignment is deferred to the driver's end-of-run batch
+        # (spine/replay.py): it never gates linking, and inline LLM calls
+        # were the second-largest per-entry cost in the replay loop
         return {"episode_id": episode_id, "storyline_id": storyline_id,
                 "method": method}
 
