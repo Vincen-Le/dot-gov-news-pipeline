@@ -160,6 +160,59 @@ export const ExperimentRunSchema = z.object({
   summary: ExperimentSummarySchema.nullable(),
 });
 
+export const RankTermsSchema = z.object({
+  agency_term: z.number(),
+  feed_term: z.number(),
+  freshness_term: z.number(),
+  prior_used: z.boolean(),
+  rubric_points: z.number(),
+  source_term: z.number(),
+});
+
+export const RankSnapshotRowSchema = z.object({
+  agencies: z.number(),
+  cardId: z.string(),
+  entryCount: z.number(),
+  facetKey: z.string(),
+  facetType: z.string(),
+  feeds: z.number(),
+  headline: z.string().nullable(),
+  interestReason: z.string().nullable(),
+  judged: z.boolean(),
+  newestEntryAt: z.string().nullable(),
+  position: z.number(),
+  rankKey: z.number(),
+  rubric: z.record(z.string(), z.unknown()).nullable(),
+  storylineId: z.string(),
+  summary: z.string().nullable(),
+  terms: RankTermsSchema,
+});
+
+export const RankFacetSchema = z.object({
+  facetKey: z.string(),
+  facetType: z.string(),
+  rows: z.number(),
+});
+
+export const RankAuditPairSchema = z.object({
+  facetKey: z.string(),
+  facetType: z.string(),
+  llmPrefers: z.enum(["a", "b", "inconsistent"]),
+  llmReason: z.string().nullable(),
+  positionA: z.number(),
+  positionB: z.number(),
+  runId: z.string(),
+  storylineA: z.string(),
+  storylineB: z.string(),
+});
+
+export const RankAuditRunSchema = z.object({
+  createdAt: z.string(),
+  id: z.string(),
+  metrics: z.record(z.string(), z.unknown()).nullable(),
+  runId: z.string(),
+});
+
 export function labResponse<T extends z.ZodType>(schema: T) {
   return z.object({ data: schema });
 }
@@ -176,3 +229,8 @@ export type ExperimentSummary = z.infer<typeof ExperimentSummarySchema>;
 export type ExperimentRun = z.infer<typeof ExperimentRunSchema>;
 export type TopicCategory = z.infer<typeof TopicCategorySchema>;
 export type TopicTheme = z.infer<typeof TopicThemeSchema>;
+export type RankTerms = z.infer<typeof RankTermsSchema>;
+export type RankSnapshotRow = z.infer<typeof RankSnapshotRowSchema>;
+export type RankFacet = z.infer<typeof RankFacetSchema>;
+export type RankAuditPair = z.infer<typeof RankAuditPairSchema>;
+export type RankAuditRun = z.infer<typeof RankAuditRunSchema>;

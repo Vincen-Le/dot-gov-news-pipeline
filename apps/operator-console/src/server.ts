@@ -13,8 +13,9 @@ import { createServer as createViteServer, type ViteDevServer } from "vite";
 import { repositoryRoot, type RequiredOperatorConsoleConfig } from "./config";
 import { createLabDb, isLocalDsn, labCapability } from "./lab/db";
 import { ExperimentHarness, defaultSpawner } from "./lab/harness";
-import { LabelStore } from "./lab/labels";
+import { LabelStore, RankLabelStore } from "./lab/labels";
 import { LabQueries } from "./lab/queries";
+import { RankQueries } from "./lab/rank-queries";
 import { createLabRouter } from "./lab/routes";
 import { WorkerTail, type TailEvent, type TailState } from "./tail-process";
 
@@ -249,6 +250,8 @@ export async function startDashboard(
       harness: labHarness,
       labels: new LabelStore(resolve(repositoryRoot, "docs/eval")),
       queries: labQueries,
+      rankLabels: new RankLabelStore(resolve(repositoryRoot, "docs/eval")),
+      rankQueries: labDb === null ? null : new RankQueries(labDb.read),
       repoRoot: repositoryRoot,
     }),
   );

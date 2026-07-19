@@ -10,14 +10,17 @@ import {
   LabValidationError,
   type ExperimentHarness,
 } from "./harness";
-import type { LabelStore } from "./labels";
+import type { LabelStore, RankLabelStore } from "./labels";
 import type { LabQueries } from "./queries";
+import type { RankQueries } from "./rank-queries";
 
 export interface LabRouteDeps {
   capability: () => Promise<LabCapability>;
   harness: ExperimentHarness | null;
   labels: LabelStore;
   queries: LabQueries | null;
+  rankLabels?: RankLabelStore;
+  rankQueries?: RankQueries | null;
   repoRoot: string;
 }
 
@@ -28,6 +31,13 @@ const LabelBodySchema = z.object({
   entryA: z.uuid(),
   entryB: z.uuid(),
   sameEvent: z.boolean(),
+});
+
+const RankLabelBodySchema = z.object({
+  preferred: z.enum(["a", "b"]),
+  runId: z.uuid(),
+  storylineA: z.uuid(),
+  storylineB: z.uuid(),
 });
 
 const RunBodySchema = z.object({
@@ -140,6 +150,137 @@ export function createLabRouter(deps: LabRouteDeps): Router {
           items: rows.slice(0, requested),
         },
       });
+    }),
+  );
+
+  const requireRankQueries = async (
+    response: Response,
+  ): Promise<RankQueries | null> => {
+    const capability = await deps.capability();
+    if (
+      deps.rankQueries !== null &&
+      deps.rankQueries !== undefined &&
+      capability.status === "available"
+    ) {
+      return deps.rankQueries;
+    }
+    sendError(
+      response,
+      503,
+      "not_enabled",
+      capability.reason ?? "Rank observability is not enabled",
+    );
+    return null;
+  };
+
+  const rankFacetParams = (
+    request: Request,
+  ): { facetKey: string; facetType: string; run: string } | null => {
+    const run = UUID.safeParse(request.query.run);
+    if (!run.success) return null;
+    const facetType =
+      typeof request.query.facetType === "string" &&
+      request.query.facetType.length > 0
+        ? request.query.facetType
+        : "global";
+    const facetKey =
+      typeof request.query.facetKey === "string" ? request.query.facetKey : "";
+    return { facetKey, facetType, run: run.data };
+  };
+
+  router.get(
+    "/rank/facets",
+    handle(async (request, response) => {
+      const rank = await requireRankQueries(response);
+      if (rank === null) return;
+      const run = UUID.safeParse(request.query.run);
+      if (!run.success) {
+        sendError(response, 400, "bad_request", "run must be a uuid");
+        return;
+      }
+      response.json({ data: { facets: await rank.rankFacets(run.data) } });
+    }),
+  );
+
+  router.get(
+    "/rank/snapshot",
+    handle(async (request, response) => {
+      const rank = await requireRankQueries(response);
+      if (rank === null) return;
+      const params = rankFacetParams(request);
+      if (params === null) {
+        sendError(response, 400, "bad_request", "run must be a uuid");
+        return;
+      }
+      const limitRaw = Number(request.query.limit);
+      const limit = Number.isFinite(limitRaw)
+        ? Math.min(Math.max(Math.trunc(limitRaw), 1), 200)
+        : 50;
+      response.json({
+        data: {
+          rows: await rank.rankSnapshot(
+            params.run,
+            params.facetType,
+            params.facetKey,
+            limit,
+          ),
+        },
+      });
+    }),
+  );
+
+  router.get(
+    "/rank/audit",
+    handle(async (request, response) => {
+      const rank = await requireRankQueries(response);
+      if (rank === null) return;
+      const params = rankFacetParams(request);
+      if (params === null) {
+        sendError(response, 400, "bad_request", "run must be a uuid");
+        return;
+      }
+      response.json({
+        data: {
+          pairs: await rank.rankAuditPairs(
+            params.run,
+            params.facetType,
+            params.facetKey,
+          ),
+        },
+      });
+    }),
+  );
+
+  router.get(
+    "/rank/audit-runs",
+    handle(async (request, response) => {
+      const rank = await requireRankQueries(response);
+      if (rank === null) return;
+      const run = UUID.safeParse(request.query.run);
+      if (!run.success) {
+        sendError(response, 400, "bad_request", "run must be a uuid");
+        return;
+      }
+      response.json({
+        data: { auditRuns: await rank.rankAuditRuns(run.data) },
+      });
+    }),
+  );
+
+  router.post(
+    "/rank/labels",
+    handle(async (request, response) => {
+      if (deps.rankLabels === undefined) {
+        sendError(response, 503, "not_enabled", "Rank labels are not enabled");
+        return;
+      }
+      const body = RankLabelBodySchema.safeParse(request.body);
+      if (!body.success) {
+        sendError(response, 400, "bad_request", "Invalid rank label body");
+        return;
+      }
+      await deps.rankLabels.appendLabel(body.data);
+      response.json({ data: { ok: true } });
     }),
   );
 

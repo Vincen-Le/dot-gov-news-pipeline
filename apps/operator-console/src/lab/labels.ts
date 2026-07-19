@@ -7,6 +7,42 @@ import { join } from "node:path";
  * header entry_a,entry_b,same_event with y/n verdicts. Labels describe entry
  * pairs, so they survive experiment resets and apply to every run.
  */
+/** Human rank preferences (docs/eval/rank-labels.csv).
+ *
+ * Row contract consumed by `pipeline rank fit --labels`: header
+ * run_id,storyline_a,storyline_b,preferred with a/b verdicts. Keys are
+ * run-scoped because snapshot and audit rows persist per run even after
+ * clustering resets.
+ */
+export class RankLabelStore {
+  readonly labelsPath: string;
+
+  constructor(rootDir: string) {
+    this.labelsPath = join(rootDir, "rank-labels.csv");
+  }
+
+  async appendLabel(row: {
+    preferred: "a" | "b";
+    runId: string;
+    storylineA: string;
+    storylineB: string;
+  }): Promise<void> {
+    let needsHeader = false;
+    try {
+      await readFile(this.labelsPath, "utf8");
+    } catch {
+      needsHeader = true;
+    }
+    const line = `${row.runId},${row.storylineA},${row.storylineB},${row.preferred}\n`;
+    await appendFile(
+      this.labelsPath,
+      needsHeader
+        ? `run_id,storyline_a,storyline_b,preferred\n${line}`
+        : line,
+    );
+  }
+}
+
 export class LabelStore {
   readonly labelsPath: string;
 
