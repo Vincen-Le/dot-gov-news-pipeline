@@ -240,7 +240,8 @@ def test_merge_topic_theme_repoints_storylines_and_tombstones_loser():
             if sid is not None:
                 db.conn.execute(
                     "delete from public.storylines where id = %(s)s", {"s": sid})
-        for tid in (winner_id, loser_id):
+        # loser first: its merged_into still references the winner
+        for tid in (loser_id, winner_id):
             if tid is not None:
                 db.conn.execute(
                     "delete from public.topic_themes where id = %(t)s", {"t": tid})
