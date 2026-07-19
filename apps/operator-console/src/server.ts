@@ -32,6 +32,20 @@ export interface DashboardOptions {
   port?: number;
 }
 
+/** Loads config/pipelines.json, falling back to no registered pipelines (the
+ * env-only DATABASE_URL default) on any error — a malformed registry must
+ * never take down the whole dashboard. */
+export function safeLoadRegistryPipelines(path?: string): PipelineEntry[] {
+  try {
+    return loadPipelineRegistry(path)?.pipelines ?? [];
+  } catch (error) {
+    console.error(
+      `pipeline registry ignored: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    return [];
+  }
+}
+
 const sessionCookieName = "dot_gov_news_ops_session";
 
 function equalSecret(left: string | undefined, right: string): boolean {
@@ -298,7 +312,7 @@ export async function startDashboard(
   // default `/api/lab` mount below so the single dashboard can switch
   // between them. Absent file → no extra mounts, no behavior change.
   const registryPipelines =
-    options.pipelines ?? loadPipelineRegistry()?.pipelines ?? [];
+    options.pipelines ?? safeLoadRegistryPipelines();
   const pipelineConnections = new Map<string, LabConnection>();
   for (const entry of registryPipelines) {
     const connection = buildLabConnection(entry.databaseUrl, entry.engine);

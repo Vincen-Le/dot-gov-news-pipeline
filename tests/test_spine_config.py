@@ -1,7 +1,10 @@
 import os
 from unittest import mock
 
+import pytest
+
 from pipeline.config import Config, load_config
+from pipeline.experiment import _validate_engine
 
 
 _REQUIRED = {"CLOUDFLARE_ACCOUNT_ID": "acct", "CLOUDFLARE_API_TOKEN": "tok"}
@@ -28,3 +31,17 @@ def test_env_overrides():
     assert cfg.engine == "spine"
     assert cfg.spine_top_k == 5
     assert cfg.spine_sim_floor == 0.7
+
+
+def test_validate_engine_accepts_known_engines():
+    _validate_engine(Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                            engine="classic"))
+    _validate_engine(Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                            engine="spine"))
+
+
+def test_validate_engine_rejects_unknown_engine():
+    cfg = Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                engine="spien")
+    with pytest.raises(ValueError, match="unknown engine: 'spien'"):
+        _validate_engine(cfg)

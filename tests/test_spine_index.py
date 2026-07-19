@@ -30,6 +30,13 @@ def test_floor_and_k():
     assert len(idx.top_candidates(VMID, k=1, floor=0.0)) == 1
 
 
+def test_floor_boundary_is_inclusive():
+    idx = StorylineIndex()
+    idx.register("s1", "e1", VX, set(), T0)
+    # sim(VX, VX) == 1.0 == floor exactly -> candidate is included (>=, not >)
+    assert idx.top_candidates(VX, k=1, floor=1.0) == [(idx.all()[0], 1.0)]
+
+
 def test_tie_break_is_insertion_order():
     idx = StorylineIndex()
     idx.register("s1", "e1", VX, set(), T0)
@@ -47,6 +54,14 @@ def test_burst_rule_and_due_closes():
     idx.mark_closed("s1")
     assert idx.due_closes(T0 + timedelta(hours=49), gap_hours=48.0) == []
     assert s.open_episode_id is None
+
+
+def test_gap_boundary_is_still_active():
+    idx = StorylineIndex()
+    s = idx.register("s1", "e1", VX, set(), T0)
+    # t - newest == exactly gap_hours -> episode still active (<=, not <)
+    assert idx.episode_active(s, T0 + timedelta(hours=48), gap_hours=48.0)
+    assert idx.due_closes(T0 + timedelta(hours=48), gap_hours=48.0) == []
 
 
 def test_new_episode_resets_open_state():

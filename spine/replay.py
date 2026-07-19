@@ -107,6 +107,12 @@ def run(store, models, cfg, limit=None, since=None, until=None,
         _close(replay, card_engine, index, story)
         closed_count += 1
 
+    # Retry categories deferred by transient model failures (mirrors
+    # pipeline.runner.cluster()'s end-of-run retry loop), so uncategorized
+    # counts stay comparable across engines.
+    for storyline_id in replay.uncategorized_storyline_ids():
+        category_engine.classify(storyline_id, method="retry")
+
     if rows:
         _tally(sweep_totals, sweep(replay, models, cfg))
         sweep_runs += 1

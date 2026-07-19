@@ -133,6 +133,12 @@ def summarize(db) -> dict:
     }
 
 
+def _validate_engine(cfg: Config) -> None:
+    if cfg.engine not in ("classic", "spine"):
+        raise ValueError(
+            f"unknown engine: {cfg.engine!r} (expected 'classic' or 'spine')")
+
+
 def _redacted_config(cfg: Config) -> dict:
     return {k: v for k, v in asdict(cfg).items()
             if k not in ("database_url", "cf_account_id", "cf_api_token")}
@@ -242,6 +248,7 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     import sys
     print(f"[experiment] engine={cfg.engine} "
           f"database={_dsn_label(cfg.database_url)}", file=sys.stderr)
+    _validate_engine(cfg)
     if cfg.engine == "spine" and (topology_label_set_id is not None or use_golden):
         raise ValueError("spine engine does not support topology curation "
                          "or --use-golden yet")

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
+from pipeline.categories import CategoryEngine
 from pipeline.config import Config
 from pipeline.stub import StubModels
 from pipeline.vectors import pack_fp16
@@ -127,3 +128,35 @@ def test_due_close_fires_mid_loop_for_dormant_episode(monkeypatch):
     assert len(store.episodes) == 2
     assert report["episodes_closed"] == 2   # mid-loop due-close + finalize close
     assert all(ep["status"] == "dormant" for ep in store.episodes.values())
+
+
+def test_finalize_retries_uncategorized_storylines(monkeypatch):
+    """Mirrors pipeline.runner.cluster()'s end-of-run retry: storylines left
+    without a category by a transient classify failure must not stay null
+    forever — the driver retries them once after finalize-close."""
+    store = SpineFakeStore()
+    stub = StubModels()
+    entries = [_entry(1, "FTC sues Acme Corp over merger", T0)]
+    entries[0]["embedding"] = pack_fp16(stub.embed([entries[0]["title"]])[0])
+    store.add_entry(**entries[0])
+    monkeypatch.setattr(store, "prepared_unclustered",
+                        lambda **kw: entries, raising=False)
+    # simulate a storyline still uncategorized after the run (transient
+    # classify failure earlier) — the id need not exist in the fake store
+    # since the spy below short-circuits before touching it.
+    monkeypatch.setattr(store, "uncategorized_storyline_ids",
+                        lambda: ["needs-retry"])
+
+    calls: list[tuple[str, str]] = []
+    real_classify = CategoryEngine.classify
+
+    def spy_classify(self, storyline_id, method="classified"):
+        calls.append((storyline_id, method))
+        if storyline_id == "needs-retry":
+            return
+        return real_classify(self, storyline_id, method=method)
+
+    monkeypatch.setattr(CategoryEngine, "classify", spy_classify)
+
+    run(store, stub, CFG)
+    assert ("needs-retry", "retry") in calls

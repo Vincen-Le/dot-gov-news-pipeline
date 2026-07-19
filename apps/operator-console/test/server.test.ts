@@ -1,6 +1,15 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
-import { startDashboard } from "../src/server";
+import { safeLoadRegistryPipelines, startDashboard } from "../src/server";
 
 let closeDashboard: (() => Promise<void>) | undefined;
 
@@ -122,5 +131,54 @@ describe("pipeline registry connection selection", () => {
     const bBody = (await b.json()) as { data: { reason?: string } };
     expect(bBody.data.reason).toBeDefined();
     expect(bBody.data.reason).not.toContain("DATABASE_URL");
+  });
+});
+
+describe("safeLoadRegistryPipelines", () => {
+  let root: string | undefined;
+
+  afterEach(async () => {
+    if (root !== undefined) await rm(root, { force: true, recursive: true });
+    root = undefined;
+  });
+
+  it("falls back to no registered pipelines (env-only default) instead of throwing on a malformed registry", async () => {
+    root = await mkdtemp(join(tmpdir(), "pipelines-"));
+    const path = join(root, "pipelines.json");
+    await writeFile(path, "not json", "utf8");
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    expect(safeLoadRegistryPipelines(path)).toEqual([]);
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("pipeline registry ignored:"),
+    );
+
+    errorSpy.mockRestore();
+  });
+
+  it("returns the parsed pipelines when the registry is valid", async () => {
+    root = await mkdtemp(join(tmpdir(), "pipelines-"));
+    const path = join(root, "pipelines.json");
+    await writeFile(
+      path,
+      JSON.stringify({
+        pipelines: [
+          {
+            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:1/a_db",
+            engine: "classic",
+            name: "a",
+          },
+        ],
+      }),
+      "utf8",
+    );
+
+    expect(safeLoadRegistryPipelines(path)).toEqual([
+      {
+        databaseUrl: "postgresql://postgres:postgres@127.0.0.1:1/a_db",
+        engine: "classic",
+        name: "a",
+      },
+    ]);
   });
 });

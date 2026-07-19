@@ -94,7 +94,7 @@ class Linker:
         replaced_episode_id = story.open_episode_id
         episode_id, _ = self.store.create_episode(
             story.id, _EPISODE_ATTACH_METHOD["judge_new_episode"], sim,
-            (verdict.get("reason") or "")[:512],
+            (verdict.get("reason") or "")[:512] or None,
             self.cfg.adjudicator_model, t)
         self.index.new_episode(story.id, episode_id, vec,
                                set(row["entity_set"]), t)

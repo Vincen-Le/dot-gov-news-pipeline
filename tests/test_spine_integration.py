@@ -16,9 +16,9 @@ SPINE_DB = os.environ.get(
     "SPINE_DB", "postgresql://postgres:postgres@127.0.0.1:57422/spine_db")
 
 
-def test_spine_experiment_records_run():
-    os.environ["LAB_ENGINE"] = "spine"
-    os.environ["DATABASE_URL"] = SPINE_DB
+def test_spine_experiment_records_run(monkeypatch):
+    monkeypatch.setenv("LAB_ENGINE", "spine")
+    monkeypatch.setenv("DATABASE_URL", SPINE_DB)
     from pipeline.bench import assert_local_dsn
     from pipeline.cache import CachedModels, DecisionCache
     from pipeline.config import load_config
