@@ -1,5 +1,10 @@
 # Experiment: spine-bench-smoke
 
+> **Caveat:** this run processed 0 entries — the corpus was transiently
+> empty during a concurrent DB session. It proves only engine
+> dispatch/recording/banner plumbing, not clustering behavior. Re-run after
+> re-provisioning the bench database before drawing any conclusions from it.
+
 Duration: 0.0s — processed 0, closed 0 episodes, cache 0 hits / 0 misses.
 
 ## Totals

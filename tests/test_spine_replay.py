@@ -53,3 +53,77 @@ def test_replay_end_to_end_with_stub(monkeypatch):
     assert report["storylines_created"] == 2
     assert report["episodes_closed"] == 2          # finalize closes both
     assert report["attach_mix"]["judge_same_dev"] == 1
+
+
+class _AlwaysNewDevelopment:
+    """Judge that reports a new development on the sole candidate regardless
+    of gap — exercises the orphaned-open-episode fix in Linker.process_entry's
+    judge_new_episode branch (the old episode must be closed, not left open
+    forever, when the judge opens a new one mid-window)."""
+
+    def __init__(self, inner) -> None:
+        self._inner = inner
+
+    def link_storyline(self, entry, candidates):
+        return {"match": 0, "same_development": False, "reason": "new development"}
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
+def test_new_development_within_gap_closes_replaced_episode(monkeypatch):
+    store = SpineFakeStore()
+    stub = StubModels()
+    model = _AlwaysNewDevelopment(stub)
+    entries = [
+        _entry(1, "FTC sues Acme Corp over merger", T0),
+        _entry(2, "FTC sues Acme Corp over merger update", T0 + timedelta(hours=3)),
+    ]
+    for e in entries:
+        e["embedding"] = pack_fp16(stub.embed([e["title"]])[0])
+    for e in entries:
+        store.add_entry(**e)
+    monkeypatch.setattr(store, "prepared_unclustered",
+                        lambda **kw: entries, raising=False)
+    report = run(store, model, CFG)
+    assert report["storylines_created"] == 1
+    assert report["attach_mix"]["judge_new_episode"] == 1
+    assert len(store.episodes) == 2
+    first_id, second_id = list(store.episodes.keys())
+    # the episode the judge replaced must be closed, not orphaned open forever
+    assert store.episodes[first_id]["status"] == "dormant"
+    episode_cards = [c for c in store.cards
+                     if c["kind"] == "episode" and c["episode_id"] == first_id]
+    assert len(episode_cards) == 1
+    # finalize closes the still-open second (new) episode
+    assert store.episodes[second_id]["status"] == "dormant"
+    assert report["episodes_closed"] == 2   # replaced-episode close + finalize close
+
+
+def test_due_close_fires_mid_loop_for_dormant_episode(monkeypatch):
+    store = SpineFakeStore()
+    stub = StubModels()
+    gap = CFG.spine_episode_gap_hours
+    entries = [
+        _entry(1, "FTC sues Acme Corp over merger", T0),
+        _entry(2, "FTC sues Acme Corp over merger update",
+               T0 + timedelta(hours=gap + 1)),
+        _entry(3, "FTC sues Acme Corp over merger detail",
+               T0 + timedelta(hours=gap + 2)),
+    ]
+    for e in entries:
+        e["embedding"] = pack_fp16(stub.embed([e["title"]])[0])
+    for e in entries:
+        store.add_entry(**e)
+    monkeypatch.setattr(store, "prepared_unclustered",
+                        lambda **kw: entries, raising=False)
+    report = run(store, stub, CFG)
+    assert report["storylines_created"] == 1
+    # entry 2 lands >gap hours after entry 1: due_closes must fire mid-loop
+    # (before entry 2 is judged), so the same-storyline match becomes a new
+    # episode rather than an attach to what would otherwise still look open.
+    assert report["attach_mix"].get("judge_new_episode") == 1
+    assert report["attach_mix"].get("judge_same_dev") == 1  # entry 3 joins episode 2
+    assert len(store.episodes) == 2
+    assert report["episodes_closed"] == 2   # mid-loop due-close + finalize close
+    assert all(ep["status"] == "dormant" for ep in store.episodes.values())

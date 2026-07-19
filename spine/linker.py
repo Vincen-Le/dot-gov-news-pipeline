@@ -88,6 +88,10 @@ class Linker:
             return {"episode_id": story.open_episode_id,
                     "storyline_id": story.id, "method": "judge_same_dev"}
 
+        # capture before index.new_episode clobbers it: the storyline's
+        # current open episode (if any) is being replaced and must be
+        # closed by the driver (spine/replay.py), which owns CardEngine.
+        replaced_episode_id = story.open_episode_id
         episode_id, _ = self.store.create_episode(
             story.id, _EPISODE_ATTACH_METHOD["judge_new_episode"], sim,
             (verdict.get("reason") or "")[:512],
@@ -98,7 +102,8 @@ class Linker:
                      matched=None, syndicated=False,
                      episode_centroid=pack_fp16(vec))
         return {"episode_id": episode_id, "storyline_id": story.id,
-                "method": "judge_new_episode"}
+                "method": "judge_new_episode",
+                "replaced_episode_id": replaced_episode_id}
 
     # -- helpers --------------------------------------------------------
 

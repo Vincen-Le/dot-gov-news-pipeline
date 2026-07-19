@@ -12,6 +12,15 @@ readonly bench_database="${1:-spine_bench}"
 readonly source_database="${SOURCE_DATABASE:-postgres}"
 readonly bench_url="postgresql://postgres:postgres@127.0.0.1:57422/${bench_database}"
 
+if [[ "${bench_database}" == "${source_database}" ]]; then
+  echo "Refusing: bench database (${bench_database}) must differ from the source database (${source_database}) — this would dropdb --force the source, then clone it into itself." >&2
+  exit 1
+fi
+if [[ "${bench_database}" == "postgres" ]]; then
+  echo "Refusing: 'postgres' is not a valid bench database name (it is the default primary database)." >&2
+  exit 1
+fi
+
 if ! docker inspect "${database_container}" >/dev/null 2>&1; then
   echo "Local Supabase database container ${database_container} is not running." >&2
   echo "Start it with: pnpm supabase start" >&2

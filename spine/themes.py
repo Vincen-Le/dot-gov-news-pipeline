@@ -70,6 +70,7 @@ def sweep(store, models, cfg) -> dict:
                     if len(c) >= cfg.spine_theme_min_size]
 
     confirmed = []
+    protected_theme_ids: set[str] = set()
     for cluster in clusters_idx:
         mean = np.mean([rows[i]["centroid"] for i in cluster], axis=0)
         ranked = sorted(cluster, key=lambda i: (-cosine(rows[i]["centroid"],
@@ -78,6 +79,15 @@ def sweep(store, models, cfg) -> dict:
             [{"headline": rows[i]["headline"]} for i in ranked[:15]])
         if verdict.get("theme"):
             confirmed.append((cluster, mean, verdict))
+        elif (verdict.get("reason") or "").startswith("adjudicator_error"):
+            # transient LLM failure, not a real "no theme" verdict: leave
+            # the cluster unresolved this sweep, but don't let its silence
+            # demote members' existing themes (they'd just churn back next
+            # sweep with a new id/label).
+            for i in cluster:
+                theme_id = rows[i]["theme_id"]
+                if theme_id is not None:
+                    protected_theme_ids.add(str(theme_id))
 
     existing: dict[str, set[str]] = {}
     for r in rows:
@@ -111,7 +121,7 @@ def sweep(store, models, cfg) -> dict:
                 result["storylines_assigned"] += 1
 
     for theme_id in existing:
-        if theme_id not in kept_ids:
+        if theme_id not in kept_ids and theme_id not in protected_theme_ids:
             store.demote_theme(theme_id)
             result["themes_demoted"] += 1
     return result

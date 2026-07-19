@@ -82,12 +82,22 @@ def run(store, models, cfg, limit=None, since=None, until=None,
             closed_count += 1
         vec = unpack_fp16(row["embedding"])
         decision = linker.process_entry(row, vec)
+        replaced_episode_id = decision.get("replaced_episode_id")
+        if replaced_episode_id is not None:
+            # the judge opened a new episode on this storyline mid-window;
+            # the episode it replaced never goes through due_closes (it was
+            # still active), so it must be closed here or it lingers open
+            # forever with no episode card and no overview regeneration.
+            replay.close_episode(replaced_episode_id)
+            card_engine.on_episode_closed(
+                {"id": replaced_episode_id, "storyline_id": decision["storyline_id"]})
+            closed_count += 1
         attach_mix[decision["method"]] = attach_mix.get(decision["method"], 0) + 1
         created += decision["method"].startswith("new_storyline")
         window.add(row["id"], decision["episode_id"], row["content_hash"], t, vec)
         processed += 1
-        if (sweep is not None and t - last_sweep_at >= timedelta(
-                hours=cfg.spine_theme_sweep_interval_hours)):
+        if t - last_sweep_at >= timedelta(
+                hours=cfg.spine_theme_sweep_interval_hours):
             _tally(sweep_totals, sweep(replay, models, cfg))
             sweep_runs += 1
             last_sweep_at = t
@@ -97,7 +107,7 @@ def run(store, models, cfg, limit=None, since=None, until=None,
         _close(replay, card_engine, index, story)
         closed_count += 1
 
-    if sweep is not None and rows:
+    if rows:
         _tally(sweep_totals, sweep(replay, models, cfg))
         sweep_runs += 1
 

@@ -76,6 +76,9 @@ Notes:
   article against a dense master-node overview, retroactive theme merge/split)
   that A/Bs against classic on the same corpus. See the
   [Simplified Storyline Spine design doc](../superpowers/specs/2026-07-19-simplified-storyline-spine-design.md).
+  `SPINE_ENRICHER_SYSTEM` and `SPINE_EMBED_SOURCE` are not yet wired into
+  `prepare` — v1 evaluates on classic enrichment, so any A/B readout must not
+  be attributed to enrichment differences.
 
 ### Parallel bench (spine)
 

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 SPINE_ENRICHER_SYSTEM = (
     "Compress the article into exactly ONE sentence optimized for semantic "
     "search. Hard requirements: preserve every named agency, person, program, "
@@ -69,7 +67,11 @@ def build_theme_prompt(members: list[dict]) -> tuple[str, str]:
 
 
 def link_cache_parts(entry: dict, candidates: list[dict]) -> list:
-    """Content-stable cache key parts — never row ids."""
-    return [entry["content_hash"],
-            [(c["headline"], c["summary"], str(c["newest_entry_at"]))
-             for c in candidates]]
+    """Content-stable cache key parts — never row ids. The prompt varies with
+    the full entry payload (title/enriched_text/published_at/entity_set/
+    content_hash) and full candidate payloads (headline/summary/
+    newest_entry_at/gap_hours/shared_entities/episode_count), so key on both
+    payload dicts in full — neither carries a row id (see spine/linker.py's
+    _entry_payload/_candidate_payload) — and let the caller's sha256-over-
+    sorted-json handle stability."""
+    return [entry, candidates]

@@ -50,6 +50,37 @@ def test_reconcile_merge_uses_larger_overlap_once():
     assert out == [("t1", ["a", "b", "c"])]   # t2 unmatched -> demoted by sweep
 
 
+class _ErrorModel(StubModels):
+    """induce_theme always fails transiently — exercises the sweep-demotes-
+    healthy-themes-on-LLM-error fix: an adjudicator_error verdict must not
+    demote the cluster's existing theme, since that would just churn the
+    theme (recreate under a new id/label) next sweep."""
+
+    def induce_theme(self, members):
+        return {"theme": False, "name": "", "reason": "adjudicator_error: boom"}
+
+
+def test_sweep_protects_existing_theme_on_transient_llm_error():
+    cfg = Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                 spine_theme_min_size=3)
+    store = FakeStore()
+    base = _v(1, 0)
+    theme_id = store.create_theme(
+        "FTC Enforcement", pack_fp16(base), None, "m", None)
+    for i in range(3):
+        sid = f"s{i}"
+        store.storylines[sid] = {
+            "id": sid, "centroid": pack_fp16(base), "theme_id": theme_id,
+            "headline": f"FTC enforcement action {i}",
+        }
+    result = sweep(store, _ErrorModel(), cfg)
+    assert result["themes_created"] == 0
+    assert result["themes_demoted"] == 0
+    assert store.themes[theme_id]["demoted_at"] is None
+    for sid in ("s0", "s1", "s2"):
+        assert store.storylines[sid]["theme_id"] == theme_id
+
+
 def test_sweep_creates_theme_of_min_size():
     cfg = Config(database_url="x", cf_account_id="a", cf_api_token="t",
                  spine_theme_min_size=3)

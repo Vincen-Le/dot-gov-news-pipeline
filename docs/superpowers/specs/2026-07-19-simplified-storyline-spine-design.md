@@ -70,7 +70,7 @@ works — write-once rows with `version`/`superseded_by`), and rank_key reuse
 ### Data flow
 
 ```
-prepare (shared machinery, spine prompt):
+prepare (shared machinery, classic enrichment — see "Out of scope" below):
   news_entries → enriched_text (entity-lossless) → embedding (fp16, source knob)
 
 replay (spine/replay.py), event-time order (published_at, id):
@@ -215,4 +215,7 @@ The per-database standard as originally sketched:
 Kleinberg burst modeling; storyline-level retroactive repair (margins are
 logged to enable it later); learned ranking; **golden scoring** (B³/pairwise
 F1/ARI — gated on QA of `golden_news_entries`; do first after labels are
-vetted); hosted/scheduled operation; theme hierarchy.
+vetted); hosted/scheduled operation; theme hierarchy; wiring
+`SPINE_ENRICHER_SYSTEM` + `SPINE_EMBED_SOURCE` into `prepare` (v1 evaluates
+on classic enrichment — any A/B readout must not be attributed to
+enrichment differences).
