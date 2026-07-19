@@ -140,4 +140,41 @@ sweeps will use only keys verified in the live `load_config()` implementation.
   0.276644 before judging the 16 restored tokens, with one versioned and
   reproducible input policy for current and future entries
 - Cost tier: Tier 2 (deterministic source-policy fix, test, reextract, replay)
-- Status: hypothesis recorded; implementation pending
+- Implementation receipt: committed as `d2d9270`; extraction/prepare tests
+  26/26 pass; all 9,657 local entries regenerated at extractor version 4
+- Run ID: `2a6a9639-c5f2-4b23-86a5-9f05d70e22ce`
+- Duration: 3,096.8s; processed 150; cache 36 hits / 73 misses; 140
+  episodes, 127 storylines, 12 multi-episode storylines, 3 themes / 19 themed
+  storylines; no model errors
+- Blinded crawl: V1 13 non-anchor episodes; V2 19 memberships across 3 themes;
+  V3 19 category/storyline pairs; V4 0 deterministic merge candidates; V5
+  441 entity tokens + 1 event key across 100 entries; V6 10 non-anchor entries
+- Intruder self-test: 10/10 (three themes cycled to retain 10 independent
+  least-fit trials)
+- Mechanical scores: V1 0.307692; V2 0.023810; V3 1.000000; V4 penalty 0;
+  V5 0.321995; V6 1.000000; **R = 0.530699**
+- Delta: -0.158339 versus the current best; the V5 gain of +0.059495 was
+  overwhelmed by a `Global Conflict Diplomacy` false-merge theme (2/8 members
+  fit, too broad) and one false `Disaster Relief Efforts` member
+- Decision: **REJECT**; revert code and restore version-3 body-first features
+- Status: complete
+
+## Iteration 03 — recurring-event adjudicator rubric
+
+- Vector targeted: V1 storyline continuation validity (current best 0.307692;
+  3 false merges among 13 non-anchor episodes)
+- Exact change proposed: bump the prompt version and add an adjudicator rule
+  that recurring-format contacts/notices with different dates are distinct
+  events unless a unique incident, order, docket, deadline, or explicit
+  continuation ties them together; namespace the decision cache by prompt
+  version so the new rubric cannot reuse v1 verdicts
+- Evidence before change: all three false joins in the current best match this
+  failure mode: Landau-Bu meetings 56 days apart, Rubio-Lammy calls 29 days
+  apart, and Grand Canyon water-restriction notices 55 days apart. The 10 valid
+  joins provide counterexamples that must remain attached, including the
+  explicitly shared Honouliuli anniversary program and concrete FEMA deadlines.
+- Expected effect: reject the three recurring-event false merges while
+  preserving the 10 real continuations; best-case V1 rises from 0.307692 to
+  1.000000 and reward rises by 0.138462
+- Cost tier: Tier 2 (prompt/cache-version code, targeted tests, full replay)
+- Status: hypothesis recorded; implementation pending after rejected-state rollback

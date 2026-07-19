@@ -1,0 +1,4 @@
+theme_id,theme_name,granularity,generalized_label,gained_storyline_ids,proposed_split,reason
+"24d1c1f5-78cd-41fa-a1a8-c001cdc28a63","National Park Economics","right","","","","Tourism's local economic impact across national parks is a clear recurring reader topic; lifting to all park funding or operations would change the subject."
+"77c99a31-54d1-4bc3-8ff5-ee5cde184bad","Global Conflict Diplomacy","too_broad","","","Conflict mediation and ceasefire diplomacy|Regional peace and security partnerships|Human-rights advocacy|Sanctions and multilateral disputes","It merges unrelated countries, conflicts, routine meetings, advocacy, partnerships, and coercive sanctions into an umbrella too diffuse for one reader-follow stream."
+"cb118abb-a14a-4269-b2ec-824fd0967674","Disaster Relief Efforts","right","","","","Government aid and post-disaster recovery form a coherent reader topic; lifting to hazard monitoring or preparedness would mix a distinct phase and add false fits."
