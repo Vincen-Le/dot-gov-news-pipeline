@@ -131,3 +131,21 @@ database outside the dashboard. `DATABASE_URL` (and `LAB_ENGINE`) still
 govern the dashboard's env-only default connection when no pipeline is
 selected — the registry only adds switchable connections, it does not
 change single-pipeline behavior when the registry file is absent.
+
+### Running the baseline pair
+
+Each pipeline database keeps its own `experiment_runs` history, so a
+classic-vs-spine comparison is two ordinary experiment runs against the two
+databases over the same corpus slice:
+
+    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/complex_db \
+      uv run python -m pipeline.cli experiment classic-baseline-500 --limit 500
+
+    DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:57422/spine_db \
+      LAB_ENGINE=spine uv run python -m pipeline.cli experiment spine-baseline-500 --limit 500
+
+Add `--stub` to both for a stub-scale plumbing check (deterministic,
+no Workers AI calls) when features aren't ready for a real-model pair —
+see `docs/eval/spine-vs-classic-2026-07/notes.md` for a worked example and
+its scope caveats. Each command writes `docs/eval/<name>/report.md`; diff the
+two reports or read the A/B notes doc for the comparison.
