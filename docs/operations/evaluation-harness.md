@@ -91,7 +91,7 @@ local news_entries -- prepare once --> cached entry features
                            v
         episodes -> storylines -> cards/topics
                            |
-                           +-> report + experiment_runs + rank_snapshots
+                           +-> report + complex_v1_experiment_runs + rank_snapshots
 ```
 
 The important storage boundaries are:
@@ -102,11 +102,16 @@ The important storage boundaries are:
 | Prepared features        | Embedding/enrichment/extraction fields on `news_entries`                                                 | Yes                          | Reusable experiment input                                          |
 | Expected topology labels | `topology_label_sets`, `news_entry_topology_labels`                                                      | Yes                          | Versioned bootstrap labels used for input selection                |
 | Current aggregation      | `episode_entries`, `episodes`, `storylines`, `event_cards`, `topic_themes`, LLM-created topic categories | No                           | Only the latest completed or interrupted replay state              |
-| Completed run summary    | `experiment_runs`                                                                                        | Yes                          | Resolved config, summary, cluster report, timing, cache counts     |
+| Completed run summary    | `complex_v1_experiment_runs`                                                                             | Yes                          | Resolved config, summary, cluster report, timing, cache counts     |
 | Ranking evidence         | `rank_snapshots`, `rank_audit_pairs`, `rank_audit_runs`                                                  | Yes                          | Run-scoped ranking state and audit results                         |
 | Model-decision cache     | `.cache/decisions.sqlite`                                                                                | Yes                          | Content-keyed adjudication/theme/rank decisions                    |
 | Markdown report          | `docs/eval/<name>/report.md`                                                                             | Yes                          | Human-readable lab notebook for one run                            |
 | Human pair labels        | `docs/eval/labels.csv`, `docs/eval/rank-labels.csv`                                                      | Yes                          | Review annotations; only rank labels currently have a CLI consumer |
+
+> **Table namespacing convention:** Experiment tables are prefixed by pipeline engine
+> (e.g., `complex_v1_experiment_runs` for the classic pipeline, `simple_v1_experiment_runs` for
+> the simplified pipeline); `rank_snapshots` and other rank-scoped tables follow the same pattern.
+> See [Clustering lab](clustering-lab.md) → Engines for the multi-pipeline setup and storage layout.
 
 An experiment reset nulls `news_entries.episode_id` and clears the current
 aggregation tables. It preserves raw entries, prepared features, seed topic
@@ -157,7 +162,7 @@ migrations instead:
 mise exec -- pnpm supabase migration up --local
 ```
 
-The harness needs at least the clustering tables, `experiment_runs`, and rank
+The harness needs at least the clustering tables, `complex_v1_experiment_runs`, and rank
 observability migrations. Topology-curated runs additionally need
 `20260718101300_create_news_entry_topology_labels.sql`.
 
@@ -535,7 +540,7 @@ Each successful Python experiment prints JSON containing the report path,
 run UUID, and ranking snapshot row count. It also writes:
 
 - `docs/eval/<name>/report.md`
-- one `experiment_runs` row
+- one `complex_v1_experiment_runs` row
 - run-scoped `rank_snapshots`
 - the newest aggregation state in the clustering tables
 
@@ -565,7 +570,7 @@ The live `pnpm ops lab metrics` snapshot additionally provides:
 
 That calibration suggestion is a corpus heuristic, not a quality score. The
 live volume query counts active storylines and unsuperseded cards, while the
-Markdown experiment summary counts table rows; do not assume the two card or
+Markdown experiment summary counts table rows in `complex_v1_experiment_runs`; do not assume the two card or
 storyline totals have identical definitions.
 
 For every candidate run, check at least:
@@ -700,7 +705,7 @@ pnpm ops lab corpus
 ```
 
 Read-only lab access needs the clustering tables. Experiment access also needs
-`experiment_runs` and a local hostname (`localhost` or `127.0.0.1`).
+`complex_v1_experiment_runs` and a local hostname (`localhost` or `127.0.0.1`).
 
 ### Python connects to port 54322 or refuses a remote host
 
@@ -800,7 +805,7 @@ during an active experiment series.
 ## Post-run checklist
 
 - [ ] Command succeeded and returned a run UUID.
-- [ ] `experiment_runs` lists the run and the report opens.
+- [ ] `complex_v1_experiment_runs` lists the run and the report opens.
 - [ ] Processed count matches the intended eligible input.
 - [ ] Config and topology selection match the experiment contract.
 - [ ] Model errors and fallback rates are acceptable.
