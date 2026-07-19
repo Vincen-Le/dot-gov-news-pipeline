@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Fragment } from "react";
 import { z } from "zod";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -7,6 +8,7 @@ import {
   StorylineListItemSchema,
   TopicCategorySchema,
   TopicThemeSchema,
+  type StorylineListItem,
 } from "../../lab/contracts";
 import { LabMetricsSchema } from "../../lab/metrics";
 import { fetchLab } from "../lab-api";
@@ -19,6 +21,12 @@ import {
 } from "../components";
 
 const PAGE_SIZE = 50;
+type GroupBy = "category" | "theme";
+
+function groupLabel(item: StorylineListItem, groupBy: GroupBy): string {
+  if (groupBy === "theme") return item.themeName ?? "Unassigned theme";
+  return item.categoryName ?? "Unassigned category";
+}
 
 export function StorylinesPage() {
   const [params, setParams] = useSearchParams();
@@ -28,6 +36,9 @@ export function StorylinesPage() {
   const sort = params.get("sort") ?? "";
   const theme = params.get("theme") ?? "";
   const category = params.get("category") ?? "";
+  const groupByParam = params.get("groupBy");
+  const groupBy: GroupBy | "" =
+    groupByParam === "theme" || groupByParam === "category" ? groupByParam : "";
   const parsedPage = Number(params.get("page") ?? "1");
   const page = Number.isInteger(parsedPage) && parsedPage > 1 ? parsedPage : 1;
   const offset = (page - 1) * PAGE_SIZE;
@@ -73,6 +84,7 @@ export function StorylinesPage() {
   if (sort !== "") query.set("sort", sort);
   if (theme !== "") query.set("theme", theme);
   if (category !== "") query.set("category", category);
+  if (groupBy !== "") query.set("groupBy", groupBy);
   if (offset > 0) query.set("offset", String(offset));
   const storylines = useQuery({
     enabled: capability.data?.status === "available",
@@ -92,6 +104,7 @@ export function StorylinesPage() {
       sort,
       theme,
       category,
+      groupBy,
       page,
     ],
   });
@@ -206,6 +219,7 @@ export function StorylinesPage() {
               "sort",
               "category",
               "theme",
+              "groupBy",
             ]) {
               const value = data.get(key);
               if (typeof value === "string" && value !== "") next[key] = value;
@@ -274,6 +288,14 @@ export function StorylinesPage() {
             </select>
           </div>
           <div className="filter-field">
+            <label htmlFor="groupBy">Group by</label>
+            <select defaultValue={groupBy} id="groupBy" name="groupBy">
+              <option value="">None</option>
+              <option value="theme">Theme</option>
+              <option value="category">Category</option>
+            </select>
+          </div>
+          <div className="filter-field">
             <label htmlFor="minEpisodes">Min episodes</label>
             <input
               defaultValue={minEpisodes}
@@ -309,35 +331,57 @@ export function StorylinesPage() {
                     <th>Entries</th>
                     <th>Feeds</th>
                     <th>Agencies</th>
+                    <th>Category</th>
                     <th>Theme</th>
                     <th>Event keys</th>
                     <th>Newest</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {storylines.data?.items.map((item) => (
-                    <tr key={item.id}>
-                      <th scope="row">
-                        <Link
-                          className="row-button"
-                          to={`/storylines/${item.id}`}
-                        >
-                          {item.headline ?? "(no card yet)"}
-                        </Link>
-                      </th>
-                      <td className="numeric">{item.episodeCount}</td>
-                      <td className="numeric">{item.entryCount}</td>
-                      <td className="numeric">{item.distinctFeeds}</td>
-                      <td className="wrap">
-                        {item.agencies.join(", ") || "—"}
-                      </td>
-                      <td className="wrap">{item.themeName ?? "—"}</td>
-                      <td className="mono wrap">
-                        {item.eventKeys.join(" ") || "—"}
-                      </td>
-                      <td>{relativeTime(item.newestEntryAt)}</td>
-                    </tr>
-                  ))}
+                  {storylines.data?.items.map((item, index, items) => {
+                    const label =
+                      groupBy === "" ? null : groupLabel(item, groupBy);
+                    const previousLabel =
+                      groupBy === "" || index === 0
+                        ? null
+                        : groupLabel(items[index - 1]!, groupBy);
+                    return (
+                      <Fragment key={item.id}>
+                        {label !== null && label !== previousLabel ? (
+                          <tr className="storyline-group-row">
+                            <th colSpan={9} scope="rowgroup">
+                              <span>
+                                {groupBy === "theme" ? "Theme" : "Category"}
+                              </span>
+                              <strong>{label}</strong>
+                            </th>
+                          </tr>
+                        ) : null}
+                        <tr>
+                          <th scope="row">
+                            <Link
+                              className="row-button"
+                              to={`/storylines/${item.id}`}
+                            >
+                              {item.headline ?? "(no card yet)"}
+                            </Link>
+                          </th>
+                          <td className="numeric">{item.episodeCount}</td>
+                          <td className="numeric">{item.entryCount}</td>
+                          <td className="numeric">{item.distinctFeeds}</td>
+                          <td className="wrap">
+                            {item.agencies.join(", ") || "—"}
+                          </td>
+                          <td className="wrap">{item.categoryName ?? "—"}</td>
+                          <td className="wrap">{item.themeName ?? "—"}</td>
+                          <td className="mono wrap">
+                            {item.eventKeys.join(" ") || "—"}
+                          </td>
+                          <td>{relativeTime(item.newestEntryAt)}</td>
+                        </tr>
+                      </Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

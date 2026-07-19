@@ -276,6 +276,10 @@ describe("StorylinesPage", () => {
     expect(
       await screen.findByText("Test LLM Category (LLM)"),
     ).toBeTruthy();
+    expect(
+      screen.getByRole("columnheader", { name: "Category" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Food & Drug Safety")).not.toHaveLength(0);
   });
 
   it("shows the theme chip on storyline rows and filters the api call", async () => {
@@ -294,6 +298,35 @@ describe("StorylinesPage", () => {
     expect(storylineCalls.at(0)).toContain(
       "theme=00000000-0000-4000-8000-0000000000d1",
     );
+  });
+
+  it("groups rows by theme and round-trips the grouping in the api call", async () => {
+    const fetchMock = mockFetchRoutes();
+    renderPage("/storylines?groupBy=theme");
+
+    expect(await screen.findByLabelText("Group by")).toHaveValue("theme");
+    expect(
+      await screen.findByText("Valsatrex recall fallout", {
+        selector: ".storyline-group-row strong",
+      }),
+    ).toBeInTheDocument();
+
+    const storylineCalls = fetchMock.mock.calls
+      .map((call) => String(call[0]))
+      .filter((url) => url.includes("/api/lab/storylines"));
+    expect(storylineCalls.at(0)).toContain("groupBy=theme");
+  });
+
+  it("groups rows by category", async () => {
+    mockFetchRoutes();
+    renderPage("/storylines?groupBy=category");
+
+    expect(await screen.findByLabelText("Group by")).toHaveValue("category");
+    expect(
+      await screen.findByText("Food & Drug Safety", {
+        selector: ".storyline-group-row strong",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("renders the not-enabled state honestly", async () => {

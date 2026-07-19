@@ -138,6 +138,11 @@ export function createLabRouter(deps: LabRouteDeps): Router {
         agency: asString(request.query.agency),
         category: asString(request.query.category),
         entity: asString(request.query.entity),
+        groupBy:
+          request.query.groupBy === "category" ||
+          request.query.groupBy === "theme"
+            ? request.query.groupBy
+            : undefined,
         limit: requested + 1,
         minEpisodes: asNumber(request.query.minEpisodes),
         offset: Math.max(asNumber(request.query.offset) ?? 0, 0),

@@ -1,7 +1,21 @@
+from datetime import datetime, timezone
+
+import pytest
+
 from pipeline.config import Config
-from pipeline.experiment import render_report
+from pipeline.experiment import _anchored_replay_since, render_report
+from pipeline.golden import GOLDEN_BEFORE, GoldenValidationError
 
 CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
+
+
+def test_golden_replay_defaults_to_september_and_rejects_overlap():
+    assert _anchored_replay_since(None) == GOLDEN_BEFORE
+    assert _anchored_replay_since(datetime(2025, 9, 2)) == datetime(
+        2025, 9, 2, tzinfo=timezone.utc)
+
+    with pytest.raises(GoldenValidationError, match="cannot replay entries before"):
+        _anchored_replay_since(datetime(2025, 8, 31, tzinfo=timezone.utc))
 
 
 def test_render_report_contains_config_stats_and_chains():

@@ -122,7 +122,8 @@ class Store:
             """
             select id, episode_id from public.news_entries
             where content_hash = %(h)s and episode_id is not null
-              and published_at > %(t)s - make_interval(hours => %(w)s)
+              and published_at > %(t)s
+                  - (%(w)s::double precision * interval '1 hour')
             order by published_at desc limit 1
             """,
             {"h": hash_, "t": t, "w": window_hours},
@@ -133,12 +134,37 @@ class Store:
             """
             select id, episode_id, embedding from public.news_entries
             where episode_id is not null and embedding is not null
-              and published_at > %(t)s - make_interval(hours => %(w)s)
+              and published_at > %(t)s
+                  - (%(w)s::double precision * interval '1 hour')
               and published_at <= %(t)s
             """,
             {"t": t, "w": window_hours},
         )
         return [dict(r, embedding=unpack_fp16(r["embedding"])) for r in rows]
+
+    def clustered_window_before(self, t: datetime, entry_id: str,
+                                window_hours: float) -> list[dict]:
+        """Entries immediately preceding a resumed replay batch.
+
+        ReplayWindow normally fills while one cluster invocation runs. Golden
+        curation intentionally pauses every 50 rows, so a resumed invocation
+        must restore the prior 72-hour tail or dedupe behavior changes at each
+        artificial batch boundary.
+        """
+        rows = self.db.all(
+            """
+            select id, episode_id, content_hash, published_at, embedding
+            from public.news_entries
+            where episode_id is not null and embedding is not null
+              and published_at > %(t)s
+                  - (%(w)s::double precision * interval '1 hour')
+              and (published_at < %(t)s
+                   or (published_at = %(t)s and id < %(id)s::uuid))
+            order by published_at, id
+            """,
+            {"t": t, "id": entry_id, "w": window_hours},
+        )
+        return [dict(row, embedding=unpack_fp16(row["embedding"])) for row in rows]
 
     def open_episodes(self) -> list[dict]:
         rows = self.db.all(
@@ -297,12 +323,40 @@ class Store:
         )
 
     def prepared_unclustered(self, limit: int | None = None,
+                             since: "datetime | None" = None,
                              until: "datetime | None" = None,
                              per_agency: int | None = None,
                              topology_label_set_id: str | None = None,
                              multi_episode_percent: float | None = None,
                              multi_entry_single_episode_percent: float = 0.0,
-                             topology_seed: str = "default") -> list[dict]:
+                             topology_seed: str = "default",
+                             golden_batch: int | None = None) -> list[dict]:
+        if golden_batch is not None:
+            if any((limit is not None, per_agency is not None,
+                    topology_label_set_id is not None,
+                    multi_episode_percent is not None,
+                    multi_entry_single_episode_percent != 0.0,
+                    since is not None, until is not None)):
+                raise ValueError(
+                    "golden batch selection cannot be combined with other input filters")
+            rows = self.db.all(
+                """
+                select ne.id, ne.news_source_id, ne.title, ne.summary,
+                       ne.body_text, ne.published_at, ne.content_hash,
+                       ne.entity_set, ne.event_keys, ne.embedding,
+                       nsp.publisher_key as agency
+                from public.golden_news_entries golden
+                join public.news_entries ne on ne.id = golden.news_entry_id
+                left join public.news_source_publishers nsp
+                  on nsp.news_source_id = ne.news_source_id
+                where golden.batch_number = %(batch)s
+                  and golden.review_status in ('pending', 'proposed')
+                  and ne.embedding is not null and ne.episode_id is null
+                order by golden.ordinal
+                """,
+                {"batch": golden_batch},
+            )
+            return _require_publisher_attribution(rows)
         if topology_label_set_id is not None:
             if limit is None:
                 raise ValueError("topology curation requires a finite limit")
@@ -312,6 +366,9 @@ class Store:
             if per_agency is not None:
                 raise ValueError(
                     "topology curation and per_agency cannot be combined")
+            if since is not None:
+                raise ValueError(
+                    "topology curation and since cannot be combined")
             rows = self.db.all(
                 """
                 select ne.id, ne.news_source_id, ne.title, ne.summary,
@@ -366,11 +423,12 @@ class Store:
                   on nsp.news_source_id = ne.news_source_id
                 where ne.embedding is not null and ne.episode_id is null
                   and ne.published_at is not null
+                  and (%(since)s::timestamptz is null or ne.published_at >= %(since)s)
                   and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)
                 order by ne.published_at, ne.id
                 limit %(limit)s
                 """,
-                {"limit": limit, "until": until},
+                {"limit": limit, "since": since, "until": until},
             )
             return _require_publisher_attribution(rows)
         # balanced sample: walk newest -> oldest capping each agency at
@@ -394,6 +452,8 @@ class Store:
                       on nsp.news_source_id = ne.news_source_id
                     where ne.embedding is not null and ne.episode_id is null
                       and ne.published_at is not null
+                      and (%(since)s::timestamptz is null
+                           or ne.published_at >= %(since)s)
                       and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)
                 ) ranked
                 where agency_rank <= %(per_agency)s

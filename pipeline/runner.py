@@ -27,6 +27,15 @@ from pipeline.window import ReplayStore, ReplayWindow
 _MAX_ENRICHED_LEN = 16384
 
 
+def _valid_enrichment(text: str | None) -> bool:
+    """Reject non-semantic model output before it poisons the vector space."""
+    if not text:
+        return False
+    words = [token for token in text.split() if any(ch.isalnum() for ch in token)]
+    alphanumeric = sum(ch.isalnum() for ch in text)
+    return bool(words) and alphanumeric >= 8
+
+
 def _semantic_content(row: dict) -> str | None:
     # summary first: it is a human-condensed description of the event, so
     # title+summary embeds nearer related events than full article body,
@@ -49,10 +58,12 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
 
     # enrichment (concurrent; DB column is the cache — skip rows that have it)
     def enrich_one(row: dict) -> str | None:
-        if not cfg.enrichment_enabled or row.get("enriched_text"):
+        if not cfg.enrichment_enabled or _valid_enrichment(row.get("enriched_text")):
             return None
         try:
-            return models.enrich(row["title"], _semantic_content(row))[:_MAX_ENRICHED_LEN]
+            enriched = models.enrich(
+                row["title"], _semantic_content(row))[:_MAX_ENRICHED_LEN]
+            return enriched if _valid_enrichment(enriched) else None
         except Exception:
             return None  # fall back to raw text; never block the batch
 
@@ -60,7 +71,9 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
         new_enrichments = list(pool.map(enrich_one, rows))
 
     embed_texts = [
-        new or row.get("enriched_text") or _fallback_text(row)
+        new or (row.get("enriched_text")
+                if _valid_enrichment(row.get("enriched_text")) else None)
+        or _fallback_text(row)
         for row, new in zip(rows, new_enrichments)
     ]
 
@@ -90,15 +103,35 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
 
 
 def cluster(store, models, cfg: Config, limit: int | None = None,
+            since: "datetime | None" = None,
             until: "datetime | None" = None,
             per_agency: int | None = None,
             topology_label_set_id: str | None = None,
             multi_episode_percent: float | None = None,
             multi_entry_single_episode_percent: float = 0.0,
-            topology_seed: str = "default") -> dict:
+            topology_seed: str = "default",
+            golden_batch: int | None = None) -> dict:
+    rows = store.prepared_unclustered(limit=limit, since=since, until=until,
+                                      per_agency=per_agency,
+                                      topology_label_set_id=topology_label_set_id,
+                                      multi_episode_percent=multi_episode_percent,
+                                      multi_entry_single_episode_percent=(
+                                          multi_entry_single_episode_percent),
+                                      topology_seed=topology_seed,
+                                      golden_batch=golden_batch)
     window = ReplayWindow(cfg.dedupe_window_hours)
     replay = store
     if hasattr(store, "db"):  # real Store -> wrap window reads; fakes serve their own
+        if rows:
+            first = rows[0]
+            for prior in store.clustered_window_before(
+                    first["published_at"], str(first["id"]),
+                    cfg.dedupe_window_hours):
+                window.add(
+                    str(prior["id"]), str(prior["episode_id"]),
+                    prior["content_hash"], prior["published_at"],
+                    prior["embedding"])
+            window.advance(first["published_at"])
         replay = ReplayStore(store.db, window)
     else:
         replay = _WindowedFake(store, window)
@@ -115,14 +148,6 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
                     "attached_existing": 0, "rejected": 0, "demoted": 0}
     sweep_runs = 0
     last_sweep_at = None
-
-    rows = store.prepared_unclustered(limit=limit, until=until,
-                                      per_agency=per_agency,
-                                      topology_label_set_id=topology_label_set_id,
-                                      multi_episode_percent=multi_episode_percent,
-                                      multi_entry_single_episode_percent=(
-                                          multi_entry_single_episode_percent),
-                                      topology_seed=topology_seed)
 
     input_topology = None
     if topology_label_set_id is not None:
@@ -190,6 +215,8 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     if cfg.topics_enabled:
         report["theme_sweeps"] = sweep_runs
         report["theme_sweep_totals"] = sweep_totals
+    if golden_batch is not None:
+        report["golden_batch"] = golden_batch
     if input_topology is not None:
         report["input_topology"] = input_topology
     return report

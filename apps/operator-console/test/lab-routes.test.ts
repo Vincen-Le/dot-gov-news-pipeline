@@ -146,20 +146,24 @@ describe("lab routes", () => {
       } as never,
     });
     const ok = await fetch(
-      `${base}/storylines?agency=fda&minEpisodes=2&sort=episodes&offset=50`,
+      `${base}/storylines?agency=fda&minEpisodes=2&sort=episodes&groupBy=theme&offset=50`,
     );
     expect(ok.status).toBe(200);
     // the route asks for one extra row to detect whether more pages exist
     expect(captured).toEqual({
       agency: "fda",
       entity: undefined,
+      groupBy: "theme",
       limit: 51,
       minEpisodes: 2,
       offset: 50,
       sort: "episodes",
     });
+    await fetch(`${base}/storylines?groupBy=category`);
+    expect((captured as { groupBy?: string }).groupBy).toBe("category");
     await fetch(`${base}/storylines?sort=bogus`);
     expect((captured as { offset?: number; sort?: string }).sort).toBeUndefined();
+    expect((captured as { groupBy?: string }).groupBy).toBeUndefined();
     expect((captured as { offset?: number }).offset).toBe(0);
   });
 

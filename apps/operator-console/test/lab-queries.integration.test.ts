@@ -105,6 +105,24 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
     ]);
   });
 
+  it("orders grouped storyline pages by theme or category", async () => {
+    const byTheme = await withFixture((queries) =>
+      queries.storylines({ groupBy: "theme" }),
+    );
+    expect(byTheme.map((item) => item.themeName)).toEqual([
+      "Field office access",
+      "Valsatrex recall fallout",
+    ]);
+
+    const byCategory = await withFixture((queries) =>
+      queries.storylines({ groupBy: "category" }),
+    );
+    expect(byCategory.map((item) => item.categoryName)).toEqual([
+      "Food & Drug Safety",
+      "Test LLM Category",
+    ]);
+  });
+
   it("returns the full chain with attach evidence and citation flags", async () => {
     const detail = await withFixture((queries) =>
       queries.storylineDetail("00000000-0000-4000-8000-000000000021"),

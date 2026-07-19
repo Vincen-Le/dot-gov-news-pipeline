@@ -16,6 +16,21 @@ from pipeline.config import Config
 from pipeline.runner import cluster
 
 
+def _anchored_replay_since(since):
+    """Return an inclusive lower bound that cannot overlap the gold prefix."""
+    from pipeline.golden import GOLDEN_BEFORE, GoldenValidationError
+
+    if since is None:
+        return GOLDEN_BEFORE
+    if since.tzinfo is None:
+        since = since.replace(tzinfo=timezone.utc)
+    if since < GOLDEN_BEFORE:
+        raise GoldenValidationError(
+            "golden-backed experiments cannot replay entries before "
+            "2025-09-01T00:00:00Z")
+    return since
+
+
 def summarize(db) -> dict:
     def mix(sql: str) -> dict:
         return {r["attach_method"]: r["n"] for r in db.all(sql)}
@@ -136,6 +151,18 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
             f"{input_topology['actual_multi_entry_episode_entries']}",
             "",
         ]
+    golden = cluster_report.get("golden_anchor")
+    golden_lines = []
+    if golden is not None:
+        golden_lines = [
+            "## Golden anchor", "",
+            f"- reviewed entries materialized: {golden['materialized_entries']}",
+            f"- episodes: {golden['episodes']}",
+            f"- storylines: {golden['storylines']}",
+            f"- themes: {golden['themes']}",
+            f"- replay lower bound: {cluster_report.get('since')}",
+            "",
+        ]
     lines = [
         f"# Experiment: {name}", "",
         f"Duration: {duration_s}s — processed {cluster_report['processed']}, "
@@ -147,6 +174,7 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
         f"- singleton-episode rate: {summary['singleton_episode_rate']}",
         f"- multi-episode storylines: {summary['multi_episode_storylines']}", "",
         *curation_lines,
+        *golden_lines,
         "## Attach mix (entry -> episode)", "",
         *[f"- {m}: {n}" for m, n in summary["entry_attach_mix"].items()],
         "", "## Attach mix (episode -> storyline)", "",
@@ -195,22 +223,36 @@ def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
 
 
 def run_experiment(db, store, models, cfg: Config, name: str,
-                   limit: int | None = None, until=None,
+                   limit: int | None = None, since=None, until=None,
                    out_dir: str = "docs/eval",
                    per_agency: int | None = None,
                    topology_label_set_id: str | None = None,
                    multi_episode_percent: float | None = None,
                    multi_entry_single_episode_percent: float = 0.0,
-                   topology_seed: str = "default") -> dict:
+                   topology_seed: str = "default",
+                   use_golden: bool = False) -> dict:
     started = datetime.now(timezone.utc)
-    reset_clusters(db)
-    cluster_report = cluster(store, models, cfg, limit=limit, until=until,
+    golden_anchor = None
+    if use_golden:
+        from pipeline.golden import GoldenValidationError, apply_reviewed, validate
+        since = _anchored_replay_since(since)
+        validation = validate(db, complete=True)
+        if not validation["valid"]:
+            raise GoldenValidationError(
+                "golden anchor is not ready: " + "; ".join(validation["errors"][:10]))
+        golden_anchor = apply_reviewed(db, cfg)
+    else:
+        reset_clusters(db)
+    cluster_report = cluster(store, models, cfg, limit=limit, since=since, until=until,
                              per_agency=per_agency,
                              topology_label_set_id=topology_label_set_id,
                              multi_episode_percent=multi_episode_percent,
                              multi_entry_single_episode_percent=(
                                  multi_entry_single_episode_percent),
                              topology_seed=topology_seed)
+    if use_golden:
+        cluster_report["golden_anchor"] = golden_anchor
+        cluster_report["since"] = since
     finished = datetime.now(timezone.utc)
     duration = round((finished - started).total_seconds(), 1)
     summary = summarize(db)

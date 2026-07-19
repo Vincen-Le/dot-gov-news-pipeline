@@ -81,3 +81,37 @@ def test_prepared_unclustered_topology_curation_requires_limit_and_mix():
             topology_label_set_id="00000000-0000-4000-8000-000000000001",
             multi_episode_percent=40,
         )
+    with pytest.raises(ValueError, match="since cannot be combined"):
+        store.prepared_unclustered(
+            limit=100,
+            since="2025-09-01",
+            topology_label_set_id="00000000-0000-4000-8000-000000000001",
+            multi_episode_percent=40,
+        )
+
+
+def test_prepared_unclustered_selects_exact_golden_batch():
+    db = ReadDb([{"id": "entry-1", "agency": "fema"}])
+
+    rows = Store(db).prepared_unclustered(golden_batch=7)
+
+    assert rows[0]["agency"] == "fema"
+    assert "golden_news_entries" in db.sql
+    assert "golden.review_status in ('pending', 'proposed')" in db.sql
+    assert db.params["batch"] == 7
+
+
+def test_prepared_unclustered_golden_batch_rejects_other_filters():
+    store = Store(ReadDb([]))
+
+    with pytest.raises(ValueError, match="cannot be combined"):
+        store.prepared_unclustered(golden_batch=1, limit=50)
+
+
+def test_prepared_unclustered_applies_inclusive_since():
+    db = ReadDb([])
+
+    Store(db).prepared_unclustered(since="2025-09-01")
+
+    assert "ne.published_at >= %(since)s" in db.sql
+    assert db.params["since"] == "2025-09-01"

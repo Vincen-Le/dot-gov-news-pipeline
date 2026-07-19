@@ -112,6 +112,9 @@ pnpm ops lab storylines --min-episodes 2
 
 See the [clustering lab guide](docs/operations/clustering-lab.md) and the
 [runbook's backfill section](docs/infrastructure/runbook.md#news-corpus-backfill-artifacts-and-content).
+The [golden news curation guide](docs/operations/golden-news-curation.md)
+covers the chronological July-August human-review loop and September-forward
+anchored experiments.
 
 ## Dependency management
 

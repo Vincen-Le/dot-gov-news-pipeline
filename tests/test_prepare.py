@@ -171,3 +171,21 @@ def test_prepare_clamps_enriched_text_over_db_bound_before_embed_and_store():
     assert len(feat["enriched_text"]) <= 16384
     assert len(models.embed_texts[0]) <= 16384
     assert models.embed_texts[0] == feat["enriched_text"]
+
+
+class PunctuationModels(PrepModels):
+    def enrich(self, title, summary):
+        return "!" * 256
+
+
+def test_prepare_rejects_punctuation_only_enrichment_before_embedding():
+    store = PrepFakeStore([row(1, enriched_text="!" * 256)])
+    models = PunctuationModels()
+
+    report = prepare(store, models, CFG)
+
+    assert report == {"prepared": 1, "failed": 0}
+    assert store.features["n1"]["enriched_text"] is None
+    assert models.embed_texts == [
+        "FDA Recalls Valsatrex Lot 1. Sundexo Pharmaceuticals recall."
+    ]

@@ -428,6 +428,24 @@ thead th {
   letter-spacing: 0.09em;
   font-weight: 600;
 }
+.storyline-group-row th {
+  padding-top: 1.2rem;
+  padding-bottom: 0.55rem;
+  border-top: 2px solid var(--text);
+  white-space: normal;
+}
+.storyline-group-row span {
+  margin-right: 0.65rem;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+.storyline-group-row strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
 tbody th {
   font-weight: 550;
 }

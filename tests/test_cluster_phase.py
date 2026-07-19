@@ -16,15 +16,20 @@ class ClusterFakeStore(FakeStore):
     """FakeStore + the reads cluster() needs beyond the engine surface."""
 
     def prepared_unclustered(
-        self, limit=None, until=None, per_agency=None,
+        self, limit=None, since=None, until=None, per_agency=None,
         topology_label_set_id=None, multi_episode_percent=None,
         multi_entry_single_episode_percent=0.0, topology_seed="default",
+        golden_batch=None,
     ):
         if topology_label_set_id is not None:
             raise AssertionError("topology curation is covered by Store tests")
+        if golden_batch is not None:
+            raise AssertionError("golden selection is covered by Store tests")
         rows = sorted(
             (e for e in self.entries.values() if e["embedding"] is not None),
             key=lambda e: e["published_at"])
+        if since:
+            rows = [r for r in rows if r["published_at"] >= since]
         if until:
             rows = [r for r in rows if r["published_at"] <= until]
         if per_agency is not None:

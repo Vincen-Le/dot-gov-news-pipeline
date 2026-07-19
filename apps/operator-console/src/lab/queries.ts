@@ -110,6 +110,7 @@ export class LabQueries {
     agency?: string;
     category?: string;
     entity?: string;
+    groupBy?: "category" | "theme";
     limit?: number;
     minEpisodes?: number;
     offset?: number;
@@ -133,9 +134,17 @@ export class LabQueries {
         ${filter.theme === undefined ? sql`` : sql`and s.theme_id = ${filter.theme}`}
         ${filter.category === undefined ? sql`` : sql`and tt.category_id = ${filter.category}`}
       ${
-        filter.sort === "episodes"
-          ? sql`order by s.episode_count desc, s.newest_entry_at desc`
-          : sql`order by s.newest_entry_at desc, s.entry_count desc`
+        filter.groupBy === "theme"
+          ? filter.sort === "episodes"
+            ? sql`order by tt.display_name asc nulls last, s.episode_count desc, s.newest_entry_at desc, s.id`
+            : sql`order by tt.display_name asc nulls last, s.newest_entry_at desc, s.entry_count desc, s.id`
+          : filter.groupBy === "category"
+            ? filter.sort === "episodes"
+              ? sql`order by tc.display_name asc nulls last, s.episode_count desc, s.newest_entry_at desc, s.id`
+              : sql`order by tc.display_name asc nulls last, s.newest_entry_at desc, s.entry_count desc, s.id`
+            : filter.sort === "episodes"
+              ? sql`order by s.episode_count desc, s.newest_entry_at desc, s.id`
+              : sql`order by s.newest_entry_at desc, s.entry_count desc, s.id`
       }
       limit ${Math.min(filter.limit ?? 50, 500)}
       offset ${Math.max(filter.offset ?? 0, 0)}

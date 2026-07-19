@@ -60,6 +60,8 @@ def _validate_topology_curation_arguments(
         parser.error("--topology-label-set requires --multi-episode-percent")
     if args.per_agency is not None:
         parser.error("--topology-label-set cannot be combined with --per-agency")
+    if args.since is not None:
+        parser.error("--topology-label-set cannot be combined with --since")
 
 
 def main() -> None:
@@ -84,7 +86,8 @@ def main() -> None:
     p.add_argument("--limit", type=int)
     p.add_argument("--per-agency", type=int, dest="per_agency",
                    help="cap replayed entries per agency (balanced sampling)")
-    p.add_argument("--until")
+    p.add_argument("--since", help="inclusive replay lower bound")
+    p.add_argument("--until", help="inclusive replay upper bound")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
     _add_topology_curation_arguments(p)
@@ -106,12 +109,31 @@ def main() -> None:
     group.add_argument("--clusters", action="store_true")
     group.add_argument("--features", action="store_true")
 
+    p = sub.add_parser(
+        "golden", help="initialize and curate the chronological July-August anchor")
+    p.add_argument(
+        "action", choices=["init", "status", "show", "run", "approve",
+                           "apply", "preview", "validate", "export",
+                           "repair-features"])
+    p.add_argument("--batch", type=int, help="chronological curation batch number")
+    p.add_argument("--start", help="inclusive anchor start (init only)")
+    p.add_argument("--before", help="exclusive anchor end (init only)")
+    p.add_argument("--batch-size", type=int, default=50, dest="batch_size")
+    p.add_argument("--path", default="docs/eval/golden-news-entries.jsonl")
+    p.add_argument("--complete", action="store_true",
+                   help="validation requires every anchor row reviewed")
+    p.add_argument("--stub", action="store_true")
+    p.add_argument("--no-cache", action="store_true")
+
     p = sub.add_parser("experiment", help="reset + cluster + report, one command")
     p.add_argument("name")
     p.add_argument("--limit", type=int)
     p.add_argument("--per-agency", type=int, dest="per_agency",
                    help="cap replayed entries per agency (balanced sampling)")
-    p.add_argument("--until")
+    p.add_argument("--since", help="inclusive replay lower bound")
+    p.add_argument("--until", help="inclusive replay upper bound")
+    p.add_argument("--use-golden", action="store_true",
+                   help="materialize reviewed gold before replay; defaults since to Sep 1")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
     p.add_argument("--out", default="docs/eval")
@@ -120,6 +142,9 @@ def main() -> None:
     args = parser.parse_args()
     if args.command in ("cluster", "experiment"):
         _validate_topology_curation_arguments(args, parser)
+    if args.command == "experiment" and args.use_golden:
+        if args.per_agency is not None or args.topology_label_set is not None:
+            parser.error("--use-golden cannot be combined with per-agency/topology sampling")
     cfg = load_config()
     db = Db(cfg.database_url)
     store = Store(db)
@@ -146,7 +171,8 @@ def main() -> None:
     elif args.command == "cluster":
         from pipeline.runner import cluster
         out = cluster(store, _models(cfg, args.stub, args.no_cache), cfg,
-                      limit=args.limit, until=_until(args.until),
+                      limit=args.limit, since=_until(args.since),
+                      until=_until(args.until),
                       per_agency=args.per_agency,
                       topology_label_set_id=args.topology_label_set,
                       multi_episode_percent=args.multi_episode_percent,
@@ -179,10 +205,42 @@ def main() -> None:
         from pipeline.bench import reset_clusters, reset_features
         (reset_features if args.features else reset_clusters)(db)
         out = {"reset": "features" if args.features else "clusters"}
+    elif args.command == "golden":
+        from pipeline import golden
+        if args.action in ("show", "run", "approve") and args.batch is None:
+            parser.error(f"--batch is required for golden {args.action}")
+        if args.action == "init":
+            out = golden.initialize(
+                db,
+                start=_until(args.start) or golden.GOLDEN_START,
+                before=_until(args.before) or golden.GOLDEN_BEFORE,
+                batch_size=args.batch_size,
+            )
+        elif args.action == "status":
+            out = golden.status(db)
+        elif args.action == "show":
+            out = golden.show_batch(db, args.batch)
+        elif args.action == "run":
+            out = golden.run_batch(
+                db, store, _models(cfg, args.stub, args.no_cache), cfg, args.batch)
+        elif args.action == "approve":
+            out = golden.approve_batch(db, args.batch)
+        elif args.action == "apply":
+            out = golden.apply_reviewed(db, cfg)
+        elif args.action == "preview":
+            out = golden.apply_reviewed(db, cfg, include_proposed=True)
+        elif args.action == "validate":
+            out = golden.validate(db, complete=args.complete)
+        elif args.action == "repair-features":
+            out = golden.clear_invalid_features(db, args.batch)
+        else:
+            out = golden.export_jsonl(db, args.path)
     elif args.command == "experiment":
         from pipeline.experiment import run_experiment
+        since = _until(args.since)
         out = run_experiment(db, store, _models(cfg, args.stub, args.no_cache), cfg,
-                             args.name, limit=args.limit, until=_until(args.until),
+                             args.name, limit=args.limit, since=since,
+                             until=_until(args.until), use_golden=args.use_golden,
                              out_dir=args.out, per_agency=args.per_agency,
                              topology_label_set_id=args.topology_label_set,
                              multi_episode_percent=args.multi_episode_percent,
