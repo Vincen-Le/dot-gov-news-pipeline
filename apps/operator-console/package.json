@@ -7,7 +7,7 @@
     "build": "vite build",
     "docs:generate": "tsx src/generate-cheatsheet.ts",
     "ops": "tsx src/cli.ts",
-    "setup": "tsx src/setup.ts",
+    "deploy": "tsx src/setup.ts",
     "test": "vitest run",
     "typecheck": "tsc --project tsconfig.json"
   },

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { spawn } from "node:child_process";
+import { resolve } from "node:path";
 import { Command } from "commander";
 
 import { OperatorApiClient, OperatorApiError } from "./api-client";
@@ -607,6 +609,36 @@ program
     }),
   )
   .helpGroup("Meta:");
+
+program
+  .command("deploy")
+  .description(
+    "Deploy the read-only Operator API to Cloudflare and configure .env",
+  )
+  .helpGroup("Meta:")
+  .allowUnknownOption()
+  .argument(
+    "[args...]",
+    "flags forwarded to the deploy script (--dry-run, --rotate-token, --yes)",
+  )
+  .action((args: string[]) =>
+    runAction(
+      () =>
+        new Promise<void>((resolveRun, rejectRun) => {
+          const child = spawn("npx", ["tsx", "src/setup.ts", ...args], {
+            cwd: resolve(repositoryRoot, "apps/operator-console"),
+            env: process.env,
+            stdio: "inherit",
+          });
+          child.once("error", rejectRun);
+          child.once("close", (code) => {
+            if (code === 0) resolveRun();
+            else
+              rejectRun(new Error(`deploy exited with code ${String(code)}`));
+          });
+        }),
+    ),
+  );
 
 program.addHelpText("beforeAll", "start here: pnpm ops onboard\n");
 
