@@ -4,7 +4,6 @@ import { Command } from "commander";
 import { OperatorApiClient, OperatorApiError } from "./api-client";
 import {
   loadOperatorConfig,
-  loadPipelineRegistry,
   repositoryRoot,
   requireOperatorConfig,
 } from "./config";
@@ -18,10 +17,10 @@ import {
 import { ExperimentHarness, defaultSpawner } from "./lab/harness";
 import { snapshotLabMetrics } from "./lab/metrics";
 import { LabQueries } from "./lab/queries";
-import { defaultProvisioner, setupPipeline } from "./lab/setup";
 import { defaultDoctorDeps, runDoctor } from "./onboarding/checks";
 import { defaultEnvInitDeps, envInit } from "./onboarding/env-init";
 import { defaultOnboardDeps, onboard } from "./onboarding/onboard";
+import { defaultSetupLocalDeps, setupLocal } from "./onboarding/setup-local";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
 import { operatorRecipes } from "./recipes";
 import { sanitizedDsn, startDashboard } from "./server";
@@ -178,6 +177,49 @@ program
         fresh: options.fresh,
       });
     }),
+  );
+
+program
+  .command("setup")
+  .description(
+    "Prepare local databases for every pipeline: stack, migrations, corpus, registry",
+  )
+  .option(
+    "--fresh",
+    "wipe and rebuild the local database (asks for confirmation)",
+  )
+  .option("--yes", "skip the --fresh confirmation prompt")
+  .option("--dry-run", "print the step plan without changing anything")
+  .option("--json", "print the pipeline report as JSON")
+  .action(
+    (
+      options: JsonOption & {
+        dryRun?: boolean;
+        fresh?: boolean;
+        yes?: boolean;
+      },
+    ) =>
+      runAction(async () => {
+        const report = await setupLocal(defaultSetupLocalDeps(), {
+          dryRun: options.dryRun,
+          fresh: options.fresh,
+          yes: options.yes,
+        });
+        if (options.json) {
+          printJson(report);
+        } else if (report.pipelines.length > 0) {
+          printRows(
+            report.pipelines.map((result) => ({
+              database: result.database,
+              engine: result.engine,
+              entries: result.entries ?? "—",
+              name: result.name,
+              status: result.status,
+            })),
+          );
+        }
+        if (!report.ok) process.exitCode = 1;
+      }),
   );
 
 const inventory = program
@@ -488,7 +530,9 @@ program
         port: Number(options.port),
       });
       process.stdout.write(`Operator dashboard: ${dashboard.url}\n`);
-      process.stdout.write(`Lab database: ${sanitizedDsn(config.databaseUrl)}\n`);
+      process.stdout.write(
+        `Lab database: ${sanitizedDsn(config.databaseUrl)}\n`,
+      );
       await new Promise<void>((resolve) => {
         process.once("SIGINT", resolve);
         process.once("SIGTERM", resolve);
@@ -561,50 +605,11 @@ const lab = program
 
 lab
   .command("setup")
-  .description(
-    "Provision or verify every config/pipelines.json pipeline's database",
-  )
-  .option("--registry <path>", "override the registry path (testing)")
-  .option("--json", "print JSON only")
-  .action((options: JsonOption & { registry?: string }) =>
-    runAction(async () => {
-      const registry = loadPipelineRegistry(options.registry);
-      if (registry === null) {
-        process.stdout.write(
-          "No config/pipelines.json registry found; nothing to set up.\n",
-        );
-        return;
-      }
-      const results = [];
-      for (const entry of registry.pipelines) {
-        process.stderr.write(
-          `Checking pipeline "${entry.name}" (${entry.engine})...\n`,
-        );
-        results.push(
-          await setupPipeline(entry, {
-            connect: createLabDb,
-            provision: defaultProvisioner(repositoryRoot),
-          }),
-        );
-      }
-      if (options.json) {
-        printJson(results);
-      } else {
-        printRows(
-          results.map((result) => ({
-            database: result.database,
-            engine: result.engine,
-            entries: result.entries ?? "—",
-            name: result.name,
-            status: result.status,
-          })),
-        );
-      }
-      if (results.some((result) => result.status.startsWith("broken"))) {
-        process.exitCode = 1;
-      }
-    }),
-  );
+  .description("(moved) use: pnpm ops setup")
+  .action(() => {
+    process.stderr.write("moved: pnpm ops setup\n");
+    process.exitCode = 2;
+  });
 
 lab
   .command("corpus")
