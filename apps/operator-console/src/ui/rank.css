@@ -1,0 +1,119 @@
+/* RankingPage styles — separate file so the shared styles.css (actively
+   edited by other workstreams) stays untouched. */
+
+.rank-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.rank-metrics-strip {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-bottom: 0.75rem;
+}
+
+.rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.rank-table th,
+.rank-table td {
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.rank-headline small {
+  display: block;
+  opacity: 0.7;
+  max-width: 32rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-term-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rank-term-bar {
+  display: inline-flex;
+  height: 10px;
+  width: 120px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.rank-term-bar .term-rubric {
+  background: #6366f1;
+}
+
+.rank-term-bar .term-agency {
+  background: #22c55e;
+}
+
+.rank-term-bar .term-feed {
+  background: #eab308;
+}
+
+.rank-term-bar .term-source {
+  background: #f97316;
+}
+
+.rank-judged {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.rank-prior {
+  opacity: 0.6;
+}
+
+.rank-chip {
+  display: inline-block;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  margin: 0 0.15rem 0.15rem 0;
+  font-size: 0.7rem;
+}
+
+.rank-audit-flag {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0 0.25rem;
+}
+
+.rank-delta {
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-audit-detail {
+  border-left: 2px solid #ef4444;
+  margin-top: 0.4rem;
+  padding-left: 0.5rem;
+  font-size: 0.8rem;
+  max-width: 24rem;
+  white-space: normal;
+}
+
+.rank-audit-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.rank-labeled {
+  color: #22c55e;
+}

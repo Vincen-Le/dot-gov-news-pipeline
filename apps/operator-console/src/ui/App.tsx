@@ -8,6 +8,7 @@ import { InventoryPage } from "./pages/InventoryPage";
 import { LabPage } from "./pages/LabPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { StorylineDetailPage } from "./pages/StorylineDetailPage";
+import { RankingPage } from "./pages/RankingPage";
 import { StorylinesPage } from "./pages/StorylinesPage";
 import { SystemPage } from "./pages/SystemPage";
 
@@ -17,6 +18,7 @@ const navigation = [
   ["/discovery", "Discovery"],
   ["/feeds", "Feeds"],
   ["/storylines", "Storylines"],
+  ["/ranking", "Ranking"],
   ["/events", "Events"],
   ["/system", "System"],
   ["/lab", "Lab"],
@@ -174,6 +176,7 @@ export function App() {
           />
           <Route element={<StorylinesPage />} path="/storylines" />
           <Route element={<StorylineDetailPage />} path="/storylines/:id" />
+          <Route element={<RankingPage />} path="/ranking" />
           <Route element={<EventsPage />} path="/events" />
           <Route element={<SystemPage />} path="/system" />
           <Route element={<LabPage />} path="/lab" />
