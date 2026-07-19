@@ -183,16 +183,22 @@ def _labeled_rows(db, *, batch_number: int | None = None,
 
 def _required_label_errors(rows: Iterable[dict]) -> list[str]:
     errors: list[str] = []
+    # theme is optional (cannot exist before enough storylines accumulate)
+    # but must be labeled as a pair — id and name together or not at all
     required = (
         "gold_episode_id", "gold_episode_label",
         "gold_storyline_id", "gold_storyline_label",
-        "gold_theme_id", "gold_theme_name", "gold_category_id",
+        "gold_category_id",
     )
     for row in rows:
         missing = [field for field in required if row.get(field) is None]
         if missing:
             errors.append(
                 f"entry {row['news_entry_id']} is missing {', '.join(missing)}")
+        if (row.get("gold_theme_id") is None) != (row.get("gold_theme_name") is None):
+            errors.append(
+                f"entry {row['news_entry_id']} must set gold_theme_id and "
+                "gold_theme_name together")
         if row.get("content_hash") != row.get("content_hash_at_review"):
             errors.append(f"entry {row['news_entry_id']} content hash changed")
         if row.get("agency") is None:
@@ -416,6 +422,85 @@ def capture_batch(db, batch_number: int) -> dict:
         "missing_themes": sum(row["gold_theme_id"] is None for row in proposals),
         "missing_categories": sum(row["gold_category_id"] is None for row in proposals),
     }
+
+
+def promote_clustered(db) -> dict:
+    """Slice-based promotion: freeze the current QAed cluster image as gold.
+
+    Batches (fixed 50-entry windows) do not align with replay slices, so this
+    labels every anchor entry that is currently clustered — regardless of
+    batch — and marks it reviewed. Category comes from the storyline (the
+    surface the reviewer QAs); theme stays null until the theme layer has
+    enough storylines to mint one. Call only after human review of the live
+    cluster tables.
+    """
+    _require_local(db)
+    proposals = db.all(
+        """
+        select g.news_entry_id, ne.episode_id as gold_episode_id,
+               ep.storyline_id as gold_storyline_id,
+               s.theme_id as gold_theme_id,
+               tt.display_name as gold_theme_name,
+               case when tc.origin = 'seed' then s.category_id end
+                   as gold_category_id,
+               coalesce(ee.is_syndicated, false) as is_syndicated,
+               left(coalesce(
+                   (select c.headline from public.event_cards c
+                    where c.episode_id = ep.id and c.kind = 'episode'
+                    order by c.version desc limit 1),
+                   ne.title, '(untitled episode)'), 512) as gold_episode_label,
+               left(coalesce(
+                   (select c.headline from public.event_cards c
+                    where c.storyline_id = s.id and c.kind = 'overview'
+                    order by c.version desc limit 1),
+                   ne.title, '(untitled storyline)'), 512) as gold_storyline_label
+        from public.golden_news_entries g
+        join public.news_entries ne on ne.id = g.news_entry_id
+        join public.episodes ep on ep.id = ne.episode_id
+        join public.storylines s on s.id = ep.storyline_id
+        left join public.topic_themes tt on tt.id = s.theme_id
+        left join public.topic_categories tc on tc.id = s.category_id
+        left join public.episode_entries ee
+          on ee.episode_id = ne.episode_id and ee.entry_id = ne.id
+        where g.review_status <> 'reviewed'
+        order by g.ordinal
+        """)
+    if not proposals:
+        return {"promoted": 0, "remaining_unreviewed": status(db)["pending"]}
+    unseeded = [str(row["news_entry_id"]) for row in proposals
+                if row["gold_category_id"] is None]
+    if unseeded:
+        raise GoldenValidationError(
+            "storyline category missing or not a seeded category for entries: "
+            + ", ".join(unseeded[:5]))
+
+    with db.conn.transaction():
+        for row in proposals:
+            db.conn.execute(
+                """
+                update public.golden_news_entries set
+                    review_status = 'reviewed',
+                    gold_episode_id = %(gold_episode_id)s,
+                    gold_episode_label = %(gold_episode_label)s,
+                    gold_storyline_id = %(gold_storyline_id)s,
+                    gold_storyline_label = %(gold_storyline_label)s,
+                    gold_theme_id = %(gold_theme_id)s,
+                    gold_theme_name = %(gold_theme_name)s,
+                    gold_category_id = %(gold_category_id)s,
+                    is_syndicated = %(is_syndicated)s,
+                    proposed_at = now(), reviewed_at = now(), updated_at = now()
+                where news_entry_id = %(news_entry_id)s
+                """,
+                row,
+            )
+        # validate inside the transaction so a bad promotion rolls back whole
+        all_rows = _labeled_rows(db, reviewed_only=True)
+        errors = _required_label_errors(all_rows) + _one_parent_errors(all_rows)
+        if errors:
+            raise GoldenValidationError("; ".join(errors[:20]))
+    return {"promoted": len(proposals),
+            "themes_labeled": sum(r["gold_theme_id"] is not None for r in proposals),
+            "remaining_unreviewed": status(db)["total"] - status(db)["reviewed"]}
 
 
 def approve_batch(db, batch_number: int) -> dict:

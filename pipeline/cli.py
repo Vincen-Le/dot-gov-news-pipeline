@@ -113,8 +113,8 @@ def main() -> None:
         "golden", help="initialize and curate the chronological July-August anchor")
     p.add_argument(
         "action", choices=["init", "status", "show", "run", "approve",
-                           "apply", "preview", "validate", "export",
-                           "repair-features"])
+                           "promote", "apply", "preview", "validate",
+                           "export", "repair-features"])
     p.add_argument("--batch", type=int, help="chronological curation batch number")
     p.add_argument("--start", help="inclusive anchor start (init only)")
     p.add_argument("--before", help="exclusive anchor end (init only)")
@@ -225,6 +225,8 @@ def main() -> None:
                 db, store, _models(cfg, args.stub, args.no_cache), cfg, args.batch)
         elif args.action == "approve":
             out = golden.approve_batch(db, args.batch)
+        elif args.action == "promote":
+            out = golden.promote_clustered(db)
         elif args.action == "apply":
             out = golden.apply_reviewed(db, cfg)
         elif args.action == "preview":
