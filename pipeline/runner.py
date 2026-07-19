@@ -138,6 +138,12 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
 
     storyline_engine = StorylineEngine(replay, models, cfg)
     card_engine = CardEngine(replay, models, cfg)
+    if rows:
+        # corpus dim (e.g. 1024 for real bge-m3 embeddings) guards
+        # _regenerate_overview against writing a mismatched-dim vector into
+        # storylines.centroid when models is a --stub run over a db seeded
+        # with real embeddings.
+        card_engine.corpus_dim = len(unpack_fp16(rows[0]["embedding"]))
     episode_engine = EpisodeEngine(replay, models, cfg, storyline_engine.resolve)
     theme_engine = ThemeEngine(replay, models, cfg) if cfg.topics_enabled else None
     category_engine = (CategoryEngine(replay, models, cfg)

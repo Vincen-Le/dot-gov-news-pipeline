@@ -213,8 +213,16 @@ def test_cluster_categorizes_storylines_and_final_sweep_promotes():
     store = SweepClusterFakeStore()
     store.categories["c-health"] = {
         "id": "c-health", "display_name": "Public Health", "origin": "seed"}
+    # entries carry StubModels-dim (256) embeddings here, not the shared
+    # 8-dim vec() helper: CardEngine's corpus-dim guard (regression test in
+    # test_cards.py) would otherwise treat this fixture's dim mismatch vs.
+    # StubModels.embed() as a real corrupted-centroid case and skip writing
+    # storylines.centroid, which promotion's cosine clustering needs.
     for i, hours in enumerate((0, 26, 52, 78)):
-        add(store, i, hours, i, entities=(f"uniq{i}",))
+        v = np.zeros(256, dtype=np.float32)
+        v[i] = 1.0
+        entry = add(store, i, hours, i, entities=(f"uniq{i}",))
+        entry["embedding"] = pack_fp16(v)
     cfg = Config(
         database_url="x", cf_account_id="a", cf_api_token="t",
         topics_enabled=True, theme_promotion_min_storylines=2,

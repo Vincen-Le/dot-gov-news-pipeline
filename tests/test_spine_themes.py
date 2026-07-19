@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from pipeline.config import Config
 from pipeline.stub import StubModels
@@ -28,6 +29,39 @@ def test_average_linkage_two_groups():
 def test_no_merge_below_threshold():
     clusters = cluster_storylines([_v(1, 0), _v(0, 1)], link_sim=0.9)
     assert sorted(sorted(c) for c in clusters) == [[0], [1]]
+
+
+# Regression: a --stub run over a db with real embeddings can leave
+# storylines.centroid at mixed dimensions (see test_cards.py's mixed-dim
+# guard). Without a guard, np's pairwise cosine crashes with an opaque
+# "shapes (256,) and (1024,) not aligned" three files removed from the
+# actual cause. cluster_storylines must instead raise a clear, actionable
+# error naming the mismatched dims.
+def test_cluster_storylines_raises_clear_error_on_mixed_dimensions():
+    vecs = [np.zeros(256, dtype=np.float32), np.zeros(1024, dtype=np.float32)]
+    with pytest.raises(ValueError, match=r"256.*1024|1024.*256"):
+        cluster_storylines(vecs, link_sim=0.9)
+
+
+def test_sweep_raises_clear_error_on_mixed_dimension_centroids():
+    cfg = Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                 spine_theme_min_size=3)
+    store = FakeStore()
+    base = _v(1, 0)
+    for i in range(2):
+        sid = f"s{i}"
+        store.storylines[sid] = {
+            "id": sid, "centroid": pack_fp16(base), "theme_id": None,
+            "headline": f"FTC enforcement action {i}",
+        }
+    # third storyline's centroid was overwritten by a mismatched-dim
+    # overview embedding (the bug this guard prevents at the write site)
+    store.storylines["s2"] = {
+        "id": "s2", "centroid": pack_fp16(np.zeros(4, dtype=np.float32)),
+        "theme_id": None, "headline": "FTC enforcement action 2",
+    }
+    with pytest.raises(ValueError, match="mixed embedding dimensions"):
+        sweep(store, StubModels(), cfg)
 
 
 def test_reconcile_keeps_id_on_majority_overlap():

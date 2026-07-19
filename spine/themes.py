@@ -20,6 +20,20 @@ def cluster_storylines(vecs: list, link_sim: float) -> list[list[int]]:
     clusters = [[i] for i in range(len(vecs))]
     if len(vecs) < 2:
         return clusters
+    dims = sorted({len(v) for v in vecs})
+    if len(dims) > 1:
+        # storylines.centroid holds mixed embedding dimensions -- almost
+        # always a --stub replay run over a db that also has real
+        # (e.g. bge-m3, 1024-dim) embeddings from a prior real run. A
+        # pairwise cosine over mismatched-length vectors crashes with an
+        # opaque numpy shape error three frames down; fail here instead with
+        # actionable remediation.
+        raise ValueError(
+            f"storylines.centroid has mixed embedding dimensions {dims} -- "
+            "cannot cluster. This usually means a --stub run wrote overview "
+            "cards on top of a corpus with real embeddings. Fix by "
+            "regenerating a consistent corpus: `pipeline reset --features` "
+            "then `pipeline prepare --stub`.")
     sims = np.array([[cosine(a, b) for b in vecs] for a in vecs])
     while len(clusters) > 1:
         best, best_pair = -1.0, None

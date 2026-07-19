@@ -98,3 +98,35 @@ def test_compressor_failure_falls_back_to_deterministic_overview():
     assert overview["timeline"][0]["episode_id"] == "e1"   # deterministic cited timeline
     assert len(overview["summary"]) <= 8192
     assert overview["overview_embedding"] is not None
+
+
+# -- mixed-dimension centroid guard ---------------------------------------
+# Regression for: provisioning a db with real 1024-dim bge-m3 embeddings,
+# then running a --stub (256-dim bag-of-words) experiment corrupts
+# storylines.centroid (insert_event_card does
+# `centroid = coalesce(p_overview_embedding, centroid)`), producing
+# mixed-dimension centroids that crash spine/themes.py's pairwise cosine
+# three files away. CardEngine.corpus_dim (set by the replay driver from the
+# corpus's real embedding dimension) guards _regenerate_overview so a
+# dimension mismatch omits the embedding instead of corrupting the centroid.
+
+def test_overview_embedding_skipped_when_dim_mismatches_corpus():
+    store = CardFakeStore()
+    engine = CardEngine(store, StubModels(), CFG)  # stub embed() is 256-dim
+    engine.corpus_dim = 1024                        # corpus is real bge-m3
+    engine.on_episode_closed(episode())
+    kinds = [c["kind"] for c in store.cards]
+    assert kinds == ["episode", "overview"]         # episode close still writes both cards
+    overview = store.cards[1]
+    assert overview["overview_embedding"] is None   # mismatched vector omitted, not written
+    assert engine.skipped_overview_embeddings == 1  # skip is counted/observable
+
+
+def test_overview_embedding_passes_through_when_dim_matches_corpus():
+    store = CardFakeStore()
+    engine = CardEngine(store, StubModels(), CFG)
+    engine.corpus_dim = 256                         # matches stub embed() dim exactly
+    engine.on_episode_closed(episode())
+    overview = store.cards[1]
+    assert overview["overview_embedding"] is not None
+    assert engine.skipped_overview_embeddings == 0
