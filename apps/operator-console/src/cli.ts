@@ -19,6 +19,7 @@ import { ExperimentHarness, defaultSpawner } from "./lab/harness";
 import { snapshotLabMetrics } from "./lab/metrics";
 import { LabQueries } from "./lab/queries";
 import { defaultProvisioner, setupPipeline } from "./lab/setup";
+import { defaultDoctorDeps, runDoctor } from "./onboarding/checks";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
 import { operatorRecipes } from "./recipes";
 import { sanitizedDsn, startDashboard } from "./server";
@@ -124,6 +125,25 @@ program
       );
     }),
   );
+
+program
+  .command("doctor")
+  .description("Check local toolchain, credentials, and hosted access")
+  .option("--json", "machine-readable output")
+  .action(async (options: { json?: boolean }) => {
+    const results = await runDoctor(defaultDoctorDeps());
+    if (options.json) {
+      console.log(JSON.stringify(results, null, 2));
+    } else {
+      for (const result of results) {
+        console.log(
+          `${result.ok ? "✓" : "✗"} ${result.name} — ${result.detail}`,
+        );
+        if (!result.ok && result.fix) console.log(`    fix: ${result.fix}`);
+      }
+    }
+    if (results.some((r) => !r.ok)) process.exitCode = 1;
+  });
 
 const inventory = program
   .command("inventory")
