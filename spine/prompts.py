@@ -73,7 +73,3 @@ def link_cache_parts(entry: dict, candidates: list[dict]) -> list:
     return [entry["content_hash"],
             [(c["headline"], c["summary"], str(c["newest_entry_at"]))
              for c in candidates]]
-
-
-def _dump(obj) -> str:
-    return json.dumps(obj, sort_keys=True, default=str)

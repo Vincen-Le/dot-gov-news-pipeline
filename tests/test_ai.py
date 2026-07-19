@@ -115,3 +115,131 @@ def test_workers_ai_counts_swallowed_errors():
         ai.classify_category({"headline": "h"}, [])
     assert ai.errors["adjudicator"] == 1
     assert ai.errors["category_classifier"] == 1
+
+
+def test_link_storyline_error_fallback():
+    """link_storyline returns safe error dict when chat raises."""
+    def boom(request):
+        return httpx.Response(500, json={"success": False})
+
+    ai = WorkersAI(_cfg(), transport=_transport(boom))
+    entry = {
+        "title": "EPA announces rule",
+        "enriched_text": "The EPA announced a new rule.",
+        "published_at": "2024-01-15T10:00:00Z",
+        "entity_set": ["EPA"],
+        "content_hash": "abc123",
+    }
+    candidates = [{
+        "headline": "Earlier EPA action",
+        "summary": "Earlier action summary",
+        "newest_entry_at": "2024-01-14T10:00:00Z",
+        "gap_hours": 24,
+        "shared_entities": ["EPA"],
+        "episode_count": 3,
+    }]
+    result = ai.link_storyline(entry, candidates)
+    assert result["match"] is None
+    assert result["same_development"] is False
+    assert result["reason"].startswith("adjudicator_error")
+    assert ai.errors["link_storyline"] == 1
+
+
+def test_link_storyline_happy_path():
+    """link_storyline parses valid JSON response."""
+    def ok(request):
+        return httpx.Response(200, json={
+            "result": {"response": json.dumps(
+                {"match": 0, "same_development": True, "reason": "same matter"})},
+            "success": True,
+        })
+
+    ai = WorkersAI(_cfg(), transport=_transport(ok))
+    entry = {
+        "title": "EPA announces rule",
+        "enriched_text": "The EPA announced a new rule.",
+        "published_at": "2024-01-15T10:00:00Z",
+        "entity_set": ["EPA"],
+        "content_hash": "abc123",
+    }
+    candidates = [{
+        "headline": "Earlier EPA action",
+        "summary": "Earlier action summary",
+        "newest_entry_at": "2024-01-14T10:00:00Z",
+        "gap_hours": 24,
+        "shared_entities": ["EPA"],
+        "episode_count": 3,
+    }]
+    result = ai.link_storyline(entry, candidates)
+    assert result["match"] == 0
+    assert result["same_development"] is True
+    assert result["reason"] == "same matter"
+    assert ai.errors["link_storyline"] == 0
+
+
+def test_link_storyline_out_of_range_match():
+    """link_storyline coerces out-of-range match to None."""
+    def ok(request):
+        return httpx.Response(200, json={
+            "result": {"response": json.dumps(
+                {"match": 7, "same_development": False, "reason": "invalid"})},
+            "success": True,
+        })
+
+    ai = WorkersAI(_cfg(), transport=_transport(ok))
+    entry = {
+        "title": "EPA announces rule",
+        "enriched_text": "The EPA announced a new rule.",
+        "published_at": "2024-01-15T10:00:00Z",
+        "entity_set": ["EPA"],
+        "content_hash": "abc123",
+    }
+    candidates = [{
+        "headline": "Earlier EPA action",
+        "summary": "Earlier action summary",
+        "newest_entry_at": "2024-01-14T10:00:00Z",
+        "gap_hours": 24,
+        "shared_entities": ["EPA"],
+        "episode_count": 3,
+    }]
+    result = ai.link_storyline(entry, candidates)
+    assert result["match"] is None
+    assert ai.errors["link_storyline"] == 0
+
+
+def test_induce_theme_error_fallback():
+    """induce_theme returns safe error dict when chat raises."""
+    def boom(request):
+        return httpx.Response(500, json={"success": False})
+
+    ai = WorkersAI(_cfg(), transport=_transport(boom))
+    members = [{
+        "headline": "EPA announces rule",
+        "summary": "EPA action summary",
+    }]
+    result = ai.induce_theme(members)
+    assert result["theme"] is False
+    assert result["name"] == ""
+    assert result["reason"].startswith("adjudicator_error")
+    assert ai.errors["induce_theme"] == 1
+
+
+def test_induce_theme_happy_path():
+    """induce_theme parses valid JSON response."""
+    def ok(request):
+        return httpx.Response(200, json={
+            "result": {"response": json.dumps(
+                {"theme": True, "name": "Regulatory Actions", "reason": "clear pattern"})},
+            "success": True,
+        })
+
+    ai = WorkersAI(_cfg(), transport=_transport(ok))
+    members = [{
+        "headline": "EPA announces rule",
+        "summary": "EPA action summary",
+    }]
+    result = ai.induce_theme(members)
+    assert result["theme"] is True
+    assert result["name"] == "Regulatory Actions"
+    assert result["reason"] == "clear pattern"
+    assert ai.errors["induce_theme"] == 0
