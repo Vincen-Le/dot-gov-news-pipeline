@@ -8,7 +8,7 @@ select has_function('public', 'ingest_news_entry',
     array['uuid', 'text', 'text', 'text', 'text', 'timestamptz', 'text', 'text[]', 'text[]', 'integer'],
     'ingest_news_entry exists');
 select has_function('public', 'attach_entry_to_episode',
-    array['uuid', 'uuid', 'text', 'boolean', 'text', 'real', 'uuid', 'real', 'text', 'bytea', 'timestamptz'],
+    array['uuid', 'uuid', 'text', 'boolean', 'text', 'real', 'uuid', 'real', 'text', 'bytea', 'timestamptz', 'integer'],
     'attach_entry_to_episode exists');
 
 -- happy path: source -> entry -> episode+storyline -> attach -> card
