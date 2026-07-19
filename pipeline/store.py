@@ -285,31 +285,53 @@ class Store:
     def prepared_unclustered(self, limit: int | None = None,
                              until: "datetime | None" = None,
                              per_agency: int | None = None) -> list[dict]:
-        rows = self.db.all(
-            """
-            select id, news_source_id, title, summary, body_text, published_at,
-                   content_hash, entity_set, event_keys, embedding, agency
-            from (
+        if per_agency is None:
+            rows = self.db.all(
+                """
                 select ne.id, ne.news_source_id, ne.title, ne.summary,
-                       ne.body_text, ne.published_at, ne.content_hash,
-                       ne.entity_set, ne.event_keys, ne.embedding,
-                       nsp.publisher_key as agency,
-                       -- newest-first rank: the balanced sample keeps each
-                       -- agency's most recent entries; replay still runs asc
-                       row_number() over (
-                           partition by nsp.publisher_key
-                           order by ne.published_at desc, ne.id desc
-                       ) as agency_rank
+                       ne.body_text, ne.published_at,
+                       ne.content_hash, ne.entity_set, ne.event_keys, ne.embedding,
+                       nsp.publisher_key as agency
                 from public.news_entries ne
                 left join public.news_source_publishers nsp
                   on nsp.news_source_id = ne.news_source_id
                 where ne.embedding is not null and ne.episode_id is null
                   and ne.published_at is not null
                   and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)
-            ) ranked
-            where %(per_agency)s::integer is null or agency_rank <= %(per_agency)s
+                order by ne.published_at, ne.id
+                limit %(limit)s
+                """,
+                {"limit": limit, "until": until},
+            )
+            return _require_publisher_attribution(rows)
+        # balanced sample: walk newest -> oldest capping each agency at
+        # per_agency until limit entries are picked; replay itself runs asc
+        rows = self.db.all(
+            """
+            select id, news_source_id, title, summary, body_text, published_at,
+                   content_hash, entity_set, event_keys, embedding, agency
+            from (
+                select * from (
+                    select ne.id, ne.news_source_id, ne.title, ne.summary,
+                           ne.body_text, ne.published_at, ne.content_hash,
+                           ne.entity_set, ne.event_keys, ne.embedding,
+                           nsp.publisher_key as agency,
+                           row_number() over (
+                               partition by nsp.publisher_key
+                               order by ne.published_at desc, ne.id desc
+                           ) as agency_rank
+                    from public.news_entries ne
+                    left join public.news_source_publishers nsp
+                      on nsp.news_source_id = ne.news_source_id
+                    where ne.embedding is not null and ne.episode_id is null
+                      and ne.published_at is not null
+                      and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)
+                ) ranked
+                where agency_rank <= %(per_agency)s
+                order by published_at desc, id desc
+                limit %(limit)s
+            ) picked
             order by published_at, id
-            limit %(limit)s
             """,
             {"limit": limit, "until": until, "per_agency": per_agency},
         )

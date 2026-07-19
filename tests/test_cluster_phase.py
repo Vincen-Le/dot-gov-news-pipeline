@@ -22,12 +22,16 @@ class ClusterFakeStore(FakeStore):
         if until:
             rows = [r for r in rows if r["published_at"] <= until]
         if per_agency is not None:
-            # newest-per-agency, mirroring prepared_unclustered's desc rank
-            groups: dict[str, list] = {}
-            for r in rows:
-                groups.setdefault(r["agency"], []).append(r)
-            allowed = {id(r) for g in groups.values() for r in g[-per_agency:]}
-            rows = [r for r in rows if id(r) in allowed]
+            # mirror prepared_unclustered's balanced mode: walk newest->oldest
+            # capping each agency, stop at limit, replay order stays asc
+            picked, seen = [], {}
+            for r in reversed(rows):
+                seen[r["agency"]] = seen.get(r["agency"], 0) + 1
+                if seen[r["agency"]] <= per_agency:
+                    picked.append(r)
+                if limit and len(picked) >= limit:
+                    break
+            return sorted(picked, key=lambda e: e["published_at"])
         return rows[:limit] if limit else rows
 
     # CardEngine surface
@@ -163,3 +167,14 @@ def test_cluster_touches_entity_stats_per_entry_in_event_time():
         assert "valsatrex" in tokens
     # EMA table is no longer empty during replay
     assert store.emas.get("valsatrex", 0.0) >= 2.0
+
+
+def test_balanced_sample_takes_newest_capped_per_agency_until_limit():
+    store = ClusterFakeStore()
+    # agency defaults to "x.gov"; three entries, newest last
+    add(store, 1, hours=0, axis=0)
+    add(store, 2, hours=1, axis=1)
+    add(store, 3, hours=2, axis=2)
+    rows = store.prepared_unclustered(limit=2, per_agency=2)
+    # newest two picked (items 2 and 3), replayed in ascending time
+    assert [r["title"] for r in rows] == ["item 2", "item 3"]
