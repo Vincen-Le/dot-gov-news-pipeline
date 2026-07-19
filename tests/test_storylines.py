@@ -58,11 +58,30 @@ def storyline(**kw):
             "latest_card_id": "c1", **kw}
 
 
-def test_event_key_tier_wins_without_llm():
+def test_event_key_tier_wins_without_llm_and_records_similarity():
     store = StorylineFakeStore([storyline(event_keys=["z-2026-0143"])])
     engine = StorylineEngine(store, SayNo(), CFG)
-    sid, method, _, _, _ = engine.resolve(entry(event_keys=["z-2026-0143"]), unit(3))
+    sid, method, sim, _, _ = engine.resolve(entry(event_keys=["z-2026-0143"]), unit(0))
     assert sid == "s1" and method == "event_key"
+    assert sim is not None and sim > 0.9
+
+
+def test_event_key_join_requires_centroid_sanity_when_centroid_exists():
+    """Regression: storyline aeded190 — colliding boilerplate key 'no. 23-01'
+    glued Employment Cost Index (cosine 0.578) onto State Employment."""
+    store = StorylineFakeStore([storyline(event_keys=["no. 23-01"],
+                                          entity_set=["metropolitan"])])
+    engine = StorylineEngine(store, SayNo(), CFG)
+    e = entry(event_keys=["no. 23-01"], entity_set=["cost", "index"])
+    sid, method, _, _, _ = engine.resolve(e, unit(3))  # orthogonal content
+    assert method == "new_storyline" and sid is None
+
+
+def test_event_key_join_allowed_without_centroid():
+    store = StorylineFakeStore([storyline(event_keys=["ir-2025-106"], centroid=None)])
+    engine = StorylineEngine(store, SayNo(), CFG)
+    sid, method, sim, _, _ = engine.resolve(entry(event_keys=["ir-2025-106"]), unit(3))
+    assert (sid, method, sim) == ("s1", "event_key", None)
 
 
 def test_strong_entity_candidate_auto_joins():

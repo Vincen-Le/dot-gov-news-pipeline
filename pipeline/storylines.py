@@ -32,9 +32,16 @@ class StorylineEngine:
 
     def resolve(self, entry: dict, vec: np.ndarray
                 ) -> tuple[str | None, str, float | None, str | None, str | None]:
-        # tier 1: hard event keys — deterministic chain identity
+        # tier 1: hard event keys — deterministic chain identity, but a
+        # colliding boilerplate key must not glue unrelated content: when the
+        # chain has a centroid, demand minimal semantic sanity or fall through
+        # to the entity/adjudicator tiers (storyline aeded190 regression).
         for cand in self.store.storylines_by_event_keys(entry["event_keys"]):
-            return str(cand["id"]), "event_key", None, None, None
+            if cand.get("centroid") is None:
+                return str(cand["id"]), "event_key", None, None, None
+            sim = cosine(vec, cand["centroid"])
+            if sim >= self.cfg.storyline_sim_floor:
+                return str(cand["id"]), "event_key", sim, None, None
 
         # tier 2/3: entity candidates via GIN, EMA-down-weighted
         emas = self.store.entity_emas(entry["entity_set"])
