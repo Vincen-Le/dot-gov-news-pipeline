@@ -38,10 +38,10 @@ def test_first_storyline_spawns_theme_with_short_llm_name():
     assert store.storylines[sid]["theme_attach_method"] == "new_theme"
 
 
-def test_similar_storyline_joins_nearest_neighbor_theme_without_llm():
+def test_similar_storyline_joins_via_adjudicator():
     class NoNamerModels(StubModels):
         def name_theme(self, storyline):
-            raise AssertionError("knn join must not call the namer")
+            raise AssertionError("join must not call the namer")
 
     store = FakeStore()
     first = add_storyline(store, "FDA recalls Valsatrex", vec(0, 1))
@@ -50,31 +50,35 @@ def test_similar_storyline_joins_nearest_neighbor_theme_without_llm():
     ThemeEngine(store, NoNamerModels(), CFG).sync(second)
     assert len(store.themes) == 1
     assert store.storylines[second]["theme_id"] == store.storylines[first]["theme_id"]
-    assert store.storylines[second]["theme_attach_method"] == "knn_join"
+    assert store.storylines[second]["theme_attach_method"] == "adjudicated_join"
     assert store.storylines[second]["theme_similarity"] is not None
-    assert store.storylines[second]["theme_reason"].startswith("knn:")
+    assert store.storylines[second]["theme_reason"] == "stub: nearest candidate theme"
     theme = next(iter(store.themes.values()))
     assert theme["storyline_count"] == 2
 
 
-def test_knn_majority_vote_beats_single_nearest():
+def test_adjudicator_failure_falls_back_to_knn_majority_vote():
+    class BrokenAdjudicator(StubModels):
+        def adjudicate_theme(self, storyline, candidates):
+            raise RuntimeError("adjudicator boom")
+
     store = FakeStore()
-    engine = ThemeEngine(store, StubModels(), CFG)
-    # theme A: two members on vec(0,1); theme B: one member slightly closer
+    seed_engine = ThemeEngine(store, StubModels(), CFG)
     a1 = add_storyline(store, "IRS delays filing deadline", vec(0, 1))
-    engine.sync(a1)
+    seed_engine.sync(a1)
     a2 = add_storyline(store, "IRS extends deadline again", vec(0, 1))
-    engine.sync(a2)  # joins a1's theme via knn
+    seed_engine.sync(a2)
     theme_a = store.storylines[a1]["theme_id"]
     b1 = add_storyline(store, "Treasury sanctions update", vec(0, 1, 2))
-    store.storylines[b1]["theme_id"] = None
-    # force b1 into its own theme first (orthogonal enough not to matter here)
     b_theme = store.create_theme("Treasury sanctions", pack_fp16(vec(0, 1, 2)), None, None)
     store.assign_theme(b1, b_theme, "new_theme", None, "seed", None, None)
-    # new storyline equidistant-ish: 2 A-votes outnumber 1 B-vote
+
     new = add_storyline(store, "IRS deadline moves once more", vec(0, 1, 2))
-    engine.sync(new)
+    ThemeEngine(store, BrokenAdjudicator(), CFG).sync(new)
+    # 2 A-votes beat 1 B-vote in the storyline-knn fallback
     assert store.storylines[new]["theme_id"] == theme_a
+    assert store.storylines[new]["theme_attach_method"] == "knn_join"
+    assert "adjudicator_error" in store.storylines[new]["theme_reason"]
 
 
 def test_dissimilar_storyline_below_floor_spawns():
@@ -103,7 +107,7 @@ def test_stick_floor_keeps_assignment_without_work():
     assert store.storylines[first]["theme_attach_method"] == "new_theme"  # unchanged
 
 
-def test_drift_below_stick_floor_reassigns_via_knn():
+def test_drift_below_stick_floor_reassigns_via_adjudicator():
     store = FakeStore()
     engine = ThemeEngine(store, StubModels(), CFG)
     first = add_storyline(store, "FDA recalls Valsatrex", vec(0, 1))
@@ -145,3 +149,42 @@ def test_new_theme_gets_category_seed_match_or_llm_proposal():
     engine.sync(ssa)
     proposed = [c for c in store.categories.values() if c["origin"] == "llm"]
     assert [c["display_name"] for c in proposed] == ["General Government"]
+
+
+def test_hallucinated_theme_id_treated_as_spawn():
+    class HallucinatingModels(StubModels):
+        def adjudicate_theme(self, storyline, candidates):
+            return {"decision": "join", "theme_id": "not-a-real-theme",
+                    "new_theme_name": None, "merge_theme_ids": [],
+                    "reason": "made it up"}
+
+    store = FakeStore()
+    first = add_storyline(store, "FDA recalls Valsatrex", vec(0, 1))
+    ThemeEngine(store, StubModels(), CFG).sync(first)
+    second = add_storyline(store, "FDA recalls expand", vec(0, 1, 2))
+    ThemeEngine(store, HallucinatingModels(), CFG).sync(second)
+    assert len(store.themes) == 2
+    assert store.storylines[second]["theme_attach_method"] == "new_theme"
+
+
+def test_adjudicator_spawn_uses_provided_name_without_namer_call():
+    class SpawningModels(StubModels):
+        def adjudicate_theme(self, storyline, candidates):
+            return {"decision": "spawn", "theme_id": None,
+                    "new_theme_name": "Harvard exchange program",
+                    "merge_theme_ids": [],
+                    "reason": "different subject than candidates"}
+
+        def name_theme(self, storyline):
+            raise AssertionError("adjudicator provided the name")
+
+    store = FakeStore()
+    first = add_storyline(store, "Visa restrictions on Brazilian officials", vec(0, 1))
+    ThemeEngine(store, StubModels(), CFG).sync(first)
+    second = add_storyline(store, "Harvard exchange investigation", vec(0, 1, 2))
+    ThemeEngine(store, SpawningModels(), CFG).sync(second)
+    assert len(store.themes) == 2
+    names = {t["display_name"] for t in store.themes.values()}
+    assert "Harvard exchange program" in names
+    assert store.storylines[second]["theme_attach_method"] == "new_theme"
+    assert store.storylines[second]["theme_reason"] == "different subject than candidates"
