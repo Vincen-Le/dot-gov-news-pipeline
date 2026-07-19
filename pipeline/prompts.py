@@ -26,6 +26,97 @@ ADJUDICATOR_SYSTEM = (
     'Respond with JSON only: {"same_event": boolean, "reason": "one sentence"}'
 )
 
+# Workers AI JSON mode (response_format json_schema): each JSON-parsing call
+# constrains the model to its output contract, eliminating unescaped-quote
+# parse failures. Without a schema those failures degrade silently — the
+# adjudicator's fallback is "not the same event" (split bias), the
+# compressor's is a compressor_error fallback card.
+ADJUDICATOR_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "same_event": {"type": "boolean"},
+        "reason": {"type": "string"},
+    },
+    "required": ["same_event", "reason"],
+}
+
+RANK_AUDIT_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "prefers": {"type": "string", "enum": ["A", "B"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["prefers", "reason"],
+}
+
+CATEGORY_CLASSIFIER_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "category_id": {"type": "string"},
+        "reason": {"type": "string"},
+    },
+    "required": ["category_id", "reason"],
+}
+
+THEME_MEMBERSHIP_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "theme_id": {"type": ["string", "null"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["theme_id", "reason"],
+}
+
+THEME_PROMOTION_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "verdict": {"type": "string",
+                    "enum": ["promote", "attach_existing", "reject"]},
+        "theme_name": {"type": ["string", "null"]},
+        "inclusion_criterion": {"type": ["string", "null"]},
+        "theme_id": {"type": ["string", "null"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["verdict", "theme_name", "inclusion_criterion", "theme_id",
+                 "reason"],
+}
+
+THEME_REVIEW_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "verdict": {"type": "string", "enum": ["keep", "demote"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["verdict", "reason"],
+}
+
+COMPRESSOR_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "headline": {"type": "string"},
+        "summary": {"type": "string"},
+        "timeline": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "episode_id": {"type": "string"},
+                    "date": {"type": "string"},
+                    "text": {"type": "string"},
+                },
+                "required": ["episode_id", "date", "text"],
+            },
+        },
+        "rubric": {
+            "type": "object",
+            "properties": {c: {"type": "integer"} for c in RUBRIC_CRITERIA},
+            "required": list(RUBRIC_CRITERIA),
+        },
+        "reason": {"type": "string"},
+    },
+    "required": ["headline", "summary", "timeline", "rubric", "reason"],
+}
+
 COMPRESSOR_SYSTEM = (
     "You compress a chain of related US government news episodes into an overview card. "
     "Keep the summary to 1-2 tight sentences. "

@@ -10,6 +10,27 @@ SPINE_ENRICHER_SYSTEM = (
     "like 'officials announced changes'. Output only the sentence."
 )
 
+# Workers AI JSON mode schemas — see pipeline/prompts.py for rationale.
+LINK_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "match": {"type": ["integer", "null"]},
+        "same_development": {"type": "boolean"},
+        "reason": {"type": "string"},
+    },
+    "required": ["match", "same_development", "reason"],
+}
+
+THEME_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "theme": {"type": "boolean"},
+        "name": {"type": "string"},
+        "reason": {"type": "string"},
+    },
+    "required": ["theme", "name", "reason"],
+}
+
 LINK_SYSTEM = (
     "You link government news articles into storylines (chains of episodes "
     "about one evolving real-world matter). Given a new article and candidate "

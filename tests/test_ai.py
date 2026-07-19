@@ -259,3 +259,39 @@ def test_induce_theme_happy_path():
     assert result["name"] == "Regulatory Actions"
     assert result["reason"] == "clear pattern"
     assert ai.errors["induce_theme"] == 0
+
+
+def test_json_parsing_calls_send_json_schema_response_format():
+    """Every JSON-parsing chat call constrains the model via Workers AI JSON
+    mode; free-text calls (enrich) must not."""
+    seen = {}
+
+    def handler(request):
+        body = json.loads(request.content)
+        seen["response_format"] = body.get("response_format")
+        return httpx.Response(200, json={
+            "result": {"response": json.dumps(
+                {"same_event": False, "reason": "different",
+                 "match": None, "same_development": False,
+                 "theme": False, "name": ""})},
+            "success": True,
+        })
+
+    ai = WorkersAI(_cfg(), transport=_transport(handler))
+
+    ai.adjudicate_same_event({"title": "A", "summary": "", "entities": []},
+                             {"title": "B", "summary": "", "entities": []},
+                             context="")
+    assert seen["response_format"]["type"] == "json_schema"
+    assert seen["response_format"]["json_schema"]["required"] == [
+        "same_event", "reason"]
+
+    ai.link_storyline(
+        {"title": "A", "enriched_text": "", "published_at": "2025-07-18",
+         "entity_set": [], "content_hash": "0" * 64},
+        [])
+    assert seen["response_format"]["type"] == "json_schema"
+    assert "match" in seen["response_format"]["json_schema"]["required"]
+
+    ai.enrich("Title", "Summary")
+    assert seen["response_format"] is None

@@ -9,7 +9,14 @@ import numpy as np
 
 from pipeline.config import Config
 from pipeline.prompts import (
+    ADJUDICATOR_JSON_SCHEMA,
+    CATEGORY_CLASSIFIER_JSON_SCHEMA,
+    COMPRESSOR_JSON_SCHEMA,
+    RANK_AUDIT_JSON_SCHEMA,
     RUBRIC_CRITERIA,
+    THEME_MEMBERSHIP_JSON_SCHEMA,
+    THEME_PROMOTION_JSON_SCHEMA,
+    THEME_REVIEW_JSON_SCHEMA,
     build_adjudicator_prompt,
     build_category_classifier_prompt,
     build_compressor_prompt,
@@ -21,6 +28,10 @@ from pipeline.prompts import (
 )
 
 _TRANSPORT_ATTEMPTS = 3
+
+
+def _json_mode(schema: dict) -> dict:
+    return {"type": "json_schema", "json_schema": schema}
 
 
 def _extract_json(text: str | dict) -> dict:
@@ -58,14 +69,18 @@ class WorkersAI:
             raise RuntimeError(f"workers ai error: {body.get('errors')}")
         return body["result"]
 
-    def _chat(self, model: str, system: str, user: str) -> str:
-        result = self._run(model, {
+    def _chat(self, model: str, system: str, user: str,
+              response_format: dict | None = None) -> str:
+        payload = {
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
             "temperature": 0,
-        })
+        }
+        if response_format is not None:
+            payload["response_format"] = response_format
+        result = self._run(model, payload)
         return result["response"]
 
     def embed(self, texts: list[str]) -> list[np.ndarray]:
@@ -79,7 +94,9 @@ class WorkersAI:
     def adjudicate_same_event(self, a: dict, b: dict, context: str) -> tuple[bool, str]:
         system, user = build_adjudicator_prompt(a, b, context)
         try:
-            parsed = _extract_json(self._chat(self.cfg.adjudicator_model, system, user))
+            parsed = _extract_json(self._chat(
+                self.cfg.adjudicator_model, system, user,
+                response_format=_json_mode(ADJUDICATOR_JSON_SCHEMA)))
             return bool(parsed.get("same_event", False)), str(parsed.get("reason", ""))
         except Exception as exc:  # split-biased: any failure means "not the same event"
             self.errors["adjudicator"] += 1
@@ -87,7 +104,9 @@ class WorkersAI:
 
     def compress_overview(self, storyline_summary: dict, episode_cards: list[dict]) -> dict:
         system, user = build_compressor_prompt(storyline_summary, episode_cards)
-        parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
+        parsed = _extract_json(self._chat(
+            self.cfg.judge_model, system, user,
+            response_format=_json_mode(COMPRESSOR_JSON_SCHEMA)))
         parsed.setdefault("rubric", {})
         for criterion in RUBRIC_CRITERIA:
             parsed["rubric"].setdefault(criterion, 0)
@@ -96,7 +115,9 @@ class WorkersAI:
     def compare_rank(self, a: dict, b: dict) -> dict:
         system, user = build_rank_audit_prompt(a, b)
         try:
-            parsed = _extract_json(self._chat(self.cfg.audit_model, system, user))
+            parsed = _extract_json(self._chat(
+                self.cfg.audit_model, system, user,
+                response_format=_json_mode(RANK_AUDIT_JSON_SCHEMA)))
             prefers = str(parsed.get("prefers", "")).strip().lower()
             if prefers not in ("a", "b"):
                 return {"prefers": "invalid",
@@ -111,7 +132,9 @@ class WorkersAI:
         """Assign one seeded category; the only stream-time topic label."""
         system, user = build_category_classifier_prompt(storyline, categories)
         try:
-            parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
+            parsed = _extract_json(self._chat(
+                self.cfg.judge_model, system, user,
+                response_format=_json_mode(CATEGORY_CLASSIFIER_JSON_SCHEMA)))
             return {
                 "category_id": (str(parsed["category_id"])
                                 if parsed.get("category_id") else None),
@@ -125,7 +148,9 @@ class WorkersAI:
                               candidates: list[dict]) -> dict:
         # raises on failure by design: the stream path is none-biased and skips
         system, user = build_theme_membership_prompt(storyline, candidates)
-        parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
+        parsed = _extract_json(self._chat(
+            self.cfg.judge_model, system, user,
+            response_format=_json_mode(THEME_MEMBERSHIP_JSON_SCHEMA)))
         return {
             "theme_id": str(parsed["theme_id"]) if parsed.get("theme_id") else None,
             "reason": str(parsed.get("reason", "")),
@@ -135,7 +160,9 @@ class WorkersAI:
         # raises on failure by design: a failed verdict never births a theme
         system, user = build_theme_promotion_prompt(dossier)
         try:
-            parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
+            parsed = _extract_json(self._chat(
+                self.cfg.judge_model, system, user,
+                response_format=_json_mode(THEME_PROMOTION_JSON_SCHEMA)))
             return {
                 "verdict": str(parsed.get("verdict") or ""),
                 "theme_name": (str(parsed["theme_name"])
@@ -154,7 +181,9 @@ class WorkersAI:
         # raises on failure by design: a failed verdict never demotes
         system, user = build_theme_review_prompt(dossier)
         try:
-            parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
+            parsed = _extract_json(self._chat(
+                self.cfg.judge_model, system, user,
+                response_format=_json_mode(THEME_REVIEW_JSON_SCHEMA)))
             return {"verdict": str(parsed.get("verdict") or ""),
                     "reason": str(parsed.get("reason", ""))}
         except Exception:
@@ -162,10 +191,12 @@ class WorkersAI:
             raise
 
     def link_storyline(self, entry: dict, candidates: list[dict]) -> dict:
-        from spine.prompts import build_link_prompt
+        from spine.prompts import LINK_JSON_SCHEMA, build_link_prompt
         try:
             system, user = build_link_prompt(entry, candidates)
-            data = _extract_json(self._chat(self.cfg.adjudicator_model, system, user))
+            data = _extract_json(self._chat(
+                self.cfg.adjudicator_model, system, user,
+                response_format=_json_mode(LINK_JSON_SCHEMA)))
             match = data.get("match")
             if match is not None:
                 match = int(match)
@@ -180,10 +211,12 @@ class WorkersAI:
                     "reason": f"adjudicator_error: {exc}"[:512]}
 
     def induce_theme(self, members: list[dict]) -> dict:
-        from spine.prompts import build_theme_prompt
+        from spine.prompts import THEME_JSON_SCHEMA, build_theme_prompt
         try:
             system, user = build_theme_prompt(members)
-            data = _extract_json(self._chat(self.cfg.judge_model, system, user))
+            data = _extract_json(self._chat(
+                self.cfg.judge_model, system, user,
+                response_format=_json_mode(THEME_JSON_SCHEMA)))
             return {"theme": bool(data.get("theme")),
                     "name": str(data.get("name", "")).strip()[:120],
                     "reason": str(data.get("reason", ""))[:512]}
