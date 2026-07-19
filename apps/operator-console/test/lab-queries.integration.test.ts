@@ -122,9 +122,11 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
     const byCategory = await withFixture((queries) =>
       queries.storylines({ groupBy: "category" }),
     );
-    expect(byCategory.map((item) => item.categoryName)).toEqual([
-      "Food & Drug Safety",
-      "Test LLM Category",
+    expect(
+      byCategory.map((item) => [item.categoryName, item.headline]),
+    ).toEqual([
+      ["Food & Drug Safety", null],
+      ["Test LLM Category", "Valsatrex recall chain"],
     ]);
   });
 
@@ -244,7 +246,7 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
     );
     expect(byTheme).toHaveLength(1);
     expect(byTheme[0]!.themeName).toBe("Valsatrex recall fallout");
-    expect(byTheme[0]!.categoryName).toBe("Food & Drug Safety");
+    expect(byTheme[0]!.categoryName).toBe("Test LLM Category");
 
     const foodAndDrug = await withFixture(async (queries) => {
       const categories = await queries.topicCategories();
@@ -254,6 +256,7 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
       return queries.storylines({ category: target!.id });
     });
     expect(foodAndDrug).toHaveLength(1);
+    expect(foodAndDrug[0]!.headline).toBeNull();
 
     const unthemed = await withFixture((queries) =>
       queries.storylines({ theme: "00000000-0000-4000-8000-0000000000d2" }),
@@ -294,6 +297,7 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
       queries.storylineDetail(valsatrex!.id),
     );
     expect(detail?.themeName).toBe("Valsatrex recall fallout");
+    expect(detail?.categoryName).toBe("Test LLM Category");
     expect(detail?.themeAttachMethod).toBe("adjudicated_join");
     expect(detail?.themeSimilarity).toBeCloseTo(0.81, 2);
   });

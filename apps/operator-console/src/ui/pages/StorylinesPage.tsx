@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { z } from "zod";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -27,6 +27,19 @@ type GroupBy = "category" | "theme";
 function groupLabel(item: StorylineListItem, groupBy: GroupBy): string {
   if (groupBy === "theme") return item.themeName ?? "Unassigned theme";
   return item.categoryName ?? "Unassigned category";
+}
+
+function compareGroups(
+  left: StorylineListItem,
+  right: StorylineListItem,
+  groupBy: GroupBy,
+): number {
+  const leftLabel = groupBy === "theme" ? left.themeName : left.categoryName;
+  const rightLabel = groupBy === "theme" ? right.themeName : right.categoryName;
+  if (leftLabel === rightLabel) return 0;
+  if (leftLabel === null) return 1;
+  if (rightLabel === null) return -1;
+  return leftLabel.localeCompare(rightLabel);
 }
 
 export function StorylinesPage() {
@@ -119,6 +132,12 @@ export function StorylinesPage() {
       page,
     ],
   });
+  const orderedStorylines = useMemo(() => {
+    const items = storylines.data?.items ?? [];
+    return groupBy === ""
+      ? items
+      : [...items].sort((left, right) => compareGroups(left, right, groupBy));
+  }, [groupBy, storylines.data?.items]);
 
   if (capability.data?.status === "not_enabled") {
     return (
@@ -349,7 +368,7 @@ export function StorylinesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {storylines.data?.items.map((item, index, items) => {
+                  {orderedStorylines.map((item, index, items) => {
                     const label =
                       groupBy === "" ? null : groupLabel(item, groupBy);
                     const previousLabel =

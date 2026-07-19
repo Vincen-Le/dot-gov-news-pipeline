@@ -116,8 +116,9 @@ insert into public.complex_v1_experiment_runs
      "top_chains": [{"episodes": 2, "headline": "Valsatrex recall chain"}]}',
    2, 0, '2026-07-18T11:00:22Z');
 
--- topics fixture: one llm category (seed rows come from the migration),
--- one theme, the Valsatrex storyline assigned to it
+-- Topics fixture: one LLM category (seed rows come from the migration) and
+-- one cross-category theme attach. Valsatrex's canonical storyline category
+-- intentionally differs from its theme's category to guard grouping semantics.
 insert into public.topic_categories (id, display_name, origin, proposal_reason)
 values ('00000000-0000-4000-8000-0000000000c9', 'Test LLM Category', 'llm', 'fixture');
 
@@ -131,11 +132,23 @@ values
      '00000000-0000-4000-8000-0000000000c9', 0, null, null);
 
 update public.storylines
-set theme_id = '00000000-0000-4000-8000-0000000000d1',
+set category_id = '00000000-0000-4000-8000-0000000000c9',
+    category_method = 'classified',
+    category_reason = 'fixture category intentionally differs from theme category',
+    theme_id = '00000000-0000-4000-8000-0000000000d1',
     theme_attach_method = 'adjudicated_join',
     theme_similarity = 0.81,
     theme_reason = 'fixture join'
 where 'valsatrex' = any(entity_set);
+
+update public.storylines
+set category_id = (
+      select id from public.topic_categories
+      where display_name = 'Food & Drug Safety'
+    ),
+    category_method = 'classified',
+    category_reason = 'fixture category-only storyline'
+where 'tulsa' = any(entity_set);
 
 select public.complex_v1_capture_experiment_cluster_snapshot(
   '00000000-0000-4000-8000-0000000000a1'

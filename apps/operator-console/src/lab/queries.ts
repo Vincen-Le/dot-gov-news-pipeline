@@ -144,13 +144,13 @@ export class LabQueries {
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
       left join public.topic_themes tt on tt.id = s.theme_id
-      left join public.topic_categories tc on tc.id = tt.category_id
+      left join public.topic_categories tc on tc.id = s.category_id
       where s.merged_into is null
         ${filter.entity === undefined ? sql`` : sql`and ${filter.entity} = any(s.entity_set)`}
         ${filter.agency === undefined ? sql`` : sql`and ${filter.agency} = any(s.agency_ids)`}
         ${filter.minEpisodes === undefined ? sql`` : sql`and s.episode_count >= ${filter.minEpisodes}`}
         ${filter.theme === undefined ? sql`` : sql`and s.theme_id = ${filter.theme}`}
-        ${filter.category === undefined ? sql`` : sql`and tt.category_id = ${filter.category}`}
+        ${filter.category === undefined ? sql`` : sql`and s.category_id = ${filter.category}`}
       ${
         filter.groupBy === "theme"
           ? filter.sort === "episodes"
@@ -246,13 +246,13 @@ export class LabQueries {
       select s.id, s.entity_set, s.event_keys, s.agency_ids, s.distinct_feeds,
              s.entry_count, s.episode_count, s.first_entry_at, s.newest_entry_at,
              s.theme_id, s.theme_attach_method, s.theme_similarity, s.theme_reason,
-             tt.display_name as theme_name, tt.category_id,
+             tt.display_name as theme_name, s.category_id,
              tc.display_name as category_name,
              c.headline
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
       left join public.topic_themes tt on tt.id = s.theme_id
-      left join public.topic_categories tc on tc.id = tt.category_id
+      left join public.topic_categories tc on tc.id = s.category_id
       where s.id = ${id}
     `;
     if (storyline === undefined) return null;
