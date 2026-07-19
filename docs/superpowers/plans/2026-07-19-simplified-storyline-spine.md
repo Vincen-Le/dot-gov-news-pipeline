@@ -1412,7 +1412,7 @@ uv run python -m pipeline.cli experiment classic-baseline-500 --limit 500
 LAB_ENGINE=spine uv run python -m pipeline.cli experiment spine-baseline-500 --limit 500
 ```
 
-Expected: both reports render; both `experiment_runs` rows exist. Also verify the operator harness path: `pnpm ops lab run --name spine-lab-smoke --stub --limit 50 --set LAB_ENGINE=spine` completes with a parsed run id.
+Expected: both reports render; both `experiment_runs` rows exist. (The spine run resets the classic run's derived tables — expected; reports and `experiment_runs` history persist, which is how same-DB A/B works today. Task 8 adds a fully isolated spine bench for live side-by-side state.) Also verify the operator harness path: `pnpm ops lab run --name spine-lab-smoke --stub --limit 50 --set LAB_ENGINE=spine` completes with a parsed run id.
 
 - [ ] **Step 4: Sanity-check spine output quality signals**
 
@@ -1466,7 +1466,146 @@ git commit -m "feat: spine e2e verification, baseline A/B notes, lab engine docs
 
 ---
 
+### Task 8: Parallel bench database + second dashboard
+
+Spine evaluation must not clobber the classic engine's bench state (both engines share derived tables, and `reset_clusters` wipes them at every experiment start). Solution: a second database in the same local Supabase cluster, selected purely by `DATABASE_URL` — no engine code changes. Precedent for in-container provisioning: `scripts/test-news-source-migration.sh`.
+
+**Files:**
+- Create: `scripts/create-spine-bench.sh`
+- Modify: `docs/operations/clustering-lab.md` (extend the Task-7 "Engines" subsection)
+
+**Interfaces:**
+- Consumes: running Supabase container (`supabase_db_dot-gov-news-pipeline`), `pipeline.cli reset --clusters`, `pnpm ops dashboard --port N` (`apps/operator-console/src/cli.ts:422`), the `DATABASE_URL` resolution in `apps/operator-console/src/config.ts:60` and `pipeline/config.py`.
+- Produces: `spine_bench` database — full clone of the primary (corpus + prepared features + RPCs + grants) with derived clustering state and `experiment_runs` history wiped.
+
+- [ ] **Step 1: Write the provisioning script**
+
+```bash
+#!/usr/bin/env bash
+# scripts/create-spine-bench.sh
+# Provision a parallel bench database so spine experiments never touch the
+# classic engine's bench state. Clones corpus + prepared features (embeddings,
+# enrichment — the expensive half) from the primary bench db, truncates run
+# history, and wipes derived clustering state.
+set -euo pipefail
+
+readonly repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly database_container="${SUPABASE_DB_CONTAINER:-supabase_db_dot-gov-news-pipeline}"
+readonly bench_database="${1:-spine_bench}"
+readonly source_database="${SOURCE_DATABASE:-postgres}"
+readonly bench_url="postgresql://postgres:postgres@127.0.0.1:57422/${bench_database}"
+
+if ! docker inspect "${database_container}" >/dev/null 2>&1; then
+  echo "Local Supabase database container ${database_container} is not running." >&2
+  echo "Start it with: pnpm supabase start" >&2
+  exit 1
+fi
+
+docker exec "${database_container}" dropdb \
+  --username postgres --if-exists --force "${bench_database}"
+docker exec "${database_container}" createdb \
+  --username postgres "${bench_database}"
+
+# Full-db clone keeps corpus, features, RPCs, and grants identical. Supabase
+# system schemas restore with benign ownership noise (hence no ON_ERROR_STOP);
+# the verification below is what actually gates success.
+docker exec "${database_container}" pg_dump \
+    --username postgres --dbname "${source_database}" \
+  | docker exec -i "${database_container}" psql \
+      --username postgres --dbname "${bench_database}" --quiet \
+  >/dev/null 2>"/tmp/${bench_database}-restore.log" || true
+
+sql() {
+  docker exec "${database_container}" psql \
+    --username postgres --dbname "${bench_database}" \
+    --tuples-only --no-align --command "$1"
+}
+
+entries="$(sql 'select count(*) from public.news_entries')"
+features="$(sql 'select count(*) from public.news_entries where embedding is not null')"
+rpc="$(sql "select count(*) from pg_proc p
+            join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = 'public'
+              and p.proname = 'create_episode_with_storyline'")"
+if [[ "${entries}" -eq 0 || "${rpc}" -ne 1 ]]; then
+  echo "Clone verification failed (entries=${entries}, rpc=${rpc})." >&2
+  echo "See /tmp/${bench_database}-restore.log" >&2
+  exit 1
+fi
+
+# Cloned run history belongs to the classic engine — drop it, then wipe
+# derived clustering state (corpus + prepared features survive).
+sql 'truncate public.experiment_runs cascade' >/dev/null
+cd "${repository_root}"
+DATABASE_URL="${bench_url}" uv run python -m pipeline.cli reset --clusters
+
+echo "Bench database ready: ${bench_url}"
+echo "  entries: ${entries}  with features: ${features}"
+```
+
+Then `chmod +x scripts/create-spine-bench.sh`. (Check before finalizing: does `pipeline.cli reset --clusters` prompt or need extra flags — read the `reset` branch of `pipeline/cli.py`; `load_config` requires `CLOUDFLARE_ACCOUNT_ID`/`CLOUDFLARE_API_TOKEN` in the environment even here. If `rank_snapshots`/`rank_audit_runs` are not FK'd to `experiment_runs`, truncate them explicitly in the same statement.)
+
+- [ ] **Step 2: Run it and verify isolation**
+
+```bash
+./scripts/create-spine-bench.sh
+```
+
+Expected: "Bench database ready" with nonzero entries/features. Then verify:
+
+```bash
+export SPINE_DB='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'
+docker exec supabase_db_dot-gov-news-pipeline psql -U postgres -d spine_bench \
+  -c 'select count(*) from public.episodes'          # expect 0
+docker exec supabase_db_dot-gov-news-pipeline psql -U postgres -d postgres \
+  -c 'select count(*) from public.experiment_runs'   # classic history untouched
+```
+
+- [ ] **Step 3: Spine smoke against the new bench**
+
+```bash
+DATABASE_URL="$SPINE_DB" LAB_ENGINE=spine \
+  uv run python -m pipeline.cli experiment spine-bench-smoke --stub --limit 100
+```
+
+Expected: run completes; `experiment_runs` row exists in `spine_bench` and NOT in `postgres` (check both counts).
+
+- [ ] **Step 4: Second dashboard instance**
+
+```bash
+DATABASE_URL="$SPINE_DB" pnpm ops dashboard --port 4174
+```
+
+Expected: dashboard on `127.0.0.1:4174` shows the spine bench (lab corpus page reflects `spine_bench` counts; run history shows only spine runs) while the classic dashboard on 4173 (started without the env override) is unaffected. Lab runs from this instance inherit the DSN (`server.ts:242` passes `config.databaseUrl` through to the Python harness).
+
+- [ ] **Step 5: Document the workflow**
+
+Extend the "Engines" subsection in `docs/operations/clustering-lab.md`:
+
+```markdown
+### Parallel bench (spine)
+
+Spine evaluates in its own database so classic bench state survives:
+
+    ./scripts/create-spine-bench.sh   # clone corpus+features -> spine_bench, wipe derived state
+    export DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'
+    pnpm ops dashboard --port 4174    # classic dashboard stays on 4173
+    pnpm ops lab run --name spine-x --stub --set LAB_ENGINE=spine
+
+Re-run the script anytime to re-clone (it drops and recreates `spine_bench`;
+corpus refreshes in the primary propagate on the next clone).
+```
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add scripts/create-spine-bench.sh docs/operations/clustering-lab.md
+git commit -m "feat: parallel spine bench database provisioning + second dashboard workflow"
+```
+
+---
+
 ## Self-review notes
 
-- Spec coverage: enrichment (Task 2 prompt + existing prepare; embed-source knob in Task 1 — note: `SPINE_EMBED_SOURCE=raw` is honored by the *existing* `prepare` only through `ENRICHMENT_ENABLED=false` + `--clear-features` for v1; a dedicated raw-embed prepare path is deliberately deferred and documented in the design's out-of-scope if needed), category (Task 4 via reused CategoryEngine), decision tree (Tasks 3–4), master node incl. singletons (Task 4 birth card + CardEngine regeneration), event-card checkpoints (CardEngine reuse, Task 5), themes with retroactive merge/split (Task 6), rank_key (free via `insert_event_card`), harness hookup (Task 1, Task 7), eval (operational metrics + manual QA in Task 7; golden scorer is a follow-up gated on golden-set QA — see design out-of-scope).
+- Spec coverage: enrichment (Task 2 prompt + existing prepare; embed-source knob in Task 1 — note: `SPINE_EMBED_SOURCE=raw` is honored by the *existing* `prepare` only through `ENRICHMENT_ENABLED=false` + `--clear-features` for v1; a dedicated raw-embed prepare path is deliberately deferred and documented in the design's out-of-scope if needed), category (Task 4 via reused CategoryEngine), decision tree (Tasks 3–4), master node incl. singletons (Task 4 birth card + CardEngine regeneration), event-card checkpoints (CardEngine reuse, Task 5), themes with retroactive merge/split (Task 6), rank_key (free via `insert_event_card`), harness hookup (Task 1, Task 7), eval (operational metrics + manual QA in Task 7; golden scorer is a follow-up gated on golden-set QA — see design out-of-scope), parallel bench isolation + second dashboard (Task 8).
 - Known verify-before-trusting points are called out inline: `insert_event_card` supersession behavior, `CategoryEngine.classify` signature, `create_theme` signature post-lazy-promotion migration, `WorkersAI.errors` mechanism, operator-console script names.

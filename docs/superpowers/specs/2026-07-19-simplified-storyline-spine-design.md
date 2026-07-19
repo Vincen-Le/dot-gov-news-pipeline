@@ -118,6 +118,33 @@ with `CachedModels` memoization.
 - Both engines write the same derived tables, so `reset_clusters`, the
   dashboard, storyline QA, and rank audit all apply to spine runs unchanged.
 
+### Parallel bench isolation
+
+The classic engine's evaluation state lives in the primary bench database
+(`postgres` on the local Supabase cluster, port 57422). Spine runs in a
+**second database in the same cluster** (`spine_bench`) so the two engines'
+derived state never clobbers each other (`reset_clusters` wipes derived
+tables — same-DB coexistence is impossible).
+
+This costs zero engine code: every consumer — `pipeline.cli`, the TS lab
+harness, and the dashboard — resolves its DSN from `DATABASE_URL`
+(`apps/operator-console/src/config.ts:60` falls back to the primary), and
+`bench.assert_local_dsn` guards host, not database name. Provisioning script
+(`scripts/create-spine-bench.sh`, precedent:
+`scripts/test-news-source-migration.sh`) clones the primary via
+`pg_dump | psql` inside the Supabase container — corpus, prepared features
+(embeddings, enrichment: the expensive half), RPCs, and grants come across
+identically with no re-prepare — then truncates `experiment_runs` history
+and wipes derived clustering state.
+
+Second dashboard/CLI mounts against it with env only:
+
+```bash
+export DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'
+pnpm ops dashboard --port 4174        # classic dashboard stays on 4173
+pnpm ops lab run --name spine-x --set LAB_ENGINE=spine
+```
+
 ### Success criteria
 
 1. `pnpm ops lab run --stub --set LAB_ENGINE=spine` completes: report +
