@@ -10,6 +10,7 @@ export interface SourceProfile {
     | "cdc"
     | "cdc_solr"
     | "dated_html"
+    | "drupal_jsonapi"
     | "nps"
     | "ssa_archive"
     | "wayback"
@@ -47,6 +48,7 @@ export interface BackfillManifest {
 }
 
 export interface Candidate {
+  bodyText?: string | null;
   externalItemId: string | null;
   fetchUrl?: string;
   newsSubtype?: NewsSubtype;
@@ -70,6 +72,7 @@ export interface CandidateBatch {
 }
 
 export interface NormalizedEntry {
+  body_text: string | null;
   candidate_key: string;
   content_hash: string;
   external_item_id: string | null;

@@ -1,6 +1,6 @@
 begin;
 
-select plan(53);
+select plan(61);
 
 select is(
     (
@@ -13,13 +13,14 @@ select is(
           and pg_class.relname in (
               'news_backfill_runs',
               'news_backfill_targets',
+              'news_source_publishers',
               'news_entry_origins',
               'news_backfill_run_entries',
               'news_backfill_candidate_outcomes',
               'news_backfill_identity_conflicts'
           )
     ),
-    6,
+    7,
     'creates every backfill control and provenance table'
 );
 
@@ -34,13 +35,14 @@ select is(
           and pg_class.relname in (
               'news_backfill_runs',
               'news_backfill_targets',
+              'news_source_publishers',
               'news_entry_origins',
               'news_backfill_run_entries',
               'news_backfill_candidate_outcomes',
               'news_backfill_identity_conflicts'
           )
     ),
-    6,
+    7,
     'enables RLS on every backfill table'
 );
 
@@ -49,6 +51,11 @@ select ok(
     and not has_table_privilege(
         'authenticated',
         'public.news_backfill_targets',
+        'select'
+    )
+    and not has_table_privilege(
+        'anon',
+        'public.news_source_publishers',
         'select'
     ),
     'client roles cannot read backfill control state'
@@ -59,6 +66,11 @@ select ok(
     and has_table_privilege(
         'service_role',
         'public.news_backfill_candidate_outcomes',
+        'select'
+    )
+    and has_table_privilege(
+        'service_role',
+        'public.news_source_publishers',
         'select'
     ),
     'service role can audit backfill state'
@@ -75,6 +87,11 @@ select ok(
         'service_role',
         'public.news_entry_origins',
         'delete'
+    )
+    and not has_table_privilege(
+        'service_role',
+        'public.news_source_publishers',
+        'insert'
     ),
     'service role cannot write backfill tables directly'
 );
@@ -109,6 +126,11 @@ select ok(
         'service_role',
         'public.ingest_news_entries(uuid,jsonb)',
         'execute'
+    )
+    and has_function_privilege(
+        'service_role',
+        'public.ingest_news_entries_v2(uuid,jsonb)',
+        'execute'
     ),
     'service role can execute the backfill database functions'
 );
@@ -117,6 +139,11 @@ select ok(
     not has_function_privilege(
         'anon',
         'public.ingest_news_entries(uuid,jsonb)',
+        'execute'
+    )
+    and not has_function_privilege(
+        'anon',
+        'public.ingest_news_entries_v2(uuid,jsonb)',
         'execute'
     )
     and not has_function_privilege(
@@ -243,6 +270,31 @@ select ok(
     'creates a resumable source target'
 );
 
+select is(
+    (
+        select publisher_key
+        from public.news_source_publishers
+        where news_source_id = (select source_id from source_fixture)
+    ),
+    'example',
+    'records publisher key as the durable agency identity for the source'
+);
+
+select throws_ok(
+    $$
+        select public.ensure_news_backfill_target(
+            (select run_id from run_fixture),
+            'different-publisher',
+            'conflicting-feed',
+            (select source_id from source_fixture),
+            'syndication'
+        )
+    $$,
+    '23514',
+    'news source publisher key conflicts with its curated identity',
+    'rejects conflicting publisher identities for one curated source'
+);
+
 create temporary table first_ingest as
 select *
 from public.ingest_news_entries(
@@ -272,7 +324,11 @@ select is(
 );
 
 select is(
-    (select count(*)::integer from public.news_entries),
+    (
+        select count(*)::integer
+        from public.news_entries
+        where news_source_id = (select source_id from source_fixture)
+    ),
     1,
     'creates one canonical news entry'
 );
@@ -311,7 +367,11 @@ select is(
 );
 
 select is(
-    (select count(*)::integer from public.news_entries),
+    (
+        select count(*)::integer
+        from public.news_entries
+        where news_source_id = (select source_id from source_fixture)
+    ),
     1,
     'replay does not duplicate the canonical entry'
 );
@@ -773,6 +833,144 @@ select ok(
         'Publisher-specific date extraction is corrected.'
     ),
     'reopens a terminal target after its run is resumed'
+);
+
+create temporary table full_content_ingest as
+select *
+from public.ingest_news_entries_v2(
+    (select target_id from target_one_fixture),
+    pg_catalog.jsonb_build_array(
+        pg_catalog.jsonb_build_object(
+            'candidate_key', repeat('f', 64),
+            'url', 'https://example.gov/news/full-report',
+            'url_canonical', 'https://example.gov/news/full-report',
+            'title', 'Agency publishes a complete report',
+            'summary', repeat('s', 20000),
+            'body_text', repeat('b', 24000),
+            'published_at', '2026-06-01T12:00:00Z',
+            'fetched_at', '2026-07-18T00:00:00Z',
+            'content_hash', repeat('f', 64),
+            'external_item_id', 'full-report',
+            'news_subtype', 'release',
+            'extractor_version', 3,
+            'raw_artifact_key', 'news-backfill/test/full-report.html'
+        )
+    )
+);
+
+select is(
+    (select disposition from full_content_ingest),
+    'inserted',
+    'ingests an entry whose cleaned content exceeds the former summary bound'
+);
+
+select is(
+    (
+        select length(summary)
+        from public.news_entries
+        where url_canonical = 'https://example.gov/news/full-report'
+    ),
+    20000,
+    'preserves the publisher summary without slicing'
+);
+
+select is(
+    (
+        select length(body_text)
+        from public.news_entries
+        where url_canonical = 'https://example.gov/news/full-report'
+    ),
+    24000,
+    'stores the complete cleaned article body separately from the summary'
+);
+
+update public.news_entries
+set enriched_text = 'stale derived text',
+    enricher_version = 1,
+    embedding = decode('0000', 'hex'),
+    embedding_model = 'stale-model',
+    entity_set = array['stale-entity'],
+    event_keys = array['stale-event']
+where url_canonical = 'https://example.gov/news/full-report';
+
+create temporary table richer_content_replay as
+select *
+from public.ingest_news_entries_v2(
+    (select target_id from target_one_fixture),
+    pg_catalog.jsonb_build_array(
+        pg_catalog.jsonb_build_object(
+            'candidate_key', repeat('e', 64),
+            'url', 'https://example.gov/news/full-report',
+            'url_canonical', 'https://example.gov/news/full-report',
+            'title', 'Agency publishes a complete report',
+            'summary', repeat('s', 20000),
+            'body_text', repeat('b', 25000),
+            'published_at', '2026-06-01T12:00:00Z',
+            'fetched_at', '2026-07-18T00:30:00Z',
+            'content_hash', repeat('e', 64),
+            'external_item_id', 'full-report',
+            'news_subtype', 'release',
+            'extractor_version', 3,
+            'raw_artifact_key', 'news-backfill/test/full-report-richer.html'
+        )
+    )
+);
+
+select is(
+    (
+        select length(body_text)
+        from public.news_entries
+        where url_canonical = 'https://example.gov/news/full-report'
+    ),
+    25000,
+    'accepts a richer same-version article body without slicing'
+);
+
+select ok(
+    (
+        select enriched_text is null
+            and enricher_version is null
+            and embedding is null
+            and embedding_model is null
+            and cardinality(entity_set) = 0
+            and cardinality(event_keys) = 0
+        from public.news_entries
+        where url_canonical = 'https://example.gov/news/full-report'
+    ),
+    'invalidates cached features when stored source content improves'
+);
+
+create temporary table poorer_content_replay as
+select *
+from public.ingest_news_entries_v2(
+    (select target_id from target_one_fixture),
+    pg_catalog.jsonb_build_array(
+        pg_catalog.jsonb_build_object(
+            'candidate_key', repeat('f', 64),
+            'url', 'https://example.gov/news/full-report',
+            'url_canonical', 'https://example.gov/news/full-report',
+            'title', 'Agency publishes a complete report',
+            'summary', null,
+            'body_text', 'shorter fallback',
+            'published_at', '2026-06-01T12:00:00Z',
+            'fetched_at', '2026-07-18T01:00:00Z',
+            'content_hash', repeat('e', 64),
+            'external_item_id', 'full-report',
+            'news_subtype', 'release',
+            'extractor_version', 3,
+            'raw_artifact_key', 'news-backfill/test/full-report-short.html'
+        )
+    )
+);
+
+select is(
+    (
+        select length(body_text)
+        from public.news_entries
+        where url_canonical = 'https://example.gov/news/full-report'
+    ),
+    25000,
+    'does not replace complete content with a poorer same-version extraction'
 );
 
 select * from finish();

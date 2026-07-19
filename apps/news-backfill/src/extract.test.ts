@@ -21,6 +21,7 @@ describe("article extraction", () => {
 
     expect(extractArticleMetadata(html, "https://agency.gov/fallback")).toEqual(
       {
+        bodyText: null,
         canonicalUrl: "https://agency.gov/news/example/?utm_source=test",
         publishedAt: "2026-02-03T15:00:00.000Z",
         summary: "A useful summary.",
@@ -57,6 +58,61 @@ describe("article extraction", () => {
         windowStart: "2025-07-18T00:00:00Z",
       }),
     ).toBeNull();
+  });
+
+  it("keeps complete summaries and cleaned article text without slicing", () => {
+    const summary = `Summary ${"s".repeat(20_000)}`;
+    const bodyText = `Article ${"b".repeat(24_000)}`;
+    const normalized = normalizeCandidate({
+      artifactKey: "news-backfill/raw.html",
+      candidate: {
+        bodyText: `<article><p>${bodyText}</p></article>`,
+        externalItemId: "long-entry",
+        publishedAt: "2026-06-01T00:00:00Z",
+        rawBody: "",
+        rawContentType: "text/html",
+        sourceUrl: "https://agency.gov/feed",
+        summary: `<p>${summary}</p>`,
+        title: "Long report",
+        url: "https://agency.gov/news/long-report",
+      },
+      fetchedAt: "2026-07-18T00:00:00Z",
+      newsSubtype: "agency_news",
+      windowEnd: "2026-07-18T00:00:00Z",
+      windowStart: "2025-07-18T00:00:00Z",
+    });
+
+    expect(normalized?.summary).toBe(summary);
+    expect(normalized?.summary).toHaveLength(summary.length);
+    expect(normalized?.body_text).toBe(bodyText);
+    expect(normalized?.body_text).toHaveLength(bodyText.length);
+    expect(normalized?.extractor_version).toBe(3);
+  });
+
+  it("extracts the article body while removing government chrome and entities", () => {
+    const metadata = extractArticleMetadata(
+      `<html><head>
+        <meta name="description" content="A concise &amp; useful summary." />
+      </head><body>
+        <header class="usa-banner"><p>An official website of the United States government</p></header>
+        <nav><p>Topics and navigation</p></nav>
+        <main><article>
+          <h1>Agency report</h1>
+          <p>The agency&rsquo;s first substantive paragraph.</p>
+          <p>Second paragraph with <strong>important findings</strong>.</p>
+          <aside><p>Share this page</p></aside>
+        </article></main>
+        <footer><p>Privacy and accessibility</p></footer>
+      </body></html>`,
+      "https://agency.gov/news/report",
+    );
+
+    expect(metadata.summary).toBe("A concise & useful summary.");
+    expect(metadata.bodyText).toBe(
+      "The agency’s first substantive paragraph. Second paragraph with important findings.",
+    );
+    expect(metadata.bodyText).not.toContain("official website");
+    expect(metadata.bodyText).not.toContain("Share this page");
   });
 
   it("reads publisher-specific dates before unrelated navigation times", () => {
@@ -100,6 +156,18 @@ describe("article extraction", () => {
     );
 
     expect(metadata.publishedAt?.slice(0, 10)).toBe("2026-03-31");
+  });
+
+  it("prefers CDC's first-published date over later update metadata", () => {
+    const metadata = extractArticleMetadata(
+      `<html><head>
+        <meta property="cdc:first_published" content="April 23, 2026" />
+        <meta name="DC.date" content="2026-07-01T14:25:44Z" />
+      </head><body><h1>Public health update</h1></body></html>`,
+      "https://www.cdc.gov/media/releases/2026/public-health-update.html",
+    );
+
+    expect(metadata.publishedAt?.slice(0, 10)).toBe("2026-04-23");
   });
 
   it("reads IRS JSON dates and compact BLS archive dates", () => {

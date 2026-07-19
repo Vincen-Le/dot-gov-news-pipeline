@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 
+import { load } from "cheerio";
+
 import {
-  blocks,
   linkHref,
   metaContent,
   stripMarkup,
@@ -10,7 +11,10 @@ import {
 } from "./markup";
 import type { Candidate, NewsSubtype, NormalizedEntry } from "./types";
 
+export const EXTRACTOR_VERSION = 3;
+
 interface ArticleMetadata {
+  bodyText: string | null;
   canonicalUrl: string | null;
   publishedAt: string | null;
   summary: string | null;
@@ -19,8 +23,85 @@ interface ArticleMetadata {
 
 function cleanText(value: string | null | undefined): string | null {
   if (value === null || value === undefined) return null;
-  const cleaned = value.replace(/\s+/g, " ").trim();
+  const cleaned = stripMarkup(value).replace(/\s+/g, " ").trim();
   return cleaned === "" ? null : cleaned;
+}
+
+function articleTextFromHtml(html: string): string | null {
+  const $ = load(html);
+  $(
+    [
+      "script",
+      "style",
+      "noscript",
+      "template",
+      "svg",
+      "form",
+      "nav",
+      "header",
+      "footer",
+      "aside",
+      "dialog",
+      "[hidden]",
+      '[aria-hidden="true"]',
+      ".usa-banner",
+      ".usa-breadcrumb",
+      ".breadcrumb",
+      ".breadcrumbs",
+      ".site-header",
+      ".site-footer",
+      ".navigation",
+      ".pagination",
+      ".social-share",
+      ".share-buttons",
+      ".related-content",
+      ".cookie-banner",
+      ".feedback",
+      ".subscribe",
+      '[class*="official-website"]',
+      '[id*="official-website"]',
+    ].join(","),
+  ).remove();
+
+  const selectors = [
+    '[itemprop="articleBody"]',
+    ".field--name-body",
+    ".article-body",
+    ".article__body",
+    ".news-release-body",
+    "main article",
+    "article",
+    'main [role="main"]',
+    "main",
+    '[role="main"]',
+    "#content",
+    "body",
+  ];
+  const blockSelector = "p, li, h2, h3, h4, blockquote, pre, tr";
+  for (const selector of selectors) {
+    const values: string[] = [];
+    $(selector).each((_index, element) => {
+      const container = $(element).clone();
+      container
+        .find(
+          "nav, header, footer, aside, form, .usa-banner, .breadcrumb, .breadcrumbs, .social-share, .share-buttons, .related-content, .pagination, .feedback, .subscribe",
+        )
+        .remove();
+      const parts: string[] = [];
+      container.find(blockSelector).each((_blockIndex, block) => {
+        if ($(block).parents(blockSelector).length > 0) return;
+        const text = cleanText($(block).text());
+        if (text !== null) parts.push(text);
+      });
+      const text = cleanText(
+        parts.length > 0 ? parts.join("\n") : container.text(),
+      );
+      if (text !== null) values.push(text);
+    });
+    values.sort((left, right) => right.length - left.length);
+    if (values[0] !== undefined) return values[0];
+  }
+  return null;
 }
 
 function isoDate(value: unknown): string | null {
@@ -155,10 +236,12 @@ export function extractArticleMetadata(
     isoDate(article?.datePublished) ??
     isoDate(jsonDate) ??
     isoDate(metaContent(html, "article:published_time")) ??
+    isoDate(metaContent(html, "cdc:first_published")) ??
     isoDate(metaContent(html, "date")) ??
     isoDate(metaContent(html, "dcterms.created")) ??
     isoDate(metaContent(html, "dcterms.date")) ??
     isoDate(metaContent(html, "dc.date.created")) ??
+    isoDate(metaContent(html, "dc.date")) ??
     isoDate(metaContent(html, "datePublished")) ??
     dateFromMarkedField(html) ??
     dateFromUrl(pageUrl) ??
@@ -172,11 +255,10 @@ export function extractArticleMetadata(
   const articleBody = cleanText(
     typeof article?.articleBody === "string" ? article.articleBody : null,
   );
-  const paragraphBody = cleanText(blocks(html, "p").map(stripMarkup).join(" "));
-  const summary =
-    (articleBody ?? paragraphBody ?? description)?.slice(0, 16_384) ?? null;
+  const bodyText = articleBody ?? articleTextFromHtml(html);
+  const summary = description;
 
-  return { canonicalUrl, publishedAt, summary, title };
+  return { bodyText, canonicalUrl, publishedAt, summary, title };
 }
 
 export function canonicalizeUrl(input: string): string {
@@ -211,9 +293,8 @@ export function normalizeCandidate(input: {
   const publishedAt = isoDate(
     input.candidate.publishedAt ?? metadata?.publishedAt,
   );
-  const summary =
-    cleanText(input.candidate.summary ?? metadata?.summary)?.slice(0, 16_384) ??
-    null;
+  const summary = cleanText(input.candidate.summary ?? metadata?.summary);
+  const bodyText = cleanText(metadata?.bodyText ?? input.candidate.bodyText);
   const rawUrl = metadata?.canonicalUrl ?? input.candidate.url;
   if (title === null || publishedAt === null) return null;
   if (publishedAt < input.windowStart || publishedAt >= input.windowEnd)
@@ -227,7 +308,7 @@ export function normalizeCandidate(input: {
   }
   const contentHash = createHash("sha256")
     .update(
-      `${title.toLowerCase().replace(/\s+/g, " ")}\n${(summary ?? "").toLowerCase().replace(/\s+/g, " ")}`,
+      `${title.toLowerCase().replace(/\s+/g, " ")}\n${(summary ?? "").toLowerCase().replace(/\s+/g, " ")}\n${(bodyText ?? "").toLowerCase().replace(/\s+/g, " ")}`,
     )
     .digest("hex");
   const candidateKey = createHash("sha256")
@@ -235,10 +316,11 @@ export function normalizeCandidate(input: {
     .digest("hex");
 
   return {
+    body_text: bodyText,
     candidate_key: candidateKey,
     content_hash: contentHash,
     external_item_id: input.candidate.externalItemId,
-    extractor_version: 2,
+    extractor_version: EXTRACTOR_VERSION,
     fetched_at: input.fetchedAt,
     news_subtype: input.newsSubtype,
     published_at: publishedAt,

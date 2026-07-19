@@ -37,6 +37,38 @@ describe("publisher fetcher", () => {
     ).resolves.toMatchObject({ totalPages: 13 });
   });
 
+  it("spaces concurrent requests to the same publisher host", async () => {
+    const startedAt: number[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string | URL | Request) => {
+        startedAt.push(Date.now());
+        const response = new Response("ok", { status: 200 });
+        Object.defineProperty(response, "url", { value: String(input) });
+        return response;
+      }),
+    );
+    const fetchDocument = createFetcher({
+      minimumHostIntervalMs: 25,
+      timeoutMs: 1_000,
+      userAgent: "test",
+    });
+
+    await Promise.all([
+      fetchDocument("https://agency.gov/news/1", ["agency.gov"]),
+      fetchDocument("https://agency.gov/news/2", ["agency.gov"]),
+      fetchDocument("https://agency.gov/news/3", ["agency.gov"]),
+    ]);
+
+    expect(startedAt).toHaveLength(3);
+    expect((startedAt[1] ?? 0) - (startedAt[0] ?? 0)).toBeGreaterThanOrEqual(
+      20,
+    );
+    expect((startedAt[2] ?? 0) - (startedAt[1] ?? 0)).toBeGreaterThanOrEqual(
+      20,
+    );
+  });
+
   it("rejects successful-looking anti-bot challenge pages", async () => {
     vi.stubGlobal(
       "fetch",

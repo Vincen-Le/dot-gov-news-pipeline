@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 
 import { enumerateBatches } from "./adapters";
 import type { ArtifactStore } from "./artifact-store";
-import { extractArticleMetadata, normalizeCandidate } from "./extract";
+import {
+  EXTRACTOR_VERSION,
+  extractArticleMetadata,
+  normalizeCandidate,
+} from "./extract";
 import type { createFetcher } from "./fetcher";
 import type { BackfillRepository } from "./repository";
 import type {
@@ -33,6 +37,66 @@ function log(record: Record<string, unknown>): void {
   );
 }
 
+function cursorForLog(
+  cursor: Record<string, unknown>,
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(cursor).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? { count: value.length } : value,
+    ]),
+  );
+}
+
+export function ingestChunks(
+  entries: NormalizedEntry[],
+  maximumBytes = 750_000,
+): NormalizedEntry[][] {
+  const chunks: NormalizedEntry[][] = [];
+  let chunk: NormalizedEntry[] = [];
+  let chunkBytes = 2;
+  for (const entry of entries) {
+    const entryBytes = Buffer.byteLength(JSON.stringify(entry));
+    const separatorBytes = chunk.length === 0 ? 0 : 1;
+    if (
+      chunk.length > 0 &&
+      (chunk.length >= 50 ||
+        chunkBytes + separatorBytes + entryBytes > maximumBytes)
+    ) {
+      chunks.push(chunk);
+      chunk = [];
+      chunkBytes = 2;
+    }
+    chunk.push(entry);
+    chunkBytes += (chunk.length === 1 ? 0 : 1) + entryBytes;
+  }
+  if (chunk.length > 0) chunks.push(chunk);
+  return chunks;
+}
+
+export async function mapWithConcurrency<Input, Output>(
+  inputs: Input[],
+  concurrency: number,
+  transform: (input: Input, index: number) => Promise<Output>,
+): Promise<Output[]> {
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new Error("concurrency must be a positive integer");
+  }
+  const outputs = new Array<Output>(inputs.length);
+  let nextIndex = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, inputs.length) }, async () => {
+      while (nextIndex < inputs.length) {
+        const index = nextIndex;
+        nextIndex += 1;
+        const input = inputs[index] as Input;
+        outputs[index] = await transform(input, index);
+      }
+    }),
+  );
+  return outputs;
+}
+
 function rejectedEntry(input: {
   artifactKey: string;
   candidate: Candidate;
@@ -50,10 +114,11 @@ function rejectedEntry(input: {
     .update(`${input.candidate.externalItemId ?? ""}\n${canonical}`)
     .digest("hex");
   return {
+    body_text: null,
     candidate_key: candidateKey,
     content_hash: createHash("sha256").update(canonical).digest("hex"),
     external_item_id: input.candidate.externalItemId,
-    extractor_version: 2,
+    extractor_version: EXTRACTOR_VERSION,
     fetched_at: new Date().toISOString(),
     news_subtype: input.newsSubtype,
     published_at: input.candidate.publishedAt ?? input.windowStart,
@@ -95,7 +160,8 @@ async function normalizeOne(input: {
     (input.profile.hydrate === true ||
       input.candidate.title === null ||
       input.candidate.publishedAt === null ||
-      input.candidate.summary === null);
+      input.candidate.bodyText === null ||
+      input.candidate.bodyText === undefined);
   if (requiresHydration) {
     try {
       const article = await input.fetchDocument(
@@ -153,6 +219,13 @@ async function processSource(input: {
   let coverageReachedAt: string | null = null;
   let evidenceArtifactKey: string | null = null;
   let stopReason: string | undefined;
+  const sourceMetrics = {
+    accepted: 0,
+    candidates: 0,
+    rejected: 0,
+    summaryAtLeast200: 0,
+    summaryPresent: 0,
+  };
   try {
     if (!input.dryRun) {
       const sourceId = await repository.registerSource(profile);
@@ -196,10 +269,11 @@ async function processSource(input: {
         batch.evidenceBody,
         batch.evidenceContentType,
       );
-      const normalized: NormalizedEntry[] = [];
-      for (const candidate of batch.candidates) {
-        normalized.push(
-          await normalizeOne({
+      const normalized = await mapWithConcurrency(
+        batch.candidates,
+        8,
+        async (candidate) =>
+          normalizeOne({
             artifactStore: input.artifactStore,
             candidate,
             fetchDocument: input.fetchDocument,
@@ -208,14 +282,11 @@ async function processSource(input: {
             windowEnd: manifest.windowEnd,
             windowStart: manifest.windowStart,
           }),
-        );
-      }
+      );
 
       const dispositions: Record<string, number> = {};
       if (!input.dryRun && targetId !== null) {
-        for (let index = 0; index < normalized.length; index += 50) {
-          const chunk = normalized.slice(index, index + 50);
-          if (chunk.length === 0) continue;
+        for (const chunk of ingestChunks(normalized)) {
           const results = await repository.ingest(targetId, chunk);
           for (const result of results) {
             dispositions[result.disposition] =
@@ -229,11 +300,30 @@ async function processSource(input: {
           targetId,
         });
       }
+      const locallyAccepted = normalized.filter(
+        (entry) => entry.title.trim() !== "",
+      );
+      const batchMetrics = {
+        accepted: locallyAccepted.length,
+        rejected: normalized.length - locallyAccepted.length,
+        summaryAtLeast200: locallyAccepted.filter(
+          (entry) => (entry.summary?.length ?? 0) >= 200,
+        ).length,
+        summaryPresent: locallyAccepted.filter(
+          (entry) => (entry.summary?.trim().length ?? 0) > 0,
+        ).length,
+      };
+      sourceMetrics.candidates += batch.candidates.length;
+      sourceMetrics.accepted += batchMetrics.accepted;
+      sourceMetrics.rejected += batchMetrics.rejected;
+      sourceMetrics.summaryAtLeast200 += batchMetrics.summaryAtLeast200;
+      sourceMetrics.summaryPresent += batchMetrics.summaryPresent;
       log({
         candidates: batch.candidates.length,
-        cursor,
+        cursor: cursorForLog(cursor),
         dispositions,
         event: "source_batch_completed",
+        normalization: batchMetrics,
         publisher: publisher.publisherKey,
         source: profile.sourceKey,
       });
@@ -250,6 +340,14 @@ async function processSource(input: {
         targetId,
       });
     }
+    log({
+      event: "source_completed",
+      normalization: sourceMetrics,
+      publisher: publisher.publisherKey,
+      source: profile.sourceKey,
+      status,
+      stopReason: stopReason ?? "page_limit_reached",
+    });
     return status;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

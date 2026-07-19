@@ -8,6 +8,17 @@ from pipeline.db import Db
 from pipeline.vectors import unpack_fp16
 
 
+def _require_publisher_attribution(rows: list[dict]) -> list[dict]:
+    missing = [str(row.get("id")) for row in rows if not row.get("agency")]
+    if missing:
+        sample = ", ".join(missing[:5])
+        raise RuntimeError(
+            "publisher attribution is missing or conflicting for news entries: "
+            f"{sample}"
+        )
+    return rows
+
+
 class Store:
     """All SQL reads + RPC writes behind one seam. Tests use tests/fakes.FakeStore."""
 
@@ -82,20 +93,23 @@ class Store:
 
     # -- reads ----------------------------------------------------------
     def unprocessed_entries(self, batch: int = 500) -> list[dict]:
-        return self.db.all(
+        rows = self.db.all(
             """
-            select ne.id, ne.news_source_id, ne.url, ne.url_canonical, ne.title, ne.summary,
+            select ne.id, ne.news_source_id, ne.url, ne.url_canonical, ne.title,
+                   ne.summary, ne.body_text,
                    ne.published_at, ne.content_hash, ne.entity_set, ne.event_keys,
                    ne.enriched_text, ne.enricher_version, ne.embedding, ne.extractor_version,
-                   split_part(ns.canonical_url, '/', 3) as agency
+                   nsp.publisher_key as agency
             from public.news_entries ne
-            join public.news_sources ns on ns.id = ne.news_source_id
+            left join public.news_source_publishers nsp
+              on nsp.news_source_id = ne.news_source_id
             where ne.episode_id is null and ne.published_at is not null
             order by ne.published_at, ne.id
             limit %(batch)s
             """,
             {"batch": batch},
         )
+        return _require_publisher_attribution(rows)
 
     def content_hash_dup(self, hash_: str, t: datetime, window_hours: float) -> dict | None:
         return self.db.one(
@@ -205,8 +219,8 @@ class Store:
     def entries_needing_features(self, limit: int | None = None) -> list[dict]:
         return self.db.all(
             """
-            select id, title, summary, published_at, enriched_text, enricher_version,
-                   entity_set, event_keys
+            select id, title, summary, body_text, published_at, enriched_text,
+                   enricher_version, entity_set, event_keys
             from public.news_entries
             where embedding is null and published_at is not null
             order by published_at, id
@@ -217,13 +231,15 @@ class Store:
 
     def prepared_unclustered(self, limit: int | None = None,
                              until: "datetime | None" = None) -> list[dict]:
-        return self.db.all(
+        rows = self.db.all(
             """
-            select ne.id, ne.news_source_id, ne.title, ne.summary, ne.published_at,
+            select ne.id, ne.news_source_id, ne.title, ne.summary, ne.body_text,
+                   ne.published_at,
                    ne.content_hash, ne.entity_set, ne.event_keys, ne.embedding,
-                   split_part(ns.canonical_url, '/', 3) as agency
+                   nsp.publisher_key as agency
             from public.news_entries ne
-            join public.news_sources ns on ns.id = ne.news_source_id
+            left join public.news_source_publishers nsp
+              on nsp.news_source_id = ne.news_source_id
             where ne.embedding is not null and ne.episode_id is null
               and ne.published_at is not null
               and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)

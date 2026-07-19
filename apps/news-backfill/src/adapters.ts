@@ -75,22 +75,25 @@ function feedCandidates(document: FetchedDocument): Candidate[] {
   const rawItems = blocks(document.body, "item");
   if (rawItems.length === 0) rawItems.push(...blocks(document.body, "entry"));
   return rawItems.flatMap((item) => {
-    const url = tagText(item, ["link"]) ?? tagAttribute(item, "link", "href");
-    if (url === null) return [];
+    const rawUrl =
+      tagText(item, ["link"]) ?? tagAttribute(item, "link", "href");
+    if (rawUrl === null) return [];
+    let url: string;
+    try {
+      url = new URL(rawUrl, document.finalUrl).href;
+    } catch {
+      return [];
+    }
     const externalItemId = tagText(item, ["guid", "id"]) ?? url;
     return [
       {
+        bodyText: tagText(item, ["encoded", "content"]),
         externalItemId,
         publishedAt: tagText(item, ["pubDate", "published", "updated", "date"]),
         rawBody: document.body,
         rawContentType: document.contentType,
         sourceUrl: document.finalUrl,
-        summary: tagText(item, [
-          "description",
-          "summary",
-          "encoded",
-          "content",
-        ]),
+        summary: tagText(item, ["description", "summary"]),
         title: tagText(item, ["title"]),
         url,
       },
@@ -196,14 +199,14 @@ async function* wordpressBatches(
       const content = post.content as Record<string, unknown> | undefined;
       return [
         {
+          bodyText: textFromHtml(content?.rendered),
           externalItemId: String(post.id ?? post.link),
           publishedAt:
             typeof post.date_gmt === "string" ? `${post.date_gmt}Z` : null,
           rawBody: document.body,
           rawContentType: document.contentType,
           sourceUrl: document.finalUrl,
-          summary:
-            textFromHtml(excerpt?.rendered) ?? textFromHtml(content?.rendered),
+          summary: textFromHtml(excerpt?.rendered),
           title: textFromHtml(title?.rendered),
           url: post.link,
         },
@@ -321,7 +324,7 @@ async function* datedHtmlBatches(
         rawBody: document.body,
         rawContentType: document.contentType,
         sourceUrl: document.finalUrl,
-        summary: title,
+        summary: null,
         title,
         url: articleUrl,
       });
@@ -354,6 +357,8 @@ async function* datedHtmlBatches(
 interface SitemapRow {
   lastmod?: string;
   loc: string;
+  newsPublishedAt?: string;
+  newsTitle?: string;
 }
 
 function sitemapRows(body: string): {
@@ -364,8 +369,17 @@ function sitemapRows(body: string): {
     rows.flatMap((row) => {
       const loc = tagText(row, ["loc"]);
       if (loc === null) return [];
+      const entry: SitemapRow = { loc };
       const lastmod = tagText(row, ["lastmod"]);
-      return lastmod === null ? [{ loc }] : [{ lastmod, loc }];
+      if (lastmod !== null) entry.lastmod = lastmod;
+      const newsBlock = blocks(row, "news:news")[0];
+      if (newsBlock !== undefined) {
+        const publishedAt = tagText(newsBlock, ["publication_date"]);
+        if (publishedAt !== null) entry.newsPublishedAt = publishedAt;
+        const title = tagText(newsBlock, ["title"]);
+        if (title !== null) entry.newsTitle = title;
+      }
+      return [entry];
     });
   return {
     indexes: convert(blocks(body, "sitemap")),
@@ -441,15 +455,17 @@ async function* sitemapBatches(
       if (!includeUrl(profile, row.loc)) return [];
       const lastModified = isoDate(row.lastmod);
       if (lastModified !== null && lastModified < windowStart) return [];
+      const newsPublishedAt = isoDate(row.newsPublishedAt);
+      if (newsPublishedAt !== null && newsPublishedAt < windowStart) return [];
       return [
         {
           externalItemId: row.loc,
-          publishedAt: null,
+          publishedAt: newsPublishedAt,
           rawBody: document.body,
           rawContentType: document.contentType,
           sourceUrl: document.finalUrl,
           summary: null,
-          title: null,
+          title: row.newsTitle ?? null,
           url: row.loc,
         },
       ];
@@ -468,6 +484,93 @@ async function* sitemapBatches(
       evidenceUrl: document.finalUrl,
       stopReason: queue.length === 0 ? "source_exhausted" : undefined,
     };
+  }
+}
+
+interface DrupalJsonApiPage {
+  data?: Array<{
+    attributes?: {
+      body?: { processed?: unknown; summary?: unknown; value?: unknown };
+      created?: unknown;
+      path?: { alias?: unknown };
+      title?: unknown;
+    };
+    id?: unknown;
+  }>;
+  links?: { next?: string | { href?: unknown } };
+}
+
+function drupalNextUrl(
+  next: string | { href?: unknown } | undefined,
+): string | null {
+  if (typeof next === "string") return next;
+  return typeof next?.href === "string" ? next.href : null;
+}
+
+async function* drupalJsonApiBatches(
+  profile: SourceProfile,
+  fetchDocument: FetchDocument,
+  windowStart: string,
+  cursor: Record<string, unknown>,
+): AsyncGenerator<CandidateBatch> {
+  let pageUrl =
+    typeof cursor.nextUrl === "string" ? cursor.nextUrl : profile.sourceUrl;
+  let pages = typeof cursor.pages === "number" ? cursor.pages : 0;
+  while (pages < profile.maxPages) {
+    const document = await fetchDocument(pageUrl, profile.allowedHosts);
+    let parsed: DrupalJsonApiPage;
+    try {
+      parsed = JSON.parse(document.body) as DrupalJsonApiPage;
+    } catch {
+      throw new Error(`drupal JSON:API response is not JSON: ${pageUrl}`);
+    }
+    const nodes = Array.isArray(parsed.data) ? parsed.data : [];
+    const candidates = nodes.flatMap((node): Candidate[] => {
+      const alias = node.attributes?.path?.alias;
+      if (typeof alias !== "string" || profile.urlTemplate === undefined) {
+        return [];
+      }
+      const url = profile.urlTemplate.replace("{alias}", alias);
+      if (!includeUrl(profile, url)) return [];
+      const body = node.attributes?.body;
+      return [
+        {
+          bodyText: textFromHtml(body?.processed ?? body?.value),
+          externalItemId: typeof node.id === "string" ? node.id : url,
+          publishedAt: isoDate(node.attributes?.created),
+          rawBody: document.body,
+          rawContentType: document.contentType,
+          sourceUrl: document.finalUrl,
+          summary: textFromHtml(body?.summary),
+          title: textFromHtml(node.attributes?.title),
+          url,
+        },
+      ];
+    });
+    pages += 1;
+    const next = drupalNextUrl(parsed.links?.next);
+    const newest = candidates
+      .map((candidate) => candidate.publishedAt)
+      .filter((date): date is string => date !== null)
+      .sort()
+      .at(-1);
+    const crossedWindow = newest !== undefined && newest < windowStart;
+    const exhausted = next === null || nodes.length === 0 || crossedWindow;
+    yield {
+      candidates,
+      coverageReachedAt: crossedWindow || next === null ? windowStart : null,
+      cursor: { nextUrl: next ?? pageUrl, pages },
+      evidenceBody: document.body,
+      evidenceContentType: document.contentType,
+      evidenceUrl: document.finalUrl,
+      stopReason: exhausted
+        ? crossedWindow
+          ? "window_boundary_reached"
+          : "source_exhausted"
+        : undefined,
+    };
+    if (exhausted) return;
+    pageUrl = next;
   }
 }
 
@@ -985,12 +1088,13 @@ async function* ssaArchiveBatches(
         if (publishedAt === null || title === null) continue;
         const url = `${row.original.split("?")[0]}#${id}`;
         candidates.push({
+          bodyText: stripMarkup(body),
           externalItemId: `${year}:${id}`,
           publishedAt,
           rawBody: page.body,
           rawContentType: page.contentType,
           sourceUrl: page.finalUrl,
-          summary: stripMarkup(body).slice(0, 16_384),
+          summary: null,
           title,
           url,
         });
@@ -1093,6 +1197,9 @@ export function enumerateBatches(input: {
   }
   if (profile.adapterVariant === "cdc") {
     return cdcApiBatches(profile, fetchDocument, windowStart, cursor);
+  }
+  if (profile.adapterVariant === "drupal_jsonapi") {
+    return drupalJsonApiBatches(profile, fetchDocument, windowStart, cursor);
   }
   if (profile.adapterVariant === "cdc_solr") {
     return cdcSolrBatches(profile, fetchDocument, windowStart, windowEnd);

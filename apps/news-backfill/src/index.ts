@@ -5,16 +5,22 @@ import { setDefaultResultOrder } from "node:dns";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { ArtifactStore } from "./artifact-store";
+import {
+  DryRunArtifactStore,
+  LocalArtifactStore,
+  R2ArtifactStore,
+} from "./artifact-store";
 import { loadManifest } from "./config";
+import { EXTRACTOR_VERSION } from "./extract";
 import { createFetcher } from "./fetcher";
 import { BackfillRepository } from "./repository";
+import { backfillRunKey } from "./run-key";
 import { runBackfill } from "./runner";
 
 setDefaultResultOrder("ipv4first");
 
 interface Arguments {
-  artifactDirectory: string;
+  artifactDirectory?: string;
   dryRun: boolean;
   manifestPath: string;
   publishers: Set<string> | undefined;
@@ -22,7 +28,6 @@ interface Arguments {
 
 function parseArguments(argv: string[]): Arguments {
   const parsed: Arguments = {
-    artifactDirectory: path.resolve(import.meta.dirname, "../../../.data"),
     dryRun: false,
     manifestPath: path.resolve(
       import.meta.dirname,
@@ -55,6 +60,13 @@ function requiredEnvironment(name: string): string {
   return value;
 }
 
+function r2Endpoint(): string {
+  const configured = process.env.R2_S3_API_ENDPOINT?.trim();
+  return configured === undefined || configured === ""
+    ? `https://${requiredEnvironment("CLOUDFLARE_ACCOUNT_ID")}.r2.cloudflarestorage.com`
+    : configured;
+}
+
 async function main(): Promise<void> {
   try {
     process.loadEnvFile(path.resolve(import.meta.dirname, "../../../.env"));
@@ -67,7 +79,13 @@ async function main(): Promise<void> {
     .update(manifestBytes)
     .digest("hex");
   const manifest = await loadManifest(args.manifestPath);
-  const runKey = `${manifest.cohortId}-${manifest.windowStart.slice(0, 10)}-${manifest.windowEnd.slice(0, 10)}-${manifestSha256.slice(0, 12)}`;
+  const runKey = backfillRunKey({
+    cohortId: manifest.cohortId,
+    extractorVersion: EXTRACTOR_VERSION,
+    manifestSha256,
+    windowEnd: manifest.windowEnd,
+    windowStart: manifest.windowStart,
+  });
   const repository = new BackfillRepository({
     secretKey: requiredEnvironment("SUPABASE_SECRET_KEY"),
     supabaseUrl: requiredEnvironment("SUPABASE_URL"),
@@ -79,11 +97,18 @@ async function main(): Promise<void> {
       process.env.NEWS_BACKFILL_USER_AGENT ??
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 DotGovNewsBackfill/1.0",
   });
+  const artifactStore = args.dryRun
+    ? new DryRunArtifactStore()
+    : args.artifactDirectory === undefined
+      ? new R2ArtifactStore({
+          accessKeyId: requiredEnvironment("R2_ACCESS_KEY_ID"),
+          bucket: requiredEnvironment("R2_BUCKET_NAME"),
+          endpoint: r2Endpoint(),
+          secretAccessKey: requiredEnvironment("R2_SECRET_ACCESS_KEY"),
+        })
+      : new LocalArtifactStore(path.resolve(args.artifactDirectory));
   const summary = await runBackfill({
-    artifactStore: new ArtifactStore(
-      path.resolve(args.artifactDirectory),
-      runKey,
-    ),
+    artifactStore,
     dryRun: args.dryRun,
     fetchDocument,
     manifest,

@@ -159,7 +159,7 @@ function fetchViaHttps(
 }
 
 export function createFetcher(options: FetcherOptions) {
-  const lastRequestAt = new Map<string, number>();
+  const nextRequestAt = new Map<string, number>();
   const minimumInterval = options.minimumHostIntervalMs ?? 750;
   const timeoutMs = options.timeoutMs ?? 30_000;
 
@@ -183,10 +183,14 @@ export function createFetcher(options: FetcherOptions) {
       "user-agent": options.userAgent,
     };
     for (let attempt = 1; attempt <= 5; attempt += 1) {
-      const previous = lastRequestAt.get(requestedUrl.hostname) ?? 0;
-      const waitMs = Math.max(0, minimumInterval - (Date.now() - previous));
+      const now = Date.now();
+      const requestAt = Math.max(
+        now,
+        nextRequestAt.get(requestedUrl.hostname) ?? now,
+      );
+      nextRequestAt.set(requestedUrl.hostname, requestAt + minimumInterval);
+      const waitMs = Math.max(0, requestAt - now);
       if (waitMs > 0) await delay(waitMs);
-      lastRequestAt.set(requestedUrl.hostname, Date.now());
 
       try {
         let document: RawDocument;

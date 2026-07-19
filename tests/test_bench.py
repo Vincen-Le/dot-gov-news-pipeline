@@ -93,6 +93,7 @@ def test_reset_clusters_preserves_news_entries_against_real_db():
 def test_sync_copies_pages_and_preserves_ids():
     sources = [{"id": "s-1", "canonical_url": "https://fda.gov/f.xml",
                 "source_type": "rss", "title": None}]
+    publishers = [{"news_source_id": "s-1", "publisher_key": "fda"}]
     page1 = [{"id": f"e-{i}", "news_source_id": "s-1", "url": f"https://fda.gov/{i}",
               "url_canonical": f"https://fda.gov/{i}", "title": f"t{i}", "summary": "s",
               "published_at": "2026-05-14T14:00:00+00:00",
@@ -100,6 +101,8 @@ def test_sync_copies_pages_and_preserves_ids():
               "content_hash": "ab" * 32, "extractor_version": 1} for i in range(2)]
 
     def handler(request):
+        if "news_source_publishers" in str(request.url):
+            return httpx.Response(200, json=publishers)
         if "news_sources" in str(request.url):
             return httpx.Response(200, json=sources)
         offset = int(dict(request.url.params)["offset"])
@@ -108,12 +111,20 @@ def test_sync_copies_pages_and_preserves_ids():
     db = FakeDb()
     report = sync_corpus(db, "https://x.supabase.co", "key",
                          page=1000, transport=httpx.MockTransport(handler))
-    assert report["sources"] == 1 and report["entries"] == 2
+    assert report["sources"] == 1 and report["publishers"] == 1
+    assert report["entries"] == 2
     inserts = [s for s, _ in db.conn.executed if s.startswith("insert")]
     assert any("news_sources" in s for s in inserts)
+    publisher_insert = next(p for s, p in db.conn.executed
+                            if s.startswith("insert into public.news_source_publishers"))
+    assert publisher_insert["publisher_key"] == "fda"
     entry_insert = next(p for s, p in db.conn.executed
                         if s.startswith("insert into public.news_entries"))
     assert entry_insert["id"] == "e-0"     # hosted id preserved
+    entry_sql = next(s for s, _ in db.conn.executed
+                     if s.startswith("insert into public.news_entries"))
+    assert "on conflict (id) do update" in entry_sql
+    assert "enriched_text = case when" in entry_sql
 
 
 def test_reset_clusters_wipes_topics_but_keeps_seed_categories():

@@ -5,8 +5,14 @@
   "type": "module",
   "scripts": {
     "backfill": "tsx src/index.ts",
+    "consolidate-artifacts": "tsx src/consolidate-artifacts.ts",
+    "upload-artifacts": "tsx src/upload-artifacts.ts",
     "test": "vitest run",
     "typecheck": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1090.0",
+    "cheerio": "1.2.0"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

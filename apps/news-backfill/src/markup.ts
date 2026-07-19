@@ -1,35 +1,18 @@
+import { load } from "cheerio";
+
 export function decodeEntities(input: string): string {
-  const named: Record<string, string> = {
-    amp: "&",
-    apos: "'",
-    gt: ">",
-    lt: "<",
-    nbsp: " ",
-    quot: '"',
-  };
-  return input
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-    .replace(/&#(x[0-9a-f]+|\d+);/gi, (_match, code: string) => {
-      const value = code.toLowerCase().startsWith("x")
-        ? Number.parseInt(code.slice(1), 16)
-        : Number.parseInt(code, 10);
-      return Number.isFinite(value) ? String.fromCodePoint(value) : "";
-    })
-    .replace(
-      /&([a-z]+);/gi,
-      (match, name: string) => named[name.toLowerCase()] ?? match,
-    );
+  const withoutCdata = input.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
+  return load(`<span>${withoutCdata}</span>`, null, false).root().text();
 }
 
 export function stripMarkup(input: string): string {
-  return decodeEntities(
-    input
-      .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " "),
-  )
-    .replace(/\s+/g, " ")
-    .trim();
+  const $ = load(
+    input.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1"),
+    null,
+    false,
+  );
+  $("script, style, noscript, template, svg").remove();
+  return $.root().text().replace(/\s+/g, " ").trim();
 }
 
 export function blocks(input: string, tag: string): string[] {

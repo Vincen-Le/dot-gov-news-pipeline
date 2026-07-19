@@ -332,6 +332,58 @@ had not yet been merged into the default branch; additionally,
 reads it as a secret. Correct that scope mismatch before the first controlled
 dispatch.
 
+## News corpus backfill artifacts and content
+
+The news backfill archives every immutable source response in R2 before it
+normalizes an entry. Object keys are content-addressed under
+`news-backfill/objects/<sha256>`, and
+`news_backfill_run_entries.raw_artifact_key` stores that exact key. Identical
+response bodies from any publisher or run share one object. The run-entry and
+candidate-outcome rows retain the publisher, run, fetch, and disposition
+context; a changed response body receives a new object key.
+Backfill run keys include the extractor version so a corrected extractor gets a
+fresh candidate ledger instead of reusing terminal outcomes from an older
+normalization pass.
+
+`news_entries.summary` is the publisher-provided RSS/API summary or page
+description. `news_entries.body_text` is the complete cleaned article or report
+text. Neither field is sliced by the backfill. The runner limits RPC request
+size by sending smaller entry batches, not by truncating an individual entry.
+
+`news_source_publishers` records the one publisher key allowed for each curated
+source. Backfill target creation stamps this mapping and rejects a conflicting
+publisher. Clustering and Lab surfaces use that publisher key as `agency`; they
+never infer agency from the live-source or Wayback hostname.
+
+R2 is the default artifact store:
+
+```sh
+mise exec -- pnpm news:backfill --manifest ../../config/news-backfill/top-20-diversity-v3.json
+```
+
+Use a local artifact directory only as an explicit development fallback:
+
+```sh
+mise exec -- pnpm news:backfill --manifest ../../config/news-backfill/top-20-diversity-v3.json --artifact-directory ../../.data
+```
+
+To copy legacy local artifacts into the global content-addressed R2 namespace,
+preview and then run the resumable migration:
+
+```sh
+mise exec -- pnpm --filter @dot-gov-news/news-backfill upload-artifacts --dry-run
+mise exec -- pnpm --filter @dot-gov-news/news-backfill upload-artifacts --concurrency 16
+mise exec -- pnpm --filter @dot-gov-news/news-backfill consolidate-artifacts --dry-run
+mise exec -- pnpm --filter @dot-gov-news/news-backfill consolidate-artifacts --concurrency 16
+```
+
+The uploader uses HEAD before PUT, so retrying skips keys already present in
+R2. Use `consolidate-artifacts` to copy legacy run-scoped R2 objects into the
+same global namespace before applying the artifact-key consolidation database
+migration. Verify database migrations that add `body_text` and
+`ingest_news_entries_v2` before running the new extractor against a hosted
+project.
+
 ## Operator CLI and dashboard
 
 The Operator API is a separate read-only Worker. It can be deployed without

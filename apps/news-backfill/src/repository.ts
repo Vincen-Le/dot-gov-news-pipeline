@@ -104,7 +104,7 @@ export class BackfillRepository {
     targetId: string,
     entries: NormalizedEntry[],
   ): Promise<Array<{ disposition: string; error_code: string | null }>> {
-    return this.call("ingest_news_entries", {
+    return this.call("ingest_news_entries_v2", {
       p_entries: entries,
       p_target_id: targetId,
     });

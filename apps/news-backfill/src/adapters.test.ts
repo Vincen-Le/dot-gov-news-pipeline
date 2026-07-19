@@ -26,6 +26,71 @@ function profile(overrides: Partial<SourceProfile>): SourceProfile {
 }
 
 describe("source adapters", () => {
+  it("resolves relative syndication links against the fetched feed URL", async () => {
+    const body = `<rss><channel><item>
+      <link>0528-postal-update.htm</link>
+      <title>Postal update</title>
+      <pubDate>2026-05-28T00:00:00Z</pubDate>
+    </item></channel></rss>`;
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async () => ({
+          body,
+          contentType: "application/rss+xml",
+          finalUrl: "https://about.usps.com/news/latestnews.rss",
+          status: 200,
+        }),
+        profile: profile({
+          adapter: "syndication",
+          allowedHosts: ["about.usps.com"],
+          sourceType: "rss",
+          sourceUrl: "https://about.usps.com/news/latestnews.rss",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(batches[0]?.candidates[0]?.url).toBe(
+      "https://about.usps.com/news/0528-postal-update.htm",
+    );
+  });
+
+  it("keeps feed summaries separate from full content", async () => {
+    const body = `<rss><channel><item>
+      <guid>release-1</guid>
+      <link>https://agency.gov/news/release-1</link>
+      <title>Release one</title>
+      <pubDate>2026-06-01T12:00:00Z</pubDate>
+      <description><![CDATA[<p>Short feed summary.</p>]]></description>
+      <content:encoded><![CDATA[<article><p>Complete article body.</p></article>]]></content:encoded>
+    </item></channel></rss>`;
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => ({
+          body,
+          contentType: "application/rss+xml",
+          finalUrl: url,
+          status: 200,
+        }),
+        profile: profile({
+          adapter: "syndication",
+          sourceType: "rss",
+          sourceUrl: "https://agency.gov/feed.xml",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(batches[0]?.candidates[0]).toMatchObject({
+      bodyText: "Complete article body.",
+      summary: "Short feed summary.",
+    });
+  });
+
   it("continues WordPress pagination when a short page advertises more pages", async () => {
     const requested: string[] = [];
     const batches = await collect(
@@ -124,6 +189,127 @@ describe("source adapters", () => {
     expect(batches[0]?.candidates.map((candidate) => candidate.url)).toEqual([
       "https://agency.gov/news/new",
     ]);
+  });
+
+  it("uses Google News sitemap metadata for dates, titles, and window filtering", async () => {
+    const body = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url>
+    <loc>https://agency.gov/news/in-window</loc>
+    <news:news>
+      <news:publication_date>2026-06-01T12:00:00Z</news:publication_date>
+      <news:title>In Window Story</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://agency.gov/news/too-old</loc>
+    <news:news>
+      <news:publication_date>2024-01-01T00:00:00Z</news:publication_date>
+      <news:title>Too Old Story</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://agency.gov/news/plain-row</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
+</urlset>`;
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => ({
+          body,
+          contentType: "application/xml",
+          finalUrl: url,
+          status: 200,
+        }),
+        profile: profile({ sourceUrl: "https://agency.gov/sitemap-news.xml" }),
+        windowEnd: "2026-07-18T00:00:00.000Z",
+        windowStart: "2025-07-18T00:00:00.000Z",
+      }),
+    );
+    const candidates = batches.flatMap((batch) => batch.candidates);
+    expect(candidates.map((candidate) => candidate.url)).toEqual([
+      "https://agency.gov/news/in-window",
+      "https://agency.gov/news/plain-row",
+    ]);
+    expect(candidates[0]?.title).toBe("In Window Story");
+    expect(candidates[0]?.publishedAt).toBe("2026-06-01T12:00:00.000Z");
+    expect(candidates[1]?.publishedAt).toBeNull();
+  });
+
+  it("paginates Drupal JSON:API via links.next and stops at the window boundary", async () => {
+    const pageOne = JSON.stringify({
+      data: [
+        {
+          id: "uuid-1",
+          attributes: {
+            body: { summary: "<p>Summary one</p>" },
+            created: "2026-06-01T12:00:00+00:00",
+            path: { alias: "/news-release/story-one" },
+            title: "Story One",
+          },
+        },
+      ],
+      links: {
+        next: {
+          href: "https://agency.gov/jsonapi/node/news?page%5Boffset%5D=50",
+        },
+      },
+    });
+    const pageTwo = JSON.stringify({
+      data: [
+        {
+          id: "uuid-2",
+          attributes: {
+            body: { summary: "<p>Old summary</p>" },
+            created: "2024-01-01T00:00:00+00:00",
+            path: { alias: "/news-release/story-old" },
+            title: "Old Story",
+          },
+        },
+      ],
+      links: {},
+    });
+    const requested: string[] = [];
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => {
+          requested.push(url);
+          return {
+            body: url.includes("page%5Boffset%5D") ? pageTwo : pageOne,
+            contentType: "application/vnd.api+json",
+            finalUrl: url,
+            status: 200,
+          };
+        },
+        profile: profile({
+          adapter: "publisher_api",
+          adapterVariant: "drupal_jsonapi",
+          sourceType: "publisher_api",
+          sourceUrl:
+            "https://agency.gov/jsonapi/node/news?sort=-created&page%5Blimit%5D=50",
+          urlTemplate: "https://agency.gov{alias}",
+        }),
+        windowEnd: "2026-07-18T00:00:00.000Z",
+        windowStart: "2025-07-18T00:00:00.000Z",
+      }),
+    );
+    expect(requested).toHaveLength(2);
+    const candidates = batches.flatMap((batch) => batch.candidates);
+    expect(candidates).toHaveLength(2);
+    expect(candidates[0]).toMatchObject({
+      bodyText: null,
+      externalItemId: "uuid-1",
+      publishedAt: "2026-06-01T12:00:00.000Z",
+      summary: "Summary one",
+      title: "Story One",
+      url: "https://agency.gov/news-release/story-one",
+    });
+    const last = batches.at(-1);
+    expect(last?.coverageReachedAt).toBe("2025-07-18T00:00:00.000Z");
+    expect(last?.stopReason).toBe("window_boundary_reached");
   });
 
   it("reconstructs an older sitemap checkpoint without replaying completed children", async () => {

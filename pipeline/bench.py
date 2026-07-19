@@ -53,13 +53,15 @@ def reset_features(db) -> None:
 
 
 _SOURCE_COLS = ("id", "canonical_url", "source_type", "title")
+_PUBLISHER_COLS = ("news_source_id", "publisher_key")
 _ENTRY_COLS = ("id", "news_source_id", "url", "url_canonical", "title", "summary",
-               "published_at", "fetched_at", "content_hash", "extractor_version")
+               "body_text", "published_at", "fetched_at", "content_hash",
+               "extractor_version")
 
 
 def sync_corpus(db, supabase_url: str, secret_key: str, page: int = 1000,
                 transport=None) -> dict:
-    """Copy hosted corpus to local, preserving ids. Rerun-safe (conflict-skips)."""
+    """Copy hosted corpus to local, preserving ids and refreshing changed rows."""
     assert_local_dsn(db.conn.info.dsn)
     base = supabase_url.rstrip("/") + "/rest/v1"
     http = httpx.Client(
@@ -89,16 +91,49 @@ def sync_corpus(db, supabase_url: str, secret_key: str, page: int = 1000,
     response.raise_for_status()
     sources = response.json()
 
-    def insert(table: str, cols: tuple[str, ...], row: dict) -> None:
+    response = http.get(
+        f"{base}/news_source_publishers", params={
+            "select": ",".join(_PUBLISHER_COLS),
+            "news_source_id": f"in.({','.join(source_ids)})"})
+    response.raise_for_status()
+    publishers = response.json()
+
+    def upsert(table: str, cols: tuple[str, ...], conflict_col: str,
+               row: dict) -> None:
         placeholders = ", ".join(f"%({c})s" for c in cols)
+        assignments = ", ".join(
+            f"{c} = excluded.{c}" for c in cols if c != conflict_col)
+        if table == "news_entries":
+            content_changed = (
+                "news_entries.content_hash is distinct from excluded.content_hash")
+            assignments += (
+                f", enriched_text = case when {content_changed} then null "
+                "else news_entries.enriched_text end"
+                f", enricher_version = case when {content_changed} then null "
+                "else news_entries.enricher_version end"
+                f", embedding = case when {content_changed} then null "
+                "else news_entries.embedding end"
+                f", embedding_model = case when {content_changed} then null "
+                "else news_entries.embedding_model end"
+                f", entity_set = case when {content_changed} then '{{}}'::text[] "
+                "else news_entries.entity_set end"
+                f", event_keys = case when {content_changed} then '{{}}'::text[] "
+                "else news_entries.event_keys end")
         db.conn.execute(
             f"insert into public.{table} ({', '.join(cols)}) "
-            f"values ({placeholders}) on conflict do nothing",
+            f"values ({placeholders}) on conflict ({conflict_col}) do update set "
+            f"{assignments}",
             {c: row.get(c) for c in cols})
 
     for source in sources:
-        insert("news_sources", _SOURCE_COLS, source)
-    skipped = 0
+        upsert("news_sources", _SOURCE_COLS, "id", source)
+    for publisher in publishers:
+        upsert("news_source_publishers", _PUBLISHER_COLS,
+               "news_source_id", publisher)
     for entry in entries:
-        insert("news_entries", _ENTRY_COLS, entry)
-    return {"sources": len(sources), "entries": len(entries), "skipped": skipped}
+        upsert("news_entries", _ENTRY_COLS, "id", entry)
+    return {
+        "sources": len(sources),
+        "publishers": len(publishers),
+        "entries": len(entries),
+    }

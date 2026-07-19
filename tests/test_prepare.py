@@ -31,9 +31,11 @@ class PrepModels:
     def __init__(self, fail_enrich_for=()):
         self.embed_batches = []
         self.embed_texts = []
+        self.enrich_inputs = []
         self.fail_enrich_for = fail_enrich_for
 
     def enrich(self, title, summary):
+        self.enrich_inputs.append((title, summary))
         if title in self.fail_enrich_for:
             raise RuntimeError("enrich boom")
         return f"ENRICHED {title}"
@@ -46,7 +48,8 @@ class PrepModels:
 
 def row(i, **kw):
     return {"id": f"n{i}", "title": f"FDA Recalls Valsatrex Lot {i}",
-            "summary": "Sundexo Pharmaceuticals recall.", "published_at": T0,
+            "summary": "Sundexo Pharmaceuticals recall.", "body_text": None,
+            "published_at": T0,
             "enriched_text": None, "enricher_version": None,
             "entity_set": [], "event_keys": [], **kw}
 
@@ -82,6 +85,14 @@ def test_prepare_enrichment_disabled_embeds_raw():
     models = PrepModels()
     prepare(store, models, cfg)
     assert store.features["n1"]["enriched_text"] is None
+
+
+def test_prepare_prefers_clean_article_body_over_feed_summary():
+    store = PrepFakeStore([row(1, summary="Short feed summary.",
+                               body_text="Complete cleaned article report.")])
+    models = PrepModels()
+    prepare(store, models, CFG)
+    assert models.enrich_inputs[0][1] == "Complete cleaned article report."
 
 
 def test_prepare_enrich_failure_falls_back_to_raw_text():
