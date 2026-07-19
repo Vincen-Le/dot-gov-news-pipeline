@@ -8,7 +8,7 @@
 ## Context: what exists today
 
 - `compute_rank_key` (`20260718100000`): rubric points (prior = half total weight when unjudged) + `0.5·ln(1+agencies)` + `0.5·ln(1+feeds)` + `ln(source_weight_max)` + `epoch(newest_entry_at)/τ`. Runs once per card at birth inside `insert_event_card`; cards are write-once, rank refresh happens by supersession.
-- Judge rubric (8 binary criteria) fires only inside `compress_overview` — i.e. only for storylines with ≥ 2 episodes. Single-episode storylines (the bulk of any corpus) are never judged: their episode card doubles as `latest_card_id` with `rubric = null`, scoring the flat 4.0 prior.
+- Judge rubric (8 binary criteria) fires inside `compress_overview`, which — as of `737ae33` — regenerates on **every** episode close, including single-episode storylines. Every storyline's latest card is an overview carrying judged rubric bits (compressor failure → `rubric = null` → 4.0 prior).
 - `rubric_weights` v1 is uniform 1.0 — never tuned, no mechanism to tune.
 - `storylines.source_weight_max` defaults 1.0 and **no code path updates it**; `ln(1.0) = 0`, the source-authority term is dead.
 - Facets: `agency_ids` populated; `topic_themes` → `topic_categories` landed with the theme clustering work (`storylines.theme_id`, KNN join). `storylines.topic` (old fixed-taxonomy column) is unused and stays unused.
@@ -39,16 +39,15 @@
 - **Discrete authority tiers, not continuous weights** — 3–4 auditable tiers; `ln()` already caps influence (ln 3 ≈ 1.1 ≈ one rubric bit). Watch for authority double-count (judge prestige bias + agency term + source term): measured via audit attribution, not prevented upfront.
 - **Gold standard = preference pairs** — rank quality metrics are computed against pairwise preferences (LLM with bias controls, human spot-labels overriding), aggregated per facet: pairwise agreement rate and Kendall-τ-style ordering correlation. Never against rank_key magnitudes.
 
-## W1 — Judge coverage and chain-aware judging
+## W1 — Chain-aware judging (amended: coverage already landed)
 
-**Single-episode storylines get judged.** In `CardEngine.on_episode_closed`, when the storyline's episode count is 1 (the episode card will double as `latest_card_id` via the single-episode collapse), call a new `judge_episode` model method: input = the episode card's headline/summary + agency + entry count; output = 8 rubric bits + one-sentence reason (same criteria, same JSON contract as the overview rubric). The episode card is inserted with that rubric, `rubric_version`, `judge_model`, `interest_reason` — `insert_event_card` already computes `rank_key` from whatever rubric it receives; **no schema or RPC change**.
+Commit `737ae33` (concurrent workstream) made `CardEngine.on_episode_closed` regenerate the overview card on **every** close, including the first — so every storyline's latest card already carries judged rubric bits, and single-episode storylines are judged. No new `judge_episode` path is needed.
 
-- Episode cards for storylines that already have ≥ 2 episodes stay `rubric = null` (an overview regeneration immediately follows and owns the judged rubric; judging both would double the cost for no serving effect).
-- Single-episode storylines never change content after close, so they never need rejudging — write-once holds, no supersession machinery.
-- Failure semantics unchanged: judge error → `rubric = null` → prior points; never blocks a close.
-- `stub.py` gains a deterministic `judge_episode` (bits derived from content hash) so stub runs replay identically.
+What remains:
 
-**Multi-episode chain judging already exists** — `compress_overview` receives every episode card (headline/date/summary). Harden the prompt: rubric bits must be instructed to evaluate the *whole chain of events*, not the latest development; inputs bounded per episode card (uniform truncation) so long chains do not skew judgments. Overview regeneration currently fires on every episode close past the first — more frequent than the spec's power-of-two trigger; acceptable at backfill scale, recorded as an open item for live streaming.
+- **Prompt hardening:** `COMPRESSOR_SYSTEM` must instruct the rubric to evaluate the *whole chain of events collectively*, not just the latest development. Chain input already exists (`compress_overview` receives every episode card, oldest first).
+- Failure semantics unchanged: compressor error → `rubric = null` → prior points; never blocks a close.
+- Overview regeneration fires on every episode close — more frequent than the old spec's power-of-two trigger; acceptable at backfill scale, recorded as an open item for live streaming.
 
 ## W2 — Publisher authority weights
 
@@ -90,13 +89,17 @@ After each experiment run (final stage of `run_experiment`, also standalone `pip
 rank_snapshots (
   run_id       uuid,     -- experiment_runs
   facet_type   text,     -- 'global' | 'category' | 'theme' | 'agency'
-  facet_key    text,     -- '' for global; category/theme id; agency id
+  facet_key    text,     -- '' for global; category/theme id; agency key
   position     int,      -- rank() within (run, facet)
   storyline_id uuid,
   card_id      uuid,     -- latest card at snapshot time
   rank_key     float8,
   terms        jsonb,    -- compute_rank_key_terms output
   judged       boolean,  -- rubric present (not prior)
+  -- denormalized display fields: experiment resets wipe the clustering
+  -- tables, so old runs' snapshots must render standalone
+  headline text, summary text, rubric jsonb, interest_reason text,
+  agencies int, feeds int, entry_count int, newest_entry_at timestamptz,
   PK (run_id, facet_type, facet_key, position)
 )
 ```
@@ -120,8 +123,6 @@ rank_audit_pairs (
   formula_prefers text,        -- always 'a' (a = higher-ranked by formula)
   llm_prefers     text,        -- 'a' | 'b' | 'inconsistent'
   llm_reason      text,
-  human_verdict   text null,   -- 'a' | 'b'; dashboard spot-labels; overrides llm in fitting
-  labeled_by, labeled_at,
   judge_model, prompt_version, sampled_at
 )
 
@@ -130,6 +131,8 @@ rank_audit_runs (
 )
 ```
 
+**Human spot-labels** follow the console's existing `LabelStore` file pattern (not a DB write path — the lab DB connection is read-only from the console): `docs/eval/rank-labels.csv` with header `run_id,storyline_a,storyline_b,preferred` (`a`/`b`). Labels are run-scoped (snapshot and audit rows persist per run even after clustering resets); fitting reads the CSV and overrides `llm_prefers` on matching pairs.
+
 - `metrics` per audit: pairwise agreement rate (overall + per facet), inconsistency rate, disagreement attribution (mean per-term delta among disagreeing pairs — shows *which* formula term the LLM disputes, including the authority double-count check).
 - Audit LLM calls go through the existing response cache keyed by (pair content, prompt_version) — replays are free.
 
@@ -137,8 +140,8 @@ rank_audit_runs (
 
 `pipeline rank fit --runs <id,...> [--write]`:
 
-- Training pairs: all consistent audit pairs across the given runs; `human_verdict` overrides `llm_prefers`.
-- Features per pair: the 8 rubric-bit differences plus fixed-term deltas (agency, feed, source, freshness) between the two storylines. Target: which side preferred.
+- Training pairs: all consistent audit pairs across the given runs; `rank-labels.csv` rows override `llm_prefers`.
+- Features per pair: the 8 rubric-bit differences between the two storylines; the fixed-term deltas (agency, feed, source, freshness) enter as a fixed offset in the logit, not as fitted coefficients — only rubric weights are tunable. Target: which side preferred.
 - Model: logistic regression (numpy gradient descent, zero-init, L2, deterministic — no new dependency). Fitted rubric coefficients are rescaled onto the current weight scale and printed alongside v-current for review.
 - `--write` inserts the proposal as a **new** `rubric_weights` version (never updates in place, never auto-selects); runs pick weights via `RUBRIC_VERSION` config. Fit → apply → rerun → compare snapshots is the tuning loop, fully recorded.
 
@@ -148,7 +151,7 @@ New page in the operator console (follows the StorylinesPage data-access pattern
 
 1. **Run picker** (experiment_runs, newest first) + **facet selector** (global / category / theme / agency).
 2. **Ranked table:** position, headline (links to storyline detail), rank_key, term breakdown (stacked bar + exact values — rubric vs prior badge, agency/feed/source/freshness), agencies count, distinct feeds, rubric bit chips, `interest_reason`.
-3. **Audit overlay:** rows involved in disagreeing audit pairs get a marker; expanding shows the pair, the LLM's reason, and a spot-label control writing `human_verdict`.
+3. **Audit overlay:** rows involved in disagreeing audit pairs get a marker; expanding shows the pair, the LLM's reason, and a spot-label control appending to `docs/eval/rank-labels.csv`.
 4. **Run diff:** pick a second run → position-delta column (▲/▼ n) for storylines present in both, plus config diff (weights/versions) between the runs.
 5. **Audit metrics strip:** agreement rate, inconsistency rate, top disagreement attribution from `rank_audit_runs.metrics`.
 
@@ -170,14 +173,14 @@ New page in the operator console (follows the StorylinesPage data-access pattern
 
 ## Failure semantics
 
-- `judge_episode` error → card born with prior, exactly like overview compression failure today.
+- Compressor/judge error → overview born with prior, unchanged from today.
 - Audit LLM error on a pair → pair recorded `inconsistent` with the error reason; audit continues.
 - Snapshot stage failure → experiment run still recorded (snapshot is re-runnable standalone from the same DB state).
 - Weight fitting refuses to run below a minimum consistent-pair count (config, default 50) — no fits from noise.
 
 ## Sequencing
 
-W1 (judge coverage — changes what rank_key is) → W2 (publisher weights — activates dead term) → W3 (decomposition, snapshots, audit, fitting) → W4 (dashboard). W2 and W1 are independent and can parallelize; W3 snapshots want both landed so recorded values are the real formula.
+W1 (chain-judging prompt hardening) → W2 (publisher weights — activates dead term) → W3 (decomposition, snapshots, audit, fitting) → W4 (dashboard). W2 and W1 are independent and can parallelize; W3 snapshots want both landed so recorded values are the real formula.
 
 ## Open items
 
