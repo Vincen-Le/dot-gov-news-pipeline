@@ -3,12 +3,16 @@ import { describe, expect, it } from "vitest";
 import { isLocalDsn, labCapability, type LabDb } from "../src/lab/db";
 
 const LOCAL = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
-const REMOTE = "postgresql://u:p@aws-1-us-east-2.pooler.supabase.com:5432/postgres";
+const REMOTE =
+  "postgresql://u:p@aws-1-us-east-2.pooler.supabase.com:5432/postgres";
 
 function fakeDb(
   handler: () => Promise<{ clustering: boolean; runs: boolean }[]>,
 ): LabDb {
-  return { close: async () => undefined, read: handler as unknown as LabDb["read"] };
+  return {
+    close: async () => undefined,
+    read: handler as unknown as LabDb["read"],
+  };
 }
 
 describe("isLocalDsn", () => {
@@ -37,7 +41,7 @@ describe("labCapability", () => {
     expect(capability.reason).toContain("migrations");
   });
 
-  it("enables experiments only on a local DSN with experiment_runs", async () => {
+  it("enables experiments only on a local DSN with complex_v1_experiment_runs", async () => {
     const full = await labCapability(
       fakeDb(async () => [{ clustering: true, runs: true }]),
       LOCAL,
@@ -57,7 +61,7 @@ describe("labCapability", () => {
       LOCAL,
     );
     expect(noRuns.experimentsEnabled).toBe(false);
-    expect(noRuns.experimentsReason).toContain("experiment_runs");
+    expect(noRuns.experimentsReason).toContain("complex_v1_experiment_runs");
   });
 
   it("disables experiments on the primary database only when primaryReadOnly is set", async () => {

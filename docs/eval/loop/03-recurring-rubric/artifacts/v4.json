@@ -1,0 +1,16 @@
+{
+  "merge_candidates": [],
+  "structural_stats": {
+    "theme_count": 3,
+    "singleton_theme_rate": 0.0,
+    "members_per_theme_histogram": {
+      "4": 2,
+      "6": 1
+    },
+    "themes_per_category": {
+      "Disaster Response & Emergency": 1,
+      "Economy & Labor": 1,
+      "Foreign Affairs & Trade": 1
+    }
+  }
+}

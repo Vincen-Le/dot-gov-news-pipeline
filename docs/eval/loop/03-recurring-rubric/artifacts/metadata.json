@@ -1,0 +1,15 @@
+{
+  "run": {
+    "id": "2ebb9ac8-a9aa-47f1-9c90-45bee7f49414",
+    "name": "jul19-03-recurring-rubric",
+    "finished_at": "2026-07-19 13:35:28.930596+00"
+  },
+  "counts": {
+    "v1_chains": 12,
+    "v2_themes": 3,
+    "v3_pairs": 14,
+    "v4_candidates": 0,
+    "v5_entries": 100,
+    "v6_episodes": 8
+  }
+}

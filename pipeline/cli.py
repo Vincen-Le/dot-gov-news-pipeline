@@ -94,7 +94,7 @@ def main() -> None:
 
     p = sub.add_parser("rank", help="rank observability: snapshot | audit | fit")
     p.add_argument("action", choices=["snapshot", "audit", "fit"])
-    p.add_argument("--run", help="experiment_runs.id (snapshot/audit)")
+    p.add_argument("--run", help="complex_v1_experiment_runs.id (snapshot/audit)")
     p.add_argument("--runs", help="comma-separated run ids (fit)")
     p.add_argument("--labels", default=None,
                    help="rank-labels csv overriding llm verdicts (fit)")

@@ -63,11 +63,15 @@ export async function labCapability(
       status: "not_enabled",
     };
   }
-  const { experimentRuns } = namespaceTables(namespaceForEngine(engine));
+  const { experimentRuns, experimentClusterSnapshots } = namespaceTables(
+    namespaceForEngine(engine),
+  );
   try {
     const rows = await db.read`
       select to_regclass('public.storylines') is not null as clustering,
-             to_regclass(${`public.${experimentRuns}`}) is not null as runs
+             to_regclass(${`public.${experimentRuns}`}) is not null as runs,
+             to_regclass(${`public.${experimentClusterSnapshots}`})
+               is not null as snapshots
     `;
     if (rows[0]?.clustering !== true) {
       return {
@@ -82,6 +86,13 @@ export async function labCapability(
         experimentsEnabled: false,
         experimentsReason: `The ${experimentRuns} table is not present.`,
         status: "available",
+      };
+    }
+    if (rows[0]?.snapshots === false) {
+      return {
+        experimentsEnabled: false,
+        reason: `The ${experimentClusterSnapshots} migrations are not applied.`,
+        status: "not_enabled",
       };
     }
     if (databaseUrl === undefined || !isLocalDsn(databaseUrl)) {

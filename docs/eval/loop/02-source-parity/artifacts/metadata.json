@@ -1,0 +1,15 @@
+{
+  "run": {
+    "id": "2a6a9639-c5f2-4b23-86a5-9f05d70e22ce",
+    "name": "jul19-02-source-parity",
+    "finished_at": "2026-07-19 11:50:59.250102+00"
+  },
+  "counts": {
+    "v1_chains": 12,
+    "v2_themes": 3,
+    "v3_pairs": 19,
+    "v4_candidates": 0,
+    "v5_entries": 100,
+    "v6_episodes": 8
+  }
+}

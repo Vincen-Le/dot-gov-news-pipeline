@@ -120,7 +120,8 @@ The repository currently provides:
   seeded taxonomy.
 - An operator-console clustering lab (`pnpm ops lab …`) for corpus QA,
   experiments recorded per pipeline (`complex_v1_experiment_runs` /
-  `simple_v1_experiment_runs`), quality metrics, and borderline labeling.
+  `simple_v1_experiment_runs`) with immutable cluster-state snapshots for
+  replay, quality metrics, and borderline labeling.
 - Local persistent Chroma development service, shared event contracts, unit
   and database tests, CI verification, and operations guidance.
 

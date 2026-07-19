@@ -1,0 +1,40 @@
+{
+  "intruder_detection": 10,
+  "intruder_n": 10,
+  "intruder_rate": 1.0,
+  "quanta": {
+    "v1": 0.046153846153846156,
+    "v2": 0.025,
+    "v3": 0.008333333333333333,
+    "v4": 0.02,
+    "v5": 0.00041666666666666664,
+    "v6": 0.06
+  },
+  "reward": 0.6890384615384615,
+  "v1_method_precision": {
+    "adjudicated_join": 0.7692307692307693
+  },
+  "v1_method_worst": 0.7692307692307693,
+  "v1_n": 13,
+  "v1_score": 0.3076923076923077,
+  "v2_n": 24,
+  "v2_score": 0.875,
+  "v2_theme_scores": {
+    "29422849-5943-464e-9660-390a2c03d493": 0.75,
+    "2b33a929-d491-4f26-b421-ce3e84906951": 0.75,
+    "31143d94-861d-49e6-9430-9085722611c9": 1.0,
+    "43129039-c8f6-405a-a9ac-392690ebc9ed": 1.0
+  },
+  "v3_n": 24,
+  "v3_score": 1.0,
+  "v4_candidate_n": 0,
+  "v4_merge_pairs": 0,
+  "v4_singleton_rate": 0.0,
+  "v5_entity_n": 480,
+  "v5_entity_precision": 0.2625,
+  "v5_event_key_n": 2,
+  "v5_event_key_validity": 1.0,
+  "v5_missed_mean": 1.09,
+  "v6_n": 10,
+  "v6_score": 1.0
+}

@@ -1,0 +1,483 @@
+entry_id,token,kind,valid,reason
+05552cdd-e85b-4d6b-9887-83587840c722,beaver,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,biennial,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,commonwealth,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,emergency,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,evaluate,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,exercise,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,management,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,pennsylvania,entity,y,Specific entity explicitly supported by title or summary.
+05552cdd-e85b-4d6b-9887-83587840c722,power,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,preparedness,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,radiological,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,station,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,valley,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,virginia,entity,n,Generic or fragmentary token; not a specific entity.
+05552cdd-e85b-4d6b-9887-83587840c722,west,entity,n,Generic or fragmentary token; not a specific entity.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,border,entity,n,Generic or fragmentary token; not a specific entity.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,cambodia,entity,y,Specific entity explicitly supported by title or summary.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,fighting,entity,n,Generic or fragmentary token; not a specific entity.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,rubio,entity,n,Unsupported by title and summary.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,thailand,entity,y,Specific entity explicitly supported by title or summary.
+0fe6116a-482c-4c8b-a15b-236c87597230,congo,entity,n,Generic or fragmentary token; not a specific entity.
+0fe6116a-482c-4c8b-a15b-236c87597230,democratic,entity,n,Generic or fragmentary token; not a specific entity.
+0fe6116a-482c-4c8b-a15b-236c87597230,ebola,entity,y,Specific entity explicitly supported by title or summary.
+0fe6116a-482c-4c8b-a15b-236c87597230,note,entity,n,Unsupported by title and summary.
+0fe6116a-482c-4c8b-a15b-236c87597230,outbreak,entity,n,Generic or fragmentary token; not a specific entity.
+0fe6116a-482c-4c8b-a15b-236c87597230,please,entity,n,Unsupported by title and summary.
+0fe6116a-482c-4c8b-a15b-236c87597230,republic,entity,n,Generic or fragmentary token; not a specific entity.
+0fe6116a-482c-4c8b-a15b-236c87597230,transcript,entity,n,Unsupported by title and summary.
+0fe6116a-482c-4c8b-a15b-236c87597230,uganda,entity,y,Specific entity explicitly supported by title or summary.
+1026a52f-577a-45d9-b184-53c7203479a9,hawaii,entity,y,Specific entity explicitly supported by title or summary.
+1026a52f-577a-45d9-b184-53c7203479a9,salvador,entity,n,Generic or fragmentary token; not a specific entity.
+1026a52f-577a-45d9-b184-53c7203479a9,think,entity,n,Generic or fragmentary token; not a specific entity.
+12031650-7b83-4655-a2d3-047fd94ae7db,coinbase,entity,y,Specific entity explicitly supported by title or summary.
+12031650-7b83-4655-a2d3-047fd94ae7db,kalshi,entity,y,Specific entity explicitly supported by title or summary.
+12031650-7b83-4655-a2d3-047fd94ae7db,markets,entity,n,Generic or fragmentary token; not a specific entity.
+12031650-7b83-4655-a2d3-047fd94ae7db,polymarket,entity,y,Specific entity explicitly supported by title or summary.
+12031650-7b83-4655-a2d3-047fd94ae7db,prediction,entity,n,Generic or fragmentary token; not a specific entity.
+12031650-7b83-4655-a2d3-047fd94ae7db,reaffirm,entity,n,Generic or fragmentary token; not a specific entity.
+12031650-7b83-4655-a2d3-047fd94ae7db,robinhood,entity,y,Specific entity explicitly supported by title or summary.
+12031650-7b83-4655-a2d3-047fd94ae7db,wisconsin,entity,y,Specific entity explicitly supported by title or summary.
+12160cc1-b74d-4225-9429-053b28f61de7,form,entity,n,Generic or fragmentary token; not a specific entity.
+12160cc1-b74d-4225-9429-053b28f61de7,notification,entity,n,Generic or fragmentary token; not a specific entity.
+12160cc1-b74d-4225-9429-053b28f61de7,premerger,entity,n,Generic or fragmentary token; not a specific entity.
+12160cc1-b74d-4225-9429-053b28f61de7,seek,entity,n,Generic or fragmentary token; not a specific entity.
+13a747c3-8464-46c1-9ff1-c58ac980d277,abbott,entity,y,Specific entity explicitly supported by title or summary.
+13a747c3-8464-46c1-9ff1-c58ac980d277,declaration,entity,n,Generic or fragmentary token; not a specific entity.
+13a747c3-8464-46c1-9ff1-c58ac980d277,signs,entity,n,Generic or fragmentary token; not a specific entity.
+13a747c3-8464-46c1-9ff1-c58ac980d277,weather,entity,n,Generic or fragmentary token; not a specific entity.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,crash,entity,n,Generic or fragmentary token; not a specific entity.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,recommendations,entity,n,Generic or fragmentary token; not a specific entity.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,school,entity,n,Generic or fragmentary token; not a specific entity.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,texas,entity,y,Specific entity explicitly supported by title or summary.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,connect,entity,n,Generic or fragmentary token; not a specific entity.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,connecting,entity,n,Unsupported by title and summary.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,primary,entity,n,Generic or fragmentary token; not a specific entity.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,provider,entity,n,Generic or fragmentary token; not a specific entity.
+1e0f7c08-d4a8-4ae9-a9d9-567127e91f75,cracks,entity,n,Generic or fragmentary token; not a specific entity.
+1e344c37-4ac8-4a59-93be-1d081d303388,antibodies,entity,n,Generic or fragmentary token; not a specific entity.
+1e344c37-4ac8-4a59-93be-1d081d303388,monoclonal,entity,n,Generic or fragmentary token; not a specific entity.
+1e344c37-4ac8-4a59-93be-1d081d303388,primates,entity,n,Generic or fragmentary token; not a specific entity.
+1e344c37-4ac8-4a59-93be-1d081d303388,testing,entity,n,Generic or fragmentary token; not a specific entity.
+22519bb4-3db5-4639-9df1-4947df4136f8,countries,entity,n,Generic or fragmentary token; not a specific entity.
+22519bb4-3db5-4639-9df1-4947df4136f8,determination,entity,n,Generic or fragmentary token; not a specific entity.
+22519bb4-3db5-4639-9df1-4947df4136f8,illicit,entity,n,Generic or fragmentary token; not a specific entity.
+22519bb4-3db5-4639-9df1-4947df4136f8,presidential,entity,n,Generic or fragmentary token; not a specific entity.
+22519bb4-3db5-4639-9df1-4947df4136f8,producing,entity,n,Generic or fragmentary token; not a specific entity.
+22519bb4-3db5-4639-9df1-4947df4136f8,transit,entity,n,Generic or fragmentary token; not a specific entity.
+2361e877-48e7-469f-929b-c48a2903548d,$1.3 million,entity,y,Specific amount explicitly supported by title and summary.
+2361e877-48e7-469f-929b-c48a2903548d,disgorgement,entity,n,Generic or fragmentary token; not a specific entity.
+2361e877-48e7-469f-929b-c48a2903548d,florida,entity,y,Specific entity explicitly supported by title or summary.
+2361e877-48e7-469f-929b-c48a2903548d,imposes,entity,n,Generic or fragmentary token; not a specific entity.
+2361e877-48e7-469f-929b-c48a2903548d,order,entity,n,Generic or fragmentary token; not a specific entity.
+2361e877-48e7-469f-929b-c48a2903548d,pool,entity,n,Generic or fragmentary token; not a specific entity.
+2361e877-48e7-469f-929b-c48a2903548d,requiring,entity,n,Generic or fragmentary token; not a specific entity.
+2361e877-48e7-469f-929b-c48a2903548d,resident,entity,n,Generic or fragmentary token; not a specific entity.
+2361e877-48e7-469f-929b-c48a2903548d,secures,entity,n,Generic or fragmentary token; not a specific entity.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,delta,entity,n,Generic or fragmentary token; not a specific entity.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,hepatitis,entity,n,Generic or fragmentary token; not a specific entity.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,infection,entity,n,Generic or fragmentary token; not a specific entity.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,treatment,entity,n,Generic or fragmentary token; not a specific entity.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,bell,entity,n,Generic or fragmentary token; not a specific entity.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,media,entity,n,Unsupported by title and summary.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,shredded,entity,n,Generic or fragmentary token; not a specific entity.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,taco,entity,n,Generic or fragmentary token; not a specific entity.
+28be5d30-3663-484e-b812-b3c07f98fce9,resources,entity,n,Generic or fragmentary token; not a specific entity.
+28be5d30-3663-484e-b812-b3c07f98fce9,technologies,entity,n,Generic or fragmentary token; not a specific entity.
+28be5d30-3663-484e-b812-b3c07f98fce9,tools,entity,n,Generic or fragmentary token; not a specific entity.
+28be5d30-3663-484e-b812-b3c07f98fce9,transformational,entity,n,Generic or fragmentary token; not a specific entity.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,coastal,entity,n,Generic or fragmentary token; not a specific entity.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,fayetteville,entity,n,Generic or fragmentary token; not a specific entity.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,system,entity,n,Unsupported by title and summary.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,valet,entity,n,Generic or fragmentary token; not a specific entity.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,vigilant,entity,n,Generic or fragmentary token; not a specific entity.
+3242c1f8-f98a-40c5-94af-d97cabc951f0,airport,entity,n,Unsupported by title and summary.
+3242c1f8-f98a-40c5-94af-d97cabc951f0,coos,entity,n,Unsupported by title and summary.
+3242c1f8-f98a-40c5-94af-d97cabc951f0,oregon,entity,n,Unsupported by title and summary.
+3242c1f8-f98a-40c5-94af-d97cabc951f0,regional,entity,n,Unsupported by title and summary.
+3242c1f8-f98a-40c5-94af-d97cabc951f0,southwest,entity,n,Unsupported by title and summary.
+32822c35-84ae-47b3-8720-923258695797,alabama,entity,y,Specific entity explicitly supported by title or summary.
+3429aa94-0acf-4a3e-92cd-f74111ff25c5,submit,entity,n,Generic or fragmentary token; not a specific entity.
+3429aa94-0acf-4a3e-92cd-f74111ff25c5,submitters,entity,n,Generic or fragmentary token; not a specific entity.
+3429aa94-0acf-4a3e-92cd-f74111ff25c5,upcoming,entity,n,Generic or fragmentary token; not a specific entity.
+36e5051a-08da-4def-bd06-d20892038bf9,lumpy,entity,n,Generic or fragmentary token; not a specific entity.
+36e5051a-08da-4def-bd06-d20892038bf9,mountain,entity,n,Generic or fragmentary token; not a specific entity.
+36e5051a-08da-4def-bd06-d20892038bf9,ridge,entity,n,Generic or fragmentary token; not a specific entity.
+36e5051a-08da-4def-bd06-d20892038bf9,rocky,entity,n,Generic or fragmentary token; not a specific entity.
+36e5051a-08da-4def-bd06-d20892038bf9,small,entity,n,Generic or fragmentary token; not a specific entity.
+38ec735f-5df7-460d-aba2-9c922f96e09f,abbott,entity,y,Specific entity explicitly supported by title or summary.
+38ec735f-5df7-460d-aba2-9c922f96e09f,provides,entity,n,Generic or fragmentary token; not a specific entity.
+3bfbf1ef-ae4c-4789-819d-1c477c7ab23f,annotation,entity,n,Generic or fragmentary token; not a specific entity.
+3bfbf1ef-ae4c-4789-819d-1c477c7ab23f,matched,entity,n,Generic or fragmentary token; not a specific entity.
+3bfbf1ef-ae4c-4789-819d-1c477c7ab23f,released,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,aircraft,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,armstrong,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,edwards,entity,y,Specific entity explicitly supported by title or summary.
+3f51e221-c12f-47df-931f-841d8898333c,ensure,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,flight,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,flying,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,ground,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,keeping,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,kondracki,entity,n,Unsupported by title and summary.
+3f51e221-c12f-47df-931f-841d8898333c,research,entity,n,Generic or fragmentary token; not a specific entity.
+3f51e221-c12f-47df-931f-841d8898333c,walt,entity,n,Unsupported by title and summary.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,business,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,businesses,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,conduct,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,created,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,fake,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,home,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,illinois,entity,y,Specific entity explicitly supported by title or summary.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,listings,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,local,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,stop,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,take,entity,n,Generic or fragmentary token; not a specific entity.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,thousands,entity,n,Generic or fragmentary token; not a specific entity.
+4145d16b-f9db-4679-a8e0-1a697123ff90,forbearance,entity,n,Generic or fragmentary token; not a specific entity.
+4145d16b-f9db-4679-a8e0-1a697123ff90,mortgage,entity,n,Generic or fragmentary token; not a specific entity.
+4145d16b-f9db-4679-a8e0-1a697123ff90,private,entity,n,Generic or fragmentary token; not a specific entity.
+4145d16b-f9db-4679-a8e0-1a697123ff90,rebuild,entity,n,Generic or fragmentary token; not a specific entity.
+4145d16b-f9db-4679-a8e0-1a697123ff90,secured,entity,n,Generic or fragmentary token; not a specific entity.
+4145d16b-f9db-4679-a8e0-1a697123ff90,survivors,entity,n,Generic or fragmentary token; not a specific entity.
+4145d16b-f9db-4679-a8e0-1a697123ff90,wildfire,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,award,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,broadcast,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,eclipse,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,emmy,entity,y,Specific entity explicitly supported by title or summary.
+42365564-8749-47df-8bcb-6e88a5352c4c,excellence,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,production,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,solar,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,technology,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,total,entity,n,Generic or fragmentary token; not a specific entity.
+42365564-8749-47df-8bcb-6e88a5352c4c,wins,entity,n,Generic or fragmentary token; not a specific entity.
+42690ad4-53bf-469b-b34f-02dd02432d6d,dynawave,entity,n,Generic or fragmentary token; not a specific entity.
+42690ad4-53bf-469b-b34f-02dd02432d6d,implosion,entity,n,Generic or fragmentary token; not a specific entity.
+42690ad4-53bf-469b-b34f-02dd02432d6d,mill,entity,n,Generic or fragmentary token; not a specific entity.
+42690ad4-53bf-469b-b34f-02dd02432d6d,nippon,entity,n,Generic or fragmentary token; not a specific entity.
+42690ad4-53bf-469b-b34f-02dd02432d6d,paper,entity,n,Generic or fragmentary token; not a specific entity.
+43f9112f-4fa2-4c3f-b128-3be820aae42d,army,entity,y,Specific entity explicitly supported by title or summary.
+43f9112f-4fa2-4c3f-b128-3be820aae42d,corps,entity,n,Unsupported by title and summary.
+43f9112f-4fa2-4c3f-b128-3be820aae42d,kaczor,entity,y,Specific entity explicitly supported by title or summary.
+463ce20b-17fe-4e0c-888f-2ef6065d72b2,$308 million,entity,y,Specific amount explicitly supported by title and summary.
+463ce20b-17fe-4e0c-888f-2ef6065d72b2,england,entity,n,Generic or fragmentary token; not a specific entity.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,closure,entity,n,Generic or fragmentary token; not a specific entity.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,emergency,entity,n,Generic or fragmentary token; not a specific entity.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,provincial,entity,n,Generic or fragmentary token; not a specific entity.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,quetico,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,conspiracy,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,construction,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,dollar,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,email,entity,n,Unsupported by title and summary.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,executive,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,facebook,entity,n,Unsupported by title and summary.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,guilty,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,multi,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,pleads,entity,n,Generic or fragmentary token; not a specific entity.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,rigging,entity,n,Generic or fragmentary token; not a specific entity.
+655768e5-e87b-44c1-930a-5f60c990716f,strike,entity,n,Generic or fragmentary token; not a specific entity.
+65592242-2a3c-4a7a-b4e9-3f4d5e297c12,postal,entity,n,Generic or fragmentary token; not a specific entity.
+65592242-2a3c-4a7a-b4e9-3f4d5e297c12,quarter,entity,n,Generic or fragmentary token; not a specific entity.
+65b0ce41-c38e-43ea-b901-c5da7b251cfd,conditional,entity,n,Generic or fragmentary token; not a specific entity.
+65b0ce41-c38e-43ea-b901-c5da7b251cfd,intensity,entity,n,Generic or fragmentary token; not a specific entity.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,account,entity,n,Generic or fragmentary token; not a specific entity.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,astrogeology,entity,n,Generic or fragmentary token; not a specific entity.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,campus,entity,n,Generic or fragmentary token; not a specific entity.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,flagstaff,entity,n,Generic or fragmentary token; not a specific entity.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,mamula,entity,y,Specific entity explicitly supported by title or summary.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,team,entity,n,Generic or fragmentary token; not a specific entity.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,affairs,entity,n,Generic or fragmentary token; not a specific entity.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,appoints,entity,n,Generic or fragmentary token; not a specific entity.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,hutchinson,entity,y,Specific entity explicitly supported by title or summary.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,kathleen,entity,n,Generic or fragmentary token; not a specific entity.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,cambodian,entity,n,Generic or fragmentary token; not a specific entity.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,control,entity,n,Generic or fragmentary token; not a specific entity.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,defrauding,entity,n,Generic or fragmentary token; not a specific entity.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,network,entity,n,Generic or fragmentary token; not a specific entity.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,sanctions,entity,n,Generic or fragmentary token; not a specific entity.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,scam,entity,n,Generic or fragmentary token; not a specific entity.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,senator,entity,n,Generic or fragmentary token; not a specific entity.
+7a81843f-93ab-41f3-86bd-71794bb4117f,clairton,entity,n,Generic or fragmentary token; not a specific entity.
+7a81843f-93ab-41f3-86bd-71794bb4117f,coke,entity,n,Generic or fragmentary token; not a specific entity.
+7a81843f-93ab-41f3-86bd-71794bb4117f,steel,entity,n,Generic or fragmentary token; not a specific entity.
+7a81843f-93ab-41f3-86bd-71794bb4117f,works,entity,n,Generic or fragmentary token; not a specific entity.
+7aafc9c6-76ca-48da-908e-75896c1accfe,encourages,entity,n,Generic or fragmentary token; not a specific entity.
+7aafc9c6-76ca-48da-908e-75896c1accfe,fern,entity,n,Generic or fragmentary token; not a specific entity.
+7aafc9c6-76ca-48da-908e-75896c1accfe,prepare,entity,n,Generic or fragmentary token; not a specific entity.
+7aafc9c6-76ca-48da-908e-75896c1accfe,producers,entity,n,Generic or fragmentary token; not a specific entity.
+7aafc9c6-76ca-48da-908e-75896c1accfe,residents,entity,n,Generic or fragmentary token; not a specific entity.
+7aafc9c6-76ca-48da-908e-75896c1accfe,storm,entity,n,Generic or fragmentary token; not a specific entity.
+7aafc9c6-76ca-48da-908e-75896c1accfe,winter,entity,n,Generic or fragmentary token; not a specific entity.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,cash,entity,n,Generic or fragmentary token; not a specific entity.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,disbursement,entity,n,Generic or fragmentary token; not a specific entity.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,excess,entity,n,Generic or fragmentary token; not a specific entity.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,reconciliation,entity,n,Generic or fragmentary token; not a specific entity.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,reporting,entity,n,Generic or fragmentary token; not a specific entity.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,requirements,entity,n,Generic or fragmentary token; not a specific entity.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,title,entity,n,Generic or fragmentary token; not a specific entity.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,designation,entity,n,Generic or fragmentary token; not a specific entity.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,kristi,entity,n,Generic or fragmentary token; not a specific entity.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,noem,entity,y,Specific entity explicitly supported by title or summary.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,protected,entity,n,Generic or fragmentary token; not a specific entity.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,somalia,entity,y,Specific entity explicitly supported by title or summary.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,status,entity,n,Generic or fragmentary token; not a specific entity.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,terminates,entity,n,Generic or fragmentary token; not a specific entity.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,beds,entity,n,Generic or fragmentary token; not a specific entity.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,fossil,entity,n,Generic or fragmentary token; not a specific entity.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,hagerman,entity,n,Generic or fragmentary token; not a specific entity.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,idaho,entity,y,Specific entity explicitly supported by title or summary.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,parks,entity,n,Generic or fragmentary token; not a specific entity.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,southern,entity,n,Generic or fragmentary token; not a specific entity.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,visits,entity,n,Generic or fragmentary token; not a specific entity.
+8163f47d-c3c4-435b-bb04-abfae824812e,duckling,entity,n,Generic or fragmentary token; not a specific entity.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,hurley,entity,y,Specific entity explicitly supported by title or summary.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,intelligence,entity,n,Generic or fragmentary token; not a specific entity.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,israel,entity,y,Specific entity explicitly supported by title or summary.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,john,entity,n,Generic or fragmentary token; not a specific entity.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,lebanon,entity,y,Specific entity explicitly supported by title or summary.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,travel,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,accelerate,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,cars,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,concerns,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,dakota,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,derailment,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,hazardous,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,materials,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,phase,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,prompts,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,raises,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,renewed,entity,n,Generic or fragmentary token; not a specific entity.
+8d487898-4847-41fc-8aed-53f312aeeceb,retrofitted,entity,n,Generic or fragmentary token; not a specific entity.
+91150100-71fb-4646-95f4-6757996aef39,communications,entity,n,Generic or fragmentary token; not a specific entity.
+91150100-71fb-4646-95f4-6757996aef39,deep,entity,n,Generic or fragmentary token; not a specific entity.
+91150100-71fb-4646-95f4-6757996aef39,demo,entity,n,Generic or fragmentary token; not a specific entity.
+91150100-71fb-4646-95f4-6757996aef39,exceeds,entity,n,Generic or fragmentary token; not a specific entity.
+91150100-71fb-4646-95f4-6757996aef39,expectations,entity,n,Generic or fragmentary token; not a specific entity.
+91150100-71fb-4646-95f4-6757996aef39,project,entity,n,Generic or fragmentary token; not a specific entity.
+91150100-71fb-4646-95f4-6757996aef39,space,entity,n,Generic or fragmentary token; not a specific entity.
+9239e7fe-93c1-46cf-819f-4c85c2e84bcd,endangered,entity,n,Generic or fragmentary token; not a specific entity.
+9239e7fe-93c1-46cf-819f-4c85c2e84bcd,image,entity,n,Unsupported by title and summary.
+9239e7fe-93c1-46cf-819f-4c85c2e84bcd,interior,entity,n,Generic or fragmentary token; not a specific entity.
+9239e7fe-93c1-46cf-819f-4c85c2e84bcd,welcome,entity,n,Unsupported by title and summary.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,advisor,entity,n,Generic or fragmentary token; not a specific entity.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,outlook,entity,n,Generic or fragmentary token; not a specific entity.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,resource,entity,n,Generic or fragmentary token; not a specific entity.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,smoke,entity,n,Generic or fragmentary token; not a specific entity.
+97ed1535-1493-42c0-873f-9ea236167db6,ir-2025-102,event_key,y,Well-formed release identifier explicitly supported by summary.
+9947f606-9fe9-4f46-afd0-980a48672f6d,homepage,entity,n,Unsupported by title and summary.
+9947f606-9fe9-4f46-afd0-980a48672f6d,indicators,entity,n,Generic or fragmentary token; not a specific entity.
+9947f606-9fe9-4f46-afd0-980a48672f6d,latest,entity,n,Generic or fragmentary token; not a specific entity.
+9947f606-9fe9-4f46-afd0-980a48672f6d,numbers,entity,n,Generic or fragmentary token; not a specific entity.
+9947f606-9fe9-4f46-afd0-980a48672f6d,sections,entity,n,Unsupported by title and summary.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,average,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,fungal,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,genomics,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,identity,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,nucleotide,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,strengthening,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,using,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,verify,entity,n,Generic or fragmentary token; not a specific entity.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,yeast,entity,n,Generic or fragmentary token; not a specific entity.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,gavin,entity,n,Generic or fragmentary token; not a specific entity.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,newsom,entity,y,Specific entity explicitly supported by title or summary.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,race,entity,n,Generic or fragmentary token; not a specific entity.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,redistricting,entity,n,Generic or fragmentary token; not a specific entity.
+9fcd0eb5-8ace-4e46-a6f9-42b5f7ef6680,launch,entity,n,Generic or fragmentary token; not a specific entity.
+9fcd0eb5-8ace-4e46-a6f9-42b5f7ef6680,real,entity,n,Generic or fragmentary token; not a specific entity.
+9fcd0eb5-8ace-4e46-a6f9-42b5f7ef6680,time,entity,n,Generic or fragmentary token; not a specific entity.
+a09924c0-a8be-41cd-90a4-31b780938794,authorization,entity,n,Generic or fragmentary token; not a specific entity.
+a09924c0-a8be-41cd-90a4-31b780938794,automatic,entity,n,Generic or fragmentary token; not a specific entity.
+a09924c0-a8be-41cd-90a4-31b780938794,ends,entity,n,Generic or fragmentary token; not a specific entity.
+a272bac4-793b-49b1-8a71-c51043637238,halts,entity,n,Generic or fragmentary token; not a specific entity.
+a272bac4-793b-49b1-8a71-c51043637238,operations,entity,n,Generic or fragmentary token; not a specific entity.
+a272bac4-793b-49b1-8a71-c51043637238,request,entity,n,Generic or fragmentary token; not a specific entity.
+a272bac4-793b-49b1-8a71-c51043637238,telemarketers,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,adopts,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,born,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,decision,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,hepatitis,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,immunization,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,individual,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,infants,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,making,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,negative,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,test,entity,n,Generic or fragmentary token; not a specific entity.
+a5571abd-578d-4c84-bc42-712864916694,women,entity,n,Generic or fragmentary token; not a specific entity.
+a8f8ca36-c317-475b-80cb-97da57d2629a,announce,entity,n,Generic or fragmentary token; not a specific entity.
+a8f8ca36-c317-475b-80cb-97da57d2629a,candidate,entity,n,Unsupported by title and summary.
+a8f8ca36-c317-475b-80cb-97da57d2629a,contaminant,entity,n,Unsupported by title and summary.
+a8f8ca36-c317-475b-80cb-97da57d2629a,drinking,entity,n,Generic or fragmentary token; not a specific entity.
+a8f8ca36-c317-475b-80cb-97da57d2629a,list,entity,n,Unsupported by title and summary.
+a8f8ca36-c317-475b-80cb-97da57d2629a,microplastics,entity,y,Specific entity explicitly supported by title or summary.
+a8f8ca36-c317-475b-80cb-97da57d2629a,protect,entity,n,Generic or fragmentary token; not a specific entity.
+a8f8ca36-c317-475b-80cb-97da57d2629a,safeguard,entity,n,Generic or fragmentary token; not a specific entity.
+a9e1e195-9b59-4f7a-9442-1a1f8f07e7ae,ocean,entity,n,Unsupported by title and summary.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,change,entity,n,Generic or fragmentary token; not a specific entity.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,climate,entity,n,Generic or fragmentary token; not a specific entity.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,convention,entity,n,Generic or fragmentary token; not a specific entity.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,framework,entity,n,Generic or fragmentary token; not a specific entity.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,fund,entity,n,Generic or fragmentary token; not a specific entity.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,green,entity,n,Generic or fragmentary token; not a specific entity.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,immediate,entity,n,Generic or fragmentary token; not a specific entity.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,trump,entity,y,Specific entity explicitly supported by title or summary.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,withdrawal,entity,n,Generic or fragmentary token; not a specific entity.
+b169157f-8a57-405d-9643-884dd40b1def,summer,entity,n,Generic or fragmentary token; not a specific entity.
+b169157f-8a57-405d-9643-884dd40b1def,summit,entity,n,Generic or fragmentary token; not a specific entity.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,gear,entity,n,Generic or fragmentary token; not a specific entity.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,landing,entity,n,Generic or fragmentary token; not a specific entity.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,learjet,entity,y,Specific entity explicitly supported by title or summary.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,main,entity,n,Unsupported by title and summary.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,recommendation,entity,n,Generic or fragmentary token; not a specific entity.
+b3f4a409-4aa1-4e90-bddf-e33585e84f39,four,entity,n,Generic or fragmentary token; not a specific entity.
+b3f4a409-4aa1-4e90-bddf-e33585e84f39,investor,entity,n,Generic or fragmentary token; not a specific entity.
+b3f4a409-4aa1-4e90-bddf-e33585e84f39,members,entity,n,Generic or fragmentary token; not a specific entity.
+b4ae30b1-56a6-49d6-9316-9de3be33209b,handbook,entity,n,Generic or fragmentary token; not a specific entity.
+b4ae30b1-56a6-49d6-9316-9de3be33209b,student,entity,n,Generic or fragmentary token; not a specific entity.
+b4ae30b1-56a6-49d6-9316-9de3be33209b,volume,entity,n,Generic or fragmentary token; not a specific entity.
+b5f6ebfb-baea-4a1b-ba01-fc577439e1bb,eight,entity,n,Unsupported by title and summary.
+b5f6ebfb-baea-4a1b-ba01-fc577439e1bb,listeria,entity,y,Specific entity explicitly supported by title or summary.
+b5f6ebfb-baea-4a1b-ba01-fc577439e1bb,points,entity,n,Unsupported by title and summary.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,$2.4 million,entity,y,Specific amount explicitly supported by title and summary.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,assess,entity,n,Generic or fragmentary token; not a specific entity.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,cleanup,entity,n,Generic or fragmentary token; not a specific entity.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,communities,entity,n,Generic or fragmentary token; not a specific entity.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,establishes,entity,n,Generic or fragmentary token; not a specific entity.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,required,entity,n,Generic or fragmentary token; not a specific entity.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,standards,entity,n,Generic or fragmentary token; not a specific entity.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,transparency,entity,n,Generic or fragmentary token; not a specific entity.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,$10.9 million,entity,y,Specific amount explicitly supported by title and summary.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,consumers,entity,n,Generic or fragmentary token; not a specific entity.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,harmed,entity,n,Generic or fragmentary token; not a specific entity.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,pyramid,entity,n,Generic or fragmentary token; not a specific entity.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,scheme,entity,n,Generic or fragmentary token; not a specific entity.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,sends,entity,n,Generic or fragmentary token; not a specific entity.
+ba874312-6404-435c-befb-8bed1048db85,biologics,entity,n,Generic or fragmentary token; not a specific entity.
+ba874312-6404-435c-befb-8bed1048db85,collection,entity,n,Generic or fragmentary token; not a specific entity.
+ba874312-6404-435c-befb-8bed1048db85,improve,entity,n,Generic or fragmentary token; not a specific entity.
+ba874312-6404-435c-befb-8bed1048db85,pregnancy,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,congratulating,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,costa,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,delgado,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,elect,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,electoral,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,laura,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,rica,entity,n,Generic or fragmentary token; not a specific entity.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,rubio,entity,n,Unsupported by title and summary.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,victory,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,asset,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,brokers,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,categorization,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,certain,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,confirms,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,customer,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,letter,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,margin,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,perpetuals,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,regarding,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,staff,entity,n,Generic or fragmentary token; not a specific entity.
+c38cb894-9280-4276-a27e-a1244f2ec437,transfers,entity,n,Generic or fragmentary token; not a specific entity.
+c4b414da-0d36-4873-8a84-b0fbcb085f52,michael,entity,n,Unsupported by title and summary.
+c4b414da-0d36-4873-8a84-b0fbcb085f52,revolutionizing,entity,n,Generic or fragmentary token; not a specific entity.
+c4b414da-0d36-4873-8a84-b0fbcb085f52,ultrasound,entity,n,Unsupported by title and summary.
+c584a9fb-5d60-4cf6-8e97-26e4de5a370d,kentucky,entity,y,Specific entity explicitly supported by title or summary.
+c584a9fb-5d60-4cf6-8e97-26e4de5a370d,prevent,entity,n,Generic or fragmentary token; not a specific entity.
+c584a9fb-5d60-4cf6-8e97-26e4de5a370d,violation,entity,n,Generic or fragmentary token; not a specific entity.
+c662c7c4-8c23-41fb-8321-04641850aed2,downloads,entity,n,Generic or fragmentary token; not a specific entity.
+c662c7c4-8c23-41fb-8321-04641850aed2,retire,entity,n,Generic or fragmentary token; not a specific entity.
+c662c7c4-8c23-41fb-8321-04641850aed2,will,entity,n,Generic or fragmentary token; not a specific entity.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,bessent,entity,y,Specific entity explicitly supported by title or summary.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,delivers,entity,n,Generic or fragmentary token; not a specific entity.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,ministerial,entity,n,Generic or fragmentary token; not a specific entity.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,political,entity,n,Generic or fragmentary token; not a specific entity.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,resurgence,entity,n,Generic or fragmentary token; not a specific entity.
+ca92e9f0-8341-4818-9f0d-389a33f435b1,$754 million,entity,y,Specific amount explicitly supported by title and summary.
+ca92e9f0-8341-4818-9f0d-389a33f435b1,seashore,entity,n,Generic or fragmentary token; not a specific entity.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,begins,entity,n,Generic or fragmentary token; not a specific entity.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,internet,entity,n,Generic or fragmentary token; not a specific entity.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,live,entity,n,Generic or fragmentary token; not a specific entity.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,webinars,entity,n,Generic or fragmentary token; not a specific entity.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,accurate,entity,n,Generic or fragmentary token; not a specific entity.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,energetic,entity,n,Generic or fragmentary token; not a specific entity.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,explosions,entity,n,Generic or fragmentary token; not a specific entity.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,systems,entity,n,Generic or fragmentary token; not a specific entity.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,tennessee,entity,y,Specific entity explicitly supported by title or summary.
+d254af57-c8e2-456e-b69c-10034f4a8c62,$11.1 million,entity,y,Specific amount explicitly supported by title and summary.
+d254af57-c8e2-456e-b69c-10034f4a8c62,arizona,entity,y,Specific entity explicitly supported by title or summary.
+d254af57-c8e2-456e-b69c-10034f4a8c62,calif,entity,y,Specific entity explicitly supported by title or summary.
+d254af57-c8e2-456e-b69c-10034f4a8c62,community,entity,n,Generic or fragmentary token; not a specific entity.
+d254af57-c8e2-456e-b69c-10034f4a8c62,guam,entity,y,Specific entity explicitly supported by title or summary.
+d254af57-c8e2-456e-b69c-10034f4a8c62,hawai,entity,n,Malformed truncation of Hawai'i.
+d254af57-c8e2-456e-b69c-10034f4a8c62,oakland,entity,y,Specific entity explicitly supported by title or summary.
+d254af57-c8e2-456e-b69c-10034f4a8c62,resilience,entity,n,Generic or fragmentary token; not a specific entity.
+d390909a-ef00-450b-b7fd-794c058bf1c0,biosolids,entity,y,Specific entity explicitly supported by title or summary.
+d390909a-ef00-450b-b7fd-794c058bf1c0,healthy,entity,n,Generic or fragmentary token; not a specific entity.
+d390909a-ef00-450b-b7fd-794c058bf1c0,make,entity,n,Generic or fragmentary token; not a specific entity.
+d390909a-ef00-450b-b7fd-794c058bf1c0,risk,entity,n,Generic or fragmentary token; not a specific entity.
+d390909a-ef00-450b-b7fd-794c058bf1c0,seeks,entity,n,Generic or fragmentary token; not a specific entity.
+d390909a-ef00-450b-b7fd-794c058bf1c0,epa-hq-ow-2026-2509,event_key,n,Unsupported by title and summary.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,applications,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,arrests,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,connection,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,coordinated,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,email,entity,n,Unsupported by title and summary.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,enforcement,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,facebook,entity,n,Unsupported by title and summary.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,fraudulent,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,loan,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,relief,entity,n,Generic or fragmentary token; not a specific entity.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,seven,entity,n,Generic or fragmentary token; not a specific entity.
+dc15779e-e52e-4c0e-a8fa-08732443e683,facility,entity,n,Generic or fragmentary token; not a specific entity.
+dc15779e-e52e-4c0e-a8fa-08732443e683,givaudan,entity,y,Specific entity explicitly supported by title or summary.
+dc15779e-e52e-4c0e-a8fa-08732443e683,kentucky,entity,y,Specific entity explicitly supported by title or summary.
+dc15779e-e52e-4c0e-a8fa-08732443e683,louisville,entity,y,Specific entity explicitly supported by title or summary.
+ddd61e79-8b31-49e2-9307-728e1a31d152,adoption,entity,n,Generic or fragmentary token; not a specific entity.
+ddd61e79-8b31-49e2-9307-728e1a31d152,hello,entity,n,Unsupported by title and summary.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,forecasting,entity,n,Generic or fragmentary token; not a specific entity.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,hogsett,entity,y,Specific entity explicitly supported by title or summary.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,hurricane,entity,n,Generic or fragmentary token; not a specific entity.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,officer,entity,n,Generic or fragmentary token; not a specific entity.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,operation,entity,n,Generic or fragmentary token; not a specific entity.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,wallace,entity,n,Generic or fragmentary token; not a specific entity.
+e1f30c9d-5b14-43f9-9332-9eeeefdd1681,situation,entity,n,Generic or fragmentary token; not a specific entity.
+e1f30c9d-5b14-43f9-9332-9eeeefdd1681,transmission,entity,n,Unsupported by title and summary.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,abuses,entity,n,Generic or fragmentary token; not a specific entity.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,immigrant,entity,n,Generic or fragmentary token; not a specific entity.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,juvenile,entity,n,Generic or fragmentary token; not a specific entity.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,significant,entity,n,Generic or fragmentary token; not a specific entity.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,special,entity,n,Generic or fragmentary token; not a specific entity.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,uncovers,entity,n,Generic or fragmentary token; not a specific entity.
+e7f7dbc6-2a87-4968-82dd-895f4f786b7f,willow,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,city,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,civil,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,consent,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,decree,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,division,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,email,entity,n,Unsupported by title and summary.
+e8f64cbe-5189-49cd-b160-e81315970aa0,facebook,entity,n,Unsupported by title and summary.
+e8f64cbe-5189-49cd-b160-e81315970aa0,motion,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,police,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,rights,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,seattle,entity,y,Specific entity explicitly supported by title or summary.
+e8f64cbe-5189-49cd-b160-e81315970aa0,supports,entity,n,Generic or fragmentary token; not a specific entity.
+e8f64cbe-5189-49cd-b160-e81315970aa0,terminate,entity,n,Generic or fragmentary token; not a specific entity.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,appointed,entity,n,Generic or fragmentary token; not a specific entity.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,citizens,entity,n,Generic or fragmentary token; not a specific entity.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,member,entity,n,Generic or fragmentary token; not a specific entity.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,stamp,entity,n,Generic or fragmentary token; not a specific entity.
+ef7b0d31-745a-48c0-8514-608f3f8bfd57,$1,entity,n,Malformed amount token; title states $1M.
+ef7b0d31-745a-48c0-8514-608f3f8bfd57,jersey,entity,n,Generic or fragmentary token; not a specific entity.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,hormone,entity,n,Generic or fragmentary token; not a specific entity.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,labeling,entity,n,Generic or fragmentary token; not a specific entity.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,menopausal,entity,n,Generic or fragmentary token; not a specific entity.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,products,entity,n,Generic or fragmentary token; not a specific entity.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,therapy,entity,n,Generic or fragmentary token; not a specific entity.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,authorizes,entity,n,Generic or fragmentary token; not a specific entity.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,county,entity,n,Generic or fragmentary token; not a specific entity.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,fight,entity,n,Generic or fragmentary token; not a specific entity.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,funds,entity,n,Generic or fragmentary token; not a specific entity.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,lake,entity,n,Generic or fragmentary token; not a specific entity.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,leadville,entity,y,Specific entity explicitly supported by title or summary.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,willow,entity,n,Generic or fragmentary token; not a specific entity.
+f94a3c2f-0ff3-4a03-9553-55d1e88431b8,closing,entity,n,Generic or fragmentary token; not a specific entity.
+f94a3c2f-0ff3-4a03-9553-55d1e88431b8,email,entity,n,Unsupported by title and summary.
+f94a3c2f-0ff3-4a03-9553-55d1e88431b8,facebook,entity,n,Unsupported by title and summary.

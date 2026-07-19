@@ -1,0 +1,1179 @@
+{
+  "chains": [
+    {
+      "storyline": {
+        "storyline_id": "145ed8b9-bf25-449e-9052-671263d7d4a6",
+        "headline": "DHS Terminates 2021 Designation of Venezuela for Temporary Protected Status",
+        "summary": "DHS Terminates 2021 Designation of Venezuela for Temporary Protected Status / DHS Terminates 2021 Designation of Venezuela for Temporary Protected Status",
+        "entities": [
+          "designation",
+          "kristi",
+          "noem",
+          "protected",
+          "register",
+          "status",
+          "terminates",
+          "venezuela"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-03 20:46:45+00:00",
+        "newest_entry_at": "2025-09-05 13:13:10+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "b13b2beb-d604-4b30-8982-3698e1ae37d9",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "3160b005-3a6e-4330-9535-e55140df85ca",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-09-03 20:46:45+00:00",
+          "newest_entry_at": "2025-09-03 20:46:45+00:00",
+          "entry_count": 1,
+          "entities": [
+            "designation",
+            "kristi",
+            "noem",
+            "protected",
+            "status",
+            "terminates",
+            "venezuela"
+          ],
+          "event_keys": [],
+          "headline": "DHS Terminates 2021 Designation of Venezuela for Temporary Protected Status",
+          "summary": "Secretary of Homeland Security Kristi Noem today announced the termination of the 2021 designation of Temporary Protected Status for Venezuela, which will expire on Sept. 10, 2025.",
+          "entries": [
+            {
+              "entry_id": "bd76690c-b730-49e2-a00e-8cf80a27dbda",
+              "title": "DHS Terminates 2021 Designation of Venezuela for Temporary Protected Status",
+              "summary": "Secretary of Homeland Security Kristi Noem today announced the termination of the 2021 designation of Temporary Protected Status for Venezuela, which will expire on Sept. 10, 2025.",
+              "published_at": "2025-09-03 20:46:45+00:00",
+              "entities": [
+                "designation",
+                "kristi",
+                "noem",
+                "protected",
+                "status",
+                "terminates",
+                "venezuela"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "7faba928-f827-4c10-94af-b4c930b3dc48",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.930593,
+          "attach_reason": "Both items describe the termination of the 2021 designation of Venezuela for Temporary Protected Status by the Department of Homeland Security, with Item A providing the initial notice and Item B providing additional details on the effective date and impact of the decision.",
+          "first_entry_at": "2025-09-05 13:13:10+00:00",
+          "newest_entry_at": "2025-09-05 13:13:10+00:00",
+          "entry_count": 1,
+          "entities": [
+            "designation",
+            "protected",
+            "register",
+            "status",
+            "terminates",
+            "venezuela"
+          ],
+          "event_keys": [],
+          "headline": "DHS Terminates 2021 Designation of Venezuela for Temporary Protected Status",
+          "summary": "The Department of Homeland Security today posted a Federal Register notice on the termination of the 2021 designation of Venezuela for Temporary Protected Status.",
+          "entries": [
+            {
+              "entry_id": "d83baa4d-5b0b-450d-ae5e-bb4943bf9a8f",
+              "title": "DHS Terminates 2021 Designation of Venezuela for Temporary Protected Status",
+              "summary": "The Department of Homeland Security today posted a Federal Register notice on the termination of the 2021 designation of Venezuela for Temporary Protected Status.",
+              "published_at": "2025-09-05 13:13:10+00:00",
+              "entities": [
+                "designation",
+                "protected",
+                "register",
+                "status",
+                "terminates",
+                "venezuela"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "1f756f5d-1579-4351-be2d-0ec42281719e",
+        "headline": "Grand Canyon South Rim Implements Water Conservation Measures \u2014 Sept. 29, 2025 - Grand Canyon National Park (U.S. National Park Service)",
+        "summary": "Grand Canyon South Rim Implements Water Conservation Measures - Grand Canyon National Park (U.S. National Park Service) / Grand Canyon South Rim Implements Water Conservation Measures \u2014 Sept. 29, 2025 - Grand Canyon National Park (U.S. National Park Service)",
+        "entities": [
+          "grand",
+          "home",
+          "implements",
+          "measures",
+          "south"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-05 04:00:00+00:00",
+        "newest_entry_at": "2025-09-29 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "b11f2e92-b96d-430a-b92d-1b50389985c4",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "144ec6c4-e8e9-49f2-802b-1eb81b78c7f8",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-08-05 04:00:00+00:00",
+          "newest_entry_at": "2025-08-05 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "grand",
+            "implements",
+            "measures",
+            "south"
+          ],
+          "event_keys": [],
+          "headline": "Grand Canyon South Rim Implements Water Conservation Measures - Grand Canyon National Park (U.S. National Park Service)",
+          "summary": "Effective immediately, Grand Canyon National Park will implement water conservation measures for the South Rim of the park. These water restrictions are in response to a broken section of pipeline north of Phantom Ranch. Water conservation measures require all park residents and visitors to conserve and reduce water usage wherever possible in homes, hotel rooms and campgrounds.",
+          "entries": [
+            {
+              "entry_id": "eff4521e-04d5-4c54-9f39-849c778d401a",
+              "title": "Grand Canyon South Rim Implements Water Conservation Measures - Grand Canyon National Park (U.S. National Park Service)",
+              "summary": "Effective immediately, Grand Canyon National Park will implement water conservation measures for the South Rim of the park. These water restrictions are in response to a broken section of pipeline north of Phantom Ranch. Water conservation measures require all park residents and visitors to conserve and reduce water usage wherever possible in homes, hotel rooms and campgrounds.",
+              "published_at": "2025-08-05 04:00:00+00:00",
+              "entities": [
+                "grand",
+                "implements",
+                "measures",
+                "south"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "9a9e21d5-2508-4c59-8ee0-914a3c475290",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.915222,
+          "attach_reason": "The identical titles and shared entities, combined with the semantic similarity and the context of a previous event with the same details, suggest that the new item is a development of the same historical event chain.",
+          "first_entry_at": "2025-09-29 04:00:00+00:00",
+          "newest_entry_at": "2025-09-29 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "grand",
+            "home",
+            "implements",
+            "measures",
+            "south"
+          ],
+          "event_keys": [],
+          "headline": "Grand Canyon South Rim Implements Water Conservation Measures \u2014 Sept. 29, 2025 - Grand Canyon National Park (U.S. National Park Service)",
+          "summary": "Grand Canyon South Rim Implements Water Conservation Measures \u2014 Sept. 29, 2025 - Grand Canyon National Park (U.S. National Park Service)",
+          "entries": [
+            {
+              "entry_id": "4984740c-f89e-4db9-8154-0165ca5fc09c",
+              "title": "Grand Canyon South Rim Implements Water Conservation Measures \u2014 Sept. 29, 2025 - Grand Canyon National Park (U.S. National Park Service)",
+              "summary": "",
+              "published_at": "2025-09-29 04:00:00+00:00",
+              "entities": [
+                "grand",
+                "home",
+                "implements",
+                "measures",
+                "south"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "2d314269-80d6-4af9-bf13-381f770aeb77",
+        "headline": "2025_08_20_Hurricane_Erin_Advisory_2 - Cape Lookout National Seashore (U.S. National Park Service)",
+        "summary": "Hurricane Erin Closures At Cape Lookout National Seashore - Cape Lookout National Seashore (U.S. National Park Service) / 2025_08_20_Hurricane_Erin_Advisory_2 - Cape Lookout National Seashore (U.S. National Park Service)",
+        "entities": [
+          "closures",
+          "erin",
+          "hurricane",
+          "lookout",
+          "seashore"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-18 04:00:00+00:00",
+        "newest_entry_at": "2025-08-20 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "d840347a-5076-4357-985c-bee1169c1f5f",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-08-18 04:00:00+00:00",
+          "newest_entry_at": "2025-08-18 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "closures",
+            "erin",
+            "hurricane",
+            "lookout",
+            "seashore"
+          ],
+          "event_keys": [],
+          "headline": "Hurricane Erin Closures At Cape Lookout National Seashore - Cape Lookout National Seashore (U.S. National Park Service)",
+          "summary": "Hurricane Erin Closures At Cape Lookout National Seashore - Cape Lookout National Seashore (U.S. National Park Service)",
+          "entries": [
+            {
+              "entry_id": "e4d32ae5-5a93-43ee-bda1-ad7efa37699c",
+              "title": "Hurricane Erin Closures At Cape Lookout National Seashore - Cape Lookout National Seashore (U.S. National Park Service)",
+              "summary": "",
+              "published_at": "2025-08-18 04:00:00+00:00",
+              "entities": [
+                "closures",
+                "erin",
+                "hurricane",
+                "lookout",
+                "seashore"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "a2a06ab8-f15e-4a90-9c5c-08894d17c767",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.798739,
+          "attach_reason": "The items share entities and have high semantic similarity, with Item A being a specific advisory and Item B describing the resulting closures, both related to Hurricane Erin at Cape Lookout National Seashore.",
+          "first_entry_at": "2025-08-20 04:00:00+00:00",
+          "newest_entry_at": "2025-08-20 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "lookout",
+            "seashore"
+          ],
+          "event_keys": [],
+          "headline": "2025_08_20_Hurricane_Erin_Advisory_2 - Cape Lookout National Seashore (U.S. National Park Service)",
+          "summary": "2025_08_20_Hurricane_Erin_Advisory_2",
+          "entries": [
+            {
+              "entry_id": "73e35cad-01c0-4d97-bd7c-ec386192c03a",
+              "title": "2025_08_20_Hurricane_Erin_Advisory_2 - Cape Lookout National Seashore (U.S. National Park Service)",
+              "summary": "2025_08_20_Hurricane_Erin_Advisory_2",
+              "published_at": "2025-08-20 04:00:00+00:00",
+              "entities": [
+                "lookout",
+                "seashore"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "30beb058-534a-4693-9df4-dbce90ef21e6",
+        "headline": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+        "summary": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State / Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+        "entities": [
+          "criminal",
+          "fact",
+          "further",
+          "imposing",
+          "israelis",
+          "ongoing",
+          "sanctions",
+          "sheet",
+          "threat"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-20 04:00:00+00:00",
+        "newest_entry_at": "2025-08-20 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.551751,
+        "theme_id": "53dba562-e2b9-4459-9d1d-d5930d7fe03e",
+        "stream_category_id": "c0b72181-1d13-4dd6-a3e9-2d702a920787",
+        "theme_reason": "The storyline involves US diplomatic efforts to respond to the ICC's actions, which is related to an international conflict or dispute involving Americans and Israelis."
+      },
+      "episodes": [
+        {
+          "episode_id": "1f77571e-697e-4294-9f89-f844b0dd4639",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-08-20 04:00:00+00:00",
+          "newest_entry_at": "2025-08-20 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "further",
+            "imposing",
+            "israelis",
+            "ongoing",
+            "sanctions",
+            "threat"
+          ],
+          "event_keys": [],
+          "headline": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+          "summary": "Today, I am designating Kimberly Prost of Canada, Nicolas Guillou of France, Nazhat Shameem Khan of Fiji and Mame Mandiaye Niang of Senegal pursuant to President Trump\u2019s Executive Order 14203, \u201cImposing Sanctions on the International Criminal Court.\u201d These individuals are foreign persons who directly engaged in efforts by the International Criminal Court (ICC) to investigate, [\u2026]",
+          "entries": [
+            {
+              "entry_id": "62e3050d-6fd9-49b2-aa9c-37ef1449cbf6",
+              "title": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+              "summary": "Today, I am designating Kimberly Prost of Canada, Nicolas Guillou of France, Nazhat Shameem Khan of Fiji and Mame Mandiaye Niang of Senegal pursuant to President Trump\u2019s Executive Order 14203, \u201cImposing Sanctions on the International Criminal Court.\u201d These individuals are foreign persons who directly engaged in efforts by the International Criminal Court (ICC) to investigate, [\u2026]",
+              "published_at": "2025-08-20 04:00:00+00:00",
+              "entities": [
+                "further",
+                "imposing",
+                "israelis",
+                "ongoing",
+                "sanctions",
+                "threat"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "ac90f0d6-2398-47b6-93b3-eb344f1e1ced",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": null,
+          "attach_reason": "The two items have identical titles and describe the same action of imposing sanctions on individuals serving on the International Criminal Court pursuant to Executive Order 14203, with Item B providing specific details about the individuals being sanctioned.",
+          "first_entry_at": "2025-08-20 04:00:00+00:00",
+          "newest_entry_at": "2025-08-20 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "criminal",
+            "fact",
+            "further",
+            "imposing",
+            "israelis",
+            "ongoing",
+            "sanctions",
+            "sheet",
+            "threat"
+          ],
+          "event_keys": [],
+          "headline": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+          "summary": "Today, the United States is sanctioning four individuals, currently serving on the International Criminal Court (ICC). The Department of State\u2019s designations are made pursuant to Executive Order (E.O.) 14203, which authorizes sanctions on foreign persons engaged in certain malign efforts by the ICC and aims to impose tangible and significant consequences on those directly engaged [\u2026]",
+          "entries": [
+            {
+              "entry_id": "d609c9db-4700-4dd6-a38d-68d27c24a18d",
+              "title": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+              "summary": "Today, the United States is sanctioning four individuals, currently serving on the International Criminal Court (ICC). The Department of State\u2019s designations are made pursuant to Executive Order (E.O.) 14203, which authorizes sanctions on foreign persons engaged in certain malign efforts by the ICC and aims to impose tangible and significant consequences on those directly engaged [\u2026]",
+              "published_at": "2025-08-20 04:00:00+00:00",
+              "entities": [
+                "criminal",
+                "fact",
+                "further",
+                "imposing",
+                "israelis",
+                "ongoing",
+                "sanctions",
+                "sheet",
+                "threat"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "44656d82-8345-4807-b140-3c1ad8b981ca",
+        "headline": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+        "summary": "One Week Left For Kentuckians Affected By May Tornadoes To Apply For FEMA Assistance / Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+        "entities": [
+          "days",
+          "kentuckians"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-15 13:08:40+00:00",
+        "newest_entry_at": "2025-08-22 12:32:01+00:00",
+        "episode_count": 2,
+        "entry_count": 3,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.860047,
+        "theme_id": "7e437856-d089-40db-89f1-572fb89158b6",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines share a recurring subject of disaster relief and application deadlines, which will plausibly keep producing distinct events"
+      },
+      "episodes": [
+        {
+          "episode_id": "e6a1077d-0e15-44af-8b96-0c425bcaee7c",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-08-15 13:08:40+00:00",
+          "newest_entry_at": "2025-08-15 13:08:40+00:00",
+          "entry_count": 1,
+          "entities": [
+            "kentuckians"
+          ],
+          "event_keys": [],
+          "headline": "One Week Left For Kentuckians Affected By May Tornadoes To Apply For FEMA Assistance",
+          "summary": "One Week Left For Kentuckians Affected By May Tornadoes To Apply For FEMA Assistance FRANKFORT, Ky. \u2013 Kentucky homeowners and renters in Caldwell, Laurel, Pulaski, Russell, Trigg and Union counties who suffered uninsured damage to their property from the May 16-17 tornadoes have one week left to apply for federal disaster assistance. The application deadline is Aug. 22.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the address where you are now staying.Your Social Security Number. A general list of damage and losses.Banking information if you choose direct deposit. If insured, the policy number or the agent and/or the company name.Survivors should keep their contact information updated with FEMA as the agency may need to call to schedule a home",
+          "entries": [
+            {
+              "entry_id": "57fd0e80-4bf4-48ed-ad8b-ec1b6eaaad5a",
+              "title": "One Week Left For Kentuckians Affected By May Tornadoes To Apply For FEMA Assistance",
+              "summary": "One Week Left For Kentuckians Affected By May Tornadoes To Apply For FEMA Assistance FRANKFORT, Ky. \u2013 Kentucky homeowners and renters in Caldwell, Laurel, Pulaski, Russell, Trigg and Union counties who suffered uninsured damage to their property from the May 16-17 tornadoes have one week left to apply for federal disaster assistance. The application deadline is Aug. 22.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. When you apply, you will need to provide:A current phone number where y",
+              "published_at": "2025-08-15 13:08:40+00:00",
+              "entities": [
+                "kentuckians"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "3e3c3b14-c21c-48ed-aac0-3924696be5af",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.882876,
+          "attach_reason": "Both items describe the same event of applying for FEMA assistance for Kentuckians affected by the May 16-17 tornadoes with the same application deadline of August 22.",
+          "first_entry_at": "2025-08-20 12:31:24+00:00",
+          "newest_entry_at": "2025-08-22 12:32:01+00:00",
+          "entry_count": 2,
+          "entities": [
+            "days",
+            "kentuckians"
+          ],
+          "event_keys": [],
+          "headline": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+          "summary": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes have two days left to apply for federal disaster assistance. The application deadline is August 22.Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. When you apply, you will need to provide:A current phone number where you can be contacted.A current email address.Your address at the time of the disaster and the address where you are now staying.Your Social Security Number. A general list of damage and losses.Banking information if you choose direct deposit. If insured, the policy number or the agent and/or the company name.Survivors should keep their contact information updated with FEMA as the agency",
+          "entries": [
+            {
+              "entry_id": "190bf857-6a38-4c90-845f-92585e3e6e79",
+              "title": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+              "summary": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes have two days left to apply for federal disaster assistance. The application deadline is August 22.Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. When you apply, you will need to provide:A current phone nu",
+              "published_at": "2025-08-20 12:31:24+00:00",
+              "entities": [
+                "days",
+                "kentuckians"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            },
+            {
+              "entry_id": "4623ac00-fe2a-4844-a485-75adea1d479a",
+              "title": "Last Day To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+              "summary": "Last Day To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes FRANKFORT, Ky. \u2013 Today is the last day for Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes to apply for federal disaster assistance. The application deadline is 11:59 p.m. tonight, August 22.Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. When you apply, you will need to prov",
+              "published_at": "2025-08-22 12:32:01+00:00",
+              "entities": [
+                "kentuckians"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "near_dup",
+              "entry_similarity": 0.969145
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "60527256-88aa-420e-aac1-ede8b163516c",
+        "headline": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+        "summary": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State / Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+        "entities": [
+          "honduran",
+          "landau"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-30 04:00:00+00:00",
+        "newest_entry_at": "2025-09-26 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "22706cdf-4449-4d39-8a78-82e5084268fb",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-07-30 04:00:00+00:00",
+          "newest_entry_at": "2025-07-30 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "honduran",
+            "landau"
+          ],
+          "event_keys": [],
+          "headline": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Today, Deputy Secretary of State Christopher Landau met with Honduran Foreign Minister Javier Bu and Presidential Advisor Hector Zelaya to reaffirm our shared strategic interests. The Deputy and Foreign Minister Bu emphasized the need to continue working jointly on economic, counternarcotics, and migration issues, among others.",
+          "entries": [
+            {
+              "entry_id": "bc69bd1b-0d78-4575-917a-3bf4ef88aa9d",
+              "title": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+              "summary": "The below is attributable to Spokesperson Tammy Bruce: Today, Deputy Secretary of State Christopher Landau met with Honduran Foreign Minister Javier Bu and Presidential Advisor Hector Zelaya to reaffirm our shared strategic interests. The Deputy and Foreign Minister Bu emphasized the need to continue working jointly on economic, counternarcotics, and migration issues, among others.",
+              "published_at": "2025-07-30 04:00:00+00:00",
+              "entities": [
+                "honduran",
+                "landau"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "f3d6fa94-ac32-4833-8a8d-9369d95950a8",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.864914,
+          "attach_reason": "Both items describe a meeting between Deputy Secretary of State Christopher Landau and Honduran Foreign Minister Javier Bu, with similar discussion topics and no indication of a different meeting or event.",
+          "first_entry_at": "2025-09-26 04:00:00+00:00",
+          "newest_entry_at": "2025-09-26 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "honduran",
+            "landau"
+          ],
+          "event_keys": [],
+          "headline": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+          "summary": "The below is attributable to Principal Deputy Spokesperson Tommy Pigott: Deputy Secretary of State Christopher Landau met on September 24 with Honduran Minister of Foreign Affairs Javier Bu in New York on the sidelines of the 80th United Nations High-Level Week. The Deputy Secretary and the Foreign Minister discussed our strong cooperation on security and [\u2026]",
+          "entries": [
+            {
+              "entry_id": "73202650-87b0-45f1-861f-077e573e73ab",
+              "title": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+              "summary": "The below is attributable to Principal Deputy Spokesperson Tommy Pigott: Deputy Secretary of State Christopher Landau met on September 24 with Honduran Minister of Foreign Affairs Javier Bu in New York on the sidelines of the 80th United Nations High-Level Week. The Deputy Secretary and the Foreign Minister discussed our strong cooperation on security and [\u2026]",
+              "published_at": "2025-09-26 04:00:00+00:00",
+              "entities": [
+                "honduran",
+                "landau"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "83ce6911-3325-4c90-959f-7738f358ccae",
+        "headline": "NASA Launches 2026 Gateways to Blue Skies Competition",
+        "summary": "NASA Gateways to Blue Skies 2026 Competition / NASA Launches 2026 Gateways to Blue Skies Competition",
+        "entities": [
+          "gateways",
+          "skies"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-18 19:29:37+00:00",
+        "newest_entry_at": "2025-09-24 12:22:39+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "c0507b9f-da3c-41db-946a-e0678a6b7942",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "9c614d4d-86c6-44a3-9517-9bffdcd27371",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-09-18 19:29:37+00:00",
+          "newest_entry_at": "2025-09-18 19:29:37+00:00",
+          "entry_count": 1,
+          "entities": [
+            "gateways",
+            "skies"
+          ],
+          "event_keys": [],
+          "headline": "NASA Gateways to Blue Skies 2026 Competition",
+          "summary": "The commercial aviation industry is a crucial component of the U.S. economy, playing a vital role in transporting people, intermediate/final goods, and driving demand for various goods and services nationwide. This network enhances the quality of life for the whole country and facilitates business interactions within and globally, boosting productivity and prosperity. However, the industry [\u2026]",
+          "entries": [
+            {
+              "entry_id": "1aa6a917-a154-4cf8-b830-7c5d0af2fa68",
+              "title": "NASA Gateways to Blue Skies 2026 Competition",
+              "summary": "The commercial aviation industry is a crucial component of the U.S. economy, playing a vital role in transporting people, intermediate/final goods, and driving demand for various goods and services nationwide. This network enhances the quality of life for the whole country and facilitates business interactions within and globally, boosting productivity and prosperity. However, the industry [\u2026]",
+              "published_at": "2025-09-18 19:29:37+00:00",
+              "entities": [
+                "gateways",
+                "skies"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "af5f6bc2-1840-4734-aae3-46ab560dd614",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.838124,
+          "attach_reason": "The two items share the same competition name, 'Gateways to Blue Skies 2026', and similar summaries, indicating they describe the same specific event.",
+          "first_entry_at": "2025-09-24 12:22:39+00:00",
+          "newest_entry_at": "2025-09-24 12:22:39+00:00",
+          "entry_count": 1,
+          "entities": [
+            "gateways",
+            "skies"
+          ],
+          "event_keys": [],
+          "headline": "NASA Launches 2026 Gateways to Blue Skies Competition",
+          "summary": "NASA\u2019s 2026 Gateways to Blue Skies competition invites collegiate teams to conceptualize innovative systems and practices that would advance current commercial aircraft maintenance, repair, and operations with the goal to enhance resilience, safety, and efficiency. The commercial aviation industry is a crucial component of the U.S. economy, employing millions and supporting global commerce and [\u2026]",
+          "entries": [
+            {
+              "entry_id": "3e640693-17eb-46d6-b011-6dbeef1dfd4a",
+              "title": "NASA Launches 2026 Gateways to Blue Skies Competition",
+              "summary": "NASA\u2019s 2026 Gateways to Blue Skies competition invites collegiate teams to conceptualize innovative systems and practices that would advance current commercial aircraft maintenance, repair, and operations with the goal to enhance resilience, safety, and efficiency. The commercial aviation industry is a crucial component of the U.S. economy, employing millions and supporting global commerce and [\u2026]",
+              "published_at": "2025-09-24 12:22:39+00:00",
+              "entities": [
+                "gateways",
+                "skies"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "9473d50d-8ff6-48e6-88f4-b5f8cdf3ec6b",
+        "headline": "September events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service)",
+        "summary": "August events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service) / September events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service)",
+        "entities": [
+          "honouliuli"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-28 04:00:00+00:00",
+        "newest_entry_at": "2025-08-28 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "b11f2e92-b96d-430a-b92d-1b50389985c4",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "bf4debfb-30e8-4d7f-9b70-de7b0efa4e62",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-07-28 04:00:00+00:00",
+          "newest_entry_at": "2025-07-28 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "honouliuli"
+          ],
+          "event_keys": [],
+          "headline": "August events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service)",
+          "summary": "August events for Honouliuli National Historic Site 10th Anniversary Commemoration",
+          "entries": [
+            {
+              "entry_id": "95220bc5-25f0-4fbe-a605-7ef7fea546bb",
+              "title": "August events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service)",
+              "summary": "August events for Honouliuli National Historic Site 10th Anniversary Commemoration",
+              "published_at": "2025-07-28 04:00:00+00:00",
+              "entities": [
+                "honouliuli"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "34ddfc17-6fe4-46fd-9803-30466fe2f582",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.815328,
+          "attach_reason": "The items share the same entity 'honouliuli' and describe the same anniversary commemoration, with the only difference being the month of events, indicating a continuation of the same event chain.",
+          "first_entry_at": "2025-08-28 04:00:00+00:00",
+          "newest_entry_at": "2025-08-28 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "honouliuli"
+          ],
+          "event_keys": [],
+          "headline": "September events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service)",
+          "summary": "September events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service)",
+          "entries": [
+            {
+              "entry_id": "c5eb5db3-b665-4f96-9646-92ac8f8f399d",
+              "title": "September events for Honouliuli National Historic Site 10th Anniversary Commemoration - Honouliuli National Historic Site (U.S. National Park Service)",
+              "summary": "",
+              "published_at": "2025-08-28 04:00:00+00:00",
+              "entities": [
+                "honouliuli"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "ad02ea7a-2f0f-47e8-86f7-33675da87675",
+        "headline": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+        "summary": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State / Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+        "entities": [
+          "david",
+          "lammy",
+          "pigott",
+          "principal",
+          "rubio",
+          "tammy",
+          "tommy"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-04 04:00:00+00:00",
+        "newest_entry_at": "2025-09-02 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.70423,
+        "theme_id": "53dba562-e2b9-4459-9d1d-d5930d7fe03e",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and disputes, which will plausibly keep producing distinct events"
+      },
+      "episodes": [
+        {
+          "episode_id": "2df5be05-1069-4413-90a5-0249b2e52ae6",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-08-04 04:00:00+00:00",
+          "newest_entry_at": "2025-08-04 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "david",
+            "lammy",
+            "rubio",
+            "tammy"
+          ],
+          "event_keys": [],
+          "headline": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio spoke today with UK Foreign Secretary David Lammy. The Secretary and Foreign Secretary Lammy discussed the humanitarian situation in Gaza and efforts to reach a ceasefire \u2013 despite Hamas\u2019s obstructionism \u2013 and bring the hostages home. On the Russia-Ukraine war, both the [\u2026]",
+          "entries": [
+            {
+              "entry_id": "ac229c9d-ccd7-4283-ac78-e7bad990938b",
+              "title": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+              "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio spoke today with UK Foreign Secretary David Lammy. The Secretary and Foreign Secretary Lammy discussed the humanitarian situation in Gaza and efforts to reach a ceasefire \u2013 despite Hamas\u2019s obstructionism \u2013 and bring the hostages home. On the Russia-Ukraine war, both the [\u2026]",
+              "published_at": "2025-08-04 04:00:00+00:00",
+              "entities": [
+                "david",
+                "lammy",
+                "rubio",
+                "tammy"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "0f988d1b-35d9-4672-9540-36715e9ea694",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.870687,
+          "attach_reason": "The items share the same entities, including Secretary of State Marco Rubio and UK Foreign Secretary David Lammy, and discuss the same topics, including the situation in Gaza and bringing hostages home, with similar goals and contexts.",
+          "first_entry_at": "2025-09-02 04:00:00+00:00",
+          "newest_entry_at": "2025-09-02 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "david",
+            "lammy",
+            "pigott",
+            "principal",
+            "rubio",
+            "tommy"
+          ],
+          "event_keys": [],
+          "headline": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+          "summary": "The below is attributable to Principal Deputy Spokesperson Tommy Pigott: Secretary of State Marco Rubio spoke today with UK Foreign Secretary David Lammy. The Secretary and Foreign Secretary Lammy discussed Hamas and the situation in Gaza, including efforts to bring all the hostages home. The Secretary and Foreign Secretary underscored their shared commitment to ensuring that Iran never obtains or [\u2026]",
+          "entries": [
+            {
+              "entry_id": "7b1e4b45-1c5a-4942-a45c-07be6c257317",
+              "title": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+              "summary": "The below is attributable to Principal Deputy Spokesperson Tommy Pigott: Secretary of State Marco Rubio spoke today with UK Foreign Secretary David Lammy. The Secretary and Foreign Secretary Lammy discussed Hamas and the situation in Gaza, including efforts to bring all the hostages home. The Secretary and Foreign Secretary underscored their shared commitment to ensuring that Iran never obtains or [\u2026]",
+              "published_at": "2025-09-02 04:00:00+00:00",
+              "entities": [
+                "david",
+                "lammy",
+                "pigott",
+                "principal",
+                "rubio",
+                "tommy"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "cf6bd441-6ec3-457e-a22f-763ce227a1a3",
+        "headline": "FTC and DOJ Host Listening Session on Lowering Americans\u2019 Drug Prices Through Competition",
+        "summary": "FTC and DOJ Host Listening Session on Lowering Americans\u2019 Drug Prices Through Competition / FTC and DOJ Host Listening Session on Lowering Americans\u2019 Drug Prices Through Competition",
+        "entities": [
+          "host",
+          "listening",
+          "lowering",
+          "prices",
+          "session",
+          "through"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-23 14:24:44+00:00",
+        "newest_entry_at": "2025-08-01 14:44:25+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "c0b72181-1d13-4dd6-a3e9-2d702a920787",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "902c86f4-dff8-4bb6-917e-d2670bc9427e",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-07-23 14:24:44+00:00",
+          "newest_entry_at": "2025-07-23 14:24:44+00:00",
+          "entry_count": 1,
+          "entities": [
+            "host",
+            "listening",
+            "lowering",
+            "prices",
+            "session",
+            "through"
+          ],
+          "event_keys": [],
+          "headline": "FTC and DOJ Host Listening Session on Lowering Americans\u2019 Drug Prices Through Competition",
+          "summary": "WHAT: The Federal Trade Commission and the Justice Department\u2019s Antitrust Division, along with the Department of Commerce and the Department of Hea",
+          "entries": [
+            {
+              "entry_id": "0319c7a3-5de3-4bf7-8cbd-f32cfc2a0971",
+              "title": "FTC and DOJ Host Listening Session on Lowering Americans\u2019 Drug Prices Through Competition",
+              "summary": "WHAT: The Federal Trade Commission and the Justice Department\u2019s Antitrust Division, along with the Department of Commerce and the Department of Hea",
+              "published_at": "2025-07-23 14:24:44+00:00",
+              "entities": [
+                "host",
+                "listening",
+                "lowering",
+                "prices",
+                "session",
+                "through"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "676fb5b4-d0fd-433d-82e9-427386e58820",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.925234,
+          "attach_reason": "The titles and summaries of Item A and Item B are nearly identical and describe the same event, a listening session hosted by the FTC and DOJ to discuss lowering Americans' drug prices through competition.",
+          "first_entry_at": "2025-08-01 14:44:25+00:00",
+          "newest_entry_at": "2025-08-01 14:44:25+00:00",
+          "entry_count": 1,
+          "entities": [
+            "host",
+            "listening",
+            "lowering",
+            "prices",
+            "session",
+            "through"
+          ],
+          "event_keys": [],
+          "headline": "FTC and DOJ Host Listening Session on Lowering Americans\u2019 Drug Prices Through Competition",
+          "summary": "WHAT: The Federal Trade Commission and the Justice Department\u2019s Antitrust Division, along with the Department of Commerce and the Department of Hea",
+          "entries": [
+            {
+              "entry_id": "7d020731-dfc6-4f3f-bbf5-969033c83912",
+              "title": "FTC and DOJ Host Listening Session on Lowering Americans\u2019 Drug Prices Through Competition",
+              "summary": "WHAT: The Federal Trade Commission and the Justice Department\u2019s Antitrust Division, along with the Department of Commerce and the Department of Hea",
+              "published_at": "2025-08-01 14:44:25+00:00",
+              "entities": [
+                "host",
+                "listening",
+                "lowering",
+                "prices",
+                "session",
+                "through"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "f155f3a9-835b-4c08-8c5d-90d53c05f5ea",
+        "headline": "Hours to Change at Disaster Recovery Centers in Tennessee",
+        "summary": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms / Hours to Change at Disaster Recovery Centers in Tennessee",
+        "entities": [
+          "change",
+          "hours",
+          "middle",
+          "storms",
+          "tennesseans",
+          "tennessee",
+          "western"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 13:52:19+00:00",
+        "newest_entry_at": "2025-07-21 13:22:54+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.836206,
+        "theme_id": "7e437856-d089-40db-89f1-572fb89158b6",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines share a recurring subject of disaster relief and application deadlines, which will plausibly keep producing distinct events"
+      },
+      "episodes": [
+        {
+          "episode_id": "77cf278f-8846-4800-961b-f906e2e78d6d",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-07-18 13:52:19+00:00",
+          "newest_entry_at": "2025-07-18 13:52:19+00:00",
+          "entry_count": 1,
+          "entities": [
+            "middle",
+            "storms",
+            "tennesseans",
+            "tennessee",
+            "western"
+          ],
+          "event_keys": [],
+          "headline": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms",
+          "summary": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms Middle and Western Tennesseans who have been affected by April severe storms, straight-line winds, tornadoes and flooding have one month left to apply for FEMA assistance.Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties who were displaced or have property damage from the April 2-24 storms have until Tuesday, Aug. 19 to submit an application for FEMA assistance.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing.How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at 800-621-3362. In-person help is available at any Disaster Recovery Center for submitting applications, getting updates and asking questions. Find a center here: DRC Locator (fema.gov).Video: What to Expect Before Applying for FEMA Assistance | ASL | SpanishVideo: Next Steps After Applying for FEMA Assistance | ASL | SpanishDisaster Recovery Center locations:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hours: 8 a.m.\u20136 p.m. CT Monday-SundayHardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039Hours: 8 a.m.\u20136 p.m. CT Monday-SundayMcNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Hours: 8 a.m.\u20136 p.m. CT Monday-SundayMo",
+          "entries": [
+            {
+              "entry_id": "aa693d8c-0aa5-4f99-bf61-c6cfb0c73ef9",
+              "title": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms",
+              "summary": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms Middle and Western Tennesseans who have been affected by April severe storms, straight-line winds, tornadoes and flooding have one month left to apply for FEMA assistance.Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties who were displaced or have property damage from the April 2-24 storms have until Tuesday, Aug. 19 to submit an application for FEMA assistance.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing.How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at 800-621-3362. In-person help is available at any Disaster Recovery Center for submitting applications, getting updates and asking questions. Find a center here: DRC Locator (fema.gov).Video: What to Expect Before Applying for FEMA Assistance | ASL | SpanishVideo: Next Steps After Applying for ",
+              "published_at": "2025-07-18 13:52:19+00:00",
+              "entities": [
+                "middle",
+                "storms",
+                "tennesseans",
+                "tennessee",
+                "western"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "e829bb17-2b07-473f-9b46-c9bc341fb0eb",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.754939,
+          "attach_reason": "Both items describe the same severe storms in Tennessee and the same FEMA assistance program with the same application deadline of August 19.",
+          "first_entry_at": "2025-07-21 13:22:54+00:00",
+          "newest_entry_at": "2025-07-21 13:22:54+00:00",
+          "entry_count": 1,
+          "entities": [
+            "change",
+            "hours",
+            "middle",
+            "tennesseans",
+            "tennessee",
+            "western"
+          ],
+          "event_keys": [],
+          "headline": "Hours to Change at Disaster Recovery Centers in Tennessee",
+          "summary": "Hours to Change at Disaster Recovery Centers in Tennessee Middle and Western Tennesseans who experienced damage from the April 2-24 severe storms can get in-person assistance at FEMA Disaster Recovery Centers. The deadline to apply for assistance is Aug. 19.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing. Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties can apply for FEMA assistance.Disaster Recovery CenterHours: Beginning Monday, July 21 centers are open:9 a.m. to 6 p.m. Monday \u2013 Friday9 a.m. to 2 p.m. SaturdayClosed SundayLOCATIONS:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039McNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Montgomery County: Montgomery County Library, 350 Pageant Lane, Clarksville, TN 37040Obion County: Obion County Library, 1221 E. Reelfoot Ave., Union City, TN 38261How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at 800-621-3362. In-person help is available at any Disaster Recovery Center for submitting applications, getting updates and asking questions. Find a center here: DRC Locator (fema.gov).Video: What to Expect Before Applying for FEMA Assistance | ASL | SpanishVid",
+          "entries": [
+            {
+              "entry_id": "da410fd8-5a62-431b-9169-5a5439504a63",
+              "title": "Hours to Change at Disaster Recovery Centers in Tennessee",
+              "summary": "Hours to Change at Disaster Recovery Centers in Tennessee Middle and Western Tennesseans who experienced damage from the April 2-24 severe storms can get in-person assistance at FEMA Disaster Recovery Centers. The deadline to apply for assistance is Aug. 19.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing. Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties can apply for FEMA assistance.Disaster Recovery CenterHours: Beginning Monday, July 21 centers are open:9 a.m. to 6 p.m. Monday \u2013 Friday9 a.m. to 2 p.m. SaturdayClosed SundayLOCATIONS:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039McNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Montgomery County: Montgomery County Library, 350 Pageant Lane, Clarksville, TN 37040Obion County: Obion County Library, 1221 E. Reelfoot Ave., Union City, TN 38",
+              "published_at": "2025-07-21 13:22:54+00:00",
+              "entities": [
+                "change",
+                "hours",
+                "middle",
+                "tennesseans",
+                "tennessee",
+                "western"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "f77c4f90-bd94-4d18-8d98-86275aa8b2ef",
+        "headline": "American Conservation Experience (ACE) Trail Crews at Abraham Lincoln Birthplace - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+        "summary": "American Conservation Experience Trail Crews at Abraham Lincoln Birthplace National Historical Park - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service) / American Conservation Experience (ACE) Trail Crews at Abraham Lincoln Birthplace - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+        "entities": [
+          "experience",
+          "lincoln",
+          "trail"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-18 04:00:00+00:00",
+        "newest_entry_at": "2025-09-19 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 3,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "b11f2e92-b96d-430a-b92d-1b50389985c4",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "98b1593b-311b-4a57-b311-5f9d4c289dee",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": null,
+          "first_entry_at": "2025-09-18 04:00:00+00:00",
+          "newest_entry_at": "2025-09-19 04:00:00+00:00",
+          "entry_count": 2,
+          "entities": [
+            "experience",
+            "lincoln",
+            "trail"
+          ],
+          "event_keys": [],
+          "headline": "American Conservation Experience Trail Crews at Abraham Lincoln Birthplace National Historical Park - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+          "summary": "American Conservation Experience Trail Crews at Abraham Lincoln Birthplace National Historical Park - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+          "entries": [
+            {
+              "entry_id": "028291d9-1466-4e08-8ee8-d5a98ecc4e5f",
+              "title": "American Conservation Experience Trail Crews at Abraham Lincoln Birthplace National Historical Park - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+              "summary": "",
+              "published_at": "2025-09-18 04:00:00+00:00",
+              "entities": [
+                "experience",
+                "lincoln",
+                "trail"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            },
+            {
+              "entry_id": "ec301d58-7237-4b05-9c2d-da5b730f0d9c",
+              "title": "American Conservation Experience Trail Crews at Abraham Lincoln Birthplace NHP - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+              "summary": "",
+              "published_at": "2025-09-19 04:00:00+00:00",
+              "entities": [
+                "experience",
+                "lincoln",
+                "trail"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "near_dup",
+              "entry_similarity": 0.945911
+            }
+          ]
+        },
+        {
+          "episode_id": "73512cf0-2767-4144-9768-d6e70fdfb771",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.818637,
+          "attach_reason": "The items share the same entities and have a high semantic similarity, with the new item likely being a continuation or update of the existing event.",
+          "first_entry_at": "2025-09-19 04:00:00+00:00",
+          "newest_entry_at": "2025-09-19 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "experience",
+            "lincoln",
+            "trail"
+          ],
+          "event_keys": [],
+          "headline": "American Conservation Experience (ACE) Trail Crews at Abraham Lincoln Birthplace - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+          "summary": "American Conservation Experience (ACE) Trail Crews at Abraham Lincoln Birthplace - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+          "entries": [
+            {
+              "entry_id": "7b6d5a11-ebc3-4ce2-bb2b-b764337f6635",
+              "title": "American Conservation Experience (ACE) Trail Crews at Abraham Lincoln Birthplace - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+              "summary": "",
+              "published_at": "2025-09-19 04:00:00+00:00",
+              "entities": [
+                "experience",
+                "lincoln",
+                "trail"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

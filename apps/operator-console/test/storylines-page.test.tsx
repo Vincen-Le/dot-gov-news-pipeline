@@ -145,7 +145,9 @@ const THEMES_PAYLOAD = {
   },
 };
 
-function mockFetchRoutes(): ReturnType<typeof vi.fn> {
+function mockFetchRoutes(
+  storylinesPayload: unknown = STORYLINES_PAYLOAD,
+): ReturnType<typeof vi.fn> {
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
       if (url.includes("/api/lab/capability")) {
@@ -165,7 +167,7 @@ function mockFetchRoutes(): ReturnType<typeof vi.fn> {
       if (url.includes("/api/lab/topics/themes")) {
         return jsonResponse(THEMES_PAYLOAD);
       }
-      return jsonResponse(STORYLINES_PAYLOAD);
+      return jsonResponse(storylinesPayload);
   });
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
@@ -327,6 +329,44 @@ describe("StorylinesPage", () => {
         selector: ".storyline-group-row strong",
       }),
     ).toBeInTheDocument();
+  });
+
+  it("orders category groups and keeps every category contiguous", async () => {
+    const items = [
+      {
+        ...STORYLINES_PAYLOAD.data.items[0],
+        categoryName: "Public Health",
+        headline: "Public health follow-up",
+        id: "00000000-0000-4000-8000-000000000031",
+      },
+      {
+        ...STORYLINES_PAYLOAD.data.items[0],
+        categoryName: "Disaster Response",
+        headline: "Disaster response update",
+        id: "00000000-0000-4000-8000-000000000032",
+      },
+      {
+        ...STORYLINES_PAYLOAD.data.items[0],
+        categoryName: "Public Health",
+        headline: "Public health advisory",
+        id: "00000000-0000-4000-8000-000000000033",
+      },
+    ];
+    mockFetchRoutes({ data: { hasMore: false, items } });
+    renderPage("/storylines?groupBy=category");
+
+    expect(
+      await screen.findAllByText("Public Health", {
+        selector: ".storyline-group-row strong",
+      }),
+    ).toHaveLength(1);
+    const groupLabels = screen
+      .getAllByRole("rowgroup")
+      .flatMap((rowGroup) =>
+        Array.from(rowGroup.querySelectorAll(".storyline-group-row strong")),
+      )
+      .map((label) => label.textContent);
+    expect(groupLabels).toEqual(["Disaster Response", "Public Health"]);
   });
 
   it("renders the not-enabled state honestly", async () => {

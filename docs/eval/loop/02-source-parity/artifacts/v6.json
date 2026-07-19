@@ -1,0 +1,411 @@
+{
+  "total_multi_entry_episodes": 8,
+  "sampled_episode_count": 8,
+  "episodes": [
+    {
+      "episode_id": "2c7b75d1-9100-4c3f-b991-977c24279635",
+      "entry_count": 2,
+      "entities": [
+        "asset",
+        "certain",
+        "issue",
+        "products",
+        "spot",
+        "staff"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-09-02 04:00:00+00:00",
+      "newest_entry_at": "2025-09-02 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "2c68b747-de2a-4399-9249-37e70afd8d67",
+          "title": "SEC and CFTC Staff Issue Joint Statement On Trading Of Certain Spot Crypto Asset Products",
+          "summary": "",
+          "published_at": "2025-09-02 04:00:00+00:00",
+          "entities": [
+            "asset",
+            "certain",
+            "issue",
+            "products",
+            "spot",
+            "staff"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "65000b39-bc90-4c6a-a241-79e26fdf6cda",
+          "title": "CFTC and SEC Staff Issue Joint Statement on Trading of Certain Spot Crypto Asset Products",
+          "summary": "",
+          "published_at": "2025-09-02 04:00:00+00:00",
+          "entities": [
+            "asset",
+            "certain",
+            "issue",
+            "products",
+            "spot",
+            "staff"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.978062
+        }
+      ]
+    },
+    {
+      "episode_id": "3bb2cb5e-818b-46f2-b77a-8f0ec2cccfaf",
+      "entry_count": 2,
+      "entities": [
+        "experience",
+        "lincoln",
+        "trail"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-09-18 04:00:00+00:00",
+      "newest_entry_at": "2025-09-19 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "028291d9-1466-4e08-8ee8-d5a98ecc4e5f",
+          "title": "American Conservation Experience Trail Crews at Abraham Lincoln Birthplace National Historical Park - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+          "summary": "",
+          "published_at": "2025-09-18 04:00:00+00:00",
+          "entities": [
+            "experience",
+            "lincoln",
+            "trail"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "ec301d58-7237-4b05-9c2d-da5b730f0d9c",
+          "title": "American Conservation Experience Trail Crews at Abraham Lincoln Birthplace NHP - Abraham Lincoln Birthplace National Historical Park (U.S. National Park Service)",
+          "summary": "",
+          "published_at": "2025-09-19 04:00:00+00:00",
+          "entities": [
+            "experience",
+            "lincoln",
+            "trail"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.945911
+        }
+      ]
+    },
+    {
+      "episode_id": "8a421c6a-0c8e-48c6-be3e-c9d8386240c0",
+      "entry_count": 2,
+      "entities": [
+        "days",
+        "kentuckians"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-08-20 12:31:24+00:00",
+      "newest_entry_at": "2025-08-22 12:32:01+00:00",
+      "entries": [
+        {
+          "entry_id": "190bf857-6a38-4c90-845f-92585e3e6e79",
+          "title": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+          "summary": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes have two days left to apply for federal disaster assistance. The application deadline is August 22.Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. When you apply, you will need to provide:A current phone nu",
+          "published_at": "2025-08-20 12:31:24+00:00",
+          "entities": [
+            "days",
+            "kentuckians"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "4623ac00-fe2a-4844-a485-75adea1d479a",
+          "title": "Last Day To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+          "summary": "Last Day To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes FRANKFORT, Ky. \u2013 Today is the last day for Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes to apply for federal disaster assistance. The application deadline is 11:59 p.m. tonight, August 22.Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. When you apply, you will need to prov",
+          "published_at": "2025-08-22 12:32:01+00:00",
+          "entities": [
+            "kentuckians"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.969145
+        }
+      ]
+    },
+    {
+      "episode_id": "8cf17011-9345-4b96-b86e-e3fdc0d04dab",
+      "entry_count": 2,
+      "entities": [
+        "campground",
+        "closure",
+        "gauley",
+        "home",
+        "info",
+        "mailing",
+        "preserve",
+        "recreation",
+        "subscribe",
+        "tailwaters",
+        "west"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-08-28 04:00:00+00:00",
+      "newest_entry_at": "2025-08-28 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "3068d1b0-68f1-4fe3-9923-5c0a5e597632",
+          "title": "Temporary Closure of Gauley River NRA\u2019s Tailwaters Campground - New River Gorge National Park & Preserve (U.S. National Park Service)",
+          "summary": "",
+          "published_at": "2025-08-28 04:00:00+00:00",
+          "entities": [
+            "campground",
+            "closure",
+            "gauley",
+            "home",
+            "info",
+            "mailing",
+            "preserve",
+            "subscribe",
+            "tailwaters",
+            "west"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "ec3e1409-5094-4d7a-b7ee-229010bf072b",
+          "title": "Temporary Closure of Gauley River NRA\u2019s Tailwaters Campground - Gauley River National Recreation Area (U.S. National Park Service)",
+          "summary": "Temporary Closure of Gauley River NRA\u2019s Tailwaters Campground",
+          "published_at": "2025-08-28 04:00:00+00:00",
+          "entities": [
+            "campground",
+            "closure",
+            "gauley",
+            "recreation",
+            "tailwaters"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.878897
+        }
+      ]
+    },
+    {
+      "episode_id": "949bd284-57b6-42f0-920c-14da9a876cf2",
+      "entry_count": 3,
+      "entities": [
+        "bluestone",
+        "gauley",
+        "history",
+        "home",
+        "info",
+        "made",
+        "mailing",
+        "oral",
+        "preserve",
+        "recordings",
+        "recreation",
+        "scenic",
+        "subscribe",
+        "west"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-09-04 04:00:00+00:00",
+      "newest_entry_at": "2025-09-04 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "48adba11-715e-4dec-958e-0e9b85753e5c",
+          "title": "Oral History Recordings Made Available to Public on New River Gorge NPP Website - Gauley River National Recreation Area (U.S. National Park Service)",
+          "summary": "Oral History Recordings Made Available to Public on New River Gorge NPP Website",
+          "published_at": "2025-09-04 04:00:00+00:00",
+          "entities": [
+            "gauley",
+            "history",
+            "made",
+            "oral",
+            "recordings",
+            "recreation"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "76a22ec9-e7e6-470a-b35f-7b8478e53431",
+          "title": "Oral History Recordings Made Available to Public on New River Gorge NPP Website - Bluestone National Scenic River (U.S. National Park Service)",
+          "summary": "Oral History Recordings Made Available to Public on New River Gorge NPP Website",
+          "published_at": "2025-09-04 04:00:00+00:00",
+          "entities": [
+            "bluestone",
+            "history",
+            "made",
+            "oral",
+            "recordings",
+            "scenic"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.983033
+        },
+        {
+          "entry_id": "dad8116d-d1b4-456e-9e7d-dc92cb2e6ca7",
+          "title": "Oral History Recordings Made Available to Public on New River Gorge NPP Website - New River Gorge National Park & Preserve (U.S. National Park Service)",
+          "summary": "",
+          "published_at": "2025-09-04 04:00:00+00:00",
+          "entities": [
+            "history",
+            "home",
+            "info",
+            "made",
+            "mailing",
+            "oral",
+            "preserve",
+            "recordings",
+            "subscribe",
+            "west"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.948617
+        }
+      ]
+    },
+    {
+      "episode_id": "a61c6ec3-e2cd-4d89-babd-a24d6368749e",
+      "entry_count": 3,
+      "entities": [
+        "days",
+        "following",
+        "less"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-21 14:15:35+00:00",
+      "newest_entry_at": "2025-07-25 12:25:51+00:00",
+      "entries": [
+        {
+          "entry_id": "cc4fd792-fa5e-4c1a-a288-a05cd5e463e4",
+          "title": "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have less than one week left to apply for federal disaster assistance. The deadline to apply is July 25.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the ",
+          "published_at": "2025-07-21 14:15:35+00:00",
+          "entities": [
+            "following",
+            "less"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "e3dab847-6a1e-4dae-8630-6f7fc760a8c8",
+          "title": "Two Days Left to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Two Days Left to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have two days left to apply for federal disaster assistance. The deadline to apply is July 25.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the add",
+          "published_at": "2025-07-24 12:18:24+00:00",
+          "entities": [
+            "days",
+            "following"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.984808
+        },
+        {
+          "entry_id": "af4c9155-2ee7-4a68-835c-497061cfe110",
+          "title": "Last Day to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Last Day to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have until 11:59 p.m. today to apply for federal disaster assistance. The deadline to apply is today.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the a",
+          "published_at": "2025-07-25 12:25:51+00:00",
+          "entities": [
+            "following"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.902536
+        }
+      ]
+    },
+    {
+      "episode_id": "c82f8539-af64-4233-ac82-663a547aa5cd",
+      "entry_count": 2,
+      "entities": [
+        "approval",
+        "coal",
+        "permit",
+        "residuals",
+        "wyoming"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-08-28 16:05:12+00:00",
+      "newest_entry_at": "2025-08-28 16:31:25+00:00",
+      "entries": [
+        {
+          "entry_id": "a9591d28-7e4e-47ce-9b0d-268e5ca8e6a0",
+          "title": "In Ceremony with Wyoming Governor, EPA Proposes Approval of Wyoming Coal Residuals Permit Program | US EPA",
+          "summary": "EPA proposed to approve Wyoming\u2019s coal combustion residuals (CCR) program application. This proposal would allow the state rather than the federal government to manage disposal of coal residuals in surface impoundments and landfills.",
+          "published_at": "2025-08-28 16:05:12+00:00",
+          "entities": [
+            "approval",
+            "coal",
+            "permit",
+            "residuals",
+            "wyoming"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "e877411a-d3e4-41b8-9a6e-acdbb88adb7b",
+          "title": "In Ceremony with Wyoming Governor, EPA proposes approval of Wyoming coal residuals permit program | US EPA",
+          "summary": "In Ceremony with Wyoming Governor, EPA proposes approval of Wyoming coal residuals permit program",
+          "published_at": "2025-08-28 16:31:25+00:00",
+          "entities": [
+            "wyoming"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.883285
+        }
+      ]
+    },
+    {
+      "episode_id": "fbdb809b-f02a-42d2-ae7a-9d753ff6e19f",
+      "entry_count": 2,
+      "entities": [
+        "biosafety",
+        "institutional"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-09-26 18:18:02+00:00",
+      "newest_entry_at": "2025-09-26 18:18:02+00:00",
+      "entries": [
+        {
+          "entry_id": "112b6c3f-3d5d-4f66-9c6d-f39f52a16f2d",
+          "title": "Institutional Biosafety Committee Meeting - October 14, 2025",
+          "summary": "The Institutional Biosafety Committee (IBC) advises the Center on the handling of biohazardous materials, and reviews and approves research projects that involve biohazardous materials, including but not limited to recombinant or synthetic nucleic acid molecules.",
+          "published_at": "2025-09-26 18:18:02+00:00",
+          "entities": [
+            "biosafety",
+            "institutional"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "ddc3ca4f-42d0-4521-adb4-7b5a7d0c96ba",
+          "title": "CANCELED: Institutional Biosafety Committee Meeting - October 14, 2025",
+          "summary": "The Institutional Biosafety Committee (IBC) advises the Center on the handling of biohazardous materials, and reviews and approves research projects that involve biohazardous materials, including but not limited to recombinant or synthetic nucleic acid molecules.",
+          "published_at": "2025-09-26 18:18:02+00:00",
+          "entities": [
+            "biosafety",
+            "institutional"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "near_dup",
+          "entry_similarity": 0.920264
+        }
+      ]
+    }
+  ]
+}

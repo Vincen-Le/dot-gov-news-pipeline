@@ -1,0 +1,51 @@
+entity,valid,reason
+home,n,Generic boilerplate or fragmentary token.
+rubio,y,Specific named entity token.
+email,n,Generic boilerplate or fragmentary token.
+facebook,n,Boilerplate sharing-label token in sampled entries.
+info,n,Generic boilerplate or fragmentary token.
+mailing,n,Generic boilerplate or fragmentary token.
+subscribe,n,Generic boilerplate or fragmentary token.
+west,n,Generic boilerplate or fragmentary token.
+affairs,n,Generic boilerplate or fragmentary token.
+chanchien,y,Specific named entity token.
+experience,n,Generic boilerplate or fragmentary token.
+following,n,Generic boilerplate or fragmentary token.
+gauley,y,Specific named entity token.
+group,n,Generic boilerplate or fragmentary token.
+guilty,n,Generic boilerplate or fragmentary token.
+history,n,Generic boilerplate or fragmentary token.
+honouliuli,y,Specific named entity token.
+iran,y,Specific named entity token.
+issue,n,Generic boilerplate or fragmentary token.
+japan,y,Specific named entity token.
+kentuckians,y,Specific named entity token.
+laura,n,Generic boilerplate or fragmentary token.
+lincoln,y,Specific named entity token.
+lookout,n,Generic boilerplate or fragmentary token.
+made,n,Generic boilerplate or fragmentary token.
+military,n,Generic boilerplate or fragmentary token.
+ongoing,n,Generic boilerplate or fragmentary token.
+oral,n,Generic boilerplate or fragmentary token.
+pleads,n,Generic boilerplate or fragmentary token.
+preserve,n,Generic boilerplate or fragmentary token.
+prevention,n,Generic boilerplate or fragmentary token.
+promotion,n,Generic boilerplate or fragmentary token.
+recordings,n,Generic boilerplate or fragmentary token.
+research,n,Generic boilerplate or fragmentary token.
+sanctions,n,Generic boilerplate or fragmentary token.
+schedule,n,Generic boilerplate or fragmentary token.
+seashore,n,Generic boilerplate or fragmentary token.
+smokers,n,Generic boilerplate or fragmentary token.
+south,n,Generic boilerplate or fragmentary token.
+space,n,Generic boilerplate or fragmentary token.
+tammy,n,Generic boilerplate or fragmentary token.
+trail,n,Generic boilerplate or fragmentary token.
+trump,y,Specific named entity token.
+academy,n,Generic boilerplate or fragmentary token.
+additional,n,Generic boilerplate or fragmentary token.
+allegations,n,Generic boilerplate or fragmentary token.
+approved,n,Generic boilerplate or fragmentary token.
+artist,n,Generic boilerplate or fragmentary token.
+asset,n,Generic boilerplate or fragmentary token.
+benchmark,n,Generic boilerplate or fragmentary token.

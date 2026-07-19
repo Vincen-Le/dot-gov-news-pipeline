@@ -56,9 +56,7 @@ async function listen(deps: Partial<LabRouteDeps>): Promise<string> {
     }),
   );
   server = createServer(app);
-  await new Promise<void>((resolve) =>
-    server?.listen(0, "127.0.0.1", resolve),
-  );
+  await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
   const address = server?.address();
   const port = typeof address === "object" && address ? address.port : 0;
   return `http://127.0.0.1:${port}/api/lab`;
@@ -162,7 +160,9 @@ describe("lab routes", () => {
     await fetch(`${base}/storylines?groupBy=category`);
     expect((captured as { groupBy?: string }).groupBy).toBe("category");
     await fetch(`${base}/storylines?sort=bogus`);
-    expect((captured as { offset?: number; sort?: string }).sort).toBeUndefined();
+    expect(
+      (captured as { offset?: number; sort?: string }).sort,
+    ).toBeUndefined();
     expect((captured as { groupBy?: string }).groupBy).toBeUndefined();
     expect((captured as { offset?: number }).offset).toBe(0);
   });
@@ -190,6 +190,49 @@ describe("lab routes", () => {
       "row-1",
     ]);
     expect(firstBody.data.hasMore).toBe(true);
+  });
+
+  it("routes captured experiment views through immutable snapshot queries", async () => {
+    const runId = "00000000-0000-4000-8000-0000000000a2";
+    let selected: string | undefined;
+    const frozenQueries = {
+      storylines: async () => [{ id: "frozen-storyline" }],
+    };
+    const base = await listen({
+      capability: async () => ({
+        experimentsEnabled: true,
+        status: "available",
+      }),
+      queries: {
+        experimentRun: async () => ({
+          ...RUN_ROW,
+          snapshot: {
+            capturedAt: "2026-07-18T11:00:22.000Z",
+            isBest: true,
+            note: "incumbent",
+            reward: { score: 0.68 },
+            rowCounts: { storylines: 1 },
+            schemaVersion: 1,
+          },
+        }),
+        forExperiment: (id: string) => {
+          selected = id;
+          return frozenQueries;
+        },
+      } as never,
+    });
+
+    const response = await fetch(
+      `${base}/storylines?experiment=${runId}&limit=1`,
+    );
+    expect(response.status).toBe(200);
+    expect(selected).toBe(runId);
+    expect(
+      (await response.json()) as { data: { items: { id: string }[] } },
+    ).toMatchObject({ data: { items: [{ id: "frozen-storyline" }] } });
+
+    const invalid = await fetch(`${base}/storylines?experiment=nope`);
+    expect(invalid.status).toBe(400);
   });
 
   it("serves topic themes and categories and passes storyline topic filters", async () => {
@@ -227,9 +270,7 @@ describe("lab routes", () => {
     const themes = await fetch(`${base}/topics/themes?category=x`);
     expect(themes.status).toBe(200);
 
-    await fetch(
-      `${base}/storylines?theme=t-1&category=c-1`,
-    );
+    await fetch(`${base}/storylines?theme=t-1&category=c-1`);
     expect(seen[0]).toMatchObject({ category: "c-1", theme: "t-1" });
   });
 

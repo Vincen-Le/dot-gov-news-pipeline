@@ -1,0 +1,814 @@
+{
+  "categories": [
+    {
+      "category_id": "aeba3f83-aba2-4245-a680-ce0c14a4ba55",
+      "display_name": "Agriculture",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "9df134bf-9a9f-43a7-bd71-a68bd3db2641",
+      "display_name": "Civil Rights & Liberties",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "44cb0e20-5a77-479e-a14c-c910606f9080",
+      "display_name": "Courts & Legal Rulings",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "221cda10-999a-4cb6-8908-26479967843d",
+      "display_name": "Defense & Military",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+      "display_name": "Disaster Response & Emergency",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+      "display_name": "Economy & Labor",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "07ef6968-79f5-4905-85c4-651651608742",
+      "display_name": "Education",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "61f21ad5-da30-48f8-8344-279429aba71b",
+      "display_name": "Elections & Government Operations",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "e41c9561-40b9-41eb-8089-ae2fb389ad4e",
+      "display_name": "Energy & Environment",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "0b1488cf-b42d-4334-9f1a-e870a2efd177",
+      "display_name": "Financial Regulation",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "3dc753c6-5dde-4784-bb6f-bc7c453cab79",
+      "display_name": "Food & Drug Safety",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+      "display_name": "Foreign Affairs & Trade",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "0d9f0b39-71b2-460a-a2f4-bb838f043f73",
+      "display_name": "Housing & Urban Development",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "b13b2beb-d604-4b30-8982-3698e1ae37d9",
+      "display_name": "Immigration & Border",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "c0b72181-1d13-4dd6-a3e9-2d702a920787",
+      "display_name": "Justice & Law Enforcement",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "10cbb82c-febf-4df2-baaa-1205400b717a",
+      "display_name": "Public Health",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "b11f2e92-b96d-430a-b92d-1b50389985c4",
+      "display_name": "Public Lands & Natural Resources",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "10e6879f-9774-451a-b48d-4b45b71b7a3c",
+      "display_name": "Science & Space",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "11090709-7ff7-4c33-b6fe-eafa8e2c6fa7",
+      "display_name": "Social Security & Benefits",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "8469cf1e-db30-45f0-8807-a72640da7347",
+      "display_name": "Taxes & Revenue",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "123c1295-8fb3-4d97-ac05-e7cbba025e26",
+      "display_name": "Technology & Cybersecurity",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "c0507b9f-da3c-41db-946a-e0678a6b7942",
+      "display_name": "Transportation & Infrastructure",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+      "display_name": "Veterans Affairs",
+      "origin": "seed",
+      "proposal_reason": null
+    }
+  ],
+  "category_storyline_pairs": [
+    {
+      "storyline": {
+        "storyline_id": "0f0d1351-472e-4321-9ab8-333a833f9069",
+        "headline": "Fort Stanwix National Monument Tourism Contributes $4.2 Million to Local Economy",
+        "summary": "Tourism to Fort Stanwix National Monument generated $4.2 million for the local economy, as reported on September 26, 2025. This economic contribution highlights the monument's significance to the area.",
+        "entities": [
+          "$4.2 million",
+          "fort",
+          "monument",
+          "park",
+          "stanwix",
+          "tourism"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-26 04:00:00+00:00",
+        "newest_entry_at": "2025-09-26 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.859643,
+        "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of tourism's economic contribution to local economies through national parks and monuments."
+      },
+      "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+      "theme_name": "National Park Tourism",
+      "filed_category": "Economy & Labor"
+    },
+    {
+      "storyline": {
+        "storyline_id": "125606fa-2e1a-4cc5-8e96-4199223e95a4",
+        "headline": "New Suicide Prevention Programs for Veterans",
+        "summary": "The US government has introduced seven new suicide prevention programs to help Veterans connect with support through technology and community-based approaches. These programs aim to keep Veterans safe by providing them with accessible resources and community support.",
+        "entities": [
+          "bringing",
+          "seven",
+          "veterans"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-21 18:30:00+00:00",
+        "newest_entry_at": "2025-09-21 18:30:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.636495,
+        "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+        "stream_category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+        "theme_reason": "The storylines share a recurring subject of veteran healthcare and research, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+      "theme_name": "Veteran Health Research",
+      "filed_category": "Veterans Affairs"
+    },
+    {
+      "storyline": {
+        "storyline_id": "34573103-2db5-4d52-8ffc-ea2a6f7ad46d",
+        "headline": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+        "summary": "One Week Left For Kentuckians Affected By May Tornadoes To Apply For FEMA Assistance / Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+        "entities": [
+          "affected",
+          "apply",
+          "assistance",
+          "days",
+          "kentuckians",
+          "left",
+          "tornadoes"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-15 13:08:40+00:00",
+        "newest_entry_at": "2025-08-22 12:32:01+00:00",
+        "episode_count": 2,
+        "entry_count": 3,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.807116,
+        "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines all relate to FEMA's response to various disasters, including severe storms, flooding, and tornadoes, indicating a recurring subject of federal disaster relief efforts"
+      },
+      "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+      "theme_name": "FEMA Disaster Relief",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "670688a5-18ca-4a63-8b29-357df7c75666",
+        "headline": "VA Research Findings",
+        "summary": "The VA's Office of Research and Development published research findings on suicide risk, brain-computer interfaces, and knee pain treatment. These findings aim to improve the lives of Veterans through innovative medical research.",
+        "entities": [
+          "research",
+          "wrap"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-19 13:30:00+00:00",
+        "newest_entry_at": "2025-09-19 13:30:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.789367,
+        "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+        "stream_category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+        "theme_reason": "The storylines share a recurring subject of veteran healthcare and research, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+      "theme_name": "Veteran Health Research",
+      "filed_category": "Veterans Affairs"
+    },
+    {
+      "storyline": {
+        "storyline_id": "69f130dc-2c6f-4fc4-9a9c-bf0a4eaa9b40",
+        "headline": "Veteran Finds Housing and Hope Through HUD-VASH Program",
+        "summary": "A dedicated social worker with the Central Alabama Veterans Health Care System's HUD-VASH program helps homeless Veterans secure stable housing in Dothan, Alabama. This program provides crucial support to those in need.",
+        "entities": [
+          "veteran"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-24 20:30:00+00:00",
+        "newest_entry_at": "2025-08-24 20:30:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.570388,
+        "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+        "stream_category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+        "theme_reason": "The storyline reports on the HUD-VASH program, a healthcare initiative aimed at improving the well-being of veterans in the United States by providing stable housing."
+      },
+      "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+      "theme_name": "Veteran Health Research",
+      "filed_category": "Veterans Affairs"
+    },
+    {
+      "storyline": {
+        "storyline_id": "6c76de36-96f4-462a-b6d0-a1038b2d83e3",
+        "headline": "US Secretary of State Meets with Israeli Foreign Minister",
+        "summary": "US Secretary of State Marco Rubio met with Israeli Foreign Minister Gideon Sa\u2019ar at the Department of State on August 27, 2025. The meeting was open to press coverage.",
+        "entities": [
+          "schedule"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-26 04:00:00+00:00",
+        "newest_entry_at": "2025-08-26 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.708437,
+        "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and disputes, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+      "theme_name": "International Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "7271c3f8-1b91-4e16-8f2e-7ed3bf95c4fa",
+        "headline": "Kentucky Counties Affected by April Flooding and May Tornadoes Now Eligible for FEMA Public Assistance",
+        "summary": "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding / Kentucky Counties Affected by April Flooding and May Tornadoes Now Eligible for FEMA Public Assistance",
+        "entities": [
+          "affected",
+          "apply",
+          "assistance",
+          "counties",
+          "days",
+          "eligible",
+          "flooding",
+          "following",
+          "kentucky",
+          "left",
+          "less",
+          "than",
+          "tornadoes"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-21 14:15:35+00:00",
+        "newest_entry_at": "2025-07-25 12:25:51+00:00",
+        "episode_count": 2,
+        "entry_count": 4,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.703359,
+        "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines all relate to FEMA's response to various disasters, including severe storms, flooding, and tornadoes, indicating a recurring subject of federal disaster relief efforts"
+      },
+      "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+      "theme_name": "FEMA Disaster Relief",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "75ec680d-a2c5-4e2c-88b6-167edf2c58e6",
+        "headline": "US-Djibouti Strategic Partnership",
+        "summary": "US Secretary of State Marco Rubio spoke with Djiboutian President Ismail Omar Guelleh to discuss their strategic partnership and maintaining peace in the Red Sea and Horn of Africa. ",
+        "entities": [
+          "bruce",
+          "djiboutian",
+          "guelleh",
+          "ismail",
+          "marco",
+          "omar",
+          "president",
+          "rubio",
+          "spokesperson",
+          "tammy"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 04:00:00+00:00",
+        "newest_entry_at": "2025-07-18 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.858209,
+        "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and disputes, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+      "theme_name": "International Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "83f2c882-e3c2-45c5-a0ca-402dbe5c08cf",
+        "headline": "VA Research Findings",
+        "summary": "The VA's Office of Research and Development published research findings on tinnitus treatment, blood pressure control, and Parkinson's disease. These findings aim to improve healthcare for veterans.",
+        "entities": [
+          "briefs",
+          "development",
+          "parkinson",
+          "research",
+          "wrap"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-22 13:30:00+00:00",
+        "newest_entry_at": "2025-08-22 13:30:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.840264,
+        "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+        "stream_category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+        "theme_reason": "The storylines share a recurring subject of veteran healthcare and research, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+      "theme_name": "Veteran Health Research",
+      "filed_category": "Veterans Affairs"
+    },
+    {
+      "storyline": {
+        "storyline_id": "9235a1d5-ae47-468f-befd-43a6fa8fcd08",
+        "headline": "Tourism Contributes $230 Million to Local Economy",
+        "summary": "Tourism to Sequoia and Kings Canyon National Parks contributes $230 million to the local economy. This significant economic contribution highlights the importance of national parks to local communities.",
+        "entities": [
+          "$230 million",
+          "canyon",
+          "kings",
+          "park",
+          "parks",
+          "sequoia",
+          "tourism"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-29 04:00:00+00:00",
+        "newest_entry_at": "2025-09-29 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.771512,
+        "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of tourism's economic contribution to local economies through national parks and monuments."
+      },
+      "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+      "theme_name": "National Park Tourism",
+      "filed_category": "Economy & Labor"
+    },
+    {
+      "storyline": {
+        "storyline_id": "92d578f8-e72c-41b5-8ac8-fb299da1dfcd",
+        "headline": "Rural VA Provides High-Quality Healthcare",
+        "summary": "The Iron Mountain VA, despite being the most rural VA in the nation, continues to provide high-quality healthcare to Veterans across over 25,000 square miles. This achievement highlights the VA's commitment to delivering excellent care in remote areas.",
+        "entities": [
+          "despite",
+          "iron",
+          "mountain",
+          "veterans"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-05 18:30:00+00:00",
+        "newest_entry_at": "2025-09-05 18:30:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.631715,
+        "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+        "stream_category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+        "theme_reason": "The storyline reports on the VA's healthcare initiatives aimed at improving the well-being of veterans in rural areas."
+      },
+      "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+      "theme_name": "Veteran Health Research",
+      "filed_category": "Veterans Affairs"
+    },
+    {
+      "storyline": {
+        "storyline_id": "9304312c-d736-48a5-980f-652f63cc6c29",
+        "headline": "US Supports Rohingya and Other Myanmar Minorities",
+        "summary": "The US expressed support for Rohingya and other Myanmar minorities who have been victims of repression and violence, commending the bravery of survivors who spoke out. This statement was made at a high-level conference on the situation in Myanmar.",
+        "entities": [
+          "chair",
+          "conference",
+          "high",
+          "level",
+          "minorities",
+          "muslims",
+          "myanmar",
+          "other",
+          "prepared",
+          "rohingya",
+          "situation",
+          "thank"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-30 04:00:00+00:00",
+        "newest_entry_at": "2025-09-30 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.599506,
+        "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The US expressed support for Rohingya and other Myanmar minorities at a high-level conference, which involves diplomatic efforts to address an international conflict or dispute."
+      },
+      "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+      "theme_name": "International Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "a4e31d6f-0e41-42b7-aaf8-a1604e5a8177",
+        "headline": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+        "summary": "Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State / Deputy Secretary Landau\u2019s Meeting with Honduran Foreign Minister Bu - United States Department of State",
+        "entities": [
+          "advisor",
+          "bruce",
+          "christopher",
+          "deputy",
+          "foreign",
+          "hector",
+          "honduran",
+          "javier",
+          "landau",
+          "minister",
+          "presidential",
+          "spokesperson",
+          "tammy",
+          "zelaya"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-30 04:00:00+00:00",
+        "newest_entry_at": "2025-09-26 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.659389,
+        "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storyline involves a meeting between a US official and a foreign minister, which could be a diplomatic effort to resolve or mitigate an international conflict or dispute."
+      },
+      "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+      "theme_name": "International Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "a9bf434e-4d85-4709-bde8-b6464631ee1f",
+        "headline": "North Carolina Receives Additional $28 Million for Disaster Recovery",
+        "summary": "The state of North Carolina has received an additional $28 million in reimbursement funds for disaster recovery, bringing the total in August to $124 million. This funding supports community cleanup, infrastructure restoration, and other recovery efforts following Tropical Storm Helene and other disasters.",
+        "entities": [
+          "$28 million",
+          "additional",
+          "approved",
+          "recovery",
+          "support"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-26 12:17:20+00:00",
+        "newest_entry_at": "2025-08-26 12:17:20+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.693685,
+        "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storyline reports on federal reimbursement funds for disaster recovery following Tropical Storm Helene, satisfying the inclusion criterion for FEMA Disaster Relief."
+      },
+      "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+      "theme_name": "FEMA Disaster Relief",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "b23e6d36-c411-4998-a049-c74d95104b64",
+        "headline": "FEMA Supports Helene Recovery with Additional $96 Million",
+        "summary": "FEMA has approved an additional $96 million to support recovery efforts in North Carolina after Tropical Storm Helene, bringing the total funding to over $627 million. The funding will cover road repairs, debris removal, and other emergency actions in affected counties.",
+        "entities": [
+          "$96 million",
+          "additional",
+          "approved",
+          "helene",
+          "recovery",
+          "support"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-22 19:11:26+00:00",
+        "newest_entry_at": "2025-08-22 19:11:26+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.611791,
+        "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines all relate to FEMA's response to various disasters, including severe storms, flooding, and tornadoes, indicating a recurring subject of federal disaster relief efforts"
+      },
+      "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+      "theme_name": "FEMA Disaster Relief",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "b8cf9a10-b145-44f2-b323-dd4ee03a2dd0",
+        "headline": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+        "summary": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State / Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+        "entities": [
+          "bruce",
+          "david",
+          "deputy",
+          "foreign",
+          "lammy",
+          "marco",
+          "pigott",
+          "principal",
+          "rubio",
+          "spokesperson",
+          "tammy",
+          "tommy"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-04 04:00:00+00:00",
+        "newest_entry_at": "2025-09-02 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.735636,
+        "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and disputes, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+      "theme_name": "International Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "ccaa4203-6d12-4928-b422-11bc3371a422",
+        "headline": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+        "summary": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State / Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+        "entities": [
+          "criminal",
+          "further",
+          "imposing",
+          "israelis",
+          "ongoing",
+          "response",
+          "sanctions",
+          "threat"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-20 04:00:00+00:00",
+        "newest_entry_at": "2025-08-20 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.56145,
+        "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+        "stream_category_id": "c0b72181-1d13-4dd6-a3e9-2d702a920787",
+        "theme_reason": "The storyline involves diplomatic efforts by the US to respond to the ICC's actions, which is related to an international conflict or dispute."
+      },
+      "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+      "theme_name": "International Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "d73f2209-90f8-4569-9445-2d1b6687b383",
+        "headline": "Tourism Contributes $108.4 Million to Southern WV Economy",
+        "summary": "Tourism to Southern WV's three national park sites contributes $108.4 million to the local economy. This economic boost is a result of visitor spending at Bluestone National Scenic River and other national park sites.",
+        "entities": [
+          "bluestone",
+          "park",
+          "river",
+          "scenic",
+          "southern",
+          "tourism"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-26 04:00:00+00:00",
+        "newest_entry_at": "2025-09-26 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.640257,
+        "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of tourism's economic contribution to local economies through national parks and monuments."
+      },
+      "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+      "theme_name": "National Park Tourism",
+      "filed_category": "Economy & Labor"
+    },
+    {
+      "storyline": {
+        "storyline_id": "dc8c085f-c325-47fe-a705-a60141aeb771",
+        "headline": "Hours to Change at Disaster Recovery Centers in Tennessee",
+        "summary": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms / Hours to Change at Disaster Recovery Centers in Tennessee",
+        "entities": [
+          "apply",
+          "assistance",
+          "change",
+          "disaster",
+          "hours",
+          "left",
+          "middle",
+          "recovery",
+          "severe",
+          "storms",
+          "tennesseans",
+          "tennessee",
+          "western"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 13:52:19+00:00",
+        "newest_entry_at": "2025-07-21 13:22:54+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.874023,
+        "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines all relate to FEMA's response to various disasters, including severe storms, flooding, and tornadoes, indicating a recurring subject of federal disaster relief efforts"
+      },
+      "theme_id": "bcb20ba1-3551-45d6-abc5-86c642563592",
+      "theme_name": "FEMA Disaster Relief",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "e3d05301-08be-441f-ac6f-54db75b9be88",
+        "headline": "Unbroken Spirit Empowers Veterans",
+        "summary": "The Unbroken Spirit program offers a life-changing journey for veterans, with 2026 applications now open. This program aims to empower veterans to reclaim their purpose through a year-long program.",
+        "entities": [
+          "partner",
+          "spirit",
+          "unbroken",
+          "veterans"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-24 12:30:00+00:00",
+        "newest_entry_at": "2025-09-24 12:30:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.611589,
+        "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+        "stream_category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+        "theme_reason": "The storylines share a recurring subject of veteran healthcare and research, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+      "theme_name": "Veteran Health Research",
+      "filed_category": "Veterans Affairs"
+    },
+    {
+      "storyline": {
+        "storyline_id": "f7861dd2-1b7a-47a0-9baa-a1196b27c6d8",
+        "headline": "US Urges Cambodia to Deescalate Border Dispute with Thailand",
+        "summary": "Secretary of State Marco Rubio spoke with Cambodian Deputy Prime Minister/Foreign Minister Prak Sokhonn to urge a ceasefire with Thailand over the ongoing border dispute. The US reiterated its desire for peace in the region.",
+        "entities": [
+          "cambodian",
+          "deputy",
+          "foreign",
+          "minister",
+          "phone",
+          "prak",
+          "prime",
+          "rubio"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-27 04:00:00+00:00",
+        "newest_entry_at": "2025-07-27 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.650127,
+        "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and disputes, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "d8cb7c33-9011-4f0b-a73b-8d6069c40284",
+      "theme_name": "International Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "fb0bf90f-e3b7-4761-a975-8ecad9a01428",
+        "headline": "VA Promotes Kindness",
+        "summary": "The US Department of Veterans Affairs (VA) promotes kindness as a valuable practice in daily life, citing its positive impact. This message was shared through the Live Whole Health series.",
+        "entities": [
+          "kindness",
+          "live",
+          "mark",
+          "strengthen",
+          "twain",
+          "whole"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-01 20:30:00+00:00",
+        "newest_entry_at": "2025-09-01 20:30:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.685015,
+        "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+        "stream_category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+        "theme_reason": "The storyline promotes kindness as a practice with a positive impact, which aligns with improving the well-being of veterans through the Live Whole Health series, a healthcare initiative."
+      },
+      "theme_id": "e7cee21b-4c76-4a69-b2bf-c13e83aa5ef9",
+      "theme_name": "Veteran Health Research",
+      "filed_category": "Veterans Affairs"
+    },
+    {
+      "storyline": {
+        "storyline_id": "ff3f6651-a061-4a86-bcd0-3a070594bb33",
+        "headline": "Cape Lookout National Seashore Tourism Contributes $32 Million to Local Economy",
+        "summary": "Tourism to Cape Lookout National Seashore contributed $32,033,000 to the local economy. This economic impact is a result of visitor spending in the area surrounding the national seashore.",
+        "entities": [
+          "$32,033,000",
+          "cape",
+          "contributes",
+          "economy",
+          "local",
+          "lookout",
+          "park",
+          "seashore",
+          "tourism"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-30 04:00:00+00:00",
+        "newest_entry_at": "2025-09-30 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.732952,
+        "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of tourism's economic contribution to local economies through national parks and monuments."
+      },
+      "theme_id": "32bd9e37-357c-4e33-99a4-52f6d7c87901",
+      "theme_name": "National Park Tourism",
+      "filed_category": "Economy & Labor"
+    }
+  ],
+  "live_storyline_count": 126,
+  "unthemed_storyline_count": 103
+}

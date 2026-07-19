@@ -57,7 +57,7 @@ The write commands have materially different costs:
 | `pipeline.cli sync`             | Upserts the hosted raw corpus into local tables; invalidates features only when an entry's content hash changed | None                                                |
 | `pipeline.cli prepare`          | Adds enrichment, embeddings, entities, and event keys to currently unembedded entries                           | Potentially expensive                               |
 | `pipeline.cli reextract`        | Refreshes deterministic entity/event-key extraction                                                             | No LLM or embedding calls                           |
-| `pipeline.cli experiment`       | Clears derived aggregation state, replays prepared entries, writes a report/run row/rank snapshot               | May call adjudicator, card, topic, and judge models |
+| `pipeline.cli experiment`       | Clears derived aggregation state, replays prepared entries, writes a report/run row/rank snapshot/cluster replay snapshot | May call adjudicator, card, topic, and judge models |
 | `pipeline.cli reset --clusters` | Clears current derived aggregation state                                                                        | None                                                |
 | `pipeline.cli reset --features` | Clears derived state and all per-entry prepared features                                                        | Makes a later prepare expensive                     |
 | topology-label publisher        | Writes only versioned topology sidecar labels                                                                   | No enrichment, embedding, or aggregation            |
@@ -103,6 +103,7 @@ The important storage boundaries are:
 | Expected topology labels | `topology_label_sets`, `news_entry_topology_labels`                                                      | Yes                          | Versioned bootstrap labels used for input selection                |
 | Current aggregation      | `episode_entries`, `episodes`, `storylines`, `event_cards`, `topic_themes`, LLM-created topic categories | No                           | Only the latest completed or interrupted replay state              |
 | Completed run summary    | `complex_v1_experiment_runs`                                                                             | Yes                          | Resolved config, summary, cluster report, timing, cache counts     |
+| Clustering replay state  | `complex_v1_experiment_cluster_snapshots`                                                                 | Yes                          | Immutable run-scoped storylines, episodes, memberships, cards, themes, and entry evidence; mutable note/reward/best metadata |
 | Ranking evidence         | `rank_snapshots`, `rank_audit_pairs`, `rank_audit_runs`                                                  | Yes                          | Run-scoped ranking state and audit results                         |
 | Model-decision cache     | `.cache/decisions.sqlite`                                                                                | Yes                          | Content-keyed adjudication/theme/rank decisions                    |
 | Markdown report          | `docs/eval/<name>/report.md`                                                                             | Yes                          | Human-readable lab notebook for one run                            |
@@ -681,7 +682,7 @@ Use this minimum A/B discipline:
 - Keep cache policy identical, or explain the difference as a cost test.
 - Change one config variable or one code path per variant.
 - Use a new report name for each run; rerunning a name overwrites its Markdown
-  report even though `experiment_runs` may contain multiple rows with that
+  report even though `complex_v1_experiment_runs` may contain multiple rows with that
   name.
 - Save concrete chain IDs/headlines and the observed failure mode with the
   metric delta.

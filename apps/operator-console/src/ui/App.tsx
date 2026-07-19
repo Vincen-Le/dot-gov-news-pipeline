@@ -2,6 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 
 import { operatorRecipes } from "../recipes";
+import {
+  ExperimentViewProvider,
+  ExperimentViewSelector,
+} from "./experiment-view";
 import { CapabilityPage } from "./pages/CapabilityPage";
 import { EventsPage } from "./pages/EventsPage";
 import { InventoryPage } from "./pages/InventoryPage";
@@ -117,79 +121,82 @@ export function App() {
   }, []);
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <Link className="brand" to="/">
-          <span aria-hidden="true" className="brand-mark">
-            <i />
-            <i />
-            <i />
-          </span>
-          <span>
-            Dot Gov News <b>/ Operations</b>
-          </span>
-        </Link>
-        <nav aria-label="Primary navigation">
-          {navigation.map(([path, label]) => (
-            <NavLink
-              className={({ isActive }) => (isActive ? "active" : undefined)}
-              end={path === "/"}
-              key={path}
-              to={path}
+    <ExperimentViewProvider>
+      <div className="app-shell">
+        <header className="app-header">
+          <Link className="brand" to="/">
+            <span aria-hidden="true" className="brand-mark">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span>
+              Dot Gov News <b>/ Operations</b>
+            </span>
+          </Link>
+          <nav aria-label="Primary navigation">
+            {navigation.map(([path, label]) => (
+              <NavLink
+                className={({ isActive }) => (isActive ? "active" : undefined)}
+                end={path === "/"}
+                key={path}
+                to={path}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+          <div className="header-actions">
+            <ExperimentViewSelector />
+            <button
+              className="command-trigger"
+              onClick={() => setPaletteOpen(true)}
+              type="button"
             >
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="header-actions">
-          <button
-            className="command-trigger"
-            onClick={() => setPaletteOpen(true)}
-            type="button"
-          >
-            Search <kbd>⌘K</kbd>
-          </button>
-          <button
-            aria-label={`Use ${light ? "dark" : "light"} theme`}
-            className="theme-button"
-            onClick={() => setLight((current) => !current)}
-            type="button"
-          >
-            {light ? "●" : "○"}
-          </button>
-          <span className="environment">Local observer</span>
-        </div>
-      </header>
-      <main id="main-content">
-        <Routes>
-          <Route element={<OverviewPage />} path="/" />
-          <Route element={<InventoryPage />} path="/inventory" />
-          <Route
-            element={
-              <CapabilityPage capability="discovery" title="Discovery" />
-            }
-            path="/discovery"
-          />
-          <Route
-            element={<CapabilityPage capability="feeds" title="Feeds" />}
-            path="/feeds"
-          />
-          <Route element={<StorylinesPage />} path="/storylines" />
-          <Route element={<StorylineDetailPage />} path="/storylines/:id" />
-          <Route element={<RankingPage />} path="/ranking" />
-          <Route element={<EventsPage />} path="/events" />
-          <Route element={<SystemPage />} path="/system" />
-          <Route element={<LabPage />} path="/lab" />
-          <Route element={<OverviewPage />} path="*" />
-        </Routes>
-      </main>
-      <footer>
-        <span>Private local observer</span>
-        <span>Supabase is authoritative · live logs are sampled</span>
-      </footer>
-      {paletteOpen ? (
-        <CommandPalette close={() => setPaletteOpen(false)} />
-      ) : null}
-    </div>
+              Search <kbd>⌘K</kbd>
+            </button>
+            <button
+              aria-label={`Use ${light ? "dark" : "light"} theme`}
+              className="theme-button"
+              onClick={() => setLight((current) => !current)}
+              type="button"
+            >
+              {light ? "●" : "○"}
+            </button>
+            <span className="environment">Local observer</span>
+          </div>
+        </header>
+        <main id="main-content">
+          <Routes>
+            <Route element={<OverviewPage />} path="/" />
+            <Route element={<InventoryPage />} path="/inventory" />
+            <Route
+              element={
+                <CapabilityPage capability="discovery" title="Discovery" />
+              }
+              path="/discovery"
+            />
+            <Route
+              element={<CapabilityPage capability="feeds" title="Feeds" />}
+              path="/feeds"
+            />
+            <Route element={<StorylinesPage />} path="/storylines" />
+            <Route element={<StorylineDetailPage />} path="/storylines/:id" />
+            <Route element={<RankingPage />} path="/ranking" />
+            <Route element={<EventsPage />} path="/events" />
+            <Route element={<SystemPage />} path="/system" />
+            <Route element={<LabPage />} path="/lab" />
+            <Route element={<OverviewPage />} path="*" />
+          </Routes>
+        </main>
+        <footer>
+          <span>Private local observer</span>
+          <span>Supabase is authoritative · live logs are sampled</span>
+        </footer>
+        {paletteOpen ? (
+          <CommandPalette close={() => setPaletteOpen(false)} />
+        ) : null}
+      </div>
+    </ExperimentViewProvider>
   );
 }

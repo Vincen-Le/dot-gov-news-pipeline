@@ -1,0 +1,15 @@
+{
+  "run": {
+    "id": "17bbd82d-feda-4de1-9456-9e4b14082966",
+    "name": "jul19-04-contact-gap",
+    "finished_at": "2026-07-19 15:45:06.809794+00"
+  },
+  "counts": {
+    "v1_chains": 11,
+    "v2_themes": 3,
+    "v3_pairs": 17,
+    "v4_candidates": 0,
+    "v5_entries": 100,
+    "v6_episodes": 8
+  }
+}

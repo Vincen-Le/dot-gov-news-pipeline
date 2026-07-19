@@ -127,6 +127,37 @@ def test_record_run_inserts_redacted_config():
     assert '"near_dup_threshold": 0.9' in params["config"]
 
 
+def test_capture_run_snapshot_uses_the_append_only_rpc():
+    from pipeline.experiment import capture_run_snapshot
+
+    class RecordingDb:
+        def __init__(self):
+            self.calls = []
+
+        def rpc(self, fn, **kwargs):
+            self.calls.append((fn, kwargs))
+            return {"storylines": 12, "episodes": 14}
+
+    db = RecordingDb()
+    receipt = capture_run_snapshot(db, CFG, "00000000-0000-4000-8000-000000000001")
+    assert receipt == {"storylines": 12, "episodes": 14}
+    assert db.calls == [(
+        "complex_v1_capture_experiment_cluster_snapshot",
+        {"p_run_id": "00000000-0000-4000-8000-000000000001"},
+    )]
+
+
+def test_capture_run_snapshot_rejects_invalid_receipt():
+    from pipeline.experiment import capture_run_snapshot
+
+    class InvalidDb:
+        def rpc(self, _fn, **_kwargs):
+            return None
+
+    with pytest.raises(RuntimeError, match="invalid receipt"):
+        capture_run_snapshot(InvalidDb(), CFG, "run-1")
+
+
 def make_summary_db():
     class FakeSummaryDb:
         def one(self, sql):

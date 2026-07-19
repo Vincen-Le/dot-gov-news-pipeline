@@ -25,12 +25,14 @@ export function namespaceForEngine(engine?: string): PipelineNamespace {
 
 export interface NamespaceTables {
   experimentRuns: string;
+  experimentClusterSnapshots: string;
   rankSnapshots: string;
 }
 
 export function namespaceTables(namespace: PipelineNamespace): NamespaceTables {
   return {
     experimentRuns: `${namespace}_experiment_runs`,
+    experimentClusterSnapshots: `${namespace}_experiment_cluster_snapshots`,
     rankSnapshots:
       namespace === "complex_v1" ? "rank_snapshots" : `${namespace}_rank_snapshots`,
   };

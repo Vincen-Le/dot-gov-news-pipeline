@@ -13,6 +13,7 @@ import {
   type TopicCategory,
   type TopicTheme,
 } from "./contracts";
+import { SnapshotQueries } from "./snapshot-queries";
 import { cosine, unpackFp16 } from "./vectors";
 
 const iso = (value: unknown): string | null =>
@@ -62,10 +63,34 @@ function toCard(row: CardRow, memberEpisodeIds: Set<string>): EventCard {
 }
 
 export class LabQueries {
+  private readonly snapshot: SnapshotQueries | null;
+
   constructor(
     private readonly sql: postgres.Sql,
     private readonly experimentRunsTable: string = "complex_v1_experiment_runs",
-  ) {}
+    experimentId?: string,
+  ) {
+    this.snapshot =
+      experimentId === undefined
+        ? null
+        : new SnapshotQueries(sql, experimentId, this.clusterSnapshotsTable());
+  }
+
+  /** Both namespaces pair `{ns}_experiment_runs` with
+   * `{ns}_experiment_cluster_snapshots`, so the snapshot table derives from
+   * the runs table rather than being threaded separately. */
+  private clusterSnapshotsTable(): string {
+    return this.experimentRunsTable.replace(
+      /_experiment_runs$/,
+      "_experiment_cluster_snapshots",
+    );
+  }
+
+  forExperiment(experimentId?: string): LabQueries {
+    return experimentId === undefined
+      ? this
+      : new LabQueries(this.sql, this.experimentRunsTable, experimentId);
+  }
 
   async corpusSummary(): Promise<CorpusSummary> {
     const [row] = await this.sql`
@@ -120,6 +145,7 @@ export class LabQueries {
     sort?: "episodes";
     theme?: string;
   }): Promise<StorylineListItem[]> {
+    if (this.snapshot !== null) return this.snapshot.storylines(filter);
     const { sql } = this;
     const rows = await sql`
       select s.id, s.entity_set, s.event_keys, s.agency_ids, s.distinct_feeds,
@@ -129,13 +155,13 @@ export class LabQueries {
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
       left join public.topic_themes tt on tt.id = s.theme_id
-      left join public.topic_categories tc on tc.id = tt.category_id
+      left join public.topic_categories tc on tc.id = s.category_id
       where s.merged_into is null
         ${filter.entity === undefined ? sql`` : sql`and ${filter.entity} = any(s.entity_set)`}
         ${filter.agency === undefined ? sql`` : sql`and ${filter.agency} = any(s.agency_ids)`}
         ${filter.minEpisodes === undefined ? sql`` : sql`and s.episode_count >= ${filter.minEpisodes}`}
         ${filter.theme === undefined ? sql`` : sql`and s.theme_id = ${filter.theme}`}
-        ${filter.category === undefined ? sql`` : sql`and tt.category_id = ${filter.category}`}
+        ${filter.category === undefined ? sql`` : sql`and s.category_id = ${filter.category}`}
       ${
         filter.groupBy === "theme"
           ? filter.sort === "episodes"
@@ -170,6 +196,7 @@ export class LabQueries {
   }
 
   async storylineAgencies(): Promise<string[]> {
+    if (this.snapshot !== null) return this.snapshot.storylineAgencies();
     const rows = await this.sql`
       select distinct unnest(agency_ids) as agency
       from public.storylines
@@ -180,6 +207,7 @@ export class LabQueries {
   }
 
   async topicThemes(filter: { category?: string }): Promise<TopicTheme[]> {
+    if (this.snapshot !== null) return this.snapshot.topicThemes(filter);
     const { sql } = this;
     const rows = await sql`
       select t.id, t.display_name, t.category_id, t.storyline_count,
@@ -206,6 +234,7 @@ export class LabQueries {
   }
 
   async topicCategories(): Promise<TopicCategory[]> {
+    if (this.snapshot !== null) return this.snapshot.topicCategories();
     const rows = await this.sql`
       select c.id, c.display_name, c.origin, c.proposal_reason,
              (select count(*)::integer from public.topic_themes t
@@ -223,17 +252,18 @@ export class LabQueries {
   }
 
   async storylineDetail(id: string): Promise<StorylineDetail | null> {
+    if (this.snapshot !== null) return this.snapshot.storylineDetail(id);
     const [storyline] = await this.sql`
       select s.id, s.entity_set, s.event_keys, s.agency_ids, s.distinct_feeds,
              s.entry_count, s.episode_count, s.first_entry_at, s.newest_entry_at,
              s.theme_id, s.theme_attach_method, s.theme_similarity, s.theme_reason,
-             tt.display_name as theme_name, tt.category_id,
+             tt.display_name as theme_name, s.category_id,
              tc.display_name as category_name,
              c.headline
       from public.storylines s
       left join public.event_cards c on c.id = s.latest_card_id
       left join public.topic_themes tt on tt.id = s.theme_id
-      left join public.topic_categories tc on tc.id = tt.category_id
+      left join public.topic_categories tc on tc.id = s.category_id
       where s.id = ${id}
     `;
     if (storyline === undefined) return null;
@@ -359,6 +389,7 @@ export class LabQueries {
   }
 
   async volume() {
+    if (this.snapshot !== null) return this.snapshot.volume();
     const [row] = await this.sql`
       select
         (select count(*)::integer from public.news_entries
@@ -381,6 +412,7 @@ export class LabQueries {
   }
 
   async attachMix() {
+    if (this.snapshot !== null) return this.snapshot.attachMix();
     const rows = await this.sql`
       select attach_method, count(*)::integer as n,
              round(avg(similarity)::numeric, 3) as avg_sim
@@ -394,6 +426,7 @@ export class LabQueries {
   }
 
   async storylineAttachMix() {
+    if (this.snapshot !== null) return this.snapshot.storylineAttachMix();
     const rows = await this.sql`
       select attach_method, count(*)::integer as n
       from public.episodes group by 1 order by n desc
@@ -405,6 +438,7 @@ export class LabQueries {
   }
 
   async similarityByMethod(): Promise<{ method: string; values: number[] }[]> {
+    if (this.snapshot !== null) return this.snapshot.similarityByMethod();
     const rows = await this.sql`
       select attach_method, array_agg(similarity) as sims
       from public.episode_entries where similarity is not null group by 1
@@ -416,11 +450,13 @@ export class LabQueries {
   }
 
   async entriesPerEpisode(): Promise<number[]> {
+    if (this.snapshot !== null) return this.snapshot.entriesPerEpisode();
     const rows = await this.sql`select entry_count from public.episodes`;
     return rows.map((row) => Number(row.entry_count));
   }
 
   async episodesPerStoryline(): Promise<number[]> {
+    if (this.snapshot !== null) return this.snapshot.episodesPerStoryline();
     const rows = await this.sql`
       select episode_count from public.storylines where merged_into is null
     `;
@@ -428,6 +464,7 @@ export class LabQueries {
   }
 
   async syndicationRate(): Promise<number | null> {
+    if (this.snapshot !== null) return this.snapshot.syndicationRate();
     const [row] = await this.sql`
       select round(avg(is_syndicated::int)::numeric, 4) as rate
       from public.episode_entries
@@ -436,6 +473,7 @@ export class LabQueries {
   }
 
   async contentHashPairCosines(): Promise<number[]> {
+    if (this.snapshot !== null) return this.snapshot.contentHashPairCosines();
     const rows = await this.sql`
       select a.embedding as ea, b.embedding as eb
       from public.episode_entries ee
@@ -454,6 +492,7 @@ export class LabQueries {
   }
 
   async topChains(limit = 10) {
+    if (this.snapshot !== null) return this.snapshot.topChains(limit);
     const rows = await this.sql`
       select s.id, s.episode_count, s.entry_count, c.headline
       from public.storylines s
@@ -471,6 +510,8 @@ export class LabQueries {
   }
 
   async borderlinePairs(window = 0.03, limit = 100): Promise<BorderlinePair[]> {
+    if (this.snapshot !== null)
+      return this.snapshot.borderlinePairs(window, limit);
     const rows = await this.sql`
       select ee.entry_id, ee.matched_entry_id, ee.attach_method, ee.similarity,
              ee.threshold_used, a.title as entry_title, b.title as matched_title
@@ -494,7 +535,7 @@ export class LabQueries {
     }));
   }
 
-  // -- experiment_runs (run history; survives reset --clusters) ------------
+  // -- complex_v1_experiment_runs (survives reset --clusters) ---------------
 
   private shapeRun(row: Record<string, unknown>): ExperimentRun {
     const started = row.started_at as Date;
@@ -511,6 +552,19 @@ export class LabQueries {
       finishedAt: finished.toISOString(),
       id: String(row.id),
       name: String(row.name),
+      snapshot:
+        row.snapshot_created_at === null ||
+        row.snapshot_created_at === undefined
+          ? null
+          : {
+              capturedAt: (row.snapshot_created_at as Date).toISOString(),
+              isBest: Boolean(row.snapshot_is_best),
+              note: (row.snapshot_note as string | null) ?? null,
+              reward:
+                (row.snapshot_reward as Record<string, unknown> | null) ?? null,
+              rowCounts: row.snapshot_row_counts as Record<string, number>,
+              schemaVersion: Number(row.snapshot_schema_version),
+            },
       startedAt: started.toISOString(),
       summary:
         row.summary === null
@@ -521,10 +575,16 @@ export class LabQueries {
 
   async experimentRuns(limit = 50): Promise<ExperimentRun[]> {
     const rows = await this.sql`
-      select id, name, started_at, finished_at, config, cluster_report, summary,
-             cache_hits, cache_misses, created_at
-      from public.${this.sql(this.experimentRunsTable)}
-      order by created_at desc
+      select r.id, r.name, r.started_at, r.finished_at, r.config,
+             r.cluster_report, r.summary, r.cache_hits, r.cache_misses,
+             r.created_at, s.created_at as snapshot_created_at,
+             s.schema_version as snapshot_schema_version,
+             s.row_counts as snapshot_row_counts, s.note as snapshot_note,
+             s.reward as snapshot_reward, s.is_best as snapshot_is_best
+      from public.${this.sql(this.experimentRunsTable)} r
+      left join public.${this.sql(this.clusterSnapshotsTable())} s
+        on s.run_id = r.id
+      order by r.created_at desc
       limit ${Math.min(limit, 500)}
     `;
     return rows.map((row) => this.shapeRun(row));
@@ -532,9 +592,16 @@ export class LabQueries {
 
   async experimentRun(id: string): Promise<ExperimentRun | null> {
     const [row] = await this.sql`
-      select id, name, started_at, finished_at, config, cluster_report, summary,
-             cache_hits, cache_misses, created_at
-      from public.${this.sql(this.experimentRunsTable)} where id = ${id}
+      select r.id, r.name, r.started_at, r.finished_at, r.config,
+             r.cluster_report, r.summary, r.cache_hits, r.cache_misses,
+             r.created_at, s.created_at as snapshot_created_at,
+             s.schema_version as snapshot_schema_version,
+             s.row_counts as snapshot_row_counts, s.note as snapshot_note,
+             s.reward as snapshot_reward, s.is_best as snapshot_is_best
+      from public.${this.sql(this.experimentRunsTable)} r
+      left join public.${this.sql(this.clusterSnapshotsTable())} s
+        on s.run_id = r.id
+      where r.id = ${id}
     `;
     return row === undefined ? null : this.shapeRun(row);
   }

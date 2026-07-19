@@ -57,7 +57,7 @@ select lives_ok(
     $$select public.create_topic_theme(
         'FDA drug recalls', decode('0011', 'hex'),
         (select id from public.topic_categories where display_name = 'Test LLM Cat'),
-        'test-model')$$,
+        'test-model', 'FDA actions involving drug recalls')$$,
     'create_topic_theme inserts'
 );
 

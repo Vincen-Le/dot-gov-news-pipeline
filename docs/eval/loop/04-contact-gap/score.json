@@ -1,0 +1,40 @@
+{
+  "intruder_detection": 10,
+  "intruder_n": 10,
+  "intruder_rate": 1.0,
+  "quanta": {
+    "v1": 0.05,
+    "v2": 0.03529411764705882,
+    "v3": 0.011764705882352941,
+    "v4": 0.02,
+    "v5": 0.00041666666666666664,
+    "v6": 0.06
+  },
+  "reward": 0.5308333333333334,
+  "v1_method_precision": {
+    "adjudicated_join": 0.8181818181818182,
+    "new_storyline": 1.0
+  },
+  "v1_method_worst": 0.8181818181818182,
+  "v1_n": 12,
+  "v1_score": 0.5,
+  "v2_n": 17,
+  "v2_score": 0.041666666666666664,
+  "v2_theme_scores": {
+    "106ffd26-66eb-460e-8b00-f6f8c70aa9d2": -1.875,
+    "27632d19-7511-4be8-8f4c-410a5289f71c": 1.0,
+    "cdc5e557-bb05-4593-8f7b-3a10e1ff503f": 1.0
+  },
+  "v3_n": 17,
+  "v3_score": 1.0,
+  "v4_candidate_n": 0,
+  "v4_merge_pairs": 0,
+  "v4_singleton_rate": 0.0,
+  "v5_entity_n": 480,
+  "v5_entity_precision": 0.1125,
+  "v5_event_key_n": 2,
+  "v5_event_key_validity": 0.5,
+  "v5_missed_mean": 1.62,
+  "v6_n": 10,
+  "v6_score": 1.0
+}

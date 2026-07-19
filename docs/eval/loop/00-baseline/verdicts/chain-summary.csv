@@ -1,0 +1,14 @@
+storyline_id,episodes,verdict,note
+34573103-2db5-4d52-8ffc-ea2a6f7ad46d,2,coherent,Deadline countdown follows the same Kentucky tornado assistance event.
+4d0c7b21-39ca-438f-85fc-6c8d9627de41,2,coherent,Both episodes describe the same ACE crew activity at the same park.
+6a6d73a2-b585-4aec-98b1-3de9108e23a9,2,coherent,Closure and Advisory 2 form one Hurricane Erin response sequence.
+6c720d46-de91-4b94-961b-3fb9df5cfc87,2,coherent,Both episodes are copies of the same listening-session notice.
+6d2cf078-7c6b-4a1e-897a-a193d669ed0c,3,coherent,August through October notices continue one named anniversary commemoration.
+6d3f75f1-75af-4d5a-b8fb-81ed8bb4ee97,2,coherent,Announcement and formal notice cover the same Venezuela TPS termination.
+7271c3f8-1b91-4e16-8f2e-7ed3bf95c4fa,2,should_split,Individual assistance deadline and broader public-assistance designation are distinct events.
+7447ce8e-afa4-418a-a8e8-9d2d5278c88b,2,should_split,Two separately dated water-conservation actions lack a confirmed shared incident.
+a4e31d6f-0e41-42b7-aaf8-a1604e5a8177,2,should_split,The officials held two distinct meetings nearly two months apart.
+b8cf9a10-b145-44f2-b323-dd4ee03a2dd0,2,should_split,The officials held two separate calls on different dates.
+ccaa4203-6d12-4928-b422-11bc3371a422,2,coherent,Both same-day releases describe the same four-person ICC sanctions action.
+dc8c085f-c325-47fe-a705-a60141aeb771,2,coherent,Recovery-center hours update continues the same Tennessee disaster response.
+e5faf404-f71c-4f06-accf-dedbe5517871,2,coherent,Both episodes concern the same 2026 NASA competition launch.
