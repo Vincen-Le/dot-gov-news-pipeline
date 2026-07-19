@@ -20,6 +20,7 @@ import { snapshotLabMetrics } from "./lab/metrics";
 import { LabQueries } from "./lab/queries";
 import { defaultProvisioner, setupPipeline } from "./lab/setup";
 import { defaultDoctorDeps, runDoctor } from "./onboarding/checks";
+import { defaultEnvInitDeps, envInit } from "./onboarding/env-init";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
 import { operatorRecipes } from "./recipes";
 import { sanitizedDsn, startDashboard } from "./server";
@@ -143,6 +144,19 @@ program
       }
     }
     if (results.some((r) => !r.ok)) process.exitCode = 1;
+  });
+
+const env = program.command("env").description("Manage the local .env file");
+env
+  .command("init")
+  .description("Prompt for contributor credentials, validate, write .env")
+  .action(async () => {
+    const { close, deps } = defaultEnvInitDeps();
+    try {
+      await envInit(deps);
+    } finally {
+      close();
+    }
   });
 
 const inventory = program
