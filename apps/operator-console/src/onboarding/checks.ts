@@ -1,3 +1,4 @@
+import { config as loadDotEnv } from "dotenv";
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -236,6 +237,7 @@ export async function runDoctor(
 }
 
 export function defaultDoctorDeps(): DoctorDeps {
+  loadDotEnv({ path: resolve(repositoryRoot, ".env"), quiet: true });
   return {
     execVersion: (cmd, args) =>
       new Promise((resolveVersion) => {

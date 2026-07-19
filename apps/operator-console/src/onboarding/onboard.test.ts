@@ -74,6 +74,43 @@ describe("onboard", () => {
     expect(commands).toHaveLength(0);
   });
 
+  it("dry run reports real counts when the db is up, and would-reset when empty", async () => {
+    const logs: string[] = [];
+    const { deps, commands } = fakeDeps({
+      dbUp: async () => true,
+      corpusCount: async () => 0,
+      embeddedCount: async () => 0,
+      log: (message) => logs.push(message),
+    });
+    await onboard(deps, { dryRun: true });
+    expect(commands).toHaveLength(0);
+    expect(logs).toContain("[dry-run] would apply migrations (supabase db reset)");
+    expect(logs).toContain(
+      "[dry-run] would embed a 25-entry sample with your Cloudflare models",
+    );
+  });
+
+  it("dry run treats counts as 0 when the db is down, without probing it", async () => {
+    const logs: string[] = [];
+    const { deps, commands } = fakeDeps({
+      dbUp: async () => false,
+      corpusCount: async () => {
+        throw new Error("corpusCount should not be called when db is down");
+      },
+      embeddedCount: async () => {
+        throw new Error("embeddedCount should not be called when db is down");
+      },
+      log: (message) => logs.push(message),
+    });
+    await onboard(deps, { dryRun: true });
+    expect(commands).toHaveLength(0);
+    expect(logs).toContain("[dry-run] would start local supabase");
+    expect(logs).toContain("[dry-run] would apply migrations (supabase db reset)");
+    expect(logs).toContain(
+      "[dry-run] would embed a 25-entry sample with your Cloudflare models",
+    );
+  });
+
   it("fresh forces a db reset even with an existing corpus", async () => {
     const { deps, commands } = fakeDeps();
     await onboard(deps, { fresh: true });

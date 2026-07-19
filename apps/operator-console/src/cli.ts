@@ -132,33 +132,37 @@ program
   .command("doctor")
   .description("Check local toolchain, credentials, and hosted access")
   .option("--json", "machine-readable output")
-  .action(async (options: { json?: boolean }) => {
-    const results = await runDoctor(defaultDoctorDeps());
-    if (options.json) {
-      console.log(JSON.stringify(results, null, 2));
-    } else {
-      for (const result of results) {
-        console.log(
-          `${result.ok ? "✓" : "✗"} ${result.name} — ${result.detail}`,
-        );
-        if (!result.ok && result.fix) console.log(`    fix: ${result.fix}`);
+  .action((options: { json?: boolean }) =>
+    runAction(async () => {
+      const results = await runDoctor(defaultDoctorDeps());
+      if (options.json) {
+        console.log(JSON.stringify(results, null, 2));
+      } else {
+        for (const result of results) {
+          console.log(
+            `${result.ok ? "✓" : "✗"} ${result.name} — ${result.detail}`,
+          );
+          if (!result.ok && result.fix) console.log(`    fix: ${result.fix}`);
+        }
       }
-    }
-    if (results.some((r) => !r.ok)) process.exitCode = 1;
-  });
+      if (results.some((r) => !r.ok)) process.exitCode = 1;
+    }),
+  );
 
 const env = program.command("env").description("Manage the local .env file");
 env
   .command("init")
   .description("Prompt for contributor credentials, validate, write .env")
-  .action(async () => {
-    const { close, deps } = defaultEnvInitDeps();
-    try {
-      await envInit(deps);
-    } finally {
-      close();
-    }
-  });
+  .action(() =>
+    runAction(async () => {
+      const { close, deps } = defaultEnvInitDeps();
+      try {
+        await envInit(deps);
+      } finally {
+        close();
+      }
+    }),
+  );
 
 program
   .command("onboard")
@@ -167,12 +171,14 @@ program
   )
   .option("--dry-run", "show the plan and run checks without changing anything")
   .option("--fresh", "force supabase db reset even if a corpus exists")
-  .action(async (options: { dryRun?: boolean; fresh?: boolean }) => {
-    await onboard(defaultOnboardDeps(), {
-      dryRun: options.dryRun,
-      fresh: options.fresh,
-    });
-  });
+  .action((options: { dryRun?: boolean; fresh?: boolean }) =>
+    runAction(async () => {
+      await onboard(defaultOnboardDeps(), {
+        dryRun: options.dryRun,
+        fresh: options.fresh,
+      });
+    }),
+  );
 
 const inventory = program
   .command("inventory")

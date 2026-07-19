@@ -53,7 +53,8 @@ export async function onboard(
     deps.log("✓ credentials present");
   }
 
-  if (!(await deps.dbUp())) {
+  const dbWasUp = await deps.dbUp();
+  if (!dbWasUp) {
     await act("start local supabase", () =>
       deps.run("pnpm", ["supabase", "start"]),
     );
@@ -61,7 +62,8 @@ export async function onboard(
     deps.log("✓ local database running");
   }
 
-  const corpus = opts.dryRun ? 1 : await deps.corpusCount();
+  const corpus =
+    opts.dryRun && !dbWasUp ? 0 : await deps.corpusCount();
   if (opts.fresh || corpus === 0) {
     await act("apply migrations (supabase db reset)", () =>
       deps.run("pnpm", ["supabase", "db", "reset"]),
@@ -77,7 +79,8 @@ export async function onboard(
     deps.run("uv", ["run", "python", "-m", "pipeline.cli", "sync"]),
   );
 
-  const embedded = opts.dryRun ? 1 : await deps.embeddedCount();
+  const embedded =
+    opts.dryRun && !dbWasUp ? 0 : await deps.embeddedCount();
   if (embedded === 0) {
     await act("embed a 25-entry sample with your Cloudflare models", () =>
       deps.run("uv", [
