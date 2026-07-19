@@ -1,6 +1,7 @@
 import json
 
 import httpx
+import pytest
 import numpy as np
 
 from pipeline.ai import WorkersAI
@@ -66,3 +67,39 @@ def test_extract_json_passes_through_parsed_dict():
 
     parsed = {"category_id": "c-1", "reason": "already parsed by workers ai"}
     assert _extract_json(parsed) == parsed
+
+
+def test_adjudicate_theme_parses_and_normalizes_dict_response():
+    def handler(request):
+        return httpx.Response(200, json={
+            "result": {"response": {  # dict, not string: workers ai json mode
+                "decision": "join", "theme_id": "t-1",
+                "new_theme_name": None,
+                "merge_theme_ids": ["t-1", "t-2"],
+                "reason": "same subject"}},
+            "success": True,
+        })
+
+    ai = WorkersAI(_cfg(), transport=_transport(handler))
+    out = ai.adjudicate_theme(
+        {"headline": "h", "summary": ""},
+        [{"theme_id": "t-1", "name": "A", "storyline_count": 2,
+          "recent_headlines": []},
+         {"theme_id": "t-2", "name": "B", "storyline_count": 1,
+          "recent_headlines": []}],
+    )
+    assert out == {"decision": "join", "theme_id": "t-1",
+                   "new_theme_name": None,
+                   "merge_theme_ids": ["t-1", "t-2"],
+                   "reason": "same subject"}
+
+
+def test_adjudicate_theme_raises_on_transport_error():
+    def boom(request):
+        return httpx.Response(500, json={"success": False})
+
+    ai = WorkersAI(_cfg(), transport=_transport(boom))
+    with pytest.raises(Exception):
+        ai.adjudicate_theme({"headline": "h", "summary": ""},
+                            [{"theme_id": "t-1", "name": "A",
+                              "storyline_count": 1, "recent_headlines": []}])

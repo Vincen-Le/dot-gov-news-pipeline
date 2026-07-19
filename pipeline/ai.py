@@ -14,6 +14,7 @@ from pipeline.prompts import (
     build_compressor_prompt,
     build_enricher_prompt,
     build_rank_audit_prompt,
+    build_theme_adjudicator_prompt,
     build_theme_namer_prompt,
 )
 
@@ -114,3 +115,17 @@ class WorkersAI:
         except Exception as exc:  # engine leaves category null on failure
             return {"category_id": None, "new_category_name": None,
                     "reason": f"classifier_error: {exc}"}
+
+    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
+        # raises on failure by design: ThemeEngine falls back to knn majority
+        system, user = build_theme_adjudicator_prompt(storyline, candidates)
+        parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
+        return {
+            "decision": str(parsed.get("decision") or ""),
+            "theme_id": str(parsed["theme_id"]) if parsed.get("theme_id") else None,
+            "new_theme_name": (str(parsed["new_theme_name"])
+                               if parsed.get("new_theme_name") else None),
+            "merge_theme_ids": [str(i) for i in parsed.get("merge_theme_ids") or []
+                                if i],
+            "reason": str(parsed.get("reason", "")),
+        }
