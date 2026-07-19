@@ -54,7 +54,10 @@ class FakeStore:
                               "method": method, "similarity": similarity,
                               "is_syndicated": is_syndicated})
         ep = self.episodes[episode_id]
-        entry = self.entries[entry_id]
+        entry = self.entries.setdefault(
+            entry_id, {"id": entry_id, "entity_set": [], "event_keys": [],
+                      "content_hash": None, "published_at": published_at,
+                      "embedding": None})
         ep["entry_count"] += 1
         ep["newest_entry_at"] = max(ep["newest_entry_at"], published_at)
         ep["centroid"] = episode_centroid
@@ -71,6 +74,21 @@ class FakeStore:
         was_open = ep["status"] == "open"
         ep["status"] = "dormant"
         return was_open
+
+    def insert_card(self, storyline_id, episode_id, kind, headline, summary,
+                    timeline, rubric, rubric_version, interest_reason,
+                    representative_entry_id, judge_model, prompt_version,
+                    overview_embedding, tau):
+        card = {"storyline_id": storyline_id, "episode_id": episode_id,
+                "kind": kind, "headline": headline, "summary": summary,
+                "timeline": timeline, "rubric": rubric,
+                "rubric_version": rubric_version,
+                "interest_reason": interest_reason,
+                "representative_entry_id": representative_entry_id,
+                "judge_model": judge_model, "prompt_version": prompt_version,
+                "overview_embedding": overview_embedding, "tau": tau}
+        self.cards.append(card)
+        return f"card-{len(self.cards)}"
 
     # -- reads ---------------------------------------------------------
     def content_hash_dup(self, hash_, t, window_hours):
@@ -99,6 +117,12 @@ class FakeStore:
              "published_at": e["published_at"], "is_syndicated": False}
             for e in self.entries.values() if e.get("episode_id") == episode_id
         ]
+
+    def latest_overview(self, storyline_id):
+        for c in reversed(self.cards):
+            if c["storyline_id"] == storyline_id:
+                return {"headline": c["headline"], "summary": c["summary"]}
+        return None
 
     def latest_storyline_entry(self, storyline_id):
         members = [
