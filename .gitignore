@@ -40,3 +40,7 @@ coverage/
 *-backup.sql
 
 .cache/
+
+# Agent tooling local state
+.claude/worktrees/
+.superpowers/
