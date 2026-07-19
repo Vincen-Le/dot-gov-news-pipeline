@@ -203,3 +203,50 @@ sweeps will use only keys verified in the live `load_config()` implementation.
   Keep the independent transport-retry hardening because it changes no
   successful model result and was necessary for a completed crawl.
 - Status: complete
+
+## Iteration 04 — recurring-contact gap guard
+
+- Vector targeted: V1 storyline continuation validity (current best 0.307692;
+  3 false merges among 13 non-anchor episodes)
+- Exact change proposed: before LLM adjudication, decline a candidate when
+  both the new item and current storyline evidence are explicitly titled as a
+  `call` or `meeting`, their publication gap exceeds 21 days, and they share
+  no extracted event key. Other candidate types and shorter gaps retain the
+  existing adjudicator path.
+- Evidence before change: two incumbent false joins are recurring diplomatic
+  contacts 29 and 58 days apart (Rubio-Lammy calls and Landau-Bu meetings).
+  No valid incumbent join is a call/meeting beyond 21 days; the only long-gap
+  valid chain is a named Honouliuli 10th-anniversary programming series, which
+  the narrow contact-title guard does not match.
+- Expected effect: split two false contact joins while preserving all 10 valid
+  joins and the unrelated 55-day Grand Canyon false join; projected V1 rises
+  from 0.307692 (10 valid / 3 false) to 0.727273 (10 / 1), increasing reward
+  by about 0.083916 before topology side effects.
+- Cost tier: Tier 2 (deterministic attachment guard, targeted tests, full
+  replay; no extraction or embedding refresh)
+- Implementation receipt: committed as `ad40800`; storyline and transport
+  tests 26/26 pass.
+- Interrupted attempt: the first replay stopped at 24/150 during the requested
+  pause, coincident with an exhausted DNS/connect retry. It wrote no
+  `experiment_runs` row; the exact restart resets this partial derived state.
+- Run ID: `17bbd82d-feda-4de1-9456-9e4b14082966`
+- Duration: 4,259.4s; processed 150; cache 68 hits / 66 misses; 140 episodes,
+  128 storylines, 11 multi-episode storylines, 3 themes / 17 themed
+  storylines; model fallbacks: 1 adjudicator and 2 category-classifier errors
+- Direct target trace: the Landau-Bu meetings split correctly, but the
+  Rubio-Lammy calls remained joined because the generated storyline overview
+  headline did not contain `call`; the narrow guard inspected that overview
+  rather than the latest real member title.
+- Blinded crawl: V1 12 non-anchor episodes; V2 17 memberships across 3 themes;
+  V3 17 category/storyline pairs; V4 0 deterministic merge candidates; V5
+  480 entity tokens + 2 event keys across 100 entries; V6 10 non-anchor
+  entries
+- Intruder self-test: 10/10 (three themes cycled to retain 10 independent
+  least-fit trials)
+- Mechanical scores: V1 0.500000; V2 0.041667; V3 1.000000; V4 penalty 0;
+  V5 0.112500; V6 1.000000; **R = 0.530833**
+- Delta: -0.158205 versus the current best, below the targeted V1 reward
+  quantum 0.050000. V1 improved, but `Global Conflict Diplomacy` admitted only
+  1/8 members and was judged too broad.
+- Decision: **REJECT**; deterministic guard reverted by `5503dee`.
+- Status: complete

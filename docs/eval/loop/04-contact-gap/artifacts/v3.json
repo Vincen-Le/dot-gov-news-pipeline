@@ -1,0 +1,604 @@
+{
+  "categories": [
+    {
+      "category_id": "aeba3f83-aba2-4245-a680-ce0c14a4ba55",
+      "display_name": "Agriculture",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "9df134bf-9a9f-43a7-bd71-a68bd3db2641",
+      "display_name": "Civil Rights & Liberties",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "44cb0e20-5a77-479e-a14c-c910606f9080",
+      "display_name": "Courts & Legal Rulings",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "221cda10-999a-4cb6-8908-26479967843d",
+      "display_name": "Defense & Military",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+      "display_name": "Disaster Response & Emergency",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+      "display_name": "Economy & Labor",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "07ef6968-79f5-4905-85c4-651651608742",
+      "display_name": "Education",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "61f21ad5-da30-48f8-8344-279429aba71b",
+      "display_name": "Elections & Government Operations",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "e41c9561-40b9-41eb-8089-ae2fb389ad4e",
+      "display_name": "Energy & Environment",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "0b1488cf-b42d-4334-9f1a-e870a2efd177",
+      "display_name": "Financial Regulation",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "3dc753c6-5dde-4784-bb6f-bc7c453cab79",
+      "display_name": "Food & Drug Safety",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+      "display_name": "Foreign Affairs & Trade",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "0d9f0b39-71b2-460a-a2f4-bb838f043f73",
+      "display_name": "Housing & Urban Development",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "b13b2beb-d604-4b30-8982-3698e1ae37d9",
+      "display_name": "Immigration & Border",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "c0b72181-1d13-4dd6-a3e9-2d702a920787",
+      "display_name": "Justice & Law Enforcement",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "10cbb82c-febf-4df2-baaa-1205400b717a",
+      "display_name": "Public Health",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "b11f2e92-b96d-430a-b92d-1b50389985c4",
+      "display_name": "Public Lands & Natural Resources",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "10e6879f-9774-451a-b48d-4b45b71b7a3c",
+      "display_name": "Science & Space",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "11090709-7ff7-4c33-b6fe-eafa8e2c6fa7",
+      "display_name": "Social Security & Benefits",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "8469cf1e-db30-45f0-8807-a72640da7347",
+      "display_name": "Taxes & Revenue",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "123c1295-8fb3-4d97-ac05-e7cbba025e26",
+      "display_name": "Technology & Cybersecurity",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "c0507b9f-da3c-41db-946a-e0678a6b7942",
+      "display_name": "Transportation & Infrastructure",
+      "origin": "seed",
+      "proposal_reason": null
+    },
+    {
+      "category_id": "65749e2d-af6b-4121-a213-9b976ada23cf",
+      "display_name": "Veterans Affairs",
+      "origin": "seed",
+      "proposal_reason": null
+    }
+  ],
+  "category_storyline_pairs": [
+    {
+      "storyline": {
+        "storyline_id": "199aff44-e7e4-4bdd-ac7d-903594423a42",
+        "headline": "Hours to Change at Disaster Recovery Centers in Tennessee",
+        "summary": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms / Hours to Change at Disaster Recovery Centers in Tennessee",
+        "entities": [
+          "change",
+          "hours",
+          "middle",
+          "storms",
+          "tennesseans",
+          "tennessee",
+          "western"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 13:52:19+00:00",
+        "newest_entry_at": "2025-07-21 13:22:54+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.839479,
+        "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines share a recurring subject of disaster recovery and federal assistance after severe weather events"
+      },
+      "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+      "theme_name": "Severe Weather Recovery",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "1babc271-6713-4196-b4e9-012f4155dd09",
+        "headline": "Kentucky Flooding Recovery",
+        "summary": "Kentucky homeowners and renters affected by the April severe storms and flooding have a limited time to apply for federal disaster assistance through FEMA, with a deadline of July 25. Assistance can be applied for online, in-person, or by phone, and is intended to meet basic needs and supplement disaster recovery efforts.",
+        "entities": [
+          "days",
+          "following",
+          "less"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-21 14:15:35+00:00",
+        "newest_entry_at": "2025-07-25 12:25:51+00:00",
+        "episode_count": 1,
+        "entry_count": 3,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.698819,
+        "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines share a recurring subject of disaster recovery and federal assistance after severe weather events"
+      },
+      "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+      "theme_name": "Severe Weather Recovery",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "1baccf31-f107-427e-8625-9d465ec79461",
+        "headline": "US Secretary of State Marco Rubio Meets with Israeli Foreign Minister",
+        "summary": "US Secretary of State Marco Rubio met with Israeli Foreign Minister Gideon Sa\u2019ar at the Department of State on August 27, 2025. The meeting was open to press coverage.",
+        "entities": [
+          "schedule"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-26 04:00:00+00:00",
+        "newest_entry_at": "2025-08-26 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.695652,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and tensions, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "31822e55-81ad-43e4-b4c9-e6985232a67c",
+        "headline": "US Urges Cambodia to Deescalate Border Dispute with Thailand",
+        "summary": "Secretary of State Marco Rubio urged the Cambodian government to deescalate tensions and agree to a ceasefire with Thailand over the ongoing border dispute. The call reiterated President Trump's desire for peace in the region.",
+        "entities": [
+          "cambodian",
+          "phone",
+          "prak",
+          "prime",
+          "rubio"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-27 04:00:00+00:00",
+        "newest_entry_at": "2025-07-27 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.600022,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and tensions, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "3b313ab6-1e1f-41ad-a7c5-47507c7a16d9",
+        "headline": "Sequoia and Kings Canyon National Parks' Economic Impact",
+        "summary": "Tourism to Sequoia and Kings Canyon National Parks contributes $230 million to the local economy. This significant economic contribution highlights the importance of these national parks to the surrounding community.",
+        "entities": [
+          "$230 million",
+          "kings",
+          "parks",
+          "sequoia"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-29 04:00:00+00:00",
+        "newest_entry_at": "2025-09-29 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.799614,
+        "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of national park tourism's economic contribution to local economies, which will plausibly keep producing distinct events."
+      },
+      "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+      "theme_name": "National Park Economics",
+      "filed_category": "Economy & Labor"
+    },
+    {
+      "storyline": {
+        "storyline_id": "457e8a10-f258-4ea9-829b-a2c89775f2b7",
+        "headline": "Tourism Contributes $108.4 Million to Southern WV Economy",
+        "summary": "Tourism to Southern WV's three national park sites contributes $108.4 million to the local economy. This significant economic contribution highlights the importance of national parks to local communities.",
+        "entities": [
+          "bluestone",
+          "home",
+          "info",
+          "mailing",
+          "scenic",
+          "southern",
+          "subscribe",
+          "west"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-26 04:00:00+00:00",
+        "newest_entry_at": "2025-09-26 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.882491,
+        "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of national park tourism's economic contribution to local economies, which will plausibly keep producing distinct events."
+      },
+      "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+      "theme_name": "National Park Economics",
+      "filed_category": "Economy & Labor"
+    },
+    {
+      "storyline": {
+        "storyline_id": "4d14f75a-0e30-47d6-95b3-559507b6cf7b",
+        "headline": "US-Honduras Diplomatic Meeting",
+        "summary": "Deputy Secretary of State Christopher Landau met with Honduran Foreign Minister Javier Bu to discuss security cooperation. ",
+        "entities": [
+          "honduran",
+          "landau"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-26 04:00:00+00:00",
+        "newest_entry_at": "2025-09-26 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.62632,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storyline involves diplomatic efforts by the US to discuss security cooperation, which can be considered as an effort to mitigate international tension."
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "4ff1e481-df5e-42ac-aa58-f1880de2d347",
+        "headline": "Kentucky Counties Affected by April Flooding and May Tornadoes Now Eligible for FEMA Public Assistance",
+        "summary": "Kentucky Counties Affected by April Flooding and May Tornadoes Now Eligible for FEMA Public Assistance",
+        "entities": [
+          "counties",
+          "eligible",
+          "kentucky"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-24 19:56:57+00:00",
+        "newest_entry_at": "2025-07-24 19:56:57+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.699623,
+        "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines share a recurring subject of disaster recovery and federal assistance after severe weather events"
+      },
+      "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+      "theme_name": "Severe Weather Recovery",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "5315769e-a48a-4b48-bddd-d3507641bc94",
+        "headline": "Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+        "summary": "One Week Left For Kentuckians Affected By May Tornadoes To Apply For FEMA Assistance / Two Days Left To Apply For FEMA Assistance For Kentuckians Affected By May Tornadoes",
+        "entities": [
+          "days",
+          "kentuckians"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-15 13:08:40+00:00",
+        "newest_entry_at": "2025-08-22 12:32:01+00:00",
+        "episode_count": 2,
+        "entry_count": 3,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.868684,
+        "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storylines share a recurring subject of disaster recovery and federal assistance after severe weather events"
+      },
+      "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+      "theme_name": "Severe Weather Recovery",
+      "filed_category": "Disaster Response & Emergency"
+    },
+    {
+      "storyline": {
+        "storyline_id": "6377808f-ede8-4b13-b183-5fe3c6621f00",
+        "headline": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+        "summary": "Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State / Imposing Further Sanctions in Response to the ICC\u2019s Ongoing Threat to Americans and Israelis - United States Department of State",
+        "entities": [
+          "criminal",
+          "fact",
+          "further",
+          "imposing",
+          "israelis",
+          "ongoing",
+          "sanctions",
+          "sheet",
+          "threat"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-20 04:00:00+00:00",
+        "newest_entry_at": "2025-08-20 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.560452,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "c0b72181-1d13-4dd6-a3e9-2d702a920787",
+        "theme_reason": "The storyline involves diplomatic efforts by the US to respond to the ICC's actions, which is related to mitigating international tension between the US, Israel, and the ICC."
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "6ac5b724-d53b-448a-8cda-ce803e1e14d0",
+        "headline": "US-Djibouti Strategic Partnership",
+        "summary": "Secretary of State Marco Rubio spoke with Djiboutian President Ismail Omar Guelleh to discuss the long-standing strategic partnership between the US and Djibouti, focusing on peace and security in the Red Sea and Horn of Africa. ",
+        "entities": [
+          "djiboutian",
+          "guelleh",
+          "ismail",
+          "omar",
+          "rubio",
+          "tammy"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 04:00:00+00:00",
+        "newest_entry_at": "2025-07-18 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.840897,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and tensions, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "a104909e-666a-4541-881d-681830528477",
+        "headline": "Fort Stanwix National Monument Tourism Contributes $4.2 Million to Local Economy",
+        "summary": "Tourism to Fort Stanwix National Monument generates $4.2 million for the local economy, as reported on September 26, 2025. This economic contribution highlights the monument's significance to the area.",
+        "entities": [
+          "$4.2 million",
+          "fort",
+          "home",
+          "stanwix"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-26 04:00:00+00:00",
+        "newest_entry_at": "2025-09-26 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.693169,
+        "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of national park tourism's economic contribution to local economies, which will plausibly keep producing distinct events."
+      },
+      "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+      "theme_name": "National Park Economics",
+      "filed_category": "Economy & Labor"
+    },
+    {
+      "storyline": {
+        "storyline_id": "a112e2ad-3200-4154-9658-c84cd1cac2a1",
+        "headline": "Secretary Rubio's Trip to Israel and the UK",
+        "summary": "Secretary Marco Rubio traveled to Israel and the United Kingdom from September 13-18, 2025, meeting with Israeli Prime Minister Benjamin Netanyahu in Jerusalem. The trip included joint statements and closed press coverage meetings.",
+        "entities": [
+          "israel",
+          "kingdom",
+          "rubio",
+          "schedule"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-14 04:00:00+00:00",
+        "newest_entry_at": "2025-09-14 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.725095,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storyline involves diplomatic efforts by the US, as represented by Secretary Marco Rubio's meetings with Israeli Prime Minister Benjamin Netanyahu, which can be seen as an attempt to resolve or mitigate international tensions."
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "bf596067-8664-4dc8-9d64-a88d55ea241f",
+        "headline": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+        "summary": "Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State / Secretary Rubio\u2019s Call with UK Foreign Secretary Lammy - United States Department of State",
+        "entities": [
+          "david",
+          "lammy",
+          "pigott",
+          "principal",
+          "rubio",
+          "tammy",
+          "tommy"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-04 04:00:00+00:00",
+        "newest_entry_at": "2025-09-02 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.702679,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The storylines share a recurring subject of US diplomatic efforts to address various international conflicts and tensions, which will plausibly keep producing distinct events"
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "c59c0183-9c76-47cb-ba85-3b62d662c02b",
+        "headline": "US Supports Rohingya and Other Myanmar Minorities",
+        "summary": "The US expressed support for Rohingya and other Myanmar minorities who have been victims of repression and violence, commending the bravery of survivors who spoke out. This statement was made at a high-level conference on the situation in Myanmar.",
+        "entities": [
+          "charles",
+          "conference",
+          "high",
+          "level",
+          "minorities",
+          "muslims",
+          "myanmar",
+          "other",
+          "rohingya",
+          "situation"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-30 04:00:00+00:00",
+        "newest_entry_at": "2025-09-30 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.575886,
+        "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+        "stream_category_id": "406fa111-4ee1-40f6-a86b-1426095b7dbe",
+        "theme_reason": "The US expressed support for Rohingya and other Myanmar minorities at a high-level conference, which involves diplomatic efforts to mitigate an international conflict or tension."
+      },
+      "theme_id": "106ffd26-66eb-460e-8b00-f6f8c70aa9d2",
+      "theme_name": "Global Conflict Diplomacy",
+      "filed_category": "Foreign Affairs & Trade"
+    },
+    {
+      "storyline": {
+        "storyline_id": "c9e0390d-6675-443c-8796-09730f66c69e",
+        "headline": "Cape Lookout National Seashore Tourism Contributes to Local Economy",
+        "summary": "Tourism to Cape Lookout National Seashore contributed $32,033,000 to the local economy. ",
+        "entities": [
+          "$32,033,000",
+          "contributes",
+          "economy",
+          "local",
+          "lookout",
+          "seashore"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-09-30 04:00:00+00:00",
+        "newest_entry_at": "2025-09-30 04:00:00+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "promoted",
+        "theme_similarity": 0.697533,
+        "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+        "stream_category_id": "3fbc03b7-32cf-4506-959f-1831244b780d",
+        "theme_reason": "The storylines share a recurring subject of national park tourism's economic contribution to local economies, which will plausibly keep producing distinct events."
+      },
+      "theme_id": "27632d19-7511-4be8-8f4c-410a5289f71c",
+      "theme_name": "National Park Economics",
+      "filed_category": "Economy & Labor"
+    },
+    {
+      "storyline": {
+        "storyline_id": "f6c1c310-0d70-4345-8661-dea3dc3281b7",
+        "headline": "North Carolina Receives Additional $28 Million for Disaster Recovery",
+        "summary": "FEMA has approved an additional $28 million in reimbursement funds for North Carolina's disaster recovery efforts, bringing the total to $124 million in August alone. The funds will support community cleanup, infrastructure repair, and other recovery work following Tropical Storm Helene and other disasters.",
+        "entities": [
+          "$28 million",
+          "additional",
+          "approved"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-08-26 12:17:20+00:00",
+        "newest_entry_at": "2025-08-26 12:17:20+00:00",
+        "episode_count": 1,
+        "entry_count": 1,
+        "theme_attach_method": "criterion_join",
+        "theme_similarity": 0.652564,
+        "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+        "stream_category_id": "9a52658e-b129-423f-8ddc-2eddd6e8dc1f",
+        "theme_reason": "The storyline is about federal assistance through FEMA reimbursement funds for disaster recovery efforts following Tropical Storm Helene, a severe weather event in the US."
+      },
+      "theme_id": "cdc5e557-bb05-4593-8f7b-3a10e1ff503f",
+      "theme_name": "Severe Weather Recovery",
+      "filed_category": "Disaster Response & Emergency"
+    }
+  ],
+  "live_storyline_count": 128,
+  "unthemed_storyline_count": 111
+}
