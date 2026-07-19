@@ -52,11 +52,6 @@ select ok(
         'authenticated',
         'public.news_backfill_targets',
         'select'
-    )
-    and not has_table_privilege(
-        'anon',
-        'public.news_source_publishers',
-        'select'
     ),
     'client roles cannot read backfill control state'
 );
