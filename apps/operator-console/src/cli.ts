@@ -159,6 +159,22 @@ env
     }
   });
 
+program
+  .command("onboard")
+  .description(
+    "Guided setup: toolchain, credentials, local db, corpus, smoke run",
+  )
+  .option("--dry-run", "show the plan and run checks without changing anything")
+  .option("--fresh", "force supabase db reset even if a corpus exists")
+  .action(async (options: { dryRun?: boolean; fresh?: boolean }) => {
+    const { defaultOnboardDeps, onboard } =
+      await import("./onboarding/onboard");
+    await onboard(defaultOnboardDeps(), {
+      dryRun: options.dryRun,
+      fresh: options.fresh,
+    });
+  });
+
 const inventory = program
   .command("inventory")
   .description("Inspect GSA inventory synchronization");
