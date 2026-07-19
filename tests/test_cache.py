@@ -62,37 +62,56 @@ def test_database_url_defaults_local(monkeypatch):
     assert load_config().database_url == "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 
 
-def test_cached_models_memoizes_theme_adjudication(tmp_path):
+def test_cached_models_memoizes_theme_naming(tmp_path):
     class CountingStub(StubModels):
         calls = 0
 
-        def adjudicate_theme(self, storyline, candidates):
+        def name_theme(self, storyline):
             CountingStub.calls += 1
-            return super().adjudicate_theme(storyline, candidates)
+            return super().name_theme(storyline)
 
     cache = DecisionCache(str(tmp_path / "d.sqlite"))
     models = CachedModels(CountingStub(), cache, "tag")
-    args = ({"headline": "FDA recalls Valsatrex", "summary": ""},
-            [{"id": "t-1", "display_name": "FDA recalls",
-              "headlines": [], "similarity": 0.7}])
-    first = models.adjudicate_theme(*args)
-    second = models.adjudicate_theme(*args)
-    assert first == second
+    storyline = {"headline": "FDA recalls Valsatrex", "summary": ""}
+    first = models.name_theme(storyline)
+    second = models.name_theme(storyline)
+    assert first == second == "FDA recalls Valsatrex"
     assert CountingStub.calls == 1
     assert models.hits == 1
 
 
-def test_cached_models_never_caches_theme_errors(tmp_path):
+def test_cached_models_never_caches_namer_failures(tmp_path):
     class FailingStub(StubModels):
         calls = 0
 
-        def adjudicate_theme(self, storyline, candidates):
+        def name_theme(self, storyline):
             FailingStub.calls += 1
-            return {"theme_id": None, "updated_name": None,
-                    "reason": "adjudicator_error: boom"}
+            raise RuntimeError("namer boom")
 
     cache = DecisionCache(str(tmp_path / "d.sqlite"))
     models = CachedModels(FailingStub(), cache, "tag")
-    models.adjudicate_theme({"headline": "x", "summary": ""}, [])
-    models.adjudicate_theme({"headline": "x", "summary": ""}, [])
+    for _ in range(2):
+        try:
+            models.name_theme({"headline": "x", "summary": ""})
+        except RuntimeError:
+            pass
     assert FailingStub.calls == 2
+
+
+def test_cached_models_memoizes_category_classification(tmp_path):
+    class CountingStub(StubModels):
+        calls = 0
+
+        def classify_category(self, theme_name, storyline, categories):
+            CountingStub.calls += 1
+            return super().classify_category(theme_name, storyline, categories)
+
+    cache = DecisionCache(str(tmp_path / "d.sqlite"))
+    models = CachedModels(CountingStub(), cache, "tag")
+    args = ("FDA drug recalls", {"headline": "FDA recalls Valsatrex", "summary": ""},
+            [{"id": "c-1", "display_name": "Drug Safety", "origin": "seed"}])
+    first = models.classify_category(*args)
+    second = models.classify_category(*args)
+    assert first == second
+    assert CountingStub.calls == 1
+    assert models.hits == 1

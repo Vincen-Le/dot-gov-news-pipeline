@@ -31,8 +31,10 @@ def _fallback_text(row: dict) -> str:
 
 def prepare(store, models, cfg: Config, limit: int | None = None,
             concurrency: int = 8, embed_batch: int = 96,
-            per_agency: int | None = None) -> dict:
-    rows = store.entries_needing_features(limit, per_agency=per_agency)
+            per_agency: int | None = None,
+            agencies: list[str] | None = None) -> dict:
+    rows = store.entries_needing_features(
+        limit, per_agency=per_agency, agencies=agencies)
     if not rows:
         return {"prepared": 0, "failed": 0}
 
@@ -80,7 +82,8 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
 
 
 def cluster(store, models, cfg: Config, limit: int | None = None,
-            until: "datetime | None" = None) -> dict:
+            until: "datetime | None" = None,
+            per_agency: int | None = None) -> dict:
     window = ReplayWindow(cfg.dedupe_window_hours)
     replay = store
     if hasattr(store, "db"):  # real Store -> wrap window reads; fakes serve their own
@@ -93,7 +96,8 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     episode_engine = EpisodeEngine(replay, models, cfg, storyline_engine.resolve)
     theme_engine = ThemeEngine(replay, models, cfg) if cfg.topics_enabled else None
 
-    rows = store.prepared_unclustered(limit=limit, until=until)
+    rows = store.prepared_unclustered(limit=limit, until=until,
+                                      per_agency=per_agency)
     processed = closed_count = 0
     for row in rows:
         t = row["published_at"]

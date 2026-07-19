@@ -1,15 +1,16 @@
-"""Stage 4 — topic themes: incremental nearest-centroid over storyline
-overview embeddings, LLM-adjudicated joins with naming folded into the same
-call. Assignment at first overview, hysteresis re-check on refresh."""
+"""Stage 4 — topic themes: KNN over themed storyline centroids adopts the
+majority neighbor label (no LLM on join); spawns name a new theme via one
+cheap LLM call. Assignment at first overview, hysteresis re-check on refresh."""
 
 from __future__ import annotations
+
+from collections import Counter
 
 import numpy as np
 
 from pipeline.config import Config
 from pipeline.vectors import cosine, pack_fp16
 
-_TOP_K = 10
 _MAX_NAME = 256
 
 
@@ -29,7 +30,7 @@ class ThemeEngine:
                           if str(t["id"]) == str(state["theme_id"])), None)
             if theme is not None and theme["centroid"] is not None \
                     and cosine(vec, theme["centroid"]) >= self.cfg.theme_stick_floor:
-                return  # hysteresis: still fits, no LLM
+                return  # hysteresis: still fits, no work
             self._assign(storyline_id, state, vec, method="reassigned")
             return
         self._assign(storyline_id, state, vec, method=None)
@@ -40,59 +41,57 @@ class ThemeEngine:
                 method: str | None) -> None:
         storyline = {"headline": state.get("headline") or "(no card)",
                      "summary": state.get("summary") or ""}
-        scored = sorted(
-            ((cosine(vec, t["centroid"]), t) for t in self.store.all_themes()
-             if t["centroid"] is not None),
+        neighbors = sorted(
+            ((cosine(vec, s["centroid"]), s)
+             for s in self.store.themed_storylines()
+             if str(s["id"]) != str(storyline_id)),
             key=lambda pair: -pair[0])
-        candidates = [(sim, t) for sim, t in scored
-                      if sim >= self.cfg.theme_sim_floor][:_TOP_K]
+        top = [(sim, s) for sim, s in neighbors
+               if sim >= self.cfg.theme_sim_floor][:self.cfg.theme_knn_k]
 
-        if not candidates:
+        if not top:
             self._spawn(storyline_id, storyline, vec,
-                        name=storyline["headline"][:_MAX_NAME],
                         method=method or "new_theme",
-                        similarity=None, reason="no theme above sim floor")
+                        reason="no themed storyline above sim floor")
             return
 
-        payload = [{"id": str(t["id"]), "display_name": t["display_name"],
-                    "headlines": self.store.theme_headlines(str(t["id"])),
-                    "similarity": sim}
-                   for sim, t in candidates]
-        verdict = self.models.adjudicate_theme(storyline, payload)
-        by_id = {str(t["id"]): (sim, t) for sim, t in candidates}
-        chosen = by_id.get(str(verdict.get("theme_id") or ""))
+        votes = Counter(str(s["theme_id"]) for _, s in top)
+        # modal theme; ties resolve to the nearest neighbor's theme
+        best_count = max(votes.values())
+        winner = next(str(s["theme_id"]) for sim, s in top
+                      if votes[str(s["theme_id"])] == best_count)
+        sim = max(s for s, n in top if str(n["theme_id"]) == winner)
 
-        if chosen is None:
-            name = (verdict.get("updated_name") or storyline["headline"])[:_MAX_NAME]
-            self._spawn(storyline_id, storyline, vec, name=name,
-                        method=method or "new_theme",
-                        similarity=candidates[0][0], reason=verdict["reason"])
-            return
-
-        sim, theme = chosen
         old_theme_id = state.get("theme_id")
-        members = self.store.theme_member_centroids(str(theme["id"]))
+        members = self.store.theme_member_centroids(winner)
         new_centroid = np.mean(members + [vec], axis=0) if members else vec
-        rename = verdict.get("updated_name")
         self.store.assign_theme(
-            storyline_id, str(theme["id"]),
-            method="adjudicated_join" if method is None else method,
-            similarity=sim, reason=verdict["reason"],
+            storyline_id, winner,
+            method="knn_join" if method is None else method,
+            similarity=sim,
+            reason=f"knn: {votes[winner]}/{len(top)} nearest storylines",
             theme_centroid=pack_fp16(new_centroid),
-            theme_display_name=rename[:_MAX_NAME] if rename else None)
-        if old_theme_id is not None and str(old_theme_id) != str(theme["id"]):
+            theme_display_name=None)
+        if old_theme_id is not None and str(old_theme_id) != winner:
             self._refresh_centroid(str(old_theme_id))
-        if theme.get("category_id") is None:
-            self._classify(str(theme["id"]), theme["display_name"], storyline)
+        theme = next((t for t in self.store.all_themes()
+                      if str(t["id"]) == winner), None)
+        if theme is not None and theme.get("category_id") is None:
+            self._classify(winner, theme["display_name"], storyline)
 
     def _spawn(self, storyline_id: str, storyline: dict, vec: np.ndarray,
-               name: str, method: str, similarity: float | None,
-               reason: str) -> None:
+               method: str, reason: str) -> None:
+        try:
+            name = self.models.name_theme(storyline)[:_MAX_NAME]
+        except Exception as exc:  # naming never blocks: fall back to the headline
+            name = storyline["headline"][:_MAX_NAME]
+            reason = f"{reason}; namer_error: {exc}"
         theme_id = self.store.create_theme(
-            name, pack_fp16(vec), category_id=None,
-            name_model=getattr(self.cfg, "adjudicator_model", None))
+            name or storyline["headline"][:_MAX_NAME], pack_fp16(vec),
+            category_id=None,
+            name_model=getattr(self.cfg, "judge_model", None))
         self.store.assign_theme(storyline_id, theme_id, method=method,
-                                similarity=similarity, reason=reason,
+                                similarity=None, reason=reason,
                                 theme_centroid=None, theme_display_name=None)
         self._classify(theme_id, name, storyline)
 

@@ -146,10 +146,12 @@ def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
 
 def run_experiment(db, store, models, cfg: Config, name: str,
                    limit: int | None = None, until=None,
-                   out_dir: str = "docs/eval") -> dict:
+                   out_dir: str = "docs/eval",
+                   per_agency: int | None = None) -> dict:
     started = datetime.now(timezone.utc)
     reset_clusters(db)
-    cluster_report = cluster(store, models, cfg, limit=limit, until=until)
+    cluster_report = cluster(store, models, cfg, limit=limit, until=until,
+                             per_agency=per_agency)
     finished = datetime.now(timezone.utc)
     duration = round((finished - started).total_seconds(), 1)
     summary = summarize(db)

@@ -92,9 +92,11 @@ class FakeStore:
         return [dict(t, centroid=unpack_fp16(t["centroid"]) if t["centroid"] is not None else None)
                 for t in self.themes.values()]
 
-    def theme_headlines(self, theme_id, limit=5):
-        return [s.get("headline", "") for s in self.storylines.values()
-                if s.get("theme_id") == theme_id][:limit]
+    def themed_storylines(self):
+        return [{"id": s["id"], "theme_id": s["theme_id"],
+                 "centroid": unpack_fp16(s["centroid"])}
+                for s in self.storylines.values()
+                if s.get("theme_id") is not None and s.get("centroid") is not None]
 
     def theme_member_centroids(self, theme_id):
         return [unpack_fp16(s["centroid"]) for s in self.storylines.values()

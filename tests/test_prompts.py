@@ -1,7 +1,8 @@
 from pipeline.prompts import (
+    COMPRESSOR_SYSTEM,
     build_adjudicator_prompt,
     build_category_prompt,
-    build_theme_adjudicator_prompt,
+    build_theme_namer_prompt,
     validate_timeline,
 )
 
@@ -27,13 +28,17 @@ def test_validate_timeline_drops_uncited_and_unknown():
     assert out == [{"episode_id": "e1", "date": "2026-05-14", "text": "Recall announced"}]
 
 
-def test_theme_adjudicator_prompt_lists_candidates_with_ids():
-    system, user = build_theme_adjudicator_prompt(
-        {"headline": "FDA recalls Valsatrex", "summary": "Contamination."},
-        [{"id": "t-1", "display_name": "FDA drug recalls",
-          "headlines": ["FDA recalls Xarnib"], "similarity": 0.71}])
-    assert "theme_id" in system and "updated_name" in system
-    assert "t-1" in user and "FDA drug recalls" in user and "0.71" in user
+def test_compressor_prompt_demands_one_to_two_sentence_summary():
+    assert "1-2" in COMPRESSOR_SYSTEM
+    assert "<= 3 sentences" not in COMPRESSOR_SYSTEM
+
+
+def test_theme_namer_prompt_demands_short_compact_label():
+    system, user = build_theme_namer_prompt(
+        {"headline": "FDA recalls Valsatrex", "summary": "Contamination."})
+    assert "2-5 words" in system
+    assert "Output only the label" in system
+    assert "FDA recalls Valsatrex" in user
 
 
 def test_category_prompt_lists_categories_with_origin():

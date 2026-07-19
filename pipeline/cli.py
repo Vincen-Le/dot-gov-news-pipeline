@@ -39,11 +39,15 @@ def main() -> None:
     p.add_argument("--limit", type=int)
     p.add_argument("--per-agency", type=int, dest="per_agency",
                    help="cap entries per agency host (balanced sampling)")
+    p.add_argument("--agency", action="append", dest="agencies",
+                   help="prepare only this curated publisher key (repeatable)")
     p.add_argument("--concurrency", type=int, default=8)
     p.add_argument("--stub", action="store_true")
 
     p = sub.add_parser("cluster", help="event-time clustering replay")
     p.add_argument("--limit", type=int)
+    p.add_argument("--per-agency", type=int, dest="per_agency",
+                   help="cap replayed entries per agency (balanced sampling)")
     p.add_argument("--until")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
@@ -56,6 +60,8 @@ def main() -> None:
     p = sub.add_parser("experiment", help="reset + cluster + report, one command")
     p.add_argument("name")
     p.add_argument("--limit", type=int)
+    p.add_argument("--per-agency", type=int, dest="per_agency",
+                   help="cap replayed entries per agency (balanced sampling)")
     p.add_argument("--until")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
@@ -73,11 +79,12 @@ def main() -> None:
         from pipeline.runner import prepare
         out = prepare(store, _models(cfg, args.stub, no_cache=True), cfg,
                       limit=args.limit, concurrency=args.concurrency,
-                      per_agency=args.per_agency)
+                      per_agency=args.per_agency, agencies=args.agencies)
     elif args.command == "cluster":
         from pipeline.runner import cluster
         out = cluster(store, _models(cfg, args.stub, args.no_cache), cfg,
-                      limit=args.limit, until=_until(args.until))
+                      limit=args.limit, until=_until(args.until),
+                      per_agency=args.per_agency)
     elif args.command == "reset":
         from pipeline.bench import reset_clusters, reset_features
         (reset_features if args.features else reset_clusters)(db)
@@ -86,7 +93,7 @@ def main() -> None:
         from pipeline.experiment import run_experiment
         out = run_experiment(db, store, _models(cfg, args.stub, args.no_cache), cfg,
                              args.name, limit=args.limit, until=_until(args.until),
-                             out_dir=args.out)
+                             out_dir=args.out, per_agency=args.per_agency)
     print(json.dumps(out, default=str))
 
 

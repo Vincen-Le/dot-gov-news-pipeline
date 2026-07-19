@@ -15,12 +15,20 @@ CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
 class ClusterFakeStore(FakeStore):
     """FakeStore + the reads cluster() needs beyond the engine surface."""
 
-    def prepared_unclustered(self, limit=None, until=None):
+    def prepared_unclustered(self, limit=None, until=None, per_agency=None):
         rows = sorted(
             (e for e in self.entries.values() if e["embedding"] is not None),
             key=lambda e: e["published_at"])
         if until:
             rows = [r for r in rows if r["published_at"] <= until]
+        if per_agency is not None:
+            seen: dict[str, int] = {}
+            capped = []
+            for r in rows:
+                seen[r["agency"]] = seen.get(r["agency"], 0) + 1
+                if seen[r["agency"]] <= per_agency:
+                    capped.append(r)
+            rows = capped
         return rows[:limit] if limit else rows
 
     # CardEngine surface

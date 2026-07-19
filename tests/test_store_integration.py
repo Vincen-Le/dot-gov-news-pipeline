@@ -101,6 +101,11 @@ def test_entries_needing_features_per_agency_caps_each_agency():
             source_id = store.upsert_news_source(
                 f"https://{agency}-{unique}.gov/feed.xml", "rss", None)
             source_ids.append(source_id)
+            db.conn.execute(
+                "insert into public.news_source_publishers "
+                "(news_source_id, publisher_key) values (%(source)s, %(agency)s)",
+                {"source": source_id, "agency": agency},
+            )
             for i in range(count):
                 url = f"https://{agency}-{unique}.gov/article-{i}"
                 entry_id = store.ingest_entry(
@@ -119,5 +124,8 @@ def test_entries_needing_features_per_agency_caps_each_agency():
             db.conn.execute(
                 "delete from public.news_entries where id = %(n)s", {"n": entry_id})
         for source_id in source_ids:
+            db.conn.execute(
+                "delete from public.news_source_publishers "
+                "where news_source_id = %(s)s", {"s": source_id})
             db.conn.execute(
                 "delete from public.news_sources where id = %(s)s", {"s": source_id})

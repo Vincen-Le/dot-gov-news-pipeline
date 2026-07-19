@@ -63,17 +63,8 @@ class StubModels:
             "reason": "stub rubric",
         }
 
-    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
-        mine = _tokens(storyline["headline"])
-        for cand in candidates:
-            theirs = _tokens(cand["display_name"] + " " + " ".join(cand["headlines"]))
-            overlap = mine & theirs
-            if overlap:
-                return {"theme_id": cand["id"], "updated_name": None,
-                        "reason": f"stub: shared tokens {sorted(overlap)}"}
-        return {"theme_id": None,
-                "updated_name": storyline["headline"][:256],
-                "reason": "stub: no candidate shares tokens"}
+    def name_theme(self, storyline: dict) -> str:
+        return " ".join(storyline["headline"].split()[:5])
 
     def classify_category(self, theme_name: str, storyline: dict,
                           categories: list[dict]) -> dict:

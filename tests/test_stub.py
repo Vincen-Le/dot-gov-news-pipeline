@@ -41,22 +41,12 @@ def test_stub_compressor_cites_episodes():
     }
 
 
-def test_stub_adjudicate_theme_joins_on_shared_token():
-    result = StubModels().adjudicate_theme(
-        {"headline": "FDA recalls Valsatrex", "summary": ""},
-        [{"id": "t-1", "display_name": "FDA recalls",
-          "headlines": ["FDA recalls Xarnib"], "similarity": 0.7}])
-    assert result["theme_id"] == "t-1"
-    assert result["reason"].startswith("stub")
-
-
-def test_stub_adjudicate_theme_spawns_on_disjoint_tokens():
-    result = StubModels().adjudicate_theme(
-        {"headline": "SSA field office closures", "summary": ""},
-        [{"id": "t-1", "display_name": "FDA recalls",
-          "headlines": ["FDA recalls Xarnib"], "similarity": 0.7}])
-    assert result["theme_id"] is None
-    assert result["updated_name"] == "SSA field office closures"
+def test_stub_name_theme_returns_short_deterministic_label():
+    name = StubModels().name_theme(
+        {"headline": "FDA recalls Valsatrex lots after contamination review",
+         "summary": ""})
+    assert name == "FDA recalls Valsatrex lots after"
+    assert len(name.split()) <= 5
 
 
 def test_stub_classify_category_matches_token_else_none():

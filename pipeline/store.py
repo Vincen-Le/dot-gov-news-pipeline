@@ -217,18 +217,25 @@ class Store:
         )
 
     def entries_needing_features(self, limit: int | None = None,
-                                 per_agency: int | None = None) -> list[dict]:
+                                 per_agency: int | None = None,
+                                 agencies: list[str] | None = None) -> list[dict]:
+        params = {"limit": limit, "agencies": agencies}
         if per_agency is None:
             return self.db.all(
                 """
-                select id, title, summary, body_text, published_at, enriched_text,
-                       enricher_version, entity_set, event_keys
-                from public.news_entries
-                where embedding is null and published_at is not null
-                order by published_at, id
+                select ne.id, ne.title, ne.summary, ne.body_text,
+                       ne.published_at, ne.enriched_text, ne.enricher_version,
+                       ne.entity_set, ne.event_keys
+                from public.news_entries ne
+                join public.news_source_publishers nsp
+                  on nsp.news_source_id = ne.news_source_id
+                where ne.embedding is null and ne.published_at is not null
+                  and (%(agencies)s::text[] is null
+                       or nsp.publisher_key = any(%(agencies)s::text[]))
+                order by ne.published_at, ne.id
                 limit %(limit)s
                 """,
-                {"limit": limit},
+                params,
             )
         return self.db.all(
             """
@@ -239,38 +246,51 @@ class Store:
                        ne.enriched_text, ne.enricher_version, ne.entity_set,
                        ne.event_keys,
                        row_number() over (
-                           partition by split_part(ns.canonical_url, '/', 3)
+                           partition by nsp.publisher_key
                            order by ne.published_at, ne.id
                        ) as agency_rank
                 from public.news_entries ne
-                join public.news_sources ns on ns.id = ne.news_source_id
+                join public.news_source_publishers nsp
+                  on nsp.news_source_id = ne.news_source_id
                 where ne.embedding is null and ne.published_at is not null
+                  and (%(agencies)s::text[] is null
+                       or nsp.publisher_key = any(%(agencies)s::text[]))
             ) ranked
             where agency_rank <= %(per_agency)s
             order by published_at, id
             limit %(limit)s
             """,
-            {"limit": limit, "per_agency": per_agency},
+            {**params, "per_agency": per_agency},
         )
 
     def prepared_unclustered(self, limit: int | None = None,
-                             until: "datetime | None" = None) -> list[dict]:
+                             until: "datetime | None" = None,
+                             per_agency: int | None = None) -> list[dict]:
         rows = self.db.all(
             """
-            select ne.id, ne.news_source_id, ne.title, ne.summary, ne.body_text,
-                   ne.published_at,
-                   ne.content_hash, ne.entity_set, ne.event_keys, ne.embedding,
-                   nsp.publisher_key as agency
-            from public.news_entries ne
-            left join public.news_source_publishers nsp
-              on nsp.news_source_id = ne.news_source_id
-            where ne.embedding is not null and ne.episode_id is null
-              and ne.published_at is not null
-              and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)
-            order by ne.published_at, ne.id
+            select id, news_source_id, title, summary, body_text, published_at,
+                   content_hash, entity_set, event_keys, embedding, agency
+            from (
+                select ne.id, ne.news_source_id, ne.title, ne.summary,
+                       ne.body_text, ne.published_at, ne.content_hash,
+                       ne.entity_set, ne.event_keys, ne.embedding,
+                       nsp.publisher_key as agency,
+                       row_number() over (
+                           partition by nsp.publisher_key
+                           order by ne.published_at, ne.id
+                       ) as agency_rank
+                from public.news_entries ne
+                left join public.news_source_publishers nsp
+                  on nsp.news_source_id = ne.news_source_id
+                where ne.embedding is not null and ne.episode_id is null
+                  and ne.published_at is not null
+                  and (%(until)s::timestamptz is null or ne.published_at <= %(until)s)
+            ) ranked
+            where %(per_agency)s::integer is null or agency_rank <= %(per_agency)s
+            order by published_at, id
             limit %(limit)s
             """,
-            {"limit": limit, "until": until},
+            {"limit": limit, "until": until, "per_agency": per_agency},
         )
         return _require_publisher_attribution(rows)
 
@@ -286,17 +306,17 @@ class Store:
         return [dict(r, centroid=unpack_fp16(r["centroid"]) if r["centroid"] is not None else None)
                 for r in rows]
 
-    def theme_headlines(self, theme_id: str, limit: int = 5) -> list[str]:
+    def themed_storylines(self) -> list[dict]:
         rows = self.db.all(
             """
-            select c.headline from public.storylines s
-            join public.event_cards c on c.id = s.latest_card_id
-            where s.theme_id = %(t)s
-            order by s.newest_entry_at desc, c.headline limit %(limit)s
-            """,
-            {"t": theme_id, "limit": limit},
+            select id, theme_id, centroid from public.storylines
+            where merged_into is null and theme_id is not null
+              and centroid is not null
+            order by id
+            """
         )
-        return [r["headline"] for r in rows]
+        return [dict(r, id=str(r["id"]), theme_id=str(r["theme_id"]),
+                     centroid=unpack_fp16(r["centroid"])) for r in rows]
 
     def theme_member_centroids(self, theme_id: str) -> list:
         rows = self.db.all(

@@ -14,9 +14,11 @@ class PrepFakeStore:
         self.rows = rows
         self.features: dict[str, dict] = {}
         self.seen_per_agency = "unset"
+        self.seen_agencies = "unset"
 
-    def entries_needing_features(self, limit=None, per_agency=None):
+    def entries_needing_features(self, limit=None, per_agency=None, agencies=None):
         self.seen_per_agency = per_agency
+        self.seen_agencies = agencies
         return self.rows[:limit] if limit else self.rows
 
     def update_entry_features(self, entry_id, enriched_text, enricher_version,
@@ -127,6 +129,12 @@ def test_prepare_passes_per_agency_sampling_to_store():
     store2 = PrepFakeStore([row(1)])
     prepare(store2, PrepModels(), CFG)
     assert store2.seen_per_agency is None
+
+
+def test_prepare_passes_curated_agency_filter_to_store():
+    store = PrepFakeStore([row(1)])
+    prepare(store, PrepModels(), CFG, agencies=["csb", "ntsb"])
+    assert store.seen_agencies == ["csb", "ntsb"]
 
 
 def test_prepare_batches_embeddings():

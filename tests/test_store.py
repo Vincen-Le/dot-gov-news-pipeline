@@ -28,3 +28,12 @@ def test_unprocessed_entries_rejects_missing_publisher_attribution():
 
     with pytest.raises(RuntimeError, match="publisher attribution"):
         Store(db).unprocessed_entries()
+
+
+def test_entries_needing_features_filters_by_curated_publisher_key():
+    db = ReadDb([])
+
+    Store(db).entries_needing_features(agencies=["csb", "ntsb"])
+
+    assert "news_source_publishers" in db.sql
+    assert "publisher_key = any" in db.sql

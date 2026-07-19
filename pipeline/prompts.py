@@ -24,8 +24,9 @@ ADJUDICATOR_SYSTEM = (
 
 COMPRESSOR_SYSTEM = (
     "You compress a chain of related US government news episodes into an overview card. "
+    "Keep the summary to 1-2 tight sentences. "
     "Respond with JSON only, schema: "
-    '{"headline": string, "summary": string (<= 3 sentences), '
+    '{"headline": string, "summary": string (1-2 sentences), '
     '"timeline": [{"episode_id": string, "date": "YYYY-MM-DD", "text": string}], '
     '"rubric": {' + ", ".join(f'"{c}": 0 or 1' for c in RUBRIC_CRITERIA) + '}, '
     '"reason": "one sentence explaining the rubric"}. '
@@ -66,16 +67,11 @@ def validate_timeline(timeline: list[dict], valid_episode_ids: set[str]) -> list
     ]
 
 
-THEME_ADJUDICATOR_SYSTEM = (
-    "You organize US government news storylines into ongoing topic themes. "
-    "Given one storyline and candidate themes, decide whether the storyline "
-    "belongs to one of them. Join only when the storyline covers the same "
-    "ongoing topic; when uncertain, do not join. "
-    'Respond with JSON only: {"theme_id": string or null (copy verbatim from '
-    'the candidates, null = none fit), "updated_name": string or null (a '
-    "better display name — for a joined theme whose name should broaden, or "
-    "a proposed name for a new theme when theme_id is null), "
-    '"reason": "one sentence"}'
+THEME_NAMER_SYSTEM = (
+    "You name a US government news topic theme. Given one storyline, produce "
+    "a short, compact theme label of 2-5 words that would also cover closely "
+    "related future storylines (e.g. 'FDA drug recalls', 'Border enforcement "
+    "operations'). No punctuation, no quotes. Output only the label."
 )
 
 CATEGORY_CLASSIFIER_SYSTEM = (
@@ -87,19 +83,12 @@ CATEGORY_CLASSIFIER_SYSTEM = (
 )
 
 
-def build_theme_adjudicator_prompt(storyline: dict, candidates: list[dict]) -> tuple[str, str]:
-    shaped = [
-        {"theme_id": c["id"], "name": c["display_name"],
-         "similarity": round(float(c["similarity"]), 2),
-         "sample_headlines": c["headlines"][:5]}
-        for c in candidates
-    ]
+def build_theme_namer_prompt(storyline: dict) -> tuple[str, str]:
     user = (
         f"Storyline headline: {storyline['headline']}\n"
-        f"Storyline summary: {storyline.get('summary') or '(none)'}\n\n"
-        "Candidate themes (closest first):\n" + json.dumps(shaped, indent=2)
+        f"Storyline summary: {storyline.get('summary') or '(none)'}"
     )
-    return THEME_ADJUDICATOR_SYSTEM, user
+    return THEME_NAMER_SYSTEM, user
 
 
 def build_category_prompt(theme_name: str, storyline: dict,

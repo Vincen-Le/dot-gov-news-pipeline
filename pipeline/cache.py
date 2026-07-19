@@ -89,9 +89,11 @@ class CachedModels:
             self.cache.put_json(key, result)
         return result
 
-    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
-        return self._memo_json("theme", [storyline, candidates],
-                               lambda: self.inner.adjudicate_theme(storyline, candidates))
+    def name_theme(self, storyline: dict) -> str:
+        # failures raise (nothing cached); wrap as a dict for _memo_json
+        return self._memo_json(
+            "theme_name", [storyline],
+            lambda: {"name": self.inner.name_theme(storyline)})["name"]
 
     def classify_category(self, theme_name: str, storyline: dict,
                           categories: list[dict]) -> dict:
