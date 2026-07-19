@@ -1,0 +1,29 @@
+{
+  "cohortId": "wildfire-recent-curation-v1",
+  "version": 1,
+  "windowStart": "2026-06-01T00:00:00.000Z",
+  "windowEnd": "2026-07-18T00:00:00.000Z",
+  "publishers": [
+    {
+      "publisherKey": "inciweb",
+      "displayName": "NIFC InciWeb",
+      "trafficVisits": 430878,
+      "sources": [
+        {
+          "sourceKey": "inciweb-recent-incident-content",
+          "title": "InciWeb Recent Operational Incident Updates",
+          "sourceUrl": "https://inciweb.wildfire.gov/sitemap.xml?page=4",
+          "sourceType": "sitemap",
+          "adapter": "sitemap",
+          "newsSubtype": "advisory",
+          "allowedHosts": ["inciweb.wildfire.gov"],
+          "includeUrlPattern": "^https://inciweb\\.wildfire\\.gov/node/\\d+$",
+          "includeTitlePattern": "(?:daily update|fire update|incident update|evacuation|closure|containment|smoke outlook|community meeting|public meeting|initial press release|final update|transition|operations update|wildfire)",
+          "excludeTitlePattern": "(?:prescribed fire|prescribed burn|rx fire)",
+          "hydrate": true,
+          "maxPages": 1
+        }
+      ]
+    }
+  ]
+}

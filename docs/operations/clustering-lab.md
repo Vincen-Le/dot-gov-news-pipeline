@@ -6,6 +6,11 @@ out to the pipeline experiment CLI (`uv run python -m pipeline.cli …`), which
 records every completed run in the `experiment_runs` table and writes
 `docs/eval/<name>/report.md`.
 
+This page is the quick guide. Use the
+[Evaluation Harness Runbook](evaluation-harness.md) for command side effects,
+cost controls, direct-CLI and dashboard differences, topology-curated inputs,
+metric definitions, ranking evaluation, and recovery.
+
 ## Setup
 
 1. `DATABASE_URL` is optional for `pnpm ops`: the console defaults to the
@@ -13,17 +18,20 @@ records every completed run in the `experiment_runs` table and writes
    `supabase/config.toml` pins) and passes the same DSN to the pipeline
    stages it spawns. Set the variable to target a different database — reads
    work against any DSN; experiments require a local one (the pipeline bench
-   tools structurally refuse remote hosts). Direct `uv run python -m
-pipeline.cli …` invocations still need it exported (the pipeline's own
-   fallback is the stock Supabase port 54322). Caveat: `pipeline/config.py`
-   loads the root `.env`, and `tests/test_cache.py` asserts the built-in
-   default — export the variable in your shell (or per command) instead of
-   committing it to `.env` if you also run `uv run pytest`.
-2. Local stack + migrations: `pnpm supabase start` (schema through
-   `20260718100400_create_news_source_publishers`).
-3. Corpus synced: `uv run python -m pipeline.cli sync` (hosted → local,
-   id-preserving). Features prepared once: `uv run python -m pipeline.cli
-prepare` — the lab's run form auto-includes this when entries still need it.
+   tools structurally refuse remote hosts). Direct Python CLI invocations
+   still need it exported because the pipeline's own fallback is the stock
+   Supabase port 54322. Caveat: `pipeline/config.py` loads the root `.env`, and
+   `tests/test_cache.py` asserts the built-in default — export the variable in
+   your shell (or per command) instead of committing it to `.env` if you also
+   run `uv run pytest`.
+2. Start the local stack with `pnpm supabase start`. Preserve an existing
+   corpus by applying pending migrations instead of resetting it. The command
+   is `pnpm supabase migration up --local`. Use `pnpm supabase db reset` only
+   for a disposable local database because it erases the local corpus and
+   features.
+3. Sync the hosted corpus with `uv run python -m pipeline.cli sync`. Prepare
+   features once with `uv run python -m pipeline.cli prepare`; the lab's run
+   form auto-includes this when entries still need it.
 4. The `uv` toolchain (experiment stages spawn the pipeline CLI).
 
 ## The loop
@@ -48,8 +56,14 @@ Notes:
 - One experiment at a time. Repeat runs are fast: features are cached in the
   DB and adjudicator decisions in `.cache/decisions.sqlite` (hits/misses are
   shown per run).
+- `pnpm ops lab run` auto-prepares the entire unembedded backlog when
+  `needsPrepare` is nonzero; its `--limit` and `--until` apply only to
+  clustering. Inspect `pnpm ops lab corpus` before starting a run if feature
+  generation is not intended.
 - The clustering tables always hold the **latest** run's state (Storylines and
   Quality describe it); run history and comparisons come from
   `experiment_runs`, which survives resets. Failed runs are not recorded.
-- Labels are corpus-level ground truth collected for the future eval harness
-  (`eval --labels`); they survive resets.
+- Pair labels in `docs/eval/labels.csv` and versioned topology labels survive
+  resets, but they are not currently scored as gold truth by the experiment
+  CLI. They support review and controlled sampling; a pairwise/B-Cubed scorer
+  remains follow-up work.

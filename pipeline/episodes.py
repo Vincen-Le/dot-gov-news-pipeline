@@ -1,8 +1,8 @@
 """Stage 1 — episode formation (v1 pipeline, event-time windows).
 
-Tier order per entry: content-hash dedupe -> near-dup -> event-key ->
-centroid nominate + entity gate + adjudicator -> new episode (storyline
-attach delegated to the resolver). Split-biased everywhere.
+Tier order per entry: content-hash dedupe -> near-dup -> event-key/centroid
+candidate pool -> adjudicator -> new episode (storyline attach delegated to
+the resolver). Only duplicate detection can attach without adjudication.
 """
 
 from __future__ import annotations
@@ -74,6 +74,51 @@ class EpisodeEngine:
                 "entity_set": [], "event_keys": [], "newest_entry_at": None,
                 "first_entry_at": None, "storyline_id": None}
 
+    def _candidate_evidence(self, episode: dict) -> tuple[dict, str | None]:
+        members = self.store.episode_members(str(episode["id"]))
+        latest = members[-1] if members else None
+        if latest is None:
+            return ({"title": "(episode)",
+                     "summary": "No member entry is available.",
+                     "entities": sorted(episode["entity_set"])}, None)
+        return ({"title": latest["title"],
+                 "summary": latest.get("summary"),
+                 "entities": sorted(episode["entity_set"])},
+                str(latest["id"]))
+
+    def _adjudicate_candidates(self, entry: dict, vec: np.ndarray,
+                               candidates: list[tuple[dict, float | None, str]]) -> dict | None:
+        seen: set[str] = set()
+        for candidate, similarity, signal in candidates:
+            candidate_id = str(candidate["id"])
+            if candidate_id in seen:
+                continue
+            seen.add(candidate_id)
+            shared_entities = sorted(
+                set(entry["entity_set"]) & set(candidate["entity_set"]))
+            shared_event_keys = sorted(
+                set(entry["event_keys"]) & set(candidate["event_keys"]))
+            evidence, matched_entry_id = self._candidate_evidence(candidate)
+            same, _reason = self.models.adjudicate_same_event(
+                {"title": entry["title"], "summary": entry.get("summary"),
+                 "entities": sorted(entry["entity_set"])},
+                evidence,
+                context=(
+                    "Decide whether the new item belongs to this same concrete "
+                    "in-progress episode. Candidate signals nominate only and "
+                    f"are not proof: {signal}; shared event keys "
+                    f"{shared_event_keys or '(none)'}; shared entities "
+                    f"{shared_entities or '(none)'}; semantic similarity "
+                    f"{f'{similarity:.3f}' if similarity is not None else '(none)'}."
+                ))
+            if same:
+                return self._attach(
+                    entry, candidate, "adjudicated_join", similarity,
+                    matched_entry_id,
+                    self.cfg.cluster_join_threshold if similarity is not None else None,
+                    vec, False)
+        return None
+
     # -- main entry point ------------------------------------------------
     def process_entry(self, entry: dict, vec: np.ndarray) -> dict:
         t = entry["published_at"]
@@ -98,44 +143,29 @@ class EpisodeEngine:
             return self._attach(entry, episode, "near_dup", best_sim, str(best_row["id"]),
                                 self.cfg.near_dup_threshold, vec, True)
 
-        # tier 3: hard event keys against open episodes
+        # tiers 3-4: deterministic signals nominate candidates only. Event-key
+        # matches lead, then semantic candidates follow by similarity. Every
+        # non-duplicate join still requires an affirmative judge verdict.
+        candidates: list[tuple[dict, float | None, str]] = []
         if entry["event_keys"]:
             for ep in self._open_episodes():
                 if set(entry["event_keys"]) & set(ep["event_keys"]):
-                    return self._attach(entry, ep, "event_key", None, None, None, vec, False)
+                    candidates.append((ep, None, "event-key match"))
 
-        # tier 4: centroid nominates, entities gate, adjudicator arbitrates
-        candidate, cand_sim = None, 0.0
+        semantic_candidates: list[tuple[float, dict]] = []
         for ep in self._open_episodes():
             if ep.get("centroid") is None:
                 continue
             sim = cosine(vec, ep["centroid"])
-            if sim >= self.cfg.cluster_join_threshold and sim > cand_sim:
-                candidate, cand_sim = ep, sim
-        if candidate is not None:
-            entry_entities, ep_entities = set(entry["entity_set"]), set(candidate["entity_set"])
-            overlap = entry_entities & ep_entities
-            # rare-entity gate: ambient entities (high daily EMA) never justify
-            # an auto-join — only a rare shared discriminator does
-            if overlap:
-                emas = self.store.entity_emas(sorted(overlap))
-                rare = [e for e in overlap
-                        if emas.get(e, 0.0) < self.cfg.ambient_ema_ceiling]
-                if rare:
-                    return self._attach(entry, candidate, "centroid_join", cand_sim, None,
-                                        self.cfg.cluster_join_threshold, vec, False)
-            same, _reason = self.models.adjudicate_same_event(
-                {"title": entry["title"], "summary": entry.get("summary"),
-                 "entities": sorted(entry_entities)},
-                {"title": "(episode)", "summary": " / ".join(sorted(ep_entities)) or "(no entities)",
-                 "entities": sorted(ep_entities)},
-                context="Decide if the new item belongs to this in-progress episode.")
-            if same:
-                return self._attach(entry, candidate, "adjudicated_join", cand_sim, None,
-                                    self.cfg.cluster_join_threshold, vec, False)
-            method = "adjudicated_new"
-        else:
-            method = "new_cluster"
+            if sim >= self.cfg.cluster_join_threshold:
+                semantic_candidates.append((sim, ep))
+        for sim, ep in sorted(semantic_candidates, key=lambda pair: -pair[0])[:3]:
+            candidates.append((ep, sim, "semantic threshold match"))
+
+        joined = self._adjudicate_candidates(entry, vec, candidates)
+        if joined is not None:
+            return joined
+        method = "adjudicated_new" if candidates else "new_cluster"
 
         # tier 5: new episode; resolver decides the storyline
         storyline_id, s_method, s_sim, s_reason, s_model = self.resolve_storyline(entry, vec)

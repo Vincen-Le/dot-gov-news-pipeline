@@ -29,6 +29,39 @@ def _until(value: str | None):
     return datetime.fromisoformat(value.replace("Z", "+00:00")) if value else None
 
 
+def _add_topology_curation_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--topology-label-set",
+        help="complete topology_label_sets.id used to curate replay input")
+    parser.add_argument(
+        "--multi-episode-percent", type=float,
+        help="target entry share from complete multi-episode storylines")
+    parser.add_argument(
+        "--multi-entry-single-episode-percent", type=float, default=0.0,
+        help="target entry share from complete multi-entry single-episode storylines")
+    parser.add_argument(
+        "--topology-seed", default="default",
+        help="deterministic curation seed")
+
+
+def _validate_topology_curation_arguments(
+    args: argparse.Namespace, parser: argparse.ArgumentParser,
+) -> None:
+    if args.topology_label_set is None:
+        if args.multi_episode_percent is not None:
+            parser.error("--multi-episode-percent requires --topology-label-set")
+        if args.multi_entry_single_episode_percent != 0:
+            parser.error(
+                "--multi-entry-single-episode-percent requires --topology-label-set")
+        return
+    if args.limit is None:
+        parser.error("--topology-label-set requires --limit")
+    if args.multi_episode_percent is None:
+        parser.error("--topology-label-set requires --multi-episode-percent")
+    if args.per_agency is not None:
+        parser.error("--topology-label-set cannot be combined with --per-agency")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -54,6 +87,7 @@ def main() -> None:
     p.add_argument("--until")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
+    _add_topology_curation_arguments(p)
 
     p = sub.add_parser("rank", help="rank observability: snapshot | audit | fit")
     p.add_argument("action", choices=["snapshot", "audit", "fit"])
@@ -81,8 +115,11 @@ def main() -> None:
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
     p.add_argument("--out", default="docs/eval")
+    _add_topology_curation_arguments(p)
 
     args = parser.parse_args()
+    if args.command in ("cluster", "experiment"):
+        _validate_topology_curation_arguments(args, parser)
     cfg = load_config()
     db = Db(cfg.database_url)
     store = Store(db)
@@ -110,7 +147,12 @@ def main() -> None:
         from pipeline.runner import cluster
         out = cluster(store, _models(cfg, args.stub, args.no_cache), cfg,
                       limit=args.limit, until=_until(args.until),
-                      per_agency=args.per_agency)
+                      per_agency=args.per_agency,
+                      topology_label_set_id=args.topology_label_set,
+                      multi_episode_percent=args.multi_episode_percent,
+                      multi_entry_single_episode_percent=(
+                          args.multi_entry_single_episode_percent),
+                      topology_seed=args.topology_seed)
     elif args.command == "rank":
         from pipeline.rank import audit_run, snapshot_run
         if args.action in ("snapshot", "audit") and not args.run:
@@ -141,7 +183,12 @@ def main() -> None:
         from pipeline.experiment import run_experiment
         out = run_experiment(db, store, _models(cfg, args.stub, args.no_cache), cfg,
                              args.name, limit=args.limit, until=_until(args.until),
-                             out_dir=args.out, per_agency=args.per_agency)
+                             out_dir=args.out, per_agency=args.per_agency,
+                             topology_label_set_id=args.topology_label_set,
+                             multi_episode_percent=args.multi_episode_percent,
+                             multi_entry_single_episode_percent=(
+                                 args.multi_entry_single_episode_percent),
+                             topology_seed=args.topology_seed)
     print(json.dumps(out, default=str))
 
 

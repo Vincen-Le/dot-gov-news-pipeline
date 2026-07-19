@@ -18,7 +18,10 @@ export interface SourceProfile {
     | "wayback_listing";
   allowedHosts: string[];
   apiKeyEnvironment?: string;
+  excludeTitlePattern?: string;
   hydrate?: boolean;
+  includeLinkTextPattern?: string;
+  includeTitlePattern?: string;
   includeUrlPattern?: string;
   maxPages: number;
   newsSubtype: NewsSubtype;

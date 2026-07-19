@@ -12,10 +12,11 @@ CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
 class StorylineFakeStore:
     """Read-only storyline surface used by StorylineEngine.resolve."""
 
-    def __init__(self, storylines, emas=None, overview=None):
+    def __init__(self, storylines, emas=None, overview=None, latest_member=None):
         self._storylines = storylines
         self._emas = emas or {}
         self._overview = overview
+        self._latest_member = latest_member
 
     def storylines_by_event_keys(self, keys):
         return [s for s in self._storylines if set(s["event_keys"]) & set(keys)]
@@ -29,6 +30,9 @@ class StorylineFakeStore:
     def latest_overview(self, storyline_id):
         return self._overview
 
+    def latest_storyline_entry(self, storyline_id):
+        return self._latest_member
+
 
 class SayYes:
     def adjudicate_same_event(self, a, b, context):
@@ -38,6 +42,25 @@ class SayYes:
 class SayNo:
     def adjudicate_same_event(self, a, b, context):
         return False, "different"
+
+
+class RecordingNo:
+    def __init__(self):
+        self.calls = []
+
+    def adjudicate_same_event(self, a, b, context):
+        self.calls.append((a, b, context))
+        return False, "different concrete events"
+
+
+class JoinValsatrexCandidate:
+    def __init__(self):
+        self.calls = 0
+
+    def adjudicate_same_event(self, a, b, context):
+        self.calls += 1
+        same = "valsatrex" in b["entities"]
+        return same, "matching recall chain" if same else "different chain"
 
 
 def entry(**kw):
@@ -58,12 +81,23 @@ def storyline(**kw):
             "latest_card_id": "c1", **kw}
 
 
-def test_event_key_tier_wins_without_llm_and_records_similarity():
+def test_event_key_match_is_only_a_candidate_and_judge_can_reject_it():
     store = StorylineFakeStore([storyline(event_keys=["z-2026-0143"])])
     engine = StorylineEngine(store, SayNo(), CFG)
     sid, method, sim, _, _ = engine.resolve(entry(event_keys=["z-2026-0143"]), unit(0))
-    assert sid == "s1" and method == "event_key"
+    assert sid is None and method == "new_storyline" and sim is None
+
+
+def test_event_key_match_joins_only_after_judge_approval():
+    store = StorylineFakeStore(
+        [storyline(event_keys=["z-2026-0143"])],
+        overview={"headline": "Valsatrex recall", "summary": "FDA recall ongoing."},
+    )
+    sid, method, sim, reason, model = StorylineEngine(
+        store, SayYes(), CFG).resolve(entry(event_keys=["z-2026-0143"]), unit(0))
+    assert sid == "s1" and method == "adjudicated_join"
     assert sim is not None and sim > 0.9
+    assert reason == "same chain" and model == CFG.adjudicator_model
 
 
 def test_event_key_join_requires_centroid_sanity_when_centroid_exists():
@@ -77,19 +111,18 @@ def test_event_key_join_requires_centroid_sanity_when_centroid_exists():
     assert method == "new_storyline" and sid is None
 
 
-def test_event_key_join_allowed_without_centroid():
+def test_event_key_candidate_without_centroid_still_requires_judge():
     store = StorylineFakeStore([storyline(event_keys=["ir-2025-106"], centroid=None)])
     engine = StorylineEngine(store, SayNo(), CFG)
     sid, method, sim, _, _ = engine.resolve(entry(event_keys=["ir-2025-106"]), unit(3))
-    assert (sid, method, sim) == ("s1", "event_key", None)
+    assert (sid, method, sim) == (None, "new_storyline", None)
 
 
-def test_strong_entity_candidate_auto_joins():
+def test_strong_entity_candidate_cannot_bypass_judge():
     store = StorylineFakeStore([storyline(entity_set=["valsatrex", "sundexo"])])
-    engine = StorylineEngine(store, SayNo(), CFG)  # adjudicator must not be consulted
+    engine = StorylineEngine(store, SayNo(), CFG)
     sid, method, sim, _, _ = engine.resolve(entry(), unit(0))
-    assert sid == "s1" and method == "entity_candidate"
-    assert sim is not None and sim >= CFG.cluster_join_threshold
+    assert sid is None and method == "new_storyline" and sim is None
 
 
 def test_weak_candidate_adjudicated_against_overview():
@@ -103,6 +136,63 @@ def test_weak_candidate_adjudicated_against_overview():
     assert sid == "s1" and method == "adjudicated_join" and reason == "same chain"
     sid, method, _, _, _ = StorylineEngine(store, SayNo(), CFG).resolve(entry(), mixed)
     assert sid is None and method == "new_storyline"
+
+
+def test_cardless_candidate_is_judged_against_latest_real_entry_not_placeholder():
+    models = RecordingNo()
+    store = StorylineFakeStore(
+        [storyline(entity_set=["america", "weekend"], latest_card_id=None)],
+        latest_member={
+            "title": "Holiday cookout food-safety guidance",
+            "summary": "USDA explains safe food handling for Independence Day.",
+        },
+    )
+    candidate = entry(
+        title="Plan a visit to Zion over Independence Day weekend",
+        summary="NPS warns about heat, crowds, and fire restrictions.",
+        entity_set=["america", "weekend", "zion"],
+    )
+    sid, method, _, _, _ = StorylineEngine(store, models, CFG).resolve(
+        candidate, unit(0))
+    assert sid is None and method == "new_storyline"
+    judged_candidate = models.calls[0][1]
+    assert judged_candidate["title"] == "Holiday cookout food-safety guidance"
+    assert "food handling" in judged_candidate["summary"]
+    assert judged_candidate["title"] != "(storyline)"
+
+
+def test_similarity_floor_only_ranks_candidates_and_does_not_veto_judge():
+    store = StorylineFakeStore(
+        [storyline()],
+        overview={"headline": "Valsatrex recall", "summary": "FDA recall ongoing."},
+    )
+    sid, method, sim, _, _ = StorylineEngine(
+        store, SayYes(), CFG).resolve(entry(), unit(3))
+    assert sid == "s1" and method == "adjudicated_join"
+    assert sim == 0.0
+
+
+def test_event_and_entity_signals_form_one_deduplicated_candidate_pool():
+    candidate = storyline(event_keys=["z-2026-0143"],
+                          entity_set=["valsatrex", "sundexo"])
+    models = JoinValsatrexCandidate()
+    sid, method, _, _, _ = StorylineEngine(
+        StorylineFakeStore([candidate]), models, CFG,
+    ).resolve(entry(event_keys=["z-2026-0143"]), unit(0))
+    assert sid == "s1" and method == "adjudicated_join"
+    assert models.calls == 1
+
+
+def test_judge_can_reject_event_key_candidate_then_accept_entity_candidate():
+    event_match = storyline(id="event", event_keys=["z-2026-0143"],
+                            entity_set=["unrelated"])
+    entity_match = storyline(id="entity", entity_set=["valsatrex"])
+    models = JoinValsatrexCandidate()
+    sid, method, _, _, _ = StorylineEngine(
+        StorylineFakeStore([event_match, entity_match]), models, CFG,
+    ).resolve(entry(event_keys=["z-2026-0143"]), unit(0))
+    assert sid == "entity" and method == "adjudicated_join"
+    assert models.calls == 2
 
 
 def test_ambient_entities_downweighted():

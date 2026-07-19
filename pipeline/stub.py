@@ -74,23 +74,42 @@ class StubModels:
         return {"prefers": "a" if a["headline"] == first else "b",
                 "reason": "stub: tie broken by headline"}
 
-    def name_theme(self, storyline: dict) -> str:
-        return " ".join(storyline["headline"].split()[:5])
+    def create_theme_metadata(self, storyline: dict,
+                              categories: list[dict]) -> dict:
+        name = " ".join(storyline["headline"].split()[:5])
+        mine = _tokens(
+            name + " " + storyline["headline"] + " " +
+            (storyline.get("summary") or ""))
+        category_id = None
+        for category in categories:
+            if mine & _tokens(category["display_name"]):
+                category_id = category["id"]
+                break
+        if category_id is None and categories:
+            category_id = categories[0]["id"]
+        return {"theme_name": name, "category_id": category_id,
+                "reason": "stub: reusable label and seeded category"}
 
-    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
+    def adjudicate_theme(self, storyline: dict, candidates: list[dict],
+                         categories: list[dict]) -> dict:
         if candidates:
             return {"decision": "join", "theme_id": candidates[0]["theme_id"],
-                    "new_theme_name": None, "merge_theme_ids": [],
+                    "new_theme_name": None, "category_id": None,
+                    "merge_theme_ids": [],
                     "reason": "stub: nearest candidate theme"}
-        return {"decision": "spawn", "theme_id": None, "new_theme_name": None,
+        metadata = self.create_theme_metadata(storyline, categories)
+        return {"decision": "spawn", "theme_id": None,
+                "new_theme_name": metadata["theme_name"],
+                "category_id": metadata["category_id"],
                 "merge_theme_ids": [], "reason": "stub: no candidates"}
 
-    def classify_category(self, theme_name: str, storyline: dict,
-                          categories: list[dict]) -> dict:
-        mine = _tokens(theme_name + " " + storyline["headline"])
-        for cat in categories:
-            if mine & _tokens(cat["display_name"]):
-                return {"category_id": cat["id"], "new_category_name": None,
-                        "reason": "stub: token match"}
-        return {"category_id": None, "new_category_name": "General Government",
-                "reason": "stub: no category token match"}
+    def adjudicate_theme_pair(self, a: dict, b: dict,
+                              categories: list[dict]) -> dict:
+        same = a["name"].casefold() == b["name"].casefold()
+        category_id = a.get("category_id") or b.get("category_id")
+        return {
+            "same_theme": same,
+            "canonical_name": a["name"] if same else None,
+            "category_id": category_id if same else None,
+            "reason": "stub: exact normalized theme name" if same else "stub: distinct names",
+        }

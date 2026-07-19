@@ -1,0 +1,131 @@
+{
+  "cohortId": "chain-rich-curation-v1",
+  "version": 1,
+  "windowStart": "2025-07-18T00:00:00.000Z",
+  "windowEnd": "2026-07-18T00:00:00.000Z",
+  "publishers": [
+    {
+      "publisherKey": "csb",
+      "displayName": "U.S. Chemical Safety and Hazard Investigation Board",
+      "trafficVisits": 0,
+      "sources": [
+        {
+          "sourceKey": "csb-chain-news",
+          "title": "CSB Investigation and Recommendation News",
+          "sourceUrl": "https://www.csb.gov/news/?pg=1",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["csb.gov"],
+          "urlTemplate": "https://www.csb.gov/news/?pg={page}",
+          "includeUrlPattern": "^https://www\\.csb\\.gov/(?!news/?(?:[?#]|$))[^?#]+/?(?:\\?pg=\\d+)?$",
+          "includeLinkTextPattern": "(?:opens? investigation|investigation update|issues?.*(?:recommendation|report|update)|final report|safety alert|fatal (?:incident|explosion|release)|deploys?|sends? (?:a )?team)",
+          "includeTitlePattern": "(?:investigation|recommendation|final report|safety alert|fatal|explosion|chemical release)",
+          "excludeTitlePattern": "(?:public meeting|business meeting|vacancy|hiring)",
+          "hydrate": true,
+          "pageStart": 1,
+          "maxPages": 10
+        }
+      ]
+    },
+    {
+      "publisherKey": "ntsb",
+      "displayName": "National Transportation Safety Board",
+      "trafficVisits": 85353,
+      "sources": [
+        {
+          "sourceKey": "ntsb-press-2026",
+          "title": "NTSB 2026 Investigation News",
+          "sourceUrl": "https://www.ntsb.gov/news/press-releases/Pages/default.aspx?year=2026",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["ntsb.gov"],
+          "includeUrlPattern": "^https://www\\.ntsb\\.gov/news/press-releases/Pages/(?!default\\.aspx)[^?#]+\\.aspx$",
+          "includeTitlePattern": "(?:investigation|investigator|accident|crash|collision|derailment|explosion|fire|sinking|pipeline|hearing|docket|recommend)",
+          "hydrate": true,
+          "maxPages": 3
+        },
+        {
+          "sourceKey": "ntsb-press-2025",
+          "title": "NTSB 2025 Investigation News",
+          "sourceUrl": "https://www.ntsb.gov/news/press-releases/Pages/default.aspx?year=2025",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["ntsb.gov"],
+          "includeUrlPattern": "^https://www\\.ntsb\\.gov/news/press-releases/Pages/(?!default\\.aspx)[^?#]+\\.aspx$",
+          "includeTitlePattern": "(?:investigation|investigator|accident|crash|collision|derailment|explosion|fire|sinking|pipeline|hearing|docket|recommend)",
+          "hydrate": true,
+          "maxPages": 3
+        }
+      ]
+    },
+    {
+      "publisherKey": "cftc",
+      "displayName": "Commodity Futures Trading Commission — Enforcement",
+      "trafficVisits": 673012,
+      "sources": [
+        {
+          "sourceKey": "cftc-enforcement-archive",
+          "title": "CFTC Enforcement Releases",
+          "sourceUrl": "https://www.cftc.gov/PressRoom/PressReleases?page=0",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "release",
+          "allowedHosts": ["cftc.gov"],
+          "urlTemplate": "https://www.cftc.gov/PressRoom/PressReleases?page={page}",
+          "includeUrlPattern": "^https://www\\.cftc\\.gov/PressRoom/PressReleases/\\d+-\\d+$",
+          "includeLinkTextPattern": "(?:charges?|orders?|files?|sues?|fraud|resolves action|settlement|default judgment|court|enforcement action|penalt)",
+          "includeTitlePattern": "(?:charges?|orders?|files?|sues?|fraud|resolves action|settlement|default judgment|court|enforcement action|penalt)",
+          "excludeTitlePattern": "(?:staff appointment|advisory committee|public meeting)",
+          "hydrate": true,
+          "pageStart": 0,
+          "maxPages": 12
+        }
+      ]
+    },
+    {
+      "publisherKey": "osha",
+      "displayName": "Occupational Safety and Health Administration",
+      "trafficVisits": 4075794,
+      "sources": [
+        {
+          "sourceKey": "osha-incident-enforcement",
+          "title": "OSHA Incident and Enforcement Releases",
+          "sourceUrl": "https://www.osha.gov/news/newsreleases/all",
+          "sourceType": "html_archive",
+          "adapter": "html_archive",
+          "newsSubtype": "press_release",
+          "allowedHosts": ["osha.gov"],
+          "includeUrlPattern": "^https://www\\.osha\\.gov/news/newsreleases/[^?#]+/\\d{8}(?:-\\d+)?$",
+          "includeTitlePattern": "(?:cites?|citation|penalt|fine|inspection|investigation|violation|fatal|death|explosion|collapse|injur|settlement)",
+          "excludeTitlePattern": "(?:grant|training program|alliance|partnership|campaign|contest)",
+          "hydrate": true,
+          "maxPages": 3
+        }
+      ]
+    },
+    {
+      "publisherKey": "texas-gov",
+      "displayName": "Office of the Texas Governor — Incident Response",
+      "trafficVisits": 0,
+      "sources": [
+        {
+          "sourceKey": "texas-governor-incident-rss",
+          "title": "Texas Governor Incident Response News",
+          "sourceUrl": "https://gov.texas.gov/news/rss",
+          "sourceType": "rss",
+          "adapter": "syndication",
+          "newsSubtype": "agency_news",
+          "allowedHosts": ["gov.texas.gov"],
+          "includeUrlPattern": "^https://gov\\.texas\\.gov/news/post/[^?#]+$",
+          "includeTitlePattern": "(?:disaster|severe weather|flood|wildfire|fire response|hurricane|tornado|emergency|rescue|storm)",
+          "excludeTitlePattern": "(?:appoints?|reappoints?|jobs record|award)",
+          "hydrate": true,
+          "maxPages": 1
+        }
+      ]
+    }
+  ]
+}

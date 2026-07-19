@@ -76,19 +76,24 @@ def summarize(db) -> dict:
         select round(avg((interest_reason like 'compressor_error%')::int)::numeric, 3) as rate
         from public.event_cards where kind = 'overview'
     """)
-    namer_errors = db.one("""
+    theme_creator_errors = db.one("""
         select count(*) as n from public.storylines
-        where theme_reason like '%namer_error%'
+        where theme_reason like '%theme_creator_error%'
     """)
     uncategorized = db.one("""
         select count(*) as n from public.topic_themes
         where merged_into is null and category_id is null
     """)
+    unthemed = db.one("""
+        select count(*) as n from public.storylines
+        where merged_into is null and theme_id is null
+    """)
     llm_health = {
         "overview_fallback_rate": (
             float(fallback["rate"]) if fallback["rate"] is not None else None),
         "uncategorized_themes": uncategorized["n"],
-        "namer_errors": namer_errors["n"],
+        "unthemed_storylines": unthemed["n"],
+        "theme_creator_errors": theme_creator_errors["n"],
     }
     return {
         **totals,
@@ -114,6 +119,23 @@ def _redacted_config(cfg: Config) -> dict:
 def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
                   cache_stats: dict, duration_s: float) -> str:
     redacted = _redacted_config(cfg)
+    input_topology = cluster_report.get("input_topology")
+    curation_lines = []
+    if input_topology is not None:
+        curation_lines = [
+            "## Input topology curation", "",
+            f"- label set: {input_topology['label_set_id']}",
+            f"- deterministic seed: {input_topology['seed']}",
+            "- requested multi-episode entry share: "
+            f"{input_topology['requested_multi_episode_percent']}%",
+            "- requested multi-entry single-episode entry share: "
+            f"{input_topology['requested_multi_entry_single_episode_percent']}%",
+            "- actual expected entry counts: "
+            f"{input_topology['actual_entry_counts']}",
+            "- entries expected to be in multi-entry episodes: "
+            f"{input_topology['actual_multi_entry_episode_entries']}",
+            "",
+        ]
     lines = [
         f"# Experiment: {name}", "",
         f"Duration: {duration_s}s — processed {cluster_report['processed']}, "
@@ -124,6 +146,7 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
         f"- episodes: {summary['episodes']}  storylines: {summary['storylines']}  cards: {summary['cards']}",
         f"- singleton-episode rate: {summary['singleton_episode_rate']}",
         f"- multi-episode storylines: {summary['multi_episode_storylines']}", "",
+        *curation_lines,
         "## Attach mix (entry -> episode)", "",
         *[f"- {m}: {n}" for m, n in summary["entry_attach_mix"].items()],
         "", "## Attach mix (episode -> storyline)", "",
@@ -140,7 +163,8 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
         + ("  ⚠ compressor mostly failing"
            if (summary['llm_health']['overview_fallback_rate'] or 0) > 0.5 else ""),
         f"- uncategorized themes: {summary['llm_health']['uncategorized_themes']}",
-        f"- namer errors: {summary['llm_health']['namer_errors']}",
+        f"- deferred/unassigned storylines: {summary['llm_health'].get('unthemed_storylines', 0)}",
+        f"- theme creator errors: {summary['llm_health']['theme_creator_errors']}",
         f"- model errors: {summary['llm_health'].get('model_errors', {})}",
         "", "## Theme attach mix (storyline -> theme)", "",
         *[f"- {m}: {n}" for m, n in summary["topics"]["theme_attach_mix"].items()],
@@ -173,11 +197,20 @@ def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
 def run_experiment(db, store, models, cfg: Config, name: str,
                    limit: int | None = None, until=None,
                    out_dir: str = "docs/eval",
-                   per_agency: int | None = None) -> dict:
+                   per_agency: int | None = None,
+                   topology_label_set_id: str | None = None,
+                   multi_episode_percent: float | None = None,
+                   multi_entry_single_episode_percent: float = 0.0,
+                   topology_seed: str = "default") -> dict:
     started = datetime.now(timezone.utc)
     reset_clusters(db)
     cluster_report = cluster(store, models, cfg, limit=limit, until=until,
-                             per_agency=per_agency)
+                             per_agency=per_agency,
+                             topology_label_set_id=topology_label_set_id,
+                             multi_episode_percent=multi_episode_percent,
+                             multi_entry_single_episode_percent=(
+                                 multi_entry_single_episode_percent),
+                             topology_seed=topology_seed)
     finished = datetime.now(timezone.utc)
     duration = round((finished - started).total_seconds(), 1)
     summary = summarize(db)

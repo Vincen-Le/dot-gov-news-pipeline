@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { ingestChunks, mapWithConcurrency } from "./runner";
-import type { NormalizedEntry } from "./types";
+import { allowsTitle, ingestChunks, mapWithConcurrency } from "./runner";
+import type { NormalizedEntry, SourceProfile } from "./types";
 
 function entry(index: number, bodyLength = 10): NormalizedEntry {
   return {
@@ -9,7 +9,7 @@ function entry(index: number, bodyLength = 10): NormalizedEntry {
     candidate_key: String(index).padStart(64, "0"),
     content_hash: String(index).padStart(64, "a"),
     external_item_id: String(index),
-    extractor_version: 3,
+    extractor_version: 4,
     fetched_at: "2026-07-18T00:00:00.000Z",
     news_subtype: "release",
     published_at: "2026-06-01T00:00:00.000Z",
@@ -64,5 +64,16 @@ describe("backfill runner", () => {
       "item-4",
       "item-5",
     ]);
+  });
+
+  it("applies manifest title curation after article hydration", () => {
+    const profile = {
+      excludeTitlePattern: "(?:appointment|public meeting)",
+      includeTitlePattern: "(?:investigation|citation|settlement)",
+    } as SourceProfile;
+
+    expect(allowsTitle(profile, "Agency Opens Investigation")).toBe(true);
+    expect(allowsTitle(profile, "Agency Announces Public Meeting")).toBe(false);
+    expect(allowsTitle(profile, "Agency Announces Grant Program")).toBe(false);
   });
 });

@@ -55,7 +55,7 @@ comment on table public.storylines is
 comment on column public.storylines.entity_set is
     'Union of member episodes'' salient discriminators; the identity anchor and candidate index.';
 comment on column public.storylines.event_keys is
-    'Union of member episodes'' hard event identifiers; strongest storyline-attach tier.';
+    'Union of member episodes'' hard event identifiers; a strong candidate signal, never attachment proof without adjudication.';
 comment on column public.storylines.latest_card_id is
     'Current overview event_cards row. FK added in the event_cards migration (circular reference).';
 comment on column public.storylines.merged_into is

@@ -213,71 +213,83 @@ export function StorylinesPage() {
             setParams(next);
           }}
         >
-          <label htmlFor="entity">Entity</label>
-          <input
-            defaultValue={entity}
-            id="entity"
-            name="entity"
-            placeholder="valsatrex"
-          />
-          <label htmlFor="agency">Agency</label>
-          {/* remount once options load so defaultValue selects the URL's agency */}
-          <select
-            defaultValue={agency}
-            id="agency"
-            key={agencies.data === undefined ? "loading" : "loaded"}
-            name="agency"
-          >
-            <option value="">All agencies</option>
-            {agencyOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          <label htmlFor="category">Category</label>
-          <select
-            defaultValue={category}
-            id="category"
-            key={categories.data === undefined ? "cat-loading" : "cat-loaded"}
-            name="category"
-          >
-            <option value="">All categories</option>
-            {(categories.data?.categories ?? []).map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.origin === "llm"
-                  ? `${option.displayName} (LLM)`
-                  : option.displayName}
-              </option>
-            ))}
-          </select>
-          <label htmlFor="theme">Theme</label>
-          <select
-            defaultValue={theme}
-            id="theme"
-            key={themes.data === undefined ? "theme-loading" : "theme-loaded"}
-            name="theme"
-          >
-            <option value="">All themes</option>
-            {(themes.data?.themes ?? []).map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.displayName} ({option.storylineCount})
-              </option>
-            ))}
-          </select>
-          <label htmlFor="minEpisodes">Min episodes</label>
-          <input
-            defaultValue={minEpisodes}
-            id="minEpisodes"
-            inputMode="numeric"
-            name="minEpisodes"
-            placeholder="2"
-          />
-          <label htmlFor="sort">Sort</label>
-          <select defaultValue={sort} id="sort" name="sort">
-            <option value="">Newest first</option>
-            <option value="episodes">Most episodes</option>
-          </select>
+          <div className="filter-field">
+            <label htmlFor="entity">Entity</label>
+            <input
+              defaultValue={entity}
+              id="entity"
+              name="entity"
+              placeholder="valsatrex"
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="agency">Agency</label>
+            {/* remount once options load so defaultValue selects the URL's agency */}
+            <select
+              defaultValue={agency}
+              id="agency"
+              key={agencies.data === undefined ? "loading" : "loaded"}
+              name="agency"
+            >
+              <option value="">All agencies</option>
+              {agencyOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-field">
+            <label htmlFor="category">Category</label>
+            <select
+              defaultValue={category}
+              id="category"
+              key={categories.data === undefined ? "cat-loading" : "cat-loaded"}
+              name="category"
+            >
+              <option value="">All categories</option>
+              {(categories.data?.categories ?? []).map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.origin === "llm"
+                    ? `${option.displayName} (LLM)`
+                    : option.displayName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-field">
+            <label htmlFor="theme">Theme</label>
+            <select
+              defaultValue={theme}
+              id="theme"
+              key={themes.data === undefined ? "theme-loading" : "theme-loaded"}
+              name="theme"
+            >
+              <option value="">All themes</option>
+              {(themes.data?.themes ?? []).map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.displayName} ({option.storylineCount})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-field">
+            <label htmlFor="minEpisodes">Min episodes</label>
+            <input
+              defaultValue={minEpisodes}
+              id="minEpisodes"
+              inputMode="numeric"
+              name="minEpisodes"
+              placeholder="2"
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="sort">Sort</label>
+            <select defaultValue={sort} id="sort" name="sort">
+              <option value="">Newest first</option>
+              <option value="episodes">Most episodes</option>
+            </select>
+          </div>
           <button type="submit">Apply filter</button>
         </form>
         {storylines.isLoading ? (
@@ -316,9 +328,11 @@ export function StorylinesPage() {
                       <td className="numeric">{item.episodeCount}</td>
                       <td className="numeric">{item.entryCount}</td>
                       <td className="numeric">{item.distinctFeeds}</td>
-                      <td>{item.agencies.join(", ") || "—"}</td>
-                      <td>{item.themeName ?? "—"}</td>
-                      <td className="mono">
+                      <td className="wrap">
+                        {item.agencies.join(", ") || "—"}
+                      </td>
+                      <td className="wrap">{item.themeName ?? "—"}</td>
+                      <td className="mono wrap">
                         {item.eventKeys.join(" ") || "—"}
                       </td>
                       <td>{relativeTime(item.newestEntryAt)}</td>

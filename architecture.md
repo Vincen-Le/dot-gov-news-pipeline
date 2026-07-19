@@ -587,7 +587,11 @@ fetching:
   (`storylines.py`), stage 3 event and overview cards with rubric rank keys
   (`cards.py`, `compute_rank_key`), and stage 4 topic themes (`topics.py`,
   nearest-centroid assignment with LLM adjudication against the seeded
-  taxonomy).
+  taxonomy). In stage 2, event keys and entity overlap only nominate
+  candidates; every episode-to-storyline join requires an affirmative judge
+  verdict. In stage 4, a spawn decision creates both a reusable, entity-resistant
+  theme label and one seeded category assignment in the same model call, while
+  the theme adjudicator may merge duplicate candidate themes.
 - The model layer (`pipeline/ai.py`, `prompts.py`, `cache.py`, `stub.py`)
   provides the adjudicator/judge/enricher/embedder behind a decision cache
   (`.cache/decisions.sqlite`) and a stub mode for deterministic runs.

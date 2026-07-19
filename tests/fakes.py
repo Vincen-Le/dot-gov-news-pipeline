@@ -93,6 +93,25 @@ class FakeStore:
         return [dict(e, centroid=unpack_fp16(e["centroid"]) if e["centroid"] is not None else None)
                 for e in self.episodes.values() if e["status"] == "open"]
 
+    def episode_members(self, episode_id):
+        return [
+            {"id": e["id"], "title": e["title"], "summary": e.get("summary"),
+             "published_at": e["published_at"], "is_syndicated": False}
+            for e in self.entries.values() if e.get("episode_id") == episode_id
+        ]
+
+    def latest_storyline_entry(self, storyline_id):
+        members = [
+            e for e in self.entries.values()
+            if e.get("episode_id") in self.episodes
+            and self.episodes[e["episode_id"]]["storyline_id"] == storyline_id
+        ]
+        if not members:
+            return None
+        latest = max(members, key=lambda e: e["published_at"])
+        return {"id": latest["id"], "title": latest["title"],
+                "summary": latest.get("summary")}
+
     # -- topics ----------------------------------------------------------
     def all_themes(self):
         return [dict(t, centroid=unpack_fp16(t["centroid"]) if t["centroid"] is not None else None)
@@ -115,6 +134,12 @@ class FakeStore:
         return {"centroid": unpack_fp16(s["centroid"]) if s.get("centroid") is not None else None,
                 "theme_id": s.get("theme_id"),
                 "headline": s.get("headline", ""), "summary": s.get("summary", "")}
+
+    def unthemed_storyline_ids(self):
+        return [
+            s["id"] for s in self.storylines.values()
+            if s.get("theme_id") is None and s.get("centroid") is not None
+        ]
 
     def all_categories(self):
         return list(self.categories.values())

@@ -210,6 +210,20 @@ class Store:
             {"s": storyline_id},
         )
 
+    def latest_storyline_entry(self, storyline_id: str) -> dict | None:
+        return self.db.one(
+            """
+            select ne.id, ne.title, ne.summary
+            from public.episodes e
+            join public.episode_entries ee on ee.episode_id = e.id
+            join public.news_entries ne on ne.id = ee.entry_id
+            where e.storyline_id = %(s)s
+            order by ne.published_at desc, ee.attached_at desc
+            limit 1
+            """,
+            {"s": storyline_id},
+        )
+
     def episode_cards_for(self, storyline_id: str) -> list[dict]:
         return self.db.all(
             """
@@ -284,7 +298,62 @@ class Store:
 
     def prepared_unclustered(self, limit: int | None = None,
                              until: "datetime | None" = None,
-                             per_agency: int | None = None) -> list[dict]:
+                             per_agency: int | None = None,
+                             topology_label_set_id: str | None = None,
+                             multi_episode_percent: float | None = None,
+                             multi_entry_single_episode_percent: float = 0.0,
+                             topology_seed: str = "default") -> list[dict]:
+        if topology_label_set_id is not None:
+            if limit is None:
+                raise ValueError("topology curation requires a finite limit")
+            if multi_episode_percent is None:
+                raise ValueError(
+                    "topology curation requires multi_episode_percent")
+            if per_agency is not None:
+                raise ValueError(
+                    "topology curation and per_agency cannot be combined")
+            rows = self.db.all(
+                """
+                select ne.id, ne.news_source_id, ne.title, ne.summary,
+                       ne.body_text, ne.published_at, ne.content_hash,
+                       ne.entity_set, ne.event_keys, ne.embedding,
+                       nsp.publisher_key as agency,
+                       curated.topology_class as expected_topology_class,
+                       curated.proposed_storyline_key,
+                       curated.proposed_episode_key,
+                       curated.storyline_entry_count as expected_storyline_entry_count,
+                       curated.storyline_episode_count as expected_storyline_episode_count,
+                       curated.episode_entry_count as expected_episode_entry_count,
+                       curated.is_multi_entry_episode as expected_multi_entry_episode
+                from public.curate_news_entry_dataset_by_storyline_topology(
+                    %(label_set_id)s::uuid,
+                    %(limit)s::integer,
+                    %(multi_episode_percent)s::numeric,
+                    %(multi_entry_percent)s::numeric,
+                    %(seed)s::text,
+                    null::uuid[],
+                    true,
+                    true,
+                    %(until)s::timestamptz
+                ) curated
+                join public.news_entries ne on ne.id = curated.news_entry_id
+                left join public.news_source_publishers nsp
+                  on nsp.news_source_id = ne.news_source_id
+                order by ne.published_at, ne.id
+                """,
+                {
+                    "label_set_id": topology_label_set_id,
+                    "limit": limit,
+                    "multi_episode_percent": multi_episode_percent,
+                    "multi_entry_percent": multi_entry_single_episode_percent,
+                    "seed": topology_seed,
+                    "until": until,
+                },
+            )
+            return _require_publisher_attribution(rows)
+        if multi_episode_percent is not None:
+            raise ValueError(
+                "multi_episode_percent requires topology_label_set_id")
         if per_agency is None:
             rows = self.db.all(
                 """
@@ -385,6 +454,14 @@ class Store:
         return dict(row, centroid=unpack_fp16(row["centroid"])
                     if row["centroid"] is not None else None,
                     theme_id=str(row["theme_id"]) if row["theme_id"] else None)
+
+    def unthemed_storyline_ids(self) -> list[str]:
+        return [
+            str(r["id"]) for r in self.db.all(
+                "select id from public.storylines "
+                "where merged_into is null and theme_id is null and centroid is not null "
+                "order by first_entry_at, id")
+        ]
 
     def theme_recent_headlines(self, theme_id: str, limit: int = 3) -> list[str]:
         rows = self.db.all(

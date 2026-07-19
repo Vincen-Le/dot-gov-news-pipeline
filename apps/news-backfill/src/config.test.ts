@@ -36,4 +36,18 @@ describe("backfill manifests", () => {
     expect(manifest.windowStart).toBe("2025-07-18T00:00:00.000Z");
     expect(manifest.windowEnd).toBe("2026-07-18T00:00:00.000Z");
   });
+
+  it.each([
+    ["chain-rich-curation-v1.json", 5],
+    ["wildfire-recent-curation-v1.json", 1],
+  ])("loads curated chain-rich manifest %s", async (file, publishers) => {
+    const manifest = await loadManifest(
+      path.resolve(import.meta.dirname, "../../../config/news-backfill", file),
+    );
+
+    expect(manifest.publishers).toHaveLength(publishers);
+    expect(manifest.publishers.every(({ sources }) => sources.length > 0)).toBe(
+      true,
+    );
+  });
 });

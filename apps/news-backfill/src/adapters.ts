@@ -119,6 +119,30 @@ function includeUrl(profile: SourceProfile, url: string): boolean {
   return new RegExp(profile.includeUrlPattern, "i").test(url);
 }
 
+function includeLinkText(profile: SourceProfile, text: string): boolean {
+  if (profile.includeLinkTextPattern === undefined) return true;
+  return new RegExp(profile.includeLinkTextPattern, "i").test(text);
+}
+
+function approvedSitemapUrl(
+  profile: SourceProfile,
+  input: string,
+): string | null {
+  try {
+    const url = new URL(input, profile.sourceUrl);
+    const hostname = url.hostname.toLowerCase();
+    const approved = profile.allowedHosts.some((allowedHost) => {
+      const normalized = allowedHost.toLowerCase();
+      return hostname === normalized || hostname.endsWith(`.${normalized}`);
+    });
+    if (!approved) return null;
+    if (url.protocol === "http:") url.protocol = "https:";
+    return url.protocol === "https:" ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
 async function* syndicationBatches(
   profile: SourceProfile,
   fetchDocument: FetchDocument,
@@ -260,7 +284,12 @@ async function* htmlArchiveBatches(
     const document = await fetchDocument(url, profile.allowedHosts);
     const candidates: Candidate[] = [];
     for (const link of htmlLinks(document.body, document.finalUrl)) {
-      if (!includeUrl(profile, link.url) || seen.has(link.url)) continue;
+      if (
+        !includeUrl(profile, link.url) ||
+        !includeLinkText(profile, link.text) ||
+        seen.has(link.url)
+      )
+        continue;
       seen.add(link.url);
       const listing = listingMetadata(link.text);
       candidates.push({
@@ -434,10 +463,14 @@ async function* sitemapBatches(
     }
     const completedChildren = Math.max(0, processed - 1);
     for (const child of rootRows.indexes.slice(0, completedChildren)) {
-      visited.add(child.loc);
+      const childUrl = approvedSitemapUrl(profile, child.loc);
+      if (childUrl !== null) visited.add(childUrl);
     }
     queue.push(
-      ...rootRows.indexes.slice(completedChildren).map(({ loc }) => loc),
+      ...rootRows.indexes.slice(completedChildren).flatMap(({ loc }) => {
+        const childUrl = approvedSitemapUrl(profile, loc);
+        return childUrl === null ? [] : [childUrl];
+      }),
     );
   }
 
@@ -449,24 +482,26 @@ async function* sitemapBatches(
     const document = await fetchDocument(url, profile.allowedHosts);
     const rows = sitemapRows(document.body);
     for (const child of rows.indexes) {
-      if (!visited.has(child.loc)) queue.push(child.loc);
+      const childUrl = approvedSitemapUrl(profile, child.loc);
+      if (childUrl !== null && !visited.has(childUrl)) queue.push(childUrl);
     }
     const candidates = rows.urls.flatMap((row): Candidate[] => {
-      if (!includeUrl(profile, row.loc)) return [];
+      const articleUrl = approvedSitemapUrl(profile, row.loc);
+      if (articleUrl === null || !includeUrl(profile, articleUrl)) return [];
       const lastModified = isoDate(row.lastmod);
       if (lastModified !== null && lastModified < windowStart) return [];
       const newsPublishedAt = isoDate(row.newsPublishedAt);
       if (newsPublishedAt !== null && newsPublishedAt < windowStart) return [];
       return [
         {
-          externalItemId: row.loc,
+          externalItemId: articleUrl,
           publishedAt: newsPublishedAt,
           rawBody: document.body,
           rawContentType: document.contentType,
           sourceUrl: document.finalUrl,
           summary: null,
           title: row.newsTitle ?? null,
-          url: row.loc,
+          url: articleUrl,
         },
       ];
     });

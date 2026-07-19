@@ -349,10 +349,12 @@ export class LabQueries {
   async volume() {
     const [row] = await this.sql`
       select
-        (select count(*)::integer from public.news_entries) as entries,
+        (select count(*)::integer from public.news_entries
+          where episode_id is not null) as entries,
         (select count(*)::integer from public.episodes) as episodes,
         (select count(*)::integer from public.storylines where merged_into is null) as storylines,
-        (select count(*)::integer from public.event_cards) as cards,
+        (select count(*)::integer from public.event_cards
+          where superseded_by is null) as cards,
         (select count(*)::integer from public.storylines
           where merged_into is null and episode_count >= 2) as multi
     `;

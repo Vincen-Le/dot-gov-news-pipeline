@@ -49,11 +49,22 @@ async function withFixture<T>(
 describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
   it("summarizes the corpus with feature and prepare coverage", async () => {
     const summary = await withFixture((queries) => queries.corpusSummary());
-    expect(summary.entries).toBe(4);
-    expect(summary.embedded).toBe(3);
+    expect(summary.entries).toBe(5);
+    expect(summary.embedded).toBe(4);
     expect(summary.needsPrepare).toBe(1);
     expect(summary.clustered).toBe(4);
     expect(summary.agencies[0]!.agency).toBe("fda");
+  });
+
+  it("counts only clustered entries and live cards in volume", async () => {
+    const volume = await withFixture((queries) => queries.volume());
+    // 5 entries in the corpus, 4 attached to episodes
+    expect(volume.entries).toBe(4);
+    // 4 card rows, 1 superseded overview version
+    expect(volume.cards).toBe(3);
+    expect(volume.episodes).toBe(3);
+    expect(volume.storylines).toBe(2);
+    expect(volume.multiEpisodeStorylines).toBe(1);
   });
 
   it("lists storylines newest-first with headline and filters", async () => {

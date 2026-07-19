@@ -41,24 +41,15 @@ def test_stub_compressor_cites_episodes():
     }
 
 
-def test_stub_name_theme_returns_short_deterministic_label():
-    name = StubModels().name_theme(
+def test_stub_theme_metadata_returns_short_label_and_seeded_category():
+    metadata = StubModels().create_theme_metadata(
         {"headline": "FDA recalls Valsatrex lots after contamination review",
-         "summary": ""})
-    assert name == "FDA recalls Valsatrex lots after"
-    assert len(name.split()) <= 5
-
-
-def test_stub_classify_category_matches_token_else_none():
-    hit = StubModels().classify_category(
-        "FDA drug recalls", {"headline": "FDA recalls Valsatrex", "summary": ""},
-        [{"id": "c-1", "display_name": "Drug Safety", "origin": "seed"}])
-    assert hit["category_id"] == "c-1"
-    miss = StubModels().classify_category(
-        "SSA closures", {"headline": "SSA field office closures", "summary": ""},
-        [{"id": "c-1", "display_name": "Drug Safety", "origin": "seed"}])
-    assert miss["category_id"] is None
-    assert miss["new_category_name"] == "General Government"
+         "summary": ""},
+        [{"id": "c-1", "display_name": "Food & Drug Safety", "origin": "seed"}],
+    )
+    assert metadata["theme_name"] == "FDA recalls Valsatrex lots after"
+    assert len(metadata["theme_name"].split()) <= 5
+    assert metadata["category_id"] == "c-1"
 
 
 def test_stub_embedding_tag_never_collides_with_real_models():
@@ -98,6 +89,7 @@ def test_stub_adjudicate_theme_joins_nearest_candidate():
           "recent_headlines": []},
          {"theme_id": "t-2", "name": "B", "storyline_count": 5,
           "recent_headlines": []}],
+        [{"id": "c-1", "display_name": "Public Health", "origin": "seed"}],
     )
     assert out["decision"] == "join"
     assert out["theme_id"] == "t-1"
@@ -105,6 +97,10 @@ def test_stub_adjudicate_theme_joins_nearest_candidate():
 
 
 def test_stub_adjudicate_theme_spawns_without_candidates():
-    out = StubModels().adjudicate_theme({"headline": "h", "summary": ""}, [])
+    out = StubModels().adjudicate_theme(
+        {"headline": "h", "summary": ""}, [],
+        [{"id": "c-1", "display_name": "Public Health", "origin": "seed"}],
+    )
     assert out["decision"] == "spawn"
     assert out["theme_id"] is None
+    assert out["category_id"] == "c-1"

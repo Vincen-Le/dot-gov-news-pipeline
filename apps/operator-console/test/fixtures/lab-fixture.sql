@@ -23,7 +23,11 @@ insert into public.news_entries
    '2026-05-17T15:00:00Z', repeat('cd', 32), '\x003c0000', 'stub', array['valsatrex'], array['z-2026-0143'], 1),
   ('00000000-0000-4000-8000-000000000014', '00000000-0000-4000-8000-000000000001',
    'https://fda.gov/d', 'https://fda.gov/d', 'SSA opens field office', 'Tulsa office.',
-   '2026-05-18T09:00:00Z', repeat('ef', 32), null, null, array['tulsa'], '{}', 1);
+   '2026-05-18T09:00:00Z', repeat('ef', 32), null, null, array['tulsa'], '{}', 1),
+  -- prepared but never attached to an episode: volume() must not count it as clustered
+  ('00000000-0000-4000-8000-000000000015', '00000000-0000-4000-8000-000000000001',
+   'https://fda.gov/e', 'https://fda.gov/e', 'FDA advisory pending', 'Unclustered.',
+   '2026-05-18T10:00:00Z', repeat('12', 32), '\x003c003c', 'stub', array['advisory'], '{}', 1);
 
 insert into public.storylines
   (id, entity_set, event_keys, agency_ids, distinct_feeds, entry_count, episode_count,

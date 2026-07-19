@@ -74,7 +74,8 @@ class CachedModels:
             self.cache.put(key, same, reason)
         return same, reason
 
-    def _memo_json(self, kind: str, parts: list, call) -> dict:
+    def _memo_json(self, kind: str, parts: list, call,
+                   cache_when=None) -> dict:
         key = hashlib.sha256(
             json.dumps([self.model_tag, kind, *parts], sort_keys=True, default=str)
             .encode()).hexdigest()
@@ -85,8 +86,8 @@ class CachedModels:
         self.misses += 1
         result = call()
         reason = result.get("reason", "")
-        if not reason.startswith(("adjudicator_error", "classifier_error",
-                                  "rank_audit_error")):
+        if (not reason.startswith(("adjudicator_error", "rank_audit_error"))
+                and (cache_when is None or cache_when(result))):
             self.cache.put_json(key, result)
         return result
 
@@ -94,17 +95,16 @@ class CachedModels:
         return self._memo_json("rank_pair", [a, b],
                                lambda: self.inner.compare_rank(a, b))
 
-    def name_theme(self, storyline: dict) -> str:
-        # failures raise (nothing cached); wrap as a dict for _memo_json
+    def create_theme_metadata(self, storyline: dict,
+                              categories: list[dict]) -> dict:
+        valid_category_ids = {str(category["id"]) for category in categories}
         return self._memo_json(
-            "theme_name", [storyline],
-            lambda: {"name": self.inner.name_theme(storyline)})["name"]
-
-    def classify_category(self, theme_name: str, storyline: dict,
-                          categories: list[dict]) -> dict:
-        return self._memo_json(
-            "category", [theme_name, storyline, categories],
-            lambda: self.inner.classify_category(theme_name, storyline, categories))
+            "theme_metadata", [storyline, categories],
+            lambda: self.inner.create_theme_metadata(storyline, categories),
+            cache_when=lambda result: (
+                bool(str(result.get("theme_name") or "").strip())
+                and str(result.get("category_id")) in valid_category_ids),
+        )
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.inner, name)

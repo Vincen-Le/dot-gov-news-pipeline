@@ -11,12 +11,12 @@ from pipeline.config import Config
 from pipeline.prompts import (
     RUBRIC_CRITERIA,
     build_adjudicator_prompt,
-    build_category_prompt,
     build_compressor_prompt,
     build_enricher_prompt,
     build_rank_audit_prompt,
     build_theme_adjudicator_prompt,
-    build_theme_namer_prompt,
+    build_theme_creator_prompt,
+    build_theme_pair_adjudicator_prompt,
 )
 
 
@@ -97,40 +97,53 @@ class WorkersAI:
             self.errors["rank_audit"] += 1
             return {"prefers": "invalid", "reason": f"rank_audit_error: {exc}"}
 
-    def name_theme(self, storyline: dict) -> str:
-        # judge model on purpose: naming is high-volume (every spawn) and
-        # tolerance for a mediocre label is high; the engine falls back to
-        # the headline if this raises
-        system, user = build_theme_namer_prompt(storyline)
-        return self._chat(self.cfg.judge_model, system, user).strip().strip('"')
-
-    def classify_category(self, theme_name: str, storyline: dict,
-                          categories: list[dict]) -> dict:
-        system, user = build_category_prompt(theme_name, storyline, categories)
+    def create_theme_metadata(self, storyline: dict,
+                              categories: list[dict]) -> dict:
+        """Create one reusable theme label and choose one seeded category."""
+        system, user = build_theme_creator_prompt(storyline, categories)
         try:
             parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
-            category_id = parsed.get("category_id")
-            proposed = parsed.get("new_category_name")
             return {
-                "category_id": str(category_id) if category_id else None,
-                "new_category_name": str(proposed) if proposed else None,
+                "theme_name": str(parsed.get("theme_name") or "").strip(),
+                "category_id": (str(parsed["category_id"])
+                                if parsed.get("category_id") else None),
                 "reason": str(parsed.get("reason", "")),
             }
-        except Exception as exc:  # engine leaves category null on failure
-            self.errors["classifier"] += 1
-            return {"category_id": None, "new_category_name": None,
-                    "reason": f"classifier_error: {exc}"}
+        except Exception:
+            self.errors["theme_creator"] += 1
+            raise
 
-    def adjudicate_theme(self, storyline: dict, candidates: list[dict]) -> dict:
-        # raises on failure by design: ThemeEngine falls back to knn majority
-        system, user = build_theme_adjudicator_prompt(storyline, candidates)
+    def adjudicate_theme(self, storyline: dict, candidates: list[dict],
+                         categories: list[dict]) -> dict:
+        # raises on failure by design: ThemeEngine is split-biased and spawns/defers
+        system, user = build_theme_adjudicator_prompt(
+            storyline, candidates, categories)
         parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
         return {
             "decision": str(parsed.get("decision") or ""),
             "theme_id": str(parsed["theme_id"]) if parsed.get("theme_id") else None,
             "new_theme_name": (str(parsed["new_theme_name"])
                                if parsed.get("new_theme_name") else None),
+            "category_id": (str(parsed["category_id"])
+                            if parsed.get("category_id") else None),
             "merge_theme_ids": [str(i) for i in parsed.get("merge_theme_ids") or []
                                 if i],
             "reason": str(parsed.get("reason", "")),
         }
+
+    def adjudicate_theme_pair(self, a: dict, b: dict,
+                              categories: list[dict]) -> dict:
+        system, user = build_theme_pair_adjudicator_prompt(a, b, categories)
+        try:
+            parsed = _extract_json(self._chat(self.cfg.judge_model, system, user))
+            return {
+                "same_theme": bool(parsed.get("same_theme", False)),
+                "canonical_name": (str(parsed["canonical_name"])
+                                   if parsed.get("canonical_name") else None),
+                "category_id": (str(parsed["category_id"])
+                                if parsed.get("category_id") else None),
+                "reason": str(parsed.get("reason", "")),
+            }
+        except Exception:
+            self.errors["theme_merge"] += 1
+            raise

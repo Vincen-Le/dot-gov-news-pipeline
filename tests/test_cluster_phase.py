@@ -15,7 +15,13 @@ CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
 class ClusterFakeStore(FakeStore):
     """FakeStore + the reads cluster() needs beyond the engine surface."""
 
-    def prepared_unclustered(self, limit=None, until=None, per_agency=None):
+    def prepared_unclustered(
+        self, limit=None, until=None, per_agency=None,
+        topology_label_set_id=None, multi_episode_percent=None,
+        multi_entry_single_episode_percent=0.0, topology_seed="default",
+    ):
+        if topology_label_set_id is not None:
+            raise AssertionError("topology curation is covered by Store tests")
         rows = sorted(
             (e for e in self.entries.values() if e["embedding"] is not None),
             key=lambda e: e["published_at"])

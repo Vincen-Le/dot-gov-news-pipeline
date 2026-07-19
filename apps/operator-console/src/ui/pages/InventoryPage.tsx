@@ -246,13 +246,15 @@ export function InventoryPage() {
             );
           }}
         >
-          <label htmlFor="hostname">Hostname</label>
-          <input
-            defaultValue={hostname}
-            id="hostname"
-            name="hostname"
-            placeholder="nasa.gov"
-          />
+          <div className="filter-field">
+            <label htmlFor="hostname">Hostname</label>
+            <input
+              defaultValue={hostname}
+              id="hostname"
+              name="hostname"
+              placeholder="nasa.gov"
+            />
+          </div>
           <button type="submit">Apply filter</button>
         </form>
         {sites.isLoading ? (

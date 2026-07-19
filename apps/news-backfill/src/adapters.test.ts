@@ -165,6 +165,36 @@ describe("source adapters", () => {
     });
   });
 
+  it("filters archive navigation by link text before hydration", async () => {
+    const body = `<nav><a href="/about">About the agency</a></nav>
+      <h2><a href="/opens-investigation">Agency Opens Investigation</a></h2>
+      <h2><a href="/incident-update">Agency Issues Incident Update</a></h2>`;
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => ({
+          body,
+          contentType: "text/html",
+          finalUrl: url,
+          status: 200,
+        }),
+        profile: profile({
+          adapter: "html_archive",
+          includeLinkTextPattern: "(?:investigation|incident update)",
+          maxPages: 1,
+          sourceType: "html_archive",
+        }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(batches[0]?.candidates.map(({ title }) => title)).toEqual([
+      "Agency Opens Investigation",
+      "Agency Issues Incident Update",
+    ]);
+  });
+
   it("uses sitemap last-modified dates to avoid hydrating known-old pages", async () => {
     const body = `<urlset>
       <url><loc>https://agency.gov/news/old</loc><lastmod>2024-01-01</lastmod></url>
@@ -189,6 +219,30 @@ describe("source adapters", () => {
     expect(batches[0]?.candidates.map((candidate) => candidate.url)).toEqual([
       "https://agency.gov/news/new",
     ]);
+  });
+
+  it("upgrades same-host HTTP sitemap locations to HTTPS", async () => {
+    const body = `<urlset>
+      <url><loc>http://agency.gov/news/current</loc><lastmod>2026-07-01</lastmod></url>
+    </urlset>`;
+    const batches = await collect(
+      enumerateBatches({
+        cursor: {},
+        fetchDocument: async (url) => ({
+          body,
+          contentType: "application/xml",
+          finalUrl: url,
+          status: 200,
+        }),
+        profile: profile({ includeUrlPattern: "/news/" }),
+        windowEnd: "2026-07-18T00:00:00Z",
+        windowStart: "2025-07-18T00:00:00Z",
+      }),
+    );
+
+    expect(batches[0]?.candidates[0]?.url).toBe(
+      "https://agency.gov/news/current",
+    );
   });
 
   it("uses Google News sitemap metadata for dates, titles, and window filtering", async () => {

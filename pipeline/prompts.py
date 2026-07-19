@@ -18,6 +18,10 @@ ADJUDICATOR_SYSTEM = (
     "You decide whether two US government news items describe the same specific "
     "real-world event. Answer true only if clearly the same specific event; "
     "different products, companies, cases, or locations = different events. "
+    "A shared holiday, anniversary, observance, or umbrella initiative is not "
+    "the same specific event; that relationship belongs at the theme level. "
+    "Items about different actions under the same program are separate unless "
+    "one is a direct update in the same concrete rollout, case, incident, or decision. "
     "When uncertain, answer false. "
     'Respond with JSON only: {"same_event": boolean, "reason": "one sentence"}'
 )
@@ -69,28 +73,75 @@ def validate_timeline(timeline: list[dict], valid_episode_ids: set[str]) -> list
     ]
 
 
-THEME_NAMER_SYSTEM = (
-    "You name a US government news topic theme. Given one storyline, produce "
-    "a short, compact theme label of 2-5 words that would also cover closely "
-    "related future storylines (e.g. 'FDA drug recalls', 'Border enforcement "
-    "operations'). No punctuation, no quotes. Output only the label."
+THEME_SCOPE_GUIDANCE = (
+    "A theme must be more specific than a category but exactly one level more "
+    "general than a single storyline. It must plausibly group several distinct "
+    "real-world events, not merely restate the first event. Use a compact label "
+    "2-5 words long. Do not copy incidental named entities from the storyline, including "
+    "agencies, officials, companies, products, case numbers, or specific places. "
+    "A proper name is allowed only when that name is itself the durable umbrella "
+    "initiative or observance spanning multiple independent events, such as "
+    "'America 250' or 'Trump Accounts'. For example, do not create 'Tijuana River Water Cleanup'; "
+    "step up to 'Cross-Border Water Pollution'. Do not include punctuation or quotes. "
+    "Also do not step up so far that the label becomes an agency or category bucket: "
+    "'National Park Events' and 'Environmental Protection Efforts' are too broad. "
 )
 
-CATEGORY_CLASSIFIER_SYSTEM = (
-    "You classify a US government news theme into one broad category. "
-    "Prefer an existing category; propose a new one only when nothing fits. "
-    'Respond with JSON only: {"category_id": string or null (copy verbatim), '
-    '"new_category_name": string or null (only when category_id is null), '
-    '"reason": "one sentence"}'
+CATEGORY_ASSIGNMENT_GUIDANCE = (
+    "For categories, choose by subject matter, not the publishing agency. Keep the "
+    "same durable program or recurring subject in one category across storylines. "
+)
+
+CATEGORY_DESCRIPTIONS = {
+    "Justice & Law Enforcement": (
+        "general consumer-protection and antitrust enforcement, criminal "
+        "investigations, prosecutions, policing, and sanctions enforcement"
+    ),
+    "Financial Regulation": (
+        "securities, banking, capital markets, investment advisers, exchanges, "
+        "and financial-institution oversight; not general consumer enforcement"
+    ),
+    "Veterans Affairs": (
+        "programs, benefits, health care, employment support, and recognition "
+        "specifically for veterans"
+    ),
+    "Economy & Labor": (
+        "economy-wide employment, wages, workplaces, workforce policy, and business conditions"
+    ),
+    "Public Health": (
+        "population health, disease, treatment, prevention, and health services "
+        "not specific to a dedicated beneficiary category"
+    ),
+}
+
+THEME_CREATOR_SYSTEM = (
+    "You create a topic theme and assign its broad seeded category for one US "
+    "government news storyline. " + THEME_SCOPE_GUIDANCE +
+    CATEGORY_ASSIGNMENT_GUIDANCE +
+    "You must copy exactly one category_id from the provided seeded categories; "
+    "never invent a category or return null. "
+    'Respond with JSON only: {"theme_name": string, "category_id": string, '
+    '"reason": "one sentence explaining the abstraction and category"}'
 )
 
 
-def build_theme_namer_prompt(storyline: dict) -> tuple[str, str]:
+def _shape_seed_categories(categories: list[dict]) -> list[dict]:
+    return [
+        {"category_id": c["id"], "name": c["display_name"],
+         "guidance": CATEGORY_DESCRIPTIONS.get(c["display_name"], "")}
+        for c in categories if c.get("origin") == "seed"
+    ]
+
+
+def build_theme_creator_prompt(storyline: dict,
+                               categories: list[dict]) -> tuple[str, str]:
     user = (
         f"Storyline headline: {storyline['headline']}\n"
-        f"Storyline summary: {storyline.get('summary') or '(none)'}"
+        f"Storyline summary: {storyline.get('summary') or '(none)'}\n\n"
+        "Seeded categories (choose exactly one category_id):\n" +
+        json.dumps(_shape_seed_categories(categories), indent=2)
     )
-    return THEME_NAMER_SYSTEM, user
+    return THEME_CREATOR_SYSTEM, user
 
 
 RANK_AUDIT_SYSTEM = (
@@ -119,39 +170,31 @@ def build_rank_audit_prompt(a: dict, b: dict) -> tuple[str, str]:
     return RANK_AUDIT_SYSTEM, user
 
 
-def build_category_prompt(theme_name: str, storyline: dict,
-                          categories: list[dict]) -> tuple[str, str]:
-    shaped = [
-        {"category_id": c["id"], "name": c["display_name"], "origin": c["origin"]}
-        for c in categories
-    ]
-    user = (
-        f"Theme: {theme_name}\n"
-        f"Example storyline: {storyline['headline']} — "
-        f"{storyline.get('summary') or '(none)'}\n\n"
-        "Categories:\n" + json.dumps(shaped, indent=2)
-    )
-    return CATEGORY_CLASSIFIER_SYSTEM, user
-
-
 THEME_ADJUDICATOR_SYSTEM = (
     "You assign a US government news storyline to a topic theme. Themes are "
-    "specific recurring subjects (e.g. 'FDA drug recalls', 'Houthi sanctions'), "
-    "not broad departments or document styles. Join a candidate only when the "
-    "storyline covers the same specific subject; a shared agency or press-release "
-    "boilerplate is not enough. Otherwise spawn a new theme with a 2-5 word label. "
+    "recurring subjects, not broad departments or document styles. Join a candidate "
+    "only when the storyline fits that reusable subject; a shared agency, entity, "
+    "or press-release boilerplate is not enough. Otherwise spawn a new theme. "
+    "Do not join a category-like theme merely because the storyline is related; "
+    "the storyline and every listed recent headline must fit the theme's reusable subject. "
+    "For every spawned theme, follow this naming rubric: " + THEME_SCOPE_GUIDANCE +
+    CATEGORY_ASSIGNMENT_GUIDANCE +
+    "When spawning, copy exactly one category_id from the provided seeded "
+    "categories; never invent a category or return null. "
     "Separately, if two or more candidates clearly name the same subject, list "
     "them in merge_theme_ids. "
     'Respond with JSON only: {"decision": "join" or "spawn", '
     '"theme_id": string or null (copy one candidate theme_id verbatim, only when join), '
     '"new_theme_name": string or null (only when spawn), '
+    '"category_id": string or null (copy a seeded category_id, only when spawn), '
     '"merge_theme_ids": [candidate theme_ids naming the same subject] or [], '
     '"reason": "one sentence"}'
 )
 
 
 def build_theme_adjudicator_prompt(storyline: dict,
-                                   candidates: list[dict]) -> tuple[str, str]:
+                                   candidates: list[dict],
+                                   categories: list[dict]) -> tuple[str, str]:
     shaped = [
         {"theme_id": c["theme_id"], "name": c["name"],
          "storyline_count": c["storyline_count"],
@@ -161,6 +204,32 @@ def build_theme_adjudicator_prompt(storyline: dict,
     user = (
         f"Storyline headline: {storyline['headline']}\n"
         f"Storyline summary: {storyline.get('summary') or '(none)'}\n\n"
-        "Candidate themes:\n" + json.dumps(shaped, indent=2)
+        "Candidate themes:\n" + json.dumps(shaped, indent=2) +
+        "\n\nSeeded categories (required only when spawning):\n" +
+        json.dumps(_shape_seed_categories(categories), indent=2)
     )
     return THEME_ADJUDICATOR_SYSTEM, user
+
+
+THEME_PAIR_ADJUDICATOR_SYSTEM = (
+    "You decide whether two existing US government news themes represent the "
+    "same reusable subject and should be merged. Shared category, agency, document "
+    "style, or generic words are not enough. Merge durable umbrella programs or "
+    "subjects whose member headlines would all fit one compact label. Keep related "
+    "but distinct subjects separate. " + THEME_SCOPE_GUIDANCE +
+    CATEGORY_ASSIGNMENT_GUIDANCE +
+    "When merging, provide one canonical name and copy exactly one seeded category_id. "
+    'Respond with JSON only: {"same_theme": boolean, "canonical_name": string or null, '
+    '"category_id": string or null, "reason": "one sentence"}'
+)
+
+
+def build_theme_pair_adjudicator_prompt(
+        a: dict, b: dict, categories: list[dict]) -> tuple[str, str]:
+    user = (
+        "Theme A:\n" + json.dumps(a, indent=2) +
+        "\n\nTheme B:\n" + json.dumps(b, indent=2) +
+        "\n\nSeeded categories (required when merging):\n" +
+        json.dumps(_shape_seed_categories(categories), indent=2)
+    )
+    return THEME_PAIR_ADJUDICATOR_SYSTEM, user

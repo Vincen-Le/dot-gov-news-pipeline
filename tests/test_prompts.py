@@ -1,8 +1,7 @@
 from pipeline.prompts import (
     COMPRESSOR_SYSTEM,
     build_adjudicator_prompt,
-    build_category_prompt,
-    build_theme_namer_prompt,
+    build_theme_creator_prompt,
     validate_timeline,
 )
 
@@ -16,6 +15,8 @@ def test_adjudicator_prompt_is_split_biased():
     lowered = system.lower()
     assert "only if clearly the same specific" in lowered
     assert "different products, companies, cases, or locations" in lowered
+    assert "shared holiday, anniversary, observance, or umbrella initiative" in lowered
+    assert "belongs at the theme level" in lowered
 
 
 def test_validate_timeline_drops_uncited_and_unknown():
@@ -33,21 +34,19 @@ def test_compressor_prompt_demands_one_to_two_sentence_summary():
     assert "<= 3 sentences" not in COMPRESSOR_SYSTEM
 
 
-def test_theme_namer_prompt_demands_short_compact_label():
-    system, user = build_theme_namer_prompt(
-        {"headline": "FDA recalls Valsatrex", "summary": "Contamination."})
+def test_theme_creator_prompt_demands_general_entity_resistant_label_and_category():
+    system, user = build_theme_creator_prompt(
+        {"headline": "Tijuana River water cleanup expands", "summary": "Cleanup work."},
+        [{"id": "c-1", "display_name": "Energy & Environment", "origin": "seed"}],
+    )
     assert "2-5 words" in system
-    assert "Output only the label" in system
-    assert "FDA recalls Valsatrex" in user
-
-
-def test_category_prompt_lists_categories_with_origin():
-    system, user = build_category_prompt(
-        "FDA drug recalls",
-        {"headline": "FDA recalls Valsatrex", "summary": "Contamination."},
-        [{"id": "c-1", "display_name": "Food & Drug Safety", "origin": "seed"}])
-    assert "category_id" in system and "new_category_name" in system
-    assert "c-1" in user and "Food & Drug Safety" in user
+    assert "more specific than a category" in system
+    assert "incidental named entities" in system
+    assert "Tijuana River Water Cleanup" in system
+    assert "America 250" in system
+    assert "theme_name" in system and "category_id" in system
+    assert "c-1" in user and "Energy & Environment" in user
+    assert "choose by subject matter, not the publishing agency" in system
 
 
 def test_compressor_rubric_judges_whole_chain():
@@ -78,6 +77,7 @@ def test_theme_adjudicator_prompt_lists_candidates_and_json_contract():
         [{"theme_id": "t-1", "name": "US Visa Sanctions Brazil",
           "storyline_count": 16,
           "recent_headlines": ["Visa restrictions on Brazilian officials"]}],
+        [{"id": "c-1", "display_name": "Foreign Affairs & Trade", "origin": "seed"}],
     )
     assert "JSON" in system
     assert "merge_theme_ids" in system
@@ -85,3 +85,32 @@ def test_theme_adjudicator_prompt_lists_candidates_and_json_contract():
     assert "t-1" in user
     assert "US Visa Sanctions Brazil" in user
     assert "Harvard exchange-program" in user
+    assert "category_id" in system
+    assert "c-1" in user and "Foreign Affairs & Trade" in user
+
+
+def test_seeded_category_prompt_includes_consistency_guidance():
+    _, user = build_theme_creator_prompt(
+        {"headline": "FTC settles deceptive fee case", "summary": "Consumer case."},
+        [
+            {"id": "c-law", "display_name": "Justice & Law Enforcement", "origin": "seed"},
+            {"id": "c-fin", "display_name": "Financial Regulation", "origin": "seed"},
+        ],
+    )
+    assert "general consumer-protection and antitrust enforcement" in user
+    assert "securities, banking, capital markets" in user
+
+
+def test_theme_pair_prompt_requires_llm_verdict_and_seeded_category():
+    from pipeline.prompts import build_theme_pair_adjudicator_prompt
+
+    system, user = build_theme_pair_adjudicator_prompt(
+        {"theme_id": "t-1", "name": "Veteran Employment Services",
+         "recent_headlines": ["Veteran career fair"]},
+        {"theme_id": "t-2", "name": "Veteran Employment",
+         "recent_headlines": ["Veteran jobs of the week"]},
+        [{"id": "c-vet", "display_name": "Veterans Affairs", "origin": "seed"}],
+    )
+    assert "same_theme" in system and "canonical_name" in system
+    assert "Shared category, agency, document style" in system
+    assert "t-1" in user and "t-2" in user and "c-vet" in user

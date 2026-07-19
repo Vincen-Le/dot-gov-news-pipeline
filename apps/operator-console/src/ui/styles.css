@@ -412,6 +412,15 @@ td {
   text-align: left;
   white-space: nowrap;
 }
+tbody th[scope="row"] {
+  min-width: 260px;
+  white-space: normal;
+}
+td.wrap {
+  min-width: 180px;
+  max-width: 340px;
+  white-space: normal;
+}
 thead th {
   color: var(--muted);
   font-size: 0.65rem;
@@ -533,6 +542,12 @@ tbody th {
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
 }
+.metric-list div:nth-child(2n) {
+  border-right: 0;
+}
+.metric-list div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
 .metric-list dt {
   color: var(--muted);
   font-size: 0.7rem;
@@ -549,20 +564,25 @@ tbody th {
     monospace;
 }
 .filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  align-items: end;
+  gap: 1rem 1.25rem;
   padding: 0.8rem 0 1.3rem;
 }
 .filter-bar label {
+  display: block;
+  margin-bottom: 0.35rem;
   color: var(--muted);
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 .filter-bar input,
 .filter-bar select {
-  min-width: 240px;
+  width: 100%;
+  min-width: 0;
   padding: 0.58rem 0.7rem;
   border: 1px solid var(--rule);
   border-radius: 0;
@@ -600,6 +620,7 @@ tbody th {
   cursor: pointer;
 }
 .filter-bar button {
+  justify-self: start;
   padding: 0.58rem 0.85rem;
   background: var(--text);
   color: var(--canvas);
@@ -862,12 +883,13 @@ footer {
     grid-template-columns: 1fr;
   }
   .filter-bar {
-    align-items: stretch;
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
-  .filter-bar input {
-    min-width: 0;
-    width: 100%;
+  .metric-list div {
+    border-right: 0;
+  }
+  .metric-list div:nth-last-child(2) {
+    border-bottom: 1px solid var(--rule);
   }
   .section-heading {
     align-items: start;

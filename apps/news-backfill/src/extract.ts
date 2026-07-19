@@ -11,7 +11,7 @@ import {
 } from "./markup";
 import type { Candidate, NewsSubtype, NormalizedEntry } from "./types";
 
-export const EXTRACTOR_VERSION = 3;
+export const EXTRACTOR_VERSION = 4;
 
 interface ArticleMetadata {
   bodyText: string | null;
@@ -36,7 +36,6 @@ function articleTextFromHtml(html: string): string | null {
       "noscript",
       "template",
       "svg",
-      "form",
       "nav",
       "header",
       "footer",
@@ -65,6 +64,9 @@ function articleTextFromHtml(html: string): string | null {
 
   const selectors = [
     '[itemprop="articleBody"]',
+    ".field--name-field-press-body",
+    '[itemprop="text"]',
+    ".ms-rtestate-field",
     ".field--name-body",
     ".article-body",
     ".article__body",
@@ -78,6 +80,7 @@ function articleTextFromHtml(html: string): string | null {
     "body",
   ];
   const blockSelector = "p, li, h2, h3, h4, blockquote, pre, tr";
+  let shortFallback: string | null = null;
   for (const selector of selectors) {
     const values: string[] = [];
     $(selector).each((_index, element) => {
@@ -99,9 +102,12 @@ function articleTextFromHtml(html: string): string | null {
       if (text !== null) values.push(text);
     });
     values.sort((left, right) => right.length - left.length);
-    if (values[0] !== undefined) return values[0];
+    if (values[0] !== undefined) {
+      shortFallback ??= values[0];
+      if (values[0].length >= 80) return values[0];
+    }
   }
-  return null;
+  return shortFallback;
 }
 
 function isoDate(value: unknown): string | null {
@@ -163,12 +169,37 @@ function dateFromMarkedField(html: string): string | null {
     /<strong\b[^>]*>\s*News Release Date:\s*<\/strong>\s*([^<\r\n]+)/i,
     /article-meta__publish-date["'][^>]*>\s*([^<\r\n]+)/i,
     /field--name-dynamic-twig-fieldnode-press-release-lead-in[\s\S]{0,500}?<p\b[^>]*>[^<]*?,\s*([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s+20\d{2})/i,
+    /field--name-field-press-body[\s\S]{0,500}?<p\b[^>]*>\s*([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s+20\d{2})\s*<\/p>/i,
+    /class=["'][^"']*meta[^"']*["'][^>]*>\s*([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s+20\d{2})\s*[|<]/i,
+    /class=["'][^"']*press-release[^"']*["'][\s\S]{0,1000}?<p\b[^>]*>\s*<(?:b|strong)\b[^>]*>\s*([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s+20\d{2})/i,
+    /itemprop=["']text["'][\s\S]{0,1000}?(?:Washington,?\s*D\.?C\.?\s*)?([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s+20\d{2})\s*(?:&nbsp;\s*)*(?:&mdash;|—|-)/i,
+    /\bWASHINGTON\s*\(\s*([A-Z][a-z]{2,8}\.?\s+\d{1,2},\s+20\d{2})\s*\)/i,
   ];
   for (const pattern of patterns) {
     const normalized = isoDate(pattern.exec(html)?.[1]);
     if (normalized !== null) return normalized;
   }
   return null;
+}
+
+function titleFromMarkedField(html: string): string | null {
+  const match =
+    /field--name-field-press-body[\s\S]{0,1000}?<h[2-5]\b[^>]*>([\s\S]*?)<\/h[2-5]>/i.exec(
+      html,
+    );
+  return cleanText(match?.[1]);
+}
+
+function dateFromTitle(title: string | null): string | null {
+  if (title === null) return null;
+  const numeric =
+    /(?:^|\D)(0?[1-9]|1[0-2])[-/ ](0?[1-9]|[12]\d|3[01])[-/ ](20\d{2})(?:\D|$)/.exec(
+      title,
+    );
+  if (numeric === null) return null;
+  return isoDate(
+    `${numeric[3]}-${numeric[1]?.padStart(2, "0")}-${numeric[2]?.padStart(2, "0")}`,
+  );
 }
 
 function dateFromUrl(pageUrl: string): string | null {
@@ -188,6 +219,15 @@ function dateFromUrl(pageUrl: string): string | null {
       /_(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(20\d{2})\.[a-z0-9]+$/i.exec(path);
     if (compactDate !== null) {
       return isoDate(`${compactDate[3]}-${compactDate[1]}-${compactDate[2]}`);
+    }
+    const compactIsoDate =
+      /(?:^|\D)(20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?:\D|$)/.exec(
+        path,
+      );
+    if (compactIsoDate !== null) {
+      return isoDate(
+        `${compactIsoDate[1]}-${compactIsoDate[2]}-${compactIsoDate[3]}`,
+      );
     }
   } catch {
     return null;
@@ -230,9 +270,20 @@ export function extractArticleMetadata(
   const title = cleanText(
     (typeof article?.headline === "string" ? article.headline : null) ??
       metaContent(html, "og:title") ??
+      metaContent(html, "twitter:title") ??
+      titleFromMarkedField(html) ??
       tagText(html, ["h1", "title"]),
   );
+  const explicitHeadlineDate = dateFromTitle(title);
+  const prefersHeadlineDate = (() => {
+    try {
+      return new URL(pageUrl).hostname === "inciweb.wildfire.gov";
+    } catch {
+      return false;
+    }
+  })();
   const publishedAt =
+    (prefersHeadlineDate ? explicitHeadlineDate : null) ??
     isoDate(article?.datePublished) ??
     isoDate(jsonDate) ??
     isoDate(metaContent(html, "article:published_time")) ??
@@ -245,6 +296,7 @@ export function extractArticleMetadata(
     isoDate(metaContent(html, "datePublished")) ??
     dateFromMarkedField(html) ??
     dateFromUrl(pageUrl) ??
+    explicitHeadlineDate ??
     isoDate(tagAttribute(html, "time", "datetime"));
 
   const description = cleanText(
@@ -255,7 +307,11 @@ export function extractArticleMetadata(
   const articleBody = cleanText(
     typeof article?.articleBody === "string" ? article.articleBody : null,
   );
-  const bodyText = articleBody ?? articleTextFromHtml(html);
+  const extractedBody = articleTextFromHtml(html);
+  const bodyText =
+    articleBody !== null && articleBody.length >= 80
+      ? articleBody
+      : (extractedBody ?? articleBody);
   const summary = description;
 
   return { bodyText, canonicalUrl, publishedAt, summary, title };
@@ -265,6 +321,12 @@ export function canonicalizeUrl(input: string): string {
   const url = new URL(input);
   url.hash = "";
   url.hostname = url.hostname.toLowerCase();
+  if (
+    url.protocol === "http:" &&
+    (url.hostname.endsWith(".gov") || url.hostname.endsWith(".mil"))
+  ) {
+    url.protocol = "https:";
+  }
   for (const key of [...url.searchParams.keys()]) {
     if (
       /^(utm_|fbclid$|gclid$|mc_cid$|mc_eid$|ref$|os$|hss_meta$|_hsenc$|_hsmi$|_kx$)/i.test(
@@ -289,7 +351,7 @@ export function normalizeCandidate(input: {
   windowStart: string;
 }): NormalizedEntry | null {
   const metadata = input.metadata;
-  const title = cleanText(input.candidate.title ?? metadata?.title);
+  const title = cleanText(metadata?.title ?? input.candidate.title);
   const publishedAt = isoDate(
     input.candidate.publishedAt ?? metadata?.publishedAt,
   );

@@ -8,6 +8,7 @@ experiments iterate on.
 
 from __future__ import annotations
 
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
@@ -88,7 +89,11 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
 
 def cluster(store, models, cfg: Config, limit: int | None = None,
             until: "datetime | None" = None,
-            per_agency: int | None = None) -> dict:
+            per_agency: int | None = None,
+            topology_label_set_id: str | None = None,
+            multi_episode_percent: float | None = None,
+            multi_entry_single_episode_percent: float = 0.0,
+            topology_seed: str = "default") -> dict:
     window = ReplayWindow(cfg.dedupe_window_hours)
     replay = store
     if hasattr(store, "db"):  # real Store -> wrap window reads; fakes serve their own
@@ -102,7 +107,26 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     theme_engine = ThemeEngine(replay, models, cfg) if cfg.topics_enabled else None
 
     rows = store.prepared_unclustered(limit=limit, until=until,
-                                      per_agency=per_agency)
+                                      per_agency=per_agency,
+                                      topology_label_set_id=topology_label_set_id,
+                                      multi_episode_percent=multi_episode_percent,
+                                      multi_entry_single_episode_percent=(
+                                          multi_entry_single_episode_percent),
+                                      topology_seed=topology_seed)
+    input_topology = None
+    if topology_label_set_id is not None:
+        expected_counts = Counter(
+            row["expected_topology_class"] for row in rows)
+        input_topology = {
+            "label_set_id": topology_label_set_id,
+            "seed": topology_seed,
+            "requested_multi_episode_percent": multi_episode_percent,
+            "requested_multi_entry_single_episode_percent": (
+                multi_entry_single_episode_percent),
+            "actual_entry_counts": dict(expected_counts),
+            "actual_multi_entry_episode_entries": sum(
+                bool(row["expected_multi_entry_episode"]) for row in rows),
+        }
     processed = closed_count = 0
     for row in rows:
         t = row["published_at"]
@@ -130,7 +154,18 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
             closed_count += 1
     episode_engine._open = []
 
-    return {"processed": processed, "episodes_closed": closed_count}
+    if theme_engine is not None:
+        # Retry metadata that was deferred by transient model failures, then
+        # run a separate name/headline-aware LLM merge pass. Neither step is
+        # allowed to attach on similarity alone.
+        for storyline_id in replay.unthemed_storyline_ids():
+            theme_engine.sync(storyline_id)
+        theme_engine.reconcile_all()
+
+    report = {"processed": processed, "episodes_closed": closed_count}
+    if input_topology is not None:
+        report["input_topology"] = input_topology
+    return report
 
 
 class _WindowedFake:

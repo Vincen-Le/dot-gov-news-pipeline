@@ -36,6 +36,9 @@ describe("article extraction", () => {
         "https://agency.gov/news/example?_hsenc=tracking&_hsmi=123&_kx=token",
       ),
     ).toBe("https://agency.gov/news/example");
+    expect(canonicalizeUrl("http://www.osha.gov/news/example")).toBe(
+      "https://www.osha.gov/news/example",
+    );
   });
 
   it("rejects entries outside the fixed backfill window", () => {
@@ -58,6 +61,35 @@ describe("article extraction", () => {
         windowStart: "2025-07-18T00:00:00Z",
       }),
     ).toBeNull();
+  });
+
+  it("prefers hydrated article titles over generic archive link text", () => {
+    const normalized = normalizeCandidate({
+      artifactKey: "artifact",
+      candidate: {
+        externalItemId: "release-1",
+        publishedAt: null,
+        rawBody: "",
+        rawContentType: "text/html",
+        sourceUrl: "https://agency.gov/news",
+        summary: null,
+        title: "Continue Reading",
+        url: "https://agency.gov/news/release-1",
+      },
+      fetchedAt: "2026-07-18T00:00:00Z",
+      metadata: {
+        bodyText: "Complete article body.",
+        canonicalUrl: "https://agency.gov/news/release-1",
+        publishedAt: "2026-06-01T00:00:00Z",
+        summary: "Article summary",
+        title: "Investigation Update",
+      },
+      newsSubtype: "agency_news",
+      windowEnd: "2026-07-18T00:00:00Z",
+      windowStart: "2025-07-18T00:00:00Z",
+    });
+
+    expect(normalized?.title).toBe("Investigation Update");
   });
 
   it("keeps complete summaries and cleaned article text without slicing", () => {
@@ -86,7 +118,7 @@ describe("article extraction", () => {
     expect(normalized?.summary).toHaveLength(summary.length);
     expect(normalized?.body_text).toBe(bodyText);
     expect(normalized?.body_text).toHaveLength(bodyText.length);
-    expect(normalized?.extractor_version).toBe(3);
+    expect(normalized?.extractor_version).toBe(4);
   });
 
   it("extracts the article body while removing government chrome and entities", () => {
@@ -184,5 +216,63 @@ describe("article extraction", () => {
 
     expect(irs.publishedAt).toBe("2026-01-31T13:29:11.000Z");
     expect(bls.publishedAt).toBe("2025-07-15T00:00:00.000Z");
+  });
+
+  it("extracts dates and titles from chain-rich alert publishers", () => {
+    const csb = extractArticleMetadata(
+      `<html><head><title>CSB Issues Investigation Update</title>
+       <script type="application/ld+json">{"@type":"NewsArticle","articleBody":"Page last reviewed."}</script>
+       </head><body><form id="main">
+       <div class="content" itemprop="text"><p>Washington, D.C. July 14, 2026 — Today the CSB released an update.</p></div>
+       </form></body></html>`,
+      "https://www.csb.gov/investigation-update/",
+    );
+    const ntsb = extractArticleMetadata(
+      `<html><head><title>Rail Investigation Update</title></head><body>
+       <form id="aspnetForm"><div class="ms-rtestate-field"><p>WASHINGTON (June 11, 2026) — The NTSB issued findings and a detailed series of safety recommendations for hazardous-material tank cars.</p></div></form>
+       </body></html>`,
+      "https://www.ntsb.gov/news/press-releases/Pages/NR20260611.aspx",
+    );
+    const cftc = extractArticleMetadata(
+      `<html><head><meta name="twitter:title" content="CFTC Resolves Enforcement Action" /></head><body>
+       <div class="press-release"><h1 class="press-release-title">Release Number 9256-26</h1>
+       <h1>CFTC Resolves Enforcement Action</h1><p><b>June 18, 2026</b></p></div>
+       </body></html>`,
+      "https://www.cftc.gov/PressRoom/PressReleases/9256-26",
+    );
+    const osha = extractArticleMetadata(
+      `<html><head><title>Department cites employers | Occupational Safety and Health Administration</title></head><body>
+       <div class="field--name-body"><p>Transition notice.</p></div>
+       <div class="field--name-field-press-body"><p>February 18, 2026</p>
+       <h4>Department cites employers after explosion</h4><p>Substantive inspection findings.</p></div>
+       </body></html>`,
+      "https://www.osha.gov/news/newsreleases/philadelphia/20260218",
+    );
+    const texas = extractArticleMetadata(
+      `<h1>Major Disaster Declaration</h1><p class="meta">July 17, 2026 | Uvalde, Texas | Press Release</p>`,
+      "https://gov.texas.gov/news/post/major-disaster-declaration",
+    );
+
+    expect(csb.publishedAt?.slice(0, 10)).toBe("2026-07-14");
+    expect(csb.bodyText).toContain("Today the CSB released an update");
+    expect(ntsb.publishedAt?.slice(0, 10)).toBe("2026-06-11");
+    expect(ntsb.bodyText).toContain("The NTSB issued findings");
+    expect(cftc.title).toBe("CFTC Resolves Enforcement Action");
+    expect(cftc.publishedAt?.slice(0, 10)).toBe("2026-06-18");
+    expect(osha.publishedAt?.slice(0, 10)).toBe("2026-02-18");
+    expect(osha.bodyText).toContain("Substantive inspection findings");
+    expect(osha.bodyText).not.toContain("Transition notice");
+    expect(texas.publishedAt?.slice(0, 10)).toBe("2026-07-17");
+  });
+
+  it("prefers an incident date in the headline over unrelated page times", () => {
+    const metadata = extractArticleMetadata(
+      `<title>News Elephant Fire Update 07-14-2026 | InciWeb</title>
+       <main><p>Fire behavior and containment update.</p></main>
+       <footer><time datetime="2026-07-18T00:00:00Z">Page reviewed</time></footer>`,
+      "https://inciweb.wildfire.gov/node/328724",
+    );
+
+    expect(metadata.publishedAt).toBe("2026-07-14T00:00:00.000Z");
   });
 });

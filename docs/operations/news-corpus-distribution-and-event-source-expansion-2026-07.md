@@ -135,12 +135,45 @@ They still emit the in-window entries. A future date-aware listing adapter can
 turn those receipts into proven-complete targets without changing the source
 selection.
 
-Run the expansion independently:
+Run the production-approved subset independently:
 
 ```bash
 pnpm --dir apps/news-backfill backfill \
-  --manifest ../../config/news-backfill/event-chain-expansion-v1.json
+  --manifest ../../config/news-backfill/event-chain-expansion-v1.json \
+  --publisher epa \
+  --publisher ftc \
+  --publisher fema
 ```
+
+### Production curation result — 2026-07-19
+
+The full manifest was dry-run before any write. Only EPA, FTC, and FEMA met the
+article-quality bar and were admitted to the hosted table. EEOC normalized zero
+of 366 candidates, SEC enforcement normalized zero of 401 candidates, and CISA
+found 261 operational advisories but extracted text for only 82 of them. Those
+three publishers remain excluded until their hydration/extraction paths are
+repaired.
+
+| Publisher | Dry-run accepted | Hosted rows after URL dedupe | Rows with body text |
+| --------- | ---------------: | ---------------------------: | ------------------: |
+| EPA       |              853 |                          853 |                 853 |
+| FTC       |              215 |                          215 |                 215 |
+| FEMA      |              202 |                          199 |                 199 |
+| **Total** |        **1,270** |                    **1,267** |           **1,267** |
+
+The hosted corpus now contains 9,657 entries across 29 attributed publishers.
+State fell from 23% of the original corpus to 18.37%; EPA is 8.83%, FTC is
+2.23%, and FEMA is 2.06%. Every entry has publisher attribution. The new rows
+include several directly inspectable event sequences without relying on a
+clustering run:
+
+- 14 EPA updates for the Tangipahoa Parish, Louisiana cleanup, published from
+  October 3 through October 24, 2025.
+- 10 FEMA updates for the Tennessee April 2–24 severe storms, published from
+  July 18 through August 21, 2025.
+- Five FTC entries covering the age-verification-technologies workshop and the
+  follow-on COPPA policy statement, published from December 8, 2025 through
+  February 25, 2026.
 
 ## Next wave: highest chain yield, adapter work required
 

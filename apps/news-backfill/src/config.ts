@@ -27,9 +27,28 @@ function validateSource(value: unknown, publisherKey: string): SourceProfile {
     (source.pageSize !== undefined &&
       (!Number.isInteger(source.pageSize) ||
         source.pageSize < 1 ||
-        source.pageSize > 100))
+        source.pageSize > 100)) ||
+    (source.includeLinkTextPattern !== undefined &&
+      typeof source.includeLinkTextPattern !== "string") ||
+    (source.includeTitlePattern !== undefined &&
+      typeof source.includeTitlePattern !== "string") ||
+    (source.excludeTitlePattern !== undefined &&
+      typeof source.excludeTitlePattern !== "string")
   ) {
     throw new Error(`${publisherKey} source configuration is invalid`);
+  }
+  for (const pattern of [
+    source.includeUrlPattern,
+    source.includeLinkTextPattern,
+    source.includeTitlePattern,
+    source.excludeTitlePattern,
+  ]) {
+    if (pattern === undefined) continue;
+    try {
+      new RegExp(pattern, "i");
+    } catch {
+      throw new Error(`${publisherKey} source pattern is invalid`);
+    }
   }
   return source as SourceProfile;
 }

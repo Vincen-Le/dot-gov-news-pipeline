@@ -26,8 +26,9 @@ model classifies correctly.
 1. Replace the KNN majority vote with a single fast-LLM adjudication call per
    assignment. KNN (against theme centroids) only shortlists candidates.
 2. The adjudicator may also direct an inline merge of candidate themes.
-3. Categories need only the dict-passthrough parse fix; the existing
-   `_classify` flow (spawn + join-when-null) then works as designed.
+3. Theme creation returns both an entity-resistant reusable label and exactly
+   one ID from the seeded category taxonomy in the same model decision. The
+   pipeline no longer asks the model to invent categories.
 4. Forward-only: no rebuild/repair machinery. The experiment reruns from empty.
 5. Model: reuse `judge_model` (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`).
    ~50 storylines/day → ~50 calls/day; no cost gating.
@@ -41,8 +42,8 @@ model classifies correctly.
 2. Candidate generation: cosine of storyline centroid against **theme
    centroids** (not storyline KNN). Top `theme_knn_k` (5) themes above
    `theme_sim_floor` (0.55).
-3. No candidates → deterministic spawn (existing `_spawn` path unchanged:
-   LLM names theme, falls back to headline, then `_classify`).
+3. No candidates → call the theme creator with the storyline and seeded
+   category list, then spawn with both its theme label and category ID.
 4. Candidates exist → one adjudicator call. Input: storyline headline +
    summary; per candidate theme: id, name, storyline count, up to 3
    most-recent member storyline headlines. Output JSON:
@@ -51,6 +52,7 @@ model classifies correctly.
    {"decision": "join" | "spawn",
     "theme_id": "<candidate id, only when join>",
     "new_theme_name": "<2-5 word label, only when spawn>",
+    "category_id": "<seeded category id, only when spawn>",
     "merge_theme_ids": ["<candidate ids naming the same topic>"],
     "reason": "one sentence"}
    ```
@@ -67,8 +69,9 @@ model classifies correctly.
 - Adjudicator call raises or returns unparseable output → fall back to the
   current KNN majority vote over storyline centroids (assignment never blocks
   on the LLM). Fallback joins keep `theme_attach_method = 'knn_join'`.
-- Spawn with missing/empty `new_theme_name` → existing namer path
-  (`models.name_theme`, headline fallback).
+- Spawn with a missing name or invalid/missing seeded category → theme creator
+  retry; a creator failure falls back to the headline and leaves the category
+  null for a later repair attempt.
 
 ## Merge semantics
 
@@ -97,19 +100,26 @@ with `merged_into is not null`.
 - KNN fallback: `knn_join` with the existing vote reason plus
   `adjudicator_error: <exc>` suffix.
 
-## Category parse fix
+## Theme creation and category assignment
 
-`_extract_json(text)` in `pipeline/ai.py`: if `text` is already a `dict`,
-return it unchanged; otherwise regex + `json.loads` as today. Fixes
-`classify_category` (0/146 themes categorized) and hardens every other JSON
-consumer of `_chat` against the same Workers AI behavior.
+The creator and spawn adjudicator both receive only categories whose origin is
+`seed`. Their JSON includes `category_id`, which is validated against that list
+before `create_topic_theme` writes it. `_extract_json(text)` still passes
+already-parsed dictionaries through unchanged, which hardens all JSON model
+consumers against Workers AI's native JSON response shape.
 
 ## Prompts
 
-New `THEME_ADJUDICATOR_SYSTEM` + `build_theme_adjudicator_prompt(storyline,
-candidates)` in `pipeline/prompts.py`, following the existing
+`THEME_ADJUDICATOR_SYSTEM` + `build_theme_adjudicator_prompt(storyline,
+candidates, categories)` and `build_theme_creator_prompt(storyline,
+categories)` in `pipeline/prompts.py`, following the existing
 respond-with-JSON-only house style. Candidates serialized as a JSON array of
 `{theme_id, name, storyline_count, recent_headlines}`.
+
+Both prompts require themes to sit one abstraction level above a storyline,
+avoid incidental named entities, and plausibly cover several distinct events.
+Stable umbrella initiatives such as `America 250` are allowed; event-specific
+labels such as `Tijuana River Water Cleanup` are explicitly discouraged.
 
 ## Store surface
 

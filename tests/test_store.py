@@ -7,9 +7,11 @@ class ReadDb:
     def __init__(self, rows):
         self.rows = rows
         self.sql = ""
+        self.params = None
 
-    def all(self, sql, _params=None):
+    def all(self, sql, params=None):
         self.sql = " ".join(sql.split())
+        self.params = params
         return self.rows
 
 
@@ -37,3 +39,45 @@ def test_entries_needing_features_filters_by_curated_publisher_key():
 
     assert "news_source_publishers" in db.sql
     assert "publisher_key = any" in db.sql
+
+
+def test_prepared_unclustered_uses_topology_curator_with_requested_mix():
+    db = ReadDb([{"id": "entry-1", "agency": "fema"}])
+
+    rows = Store(db).prepared_unclustered(
+        limit=100,
+        topology_label_set_id="00000000-0000-4000-8000-000000000001",
+        multi_episode_percent=40,
+        multi_entry_single_episode_percent=20,
+        topology_seed="run-7",
+    )
+
+    assert rows[0]["agency"] == "fema"
+    assert "curate_news_entry_dataset_by_storyline_topology" in db.sql
+    assert "expected_topology_class" in db.sql
+    assert db.params["limit"] == 100
+    assert db.params["multi_episode_percent"] == 40
+    assert db.params["multi_entry_percent"] == 20
+    assert db.params["seed"] == "run-7"
+
+
+def test_prepared_unclustered_topology_curation_requires_limit_and_mix():
+    store = Store(ReadDb([]))
+
+    with pytest.raises(ValueError, match="finite limit"):
+        store.prepared_unclustered(
+            topology_label_set_id="00000000-0000-4000-8000-000000000001",
+            multi_episode_percent=40,
+        )
+    with pytest.raises(ValueError, match="multi_episode_percent"):
+        store.prepared_unclustered(
+            limit=100,
+            topology_label_set_id="00000000-0000-4000-8000-000000000001",
+        )
+    with pytest.raises(ValueError, match="cannot be combined"):
+        store.prepared_unclustered(
+            limit=100,
+            per_agency=10,
+            topology_label_set_id="00000000-0000-4000-8000-000000000001",
+            multi_episode_percent=40,
+        )

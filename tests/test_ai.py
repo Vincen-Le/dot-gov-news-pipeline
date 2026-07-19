@@ -75,6 +75,7 @@ def test_adjudicate_theme_parses_and_normalizes_dict_response():
             "result": {"response": {  # dict, not string: workers ai json mode
                 "decision": "join", "theme_id": "t-1",
                 "new_theme_name": None,
+                "category_id": None,
                 "merge_theme_ids": ["t-1", "t-2"],
                 "reason": "same subject"}},
             "success": True,
@@ -87,11 +88,35 @@ def test_adjudicate_theme_parses_and_normalizes_dict_response():
           "recent_headlines": []},
          {"theme_id": "t-2", "name": "B", "storyline_count": 1,
           "recent_headlines": []}],
+        [{"id": "c-1", "display_name": "Public Health", "origin": "seed"}],
     )
     assert out == {"decision": "join", "theme_id": "t-1",
                    "new_theme_name": None,
+                   "category_id": None,
                    "merge_theme_ids": ["t-1", "t-2"],
                    "reason": "same subject"}
+
+
+def test_create_theme_metadata_returns_name_and_seeded_category():
+    def handler(request):
+        return httpx.Response(200, json={
+            "result": {"response": {
+                "theme_name": "Cross-Border Water Pollution",
+                "category_id": "c-env",
+                "reason": "Reusable environmental subject",
+            }},
+            "success": True,
+        })
+
+    out = WorkersAI(_cfg(), transport=_transport(handler)).create_theme_metadata(
+        {"headline": "Tijuana River water cleanup", "summary": "Cleanup expanded."},
+        [{"id": "c-env", "display_name": "Energy & Environment", "origin": "seed"}],
+    )
+    assert out == {
+        "theme_name": "Cross-Border Water Pollution",
+        "category_id": "c-env",
+        "reason": "Reusable environmental subject",
+    }
 
 
 def test_adjudicate_theme_raises_on_transport_error():
@@ -102,7 +127,32 @@ def test_adjudicate_theme_raises_on_transport_error():
     with pytest.raises(Exception):
         ai.adjudicate_theme({"headline": "h", "summary": ""},
                             [{"theme_id": "t-1", "name": "A",
-                              "storyline_count": 1, "recent_headlines": []}])
+                              "storyline_count": 1, "recent_headlines": []}], [])
+
+
+def test_adjudicate_theme_pair_parses_canonical_name_and_category():
+    def handler(request):
+        return httpx.Response(200, json={
+            "result": {"response": {
+                "same_theme": True,
+                "canonical_name": "Veteran Employment",
+                "category_id": "c-vet",
+                "reason": "same reusable subject",
+            }},
+            "success": True,
+        })
+
+    out = WorkersAI(_cfg(), transport=_transport(handler)).adjudicate_theme_pair(
+        {"theme_id": "t-1", "name": "Veteran Employment Services"},
+        {"theme_id": "t-2", "name": "Veteran Employment"},
+        [{"id": "c-vet", "display_name": "Veterans Affairs", "origin": "seed"}],
+    )
+    assert out == {
+        "same_theme": True,
+        "canonical_name": "Veteran Employment",
+        "category_id": "c-vet",
+        "reason": "same reusable subject",
+    }
 
 
 def test_workers_ai_counts_swallowed_errors():
@@ -112,6 +162,7 @@ def test_workers_ai_counts_swallowed_errors():
 
     ai = WorkersAI(_cfg(), transport=_transport(boom))
     ai.adjudicate_same_event({"title": "a"}, {"title": "b"}, "")
-    ai.classify_category("t", {"headline": "h"}, [])
+    with pytest.raises(Exception):
+        ai.create_theme_metadata({"headline": "h"}, [])
     assert ai.errors["adjudicator"] == 1
-    assert ai.errors["classifier"] == 1
+    assert ai.errors["theme_creator"] == 1

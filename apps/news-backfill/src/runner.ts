@@ -37,6 +37,19 @@ function log(record: Record<string, unknown>): void {
   );
 }
 
+export function allowsTitle(profile: SourceProfile, title: string): boolean {
+  if (
+    profile.includeTitlePattern !== undefined &&
+    !new RegExp(profile.includeTitlePattern, "i").test(title)
+  ) {
+    return false;
+  }
+  return !(
+    profile.excludeTitlePattern !== undefined &&
+    new RegExp(profile.excludeTitlePattern, "i").test(title)
+  );
+}
+
 function cursorForLog(
   cursor: Record<string, unknown>,
 ): Record<string, unknown> {
@@ -184,23 +197,24 @@ async function normalizeOne(input: {
     }
   }
 
-  return (
-    normalizeCandidate({
-      artifactKey,
-      candidate: input.candidate,
-      fetchedAt,
-      metadata,
-      newsSubtype,
-      windowEnd: input.windowEnd,
-      windowStart: input.windowStart,
-    }) ??
-    rejectedEntry({
-      artifactKey,
-      candidate: input.candidate,
-      newsSubtype,
-      windowStart: input.windowStart,
-    })
-  );
+  const normalized = normalizeCandidate({
+    artifactKey,
+    candidate: input.candidate,
+    fetchedAt,
+    metadata,
+    newsSubtype,
+    windowEnd: input.windowEnd,
+    windowStart: input.windowStart,
+  });
+  if (normalized !== null && allowsTitle(input.profile, normalized.title)) {
+    return normalized;
+  }
+  return rejectedEntry({
+    artifactKey,
+    candidate: input.candidate,
+    newsSubtype,
+    windowStart: input.windowStart,
+  });
 }
 
 async function processSource(input: {

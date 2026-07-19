@@ -19,10 +19,27 @@ def test_render_report_contains_config_stats_and_chains():
                                    "storylines": 3}],
                    "singleton_theme_rate": 0.4},
         "llm_health": {"overview_fallback_rate": 0.02, "uncategorized_themes": 1,
-                       "namer_errors": 0, "model_errors": {"classifier": 2}},
+                       "unthemed_storylines": 2,
+                       "theme_creator_errors": 0,
+                       "model_errors": {"theme_creator": 2}},
     }
     report = render_report(
-        "baseline", CFG, {"processed": 1000, "episodes_closed": 420},
+        "baseline", CFG, {
+            "processed": 1000,
+            "episodes_closed": 420,
+            "input_topology": {
+                "label_set_id": "labels-1",
+                "seed": "run-7",
+                "requested_multi_episode_percent": 40,
+                "requested_multi_entry_single_episode_percent": 20,
+                "actual_entry_counts": {
+                    "multi_episode_storyline": 400,
+                    "multi_entry_single_episode": 200,
+                    "singleton_episode_storyline": 400,
+                },
+                "actual_multi_entry_episode_entries": 230,
+            },
+        },
         summary, {"hits": 12, "misses": 3}, duration_s=42.5)
     assert "# Experiment: baseline" in report
     assert '"near_dup_threshold": 0.9' in report        # full config snapshot embedded
@@ -30,6 +47,9 @@ def test_render_report_contains_config_stats_and_chains():
     assert "Valsatrex recall widens" in report
     assert "cache 12 hits / 3 misses" in report
     assert "42.5s" in report
+    assert "## Input topology curation" in report
+    assert "requested multi-episode entry share: 40%" in report
+    assert "labels-1" in report
 
 
 def test_render_report_empty_run():
@@ -44,7 +64,8 @@ def test_render_report_empty_run():
                                        "singleton_theme_rate": None},
                             "llm_health": {"overview_fallback_rate": None,
                                            "uncategorized_themes": 0,
-                                           "namer_errors": 0}},
+                                           "unthemed_storylines": 0,
+                                           "theme_creator_errors": 0}},
                            {"hits": 0, "misses": 0}, duration_s=0.1)
     assert "# Experiment: empty" in report
 
@@ -99,7 +120,9 @@ def make_summary_db():
                 return {"n": 0}
             if "compressor_error" in s:
                 return {"rate": None}
-            if "namer_error" in s:
+            if "theme_creator_error" in s:
+                return {"n": 0}
+            if "theme_id is null" in s:
                 return {"n": 0}
             if "category_id is null" in s:
                 return {"n": 0}
@@ -126,5 +149,6 @@ def test_summary_reports_llm_health():
 
     summary = summarize(make_summary_db())
     health = summary["llm_health"]
-    for key in ("overview_fallback_rate", "uncategorized_themes", "namer_errors"):
+    for key in ("overview_fallback_rate", "uncategorized_themes",
+                "unthemed_storylines", "theme_creator_errors"):
         assert key in health

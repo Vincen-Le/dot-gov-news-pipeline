@@ -1,5 +1,9 @@
-"""Stage 2 — storyline attachment: entity-anchored candidates over unbounded
-time, adjudicated against the chain's own latest overview. Split-biased."""
+"""Stage 2 — storyline attachment.
+
+Event keys and entity overlap only nominate candidates.  The adjudicator is
+the sole authority allowed to attach a new episode to an existing storyline.
+Failures are split-biased and create a new storyline.
+"""
 
 from __future__ import annotations
 
@@ -32,49 +36,53 @@ class StorylineEngine:
 
     def resolve(self, entry: dict, vec: np.ndarray
                 ) -> tuple[str | None, str, float | None, str | None, str | None]:
-        # tier 1: hard event keys — deterministic chain identity, but a
-        # colliding boilerplate key must not glue unrelated content: when the
-        # chain has a centroid, demand minimal semantic sanity or fall through
-        # to the entity/adjudicator tiers (storyline aeded190 regression).
-        for cand in self.store.storylines_by_event_keys(entry["event_keys"]):
-            if cand.get("centroid") is None:
-                return str(cand["id"]), "event_key", None, None, None
-            sim = cosine(vec, cand["centroid"])
-            if sim >= self.cfg.storyline_sim_floor:
-                return str(cand["id"]), "event_key", sim, None, None
+        # Candidate generation only. Event-key matches lead because they are
+        # usually the strongest identity signal, then EMA-ranked entity
+        # matches fill the pool. A candidate present in both surfaces is judged
+        # once. Neither signal can attach without an affirmative LLM verdict.
+        event_candidates = (
+            self.store.storylines_by_event_keys(entry["event_keys"])
+            if entry["event_keys"] else []
+        )
+        entity_candidates = self._rank_candidates(
+            entry, self.store.storylines_by_entities(entry["entity_set"])
+        ) if entry["entity_set"] else []
+        candidates: list[dict] = []
+        seen: set[str] = set()
+        for cand in [*event_candidates, *entity_candidates]:
+            candidate_id = str(cand["id"])
+            if candidate_id not in seen:
+                seen.add(candidate_id)
+                candidates.append(cand)
 
-        # tier 2/3: entity candidates via GIN, EMA-down-weighted
-        emas = self.store.entity_emas(entry["entity_set"])
-        candidates = self._rank_candidates(
-            entry, self.store.storylines_by_entities(entry["entity_set"]))
         for cand in candidates[:_TOP_K]:
-            sim = cosine(vec, cand["centroid"]) if cand.get("centroid") is not None else 0.0
-            shared = set(entry["entity_set"]) & set(cand["entity_set"])
-            shared_rare = [e for e in shared
-                           if emas.get(e, 0.0) < self.cfg.ambient_ema_ceiling]
-
-            # strong deterministic join: multiple RARE shared discriminators +
-            # tight embedding — ambient entities never justify a join
-            if len(shared_rare) >= 2 and sim >= self.cfg.cluster_join_threshold:
-                return str(cand["id"]), "entity_candidate", sim, None, None
-
-            if sim < self.cfg.storyline_sim_floor:
-                continue
-
+            sim = (cosine(vec, cand["centroid"])
+                   if cand.get("centroid") is not None else None)
+            shared_entities = sorted(
+                set(entry["entity_set"]) & set(cand["entity_set"]))
+            shared_event_keys = sorted(
+                set(entry["event_keys"]) & set(cand["event_keys"]))
             overview = self.store.latest_overview(str(cand["id"]))
+            latest_member = (None if overview is not None else
+                             self.store.latest_storyline_entry(str(cand["id"])))
+            evidence = overview or latest_member or {}
             gap_days = (entry["published_at"] - cand["newest_entry_at"]).days
             context = (
-                f"The storyline's current overview: "
-                f"{(overview or {}).get('headline', '(none)')} — "
-                f"{(overview or {}).get('summary', '(no overview yet)')} "
+                f"The storyline's current evidence: "
+                f"{evidence.get('headline') or evidence.get('title') or '(none)'} — "
+                f"{evidence.get('summary') or '(no summary)'} "
                 f"Last activity {gap_days} days before the new item. "
+                f"Candidate signals only (not proof): shared event keys "
+                f"{shared_event_keys or '(none)'}, shared entities "
+                f"{shared_entities or '(none)'}, semantic similarity "
+                f"{f'{sim:.3f}' if sim is not None else '(none)'}. "
                 "Is the new item a development of this same historical event chain?"
             )
             same, reason = self.models.adjudicate_same_event(
                 {"title": entry["title"], "summary": entry.get("summary"),
                  "entities": entry["entity_set"]},
-                {"title": (overview or {}).get("headline", "(storyline)"),
-                 "summary": (overview or {}).get("summary", ""),
+                {"title": evidence.get("headline") or evidence.get("title") or "(storyline)",
+                 "summary": evidence.get("summary", ""),
                  "entities": sorted(cand["entity_set"])[:32]},
                 context=context)
             if same:

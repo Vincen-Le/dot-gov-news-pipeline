@@ -49,10 +49,6 @@ const OVERRIDE_FIELDS = [
     key: "CLUSTER_JOIN_THRESHOLD",
   },
   {
-    hint: "Storyline candidates below this similarity are never considered when chaining a new episode. Default 0.60.",
-    key: "STORYLINE_SIM_FLOOR",
-  },
-  {
     hint: "Entities with a daily EMA at or above this are ambient (seen everywhere) and never justify a join on their own. Default 3.",
     key: "AMBIENT_EMA_CEILING",
   },

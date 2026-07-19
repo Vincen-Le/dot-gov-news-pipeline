@@ -24,6 +24,15 @@ class SayYesModels:
         return True, "yes"
 
 
+class RecordingYesModels:
+    def __init__(self):
+        self.calls = []
+
+    def adjudicate_same_event(self, a, b, context):
+        self.calls.append((a, b, context))
+        return True, "same concrete event"
+
+
 def make_engine(store, models=None):
     return EpisodeEngine(store, models or SayNoModels(), CFG, new_storyline_resolver)
 
@@ -75,18 +84,40 @@ def test_near_dup_folds():
     assert len(store.episodes) == 1
 
 
-def test_event_key_joins_open_episode():
+def test_event_key_only_nominates_and_judge_can_reject_episode_join():
     store = FakeStore()
-    engine = make_engine(store)
+    engine = make_engine(store, SayNoModels())
     a = store.add_entry(title="EPA docket opens", content_hash="h1", published_at=T0,
                         entity_set=[], event_keys=["epa-hq-2026-0001"])
     engine.process_entry(a, vec(1))
     b = store.add_entry(title="Comment period", content_hash="h2",
                         published_at=T0 + timedelta(hours=3),
                         entity_set=[], event_keys=["epa-hq-2026-0001"])
-    decision = engine.process_entry(b, vec(2))  # dissimilar vector; key still wins
-    assert decision["method"] == "event_key"
+    decision = engine.process_entry(b, vec(2))
+    assert decision["method"] == "adjudicated_new"
+    assert len(store.episodes) == 2
+
+
+def test_event_key_join_requires_judge_and_uses_real_episode_member_evidence():
+    store = FakeStore()
+    models = RecordingYesModels()
+    engine = make_engine(store, models)
+    a = store.add_entry(
+        title="Missouri storm disaster declaration", content_hash="h1",
+        published_at=T0, summary="Aid for Missouri flooding.",
+        entity_set=["missouri", "flooding"], event_keys=["dr-4920"],
+    )
+    engine.process_entry(a, vec(1))
+    b = store.add_entry(
+        title="Missouri recovery center opens", content_hash="h2",
+        published_at=T0 + timedelta(hours=2), summary="Same declared disaster.",
+        entity_set=["missouri", "recovery"], event_keys=["dr-4920"],
+    )
+    decision = engine.process_entry(b, vec(2))
+    assert decision["method"] == "adjudicated_join"
     assert len(store.episodes) == 1
+    assert models.calls[0][1]["title"] == "Missouri storm disaster declaration"
+    assert models.calls[0][1]["summary"] == "Aid for Missouri flooding."
 
 
 def test_template_twin_splits_via_entity_gate_and_adjudicator():
@@ -105,9 +136,9 @@ def test_template_twin_splits_via_entity_gate_and_adjudicator():
     assert len(store.episodes) == 2
 
 
-def test_entity_overlap_auto_joins_without_adjudicator():
+def test_rare_entity_overlap_only_nominates_and_judge_can_reject():
     store = FakeStore()
-    engine = make_engine(store, SayNoModels())  # adjudicator would say no; must not be asked
+    engine = make_engine(store, SayNoModels())
     a = store.add_entry(title="FDA recalls Valsatrex", content_hash="h1", published_at=T0,
                         entity_set=["valsatrex"], event_keys=[])
     engine.process_entry(a, vec(0))
@@ -117,8 +148,8 @@ def test_entity_overlap_auto_joins_without_adjudicator():
                         published_at=T0 + timedelta(hours=1),
                         entity_set=["valsatrex", "sundexo"], event_keys=[])
     decision = engine.process_entry(b, joiner)
-    assert decision["method"] == "centroid_join"
-    assert len(store.episodes) == 1
+    assert decision["method"] == "adjudicated_new"
+    assert len(store.episodes) == 2
 
 
 def test_dormancy_close_in_event_time():
@@ -151,10 +182,10 @@ def test_ambient_only_overlap_does_not_auto_join():
     assert len(store.episodes) == 2
 
 
-def test_rare_overlap_still_auto_joins():
+def test_rare_overlap_joins_only_after_judge_approval():
     store = FakeStore()
     store.emas = {"washington": 50.0, "valsatrex": 0.1}
-    engine = make_engine(store, SayNoModels())
+    engine = make_engine(store, SayYesModels())
     a = store.add_entry(title="FDA recalls Valsatrex", content_hash="h1", published_at=T0,
                         entity_set=["valsatrex", "washington"], event_keys=[])
     engine.process_entry(a, vec(0))
@@ -164,5 +195,5 @@ def test_rare_overlap_still_auto_joins():
                         published_at=T0 + timedelta(hours=1),
                         entity_set=["valsatrex", "sundexo"], event_keys=[])
     decision = engine.process_entry(b, near)
-    assert decision["method"] == "centroid_join"
+    assert decision["method"] == "adjudicated_join"
     assert len(store.episodes) == 1
