@@ -49,6 +49,20 @@ def test_cache_survives_reopen_and_ignores_ids(tmp_path):
     assert reason == "call-1" and models2.hits == 1
 
 
+def test_prompt_version_namespaces_cached_decisions(tmp_path):
+    path = str(tmp_path / "d.sqlite")
+    a = {"title": "A", "entities": []}
+    b = {"title": "B", "entities": []}
+    first = CountingModels()
+    CachedModels(first, DecisionCache(path), "m", prompt_version=1).adjudicate_same_event(
+        a, b, "c")
+    second = CountingModels()
+    models = CachedModels(second, DecisionCache(path), "m", prompt_version=2)
+    assert models.adjudicate_same_event(a, b, "c") == (True, "call-1")
+    assert second.calls == 1
+    assert (models.hits, models.misses) == (0, 1)
+
+
 def test_delegates_other_methods(tmp_path):
     models = CachedModels(CountingModels(), DecisionCache(str(tmp_path / "d.sqlite")), "m")
     assert models.enrich("t", None) == "enriched"

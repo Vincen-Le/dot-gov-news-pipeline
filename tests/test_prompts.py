@@ -18,6 +18,9 @@ def test_adjudicator_prompt_is_split_biased():
     assert "different products, companies, cases, or locations" in lowered
     assert "shared holiday, anniversary, observance, or umbrella initiative" in lowered
     assert "belongs at the theme level" in lowered
+    assert "recurring-format meetings, calls, visits" in lowered
+    assert "identical titles" in lowered
+    assert "elapsed time gap is evidence for separate events" in lowered
 
 
 def test_validate_timeline_drops_uncited_and_unknown():
