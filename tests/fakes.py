@@ -115,13 +115,8 @@ class FakeStore:
     # -- topics ----------------------------------------------------------
     def all_themes(self):
         return [dict(t, centroid=unpack_fp16(t["centroid"]) if t["centroid"] is not None else None)
-                for t in self.themes.values() if t.get("merged_into") is None]
-
-    def themed_storylines(self):
-        return [{"id": s["id"], "theme_id": s["theme_id"],
-                 "centroid": unpack_fp16(s["centroid"])}
-                for s in self.storylines.values()
-                if s.get("theme_id") is not None and s.get("centroid") is not None]
+                for t in self.themes.values()
+                if t.get("merged_into") is None and t.get("demoted_at") is None]
 
     def theme_member_centroids(self, theme_id):
         return [unpack_fp16(s["centroid"]) for s in self.storylines.values()
@@ -133,6 +128,8 @@ class FakeStore:
             return None
         return {"centroid": unpack_fp16(s["centroid"]) if s.get("centroid") is not None else None,
                 "theme_id": s.get("theme_id"),
+                "category_id": s.get("category_id"),
+                "newest_entry_at": s.get("newest_entry_at"),
                 "headline": s.get("headline", ""), "summary": s.get("summary", "")}
 
     def unthemed_storyline_ids(self):
@@ -144,11 +141,15 @@ class FakeStore:
     def all_categories(self):
         return list(self.categories.values())
 
-    def create_theme(self, display_name, centroid, category_id, name_model):
+    def create_theme(self, display_name, centroid, category_id, name_model,
+                     inclusion_criterion):
         theme_id = str(uuid.uuid4())
         self.themes[theme_id] = {"id": theme_id, "display_name": display_name,
                                  "centroid": centroid, "category_id": category_id,
                                  "storyline_count": 0, "merged_into": None,
+                                 "demoted_at": None,
+                                 "inclusion_criterion": inclusion_criterion,
+                                 "newest_storyline_at": None,
                                  "created_at": len(self.themes)}
         return theme_id
 
@@ -165,6 +166,11 @@ class FakeStore:
         for t in self.themes.values():
             t["storyline_count"] = sum(
                 1 for x in self.storylines.values() if x.get("theme_id") == t["id"])
+        theme["newest_storyline_at"] = max(
+            (x.get("newest_entry_at") for x in self.storylines.values()
+             if x.get("theme_id") == theme_id
+             and x.get("newest_entry_at") is not None),
+            default=theme.get("newest_storyline_at"))
 
     def update_theme(self, theme_id, display_name=None, centroid=None, category_id=None):
         theme = self.themes[theme_id]
@@ -189,16 +195,34 @@ class FakeStore:
                  if s.get("theme_id") == theme_id]
         return list(reversed(heads))[:limit]
 
-    def merge_theme(self, loser_id, winner_id):
+    def set_storyline_category(self, storyline_id, category_id, method, reason):
+        self.storylines[storyline_id].update(
+            category_id=category_id, category_method=method,
+            category_reason=reason)
+
+    def demote_theme(self, theme_id):
         for s in self.storylines.values():
-            if s.get("theme_id") == loser_id:
-                s["theme_id"] = winner_id
-        loser = self.themes[loser_id]
-        loser["merged_into"] = winner_id
-        loser["storyline_count"] = 0
-        self.themes[winner_id]["storyline_count"] = sum(
-            1 for s in self.storylines.values()
-            if s.get("theme_id") == winner_id)
+            if s.get("theme_id") == theme_id:
+                s.update(theme_id=None, theme_attach_method=None,
+                         theme_similarity=None,
+                         theme_reason=f"demoted from theme {theme_id}")
+        self.themes[theme_id].update(demoted_at=True, storyline_count=0)
+
+    def uncategorized_storyline_ids(self):
+        return [s["id"] for s in self.storylines.values()
+                if s.get("category_id") is None
+                and s.get("centroid") is not None]
+
+    def categorized_unthemed(self):
+        return [{"id": s["id"], "category_id": s["category_id"],
+                 "centroid": unpack_fp16(s["centroid"]),
+                 "first_entry_at": s.get("first_entry_at"),
+                 "headline": s.get("headline", ""),
+                 "summary": s.get("summary", "")}
+                for s in self.storylines.values()
+                if s.get("theme_id") is None
+                and s.get("category_id") is not None
+                and s.get("centroid") is not None]
 
     # -- test helpers ----------------------------------------------------
     def add_entry(self, **kw: Any) -> dict:

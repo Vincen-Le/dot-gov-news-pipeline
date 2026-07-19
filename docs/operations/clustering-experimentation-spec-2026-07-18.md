@@ -12,6 +12,9 @@ Companions:
   theme-stage verdicts and its 7 ranked follow-ups. This spec covers the whole
   pipeline and does not repeat those; intersections are cross-referenced.
 - `docs/operations/clustering-lab.md` — how every experiment here is run.
+- `docs/operations/lazy-theme-promotion-2026-07-19.md` — theme-stage redesign
+  (2026-07-19): category-first stream, promotion-sweep theme birth. Theme-knob
+  experiments below apply to the new knob set.
 
 ## Headline verdicts from the research
 

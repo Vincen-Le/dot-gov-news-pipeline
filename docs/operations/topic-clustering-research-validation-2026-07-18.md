@@ -7,6 +7,11 @@ checked against the news-clustering literature and production systems; this
 records the verdicts, what changed in the implementation because of them, and
 the ranked follow-ups that did not make this iteration.
 
+> **2026-07-19:** The theme stage this document validates was redesigned —
+> stream-time spawn replaced by category-first lazy promotion. See
+> `lazy-theme-promotion-2026-07-19.md`. Verdicts below stay as the research
+> record; follow-ups 2, 3, 5, 6 carry over.
+
 ## Design verdicts
 
 | Design choice | Verdict | Key evidence |

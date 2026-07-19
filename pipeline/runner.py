@@ -10,12 +10,14 @@ from __future__ import annotations
 
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from pipeline.categories import CategoryEngine
 from pipeline.cards import CardEngine
 from pipeline.config import Config
 from pipeline.episodes import EpisodeEngine
 from pipeline.extraction import EXTRACTOR_VERSION, extract
+from pipeline.promotion import PromotionSweep
 from pipeline.storylines import StorylineEngine
 from pipeline.topics import ThemeEngine
 from pipeline.vectors import pack_fp16, unpack_fp16
@@ -105,6 +107,14 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     card_engine = CardEngine(replay, models, cfg)
     episode_engine = EpisodeEngine(replay, models, cfg, storyline_engine.resolve)
     theme_engine = ThemeEngine(replay, models, cfg) if cfg.topics_enabled else None
+    category_engine = (CategoryEngine(replay, models, cfg)
+                       if cfg.topics_enabled else None)
+    promotion = (PromotionSweep(replay, models, cfg, theme_engine)
+                 if cfg.topics_enabled else None)
+    sweep_totals = {"mopped_up": 0, "promoted": 0,
+                    "attached_existing": 0, "rejected": 0, "demoted": 0}
+    sweep_runs = 0
+    last_sweep_at = None
 
     rows = store.prepared_unclustered(limit=limit, until=until,
                                       per_agency=per_agency,
@@ -113,6 +123,7 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
                                       multi_entry_single_episode_percent=(
                                           multi_entry_single_episode_percent),
                                       topology_seed=topology_seed)
+
     input_topology = None
     if topology_label_set_id is not None:
         expected_counts = Counter(
@@ -130,6 +141,8 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
     processed = closed_count = 0
     for row in rows:
         t = row["published_at"]
+        if last_sweep_at is None:
+            last_sweep_at = t
         window.advance(t)
         # emulate ingest-time anchor touching in event time: bench corpora
         # arrive via direct sync, so EMAs would otherwise stay empty all run
@@ -138,31 +151,45 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
         for closed in episode_engine.close_due(t):
             card_engine.on_episode_closed(closed)
             if theme_engine is not None:
+                category_engine.classify(str(closed["storyline_id"]))
                 theme_engine.sync(str(closed["storyline_id"]))
             closed_count += 1
         vec = unpack_fp16(row["embedding"])
         decision = episode_engine.process_entry(row, vec)
         window.add(row["id"], decision["episode_id"], row["content_hash"], t, vec)
         processed += 1
+        if (promotion is not None and last_sweep_at is not None
+                and t - last_sweep_at >= timedelta(
+                    hours=cfg.theme_sweep_interval_hours)):
+            for key, value in promotion.run(t).items():
+                sweep_totals[key] += value
+            sweep_runs += 1
+            last_sweep_at = t
 
     # finalize: close every remaining open episode so the run is complete/comparable
     for episode in list(episode_engine._open_episodes()):
         if replay.close_episode(str(episode["id"])):
             card_engine.on_episode_closed(episode)
             if theme_engine is not None:
+                category_engine.classify(str(episode["storyline_id"]))
                 theme_engine.sync(str(episode["storyline_id"]))
             closed_count += 1
     episode_engine._open = []
 
     if theme_engine is not None:
-        # Retry metadata that was deferred by transient model failures, then
-        # run a separate name/headline-aware LLM merge pass. Neither step is
-        # allowed to attach on similarity alone.
-        for storyline_id in replay.unthemed_storyline_ids():
-            theme_engine.sync(storyline_id)
-        theme_engine.reconcile_all()
+        # Retry categories deferred by transient model failures, then run the
+        # final promotion sweep so the run ends theme-complete/comparable.
+        for storyline_id in replay.uncategorized_storyline_ids():
+            category_engine.classify(storyline_id, method="retry")
+        if rows:
+            for key, value in promotion.run(rows[-1]["published_at"]).items():
+                sweep_totals[key] += value
+            sweep_runs += 1
 
     report = {"processed": processed, "episodes_closed": closed_count}
+    if cfg.topics_enabled:
+        report["theme_sweeps"] = sweep_runs
+        report["theme_sweep_totals"] = sweep_totals
     if input_topology is not None:
         report["input_topology"] = input_topology
     return report

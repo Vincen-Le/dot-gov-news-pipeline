@@ -28,8 +28,13 @@ class Config:
     tau_seconds: float = 124_600.0
     topics_enabled: bool = False
     theme_sim_floor: float = 0.55
-    theme_stick_floor: float = 0.50
     theme_knn_k: int = 5
+    theme_promotion_min_storylines: int = 4
+    theme_promotion_min_active_days: int = 3
+    theme_promotion_cohesion_floor: float = 0.55
+    theme_promotion_cluster_floor: float = 0.60
+    theme_demotion_cohesion_floor: float = 0.40
+    theme_sweep_interval_hours: float = 24.0
     publisher_weight_version: int = 1
     audit_model: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
     rank_audit_top_k: int = 30
@@ -70,8 +75,24 @@ def load_config() -> Config:
         tau_seconds=_f("TAU_SECONDS", Config.tau_seconds),
         topics_enabled=_b("TOPICS_ENABLED", Config.topics_enabled),
         theme_sim_floor=_f("THEME_SIM_FLOOR", Config.theme_sim_floor),
-        theme_stick_floor=_f("THEME_STICK_FLOOR", Config.theme_stick_floor),
         theme_knn_k=int(os.environ.get("THEME_KNN_K", Config.theme_knn_k)),
+        theme_promotion_min_storylines=int(os.environ.get(
+            "THEME_PROMOTION_MIN_STORYLINES",
+            Config.theme_promotion_min_storylines)),
+        theme_promotion_min_active_days=int(os.environ.get(
+            "THEME_PROMOTION_MIN_ACTIVE_DAYS",
+            Config.theme_promotion_min_active_days)),
+        theme_promotion_cohesion_floor=_f(
+            "THEME_PROMOTION_COHESION_FLOOR",
+            Config.theme_promotion_cohesion_floor),
+        theme_promotion_cluster_floor=_f(
+            "THEME_PROMOTION_CLUSTER_FLOOR",
+            Config.theme_promotion_cluster_floor),
+        theme_demotion_cohesion_floor=_f(
+            "THEME_DEMOTION_COHESION_FLOOR",
+            Config.theme_demotion_cohesion_floor),
+        theme_sweep_interval_hours=_f(
+            "THEME_SWEEP_INTERVAL_HOURS", Config.theme_sweep_interval_hours),
         publisher_weight_version=int(os.environ.get(
             "PUBLISHER_WEIGHT_VERSION", Config.publisher_weight_version)),
         audit_model=os.environ.get("AUDIT_MODEL", Config.audit_model),

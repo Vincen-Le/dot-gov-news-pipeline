@@ -74,42 +74,46 @@ class StubModels:
         return {"prefers": "a" if a["headline"] == first else "b",
                 "reason": "stub: tie broken by headline"}
 
-    def create_theme_metadata(self, storyline: dict,
-                              categories: list[dict]) -> dict:
-        name = " ".join(storyline["headline"].split()[:5])
-        mine = _tokens(
-            name + " " + storyline["headline"] + " " +
-            (storyline.get("summary") or ""))
-        category_id = None
+    def classify_category(self, storyline: dict,
+                          categories: list[dict]) -> dict:
+        mine = _tokens(storyline["headline"] + " " +
+                       (storyline.get("summary") or ""))
         for category in categories:
             if mine & _tokens(category["display_name"]):
-                category_id = category["id"]
-                break
-        if category_id is None and categories:
-            category_id = categories[0]["id"]
-        return {"theme_name": name, "category_id": category_id,
-                "reason": "stub: reusable label and seeded category"}
+                return {"category_id": category["id"],
+                        "reason": "stub: token overlap with category name"}
+        if categories:
+            return {"category_id": categories[0]["id"],
+                    "reason": "stub: first seeded category fallback"}
+        return {"category_id": None, "reason": "stub: no categories"}
 
-    def adjudicate_theme(self, storyline: dict, candidates: list[dict],
-                         categories: list[dict]) -> dict:
-        if candidates:
-            return {"decision": "join", "theme_id": candidates[0]["theme_id"],
-                    "new_theme_name": None, "category_id": None,
-                    "merge_theme_ids": [],
-                    "reason": "stub: nearest candidate theme"}
-        metadata = self.create_theme_metadata(storyline, categories)
-        return {"decision": "spawn", "theme_id": None,
-                "new_theme_name": metadata["theme_name"],
-                "category_id": metadata["category_id"],
-                "merge_theme_ids": [], "reason": "stub: no candidates"}
+    def adjudicate_membership(self, storyline: dict,
+                              candidates: list[dict]) -> dict:
+        mine = _tokens(storyline["headline"] + " " +
+                       (storyline.get("summary") or ""))
+        for candidate in candidates:
+            theirs = _tokens(candidate["name"] + " " +
+                             (candidate.get("inclusion_criterion") or ""))
+            if mine & theirs:
+                return {"theme_id": candidate["theme_id"],
+                        "reason": "stub: token overlap with criterion"}
+        return {"theme_id": None, "reason": "stub: no criterion satisfied"}
 
-    def adjudicate_theme_pair(self, a: dict, b: dict,
-                              categories: list[dict]) -> dict:
-        same = a["name"].casefold() == b["name"].casefold()
-        category_id = a.get("category_id") or b.get("category_id")
-        return {
-            "same_theme": same,
-            "canonical_name": a["name"] if same else None,
-            "category_id": category_id if same else None,
-            "reason": "stub: exact normalized theme name" if same else "stub: distinct names",
-        }
+    def judge_promotion(self, dossier: dict) -> dict:
+        first = dossier["members"][0]["headline"]
+        mine = _tokens(first)
+        for theme in dossier.get("existing_themes") or []:
+            if mine & _tokens(theme["name"]):
+                return {"verdict": "attach_existing", "theme_name": None,
+                        "inclusion_criterion": None,
+                        "theme_id": theme["theme_id"],
+                        "reason": "stub: existing theme name overlap"}
+        name = " ".join(first.split()[:4])
+        return {"verdict": "promote", "theme_name": name,
+                "inclusion_criterion": f"stub: storylines about {name}",
+                "theme_id": None, "reason": "stub: promote cluster"}
+
+    def review_theme(self, dossier: dict) -> dict:
+        if dossier["cohesion"] < 0.2:
+            return {"verdict": "demote", "reason": "stub: cohesion collapsed"}
+        return {"verdict": "keep", "reason": "stub: cohesion acceptable"}

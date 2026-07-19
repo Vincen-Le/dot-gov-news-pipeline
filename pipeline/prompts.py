@@ -114,17 +114,6 @@ CATEGORY_DESCRIPTIONS = {
     ),
 }
 
-THEME_CREATOR_SYSTEM = (
-    "You create a topic theme and assign its broad seeded category for one US "
-    "government news storyline. " + THEME_SCOPE_GUIDANCE +
-    CATEGORY_ASSIGNMENT_GUIDANCE +
-    "You must copy exactly one category_id from the provided seeded categories; "
-    "never invent a category or return null. "
-    'Respond with JSON only: {"theme_name": string, "category_id": string, '
-    '"reason": "one sentence explaining the abstraction and category"}'
-)
-
-
 def _shape_seed_categories(categories: list[dict]) -> list[dict]:
     return [
         {"category_id": c["id"], "name": c["display_name"],
@@ -133,15 +122,24 @@ def _shape_seed_categories(categories: list[dict]) -> list[dict]:
     ]
 
 
-def build_theme_creator_prompt(storyline: dict,
-                               categories: list[dict]) -> tuple[str, str]:
+CATEGORY_CLASSIFIER_SYSTEM = (
+    "You classify one US government news storyline into exactly one broad "
+    "seeded category. " + CATEGORY_ASSIGNMENT_GUIDANCE +
+    "You must copy exactly one category_id from the provided seeded "
+    "categories; never invent a category or return null. "
+    'Respond with JSON only: {"category_id": string, "reason": "one sentence"}'
+)
+
+
+def build_category_classifier_prompt(storyline: dict,
+                                     categories: list[dict]) -> tuple[str, str]:
     user = (
         f"Storyline headline: {storyline['headline']}\n"
         f"Storyline summary: {storyline.get('summary') or '(none)'}\n\n"
         "Seeded categories (choose exactly one category_id):\n" +
         json.dumps(_shape_seed_categories(categories), indent=2)
     )
-    return THEME_CREATOR_SYSTEM, user
+    return CATEGORY_CLASSIFIER_SYSTEM, user
 
 
 RANK_AUDIT_SYSTEM = (
@@ -170,66 +168,74 @@ def build_rank_audit_prompt(a: dict, b: dict) -> tuple[str, str]:
     return RANK_AUDIT_SYSTEM, user
 
 
-THEME_ADJUDICATOR_SYSTEM = (
-    "You assign a US government news storyline to a topic theme. Themes are "
-    "recurring subjects, not broad departments or document styles. Join a candidate "
-    "only when the storyline fits that reusable subject; a shared agency, entity, "
-    "or press-release boilerplate is not enough. Otherwise spawn a new theme. "
-    "Do not join a category-like theme merely because the storyline is related; "
-    "the storyline and every listed recent headline must fit the theme's reusable subject. "
-    "For every spawned theme, follow this naming rubric: " + THEME_SCOPE_GUIDANCE +
-    CATEGORY_ASSIGNMENT_GUIDANCE +
-    "When spawning, copy exactly one category_id from the provided seeded "
-    "categories; never invent a category or return null. "
-    "Separately, if two or more candidates clearly name the same subject, list "
-    "them in merge_theme_ids. "
-    'Respond with JSON only: {"decision": "join" or "spawn", '
-    '"theme_id": string or null (copy one candidate theme_id verbatim, only when join), '
-    '"new_theme_name": string or null (only when spawn), '
-    '"category_id": string or null (copy a seeded category_id, only when spawn), '
-    '"merge_theme_ids": [candidate theme_ids naming the same subject] or [], '
-    '"reason": "one sentence"}'
+THEME_MEMBERSHIP_SYSTEM = (
+    "You decide whether one US government news storyline belongs to one of "
+    "the candidate topic themes. Each candidate carries an inclusion "
+    "criterion: a one-sentence membership rule written when the theme was "
+    "created. Join a candidate only when the storyline clearly satisfies its "
+    "inclusion criterion; a shared agency, entity, or press-release "
+    "boilerplate is not enough. Creating themes is not your job, and joining "
+    "nothing is a normal, correct outcome — when unsure, answer null. "
+    'Respond with JSON only: {"theme_id": string or null (copy one candidate '
+    "theme_id verbatim, only when the storyline clearly satisfies that "
+    'candidate\'s criterion), "reason": "one sentence"}'
 )
 
 
-def build_theme_adjudicator_prompt(storyline: dict,
-                                   candidates: list[dict],
-                                   categories: list[dict]) -> tuple[str, str]:
+def build_theme_membership_prompt(storyline: dict,
+                                  candidates: list[dict]) -> tuple[str, str]:
     shaped = [
         {"theme_id": c["theme_id"], "name": c["name"],
+         "inclusion_criterion": c["inclusion_criterion"],
          "storyline_count": c["storyline_count"],
-         "recent_headlines": c["recent_headlines"]}
+         "recent_headlines": c["recent_headlines"],
+         "days_since_active": c["days_since_active"]}
         for c in candidates
     ]
     user = (
         f"Storyline headline: {storyline['headline']}\n"
         f"Storyline summary: {storyline.get('summary') or '(none)'}\n\n"
-        "Candidate themes:\n" + json.dumps(shaped, indent=2) +
-        "\n\nSeeded categories (required only when spawning):\n" +
-        json.dumps(_shape_seed_categories(categories), indent=2)
+        "Candidate themes:\n" + json.dumps(shaped, indent=2)
     )
-    return THEME_ADJUDICATOR_SYSTEM, user
+    return THEME_MEMBERSHIP_SYSTEM, user
 
 
-THEME_PAIR_ADJUDICATOR_SYSTEM = (
-    "You decide whether two existing US government news themes represent the "
-    "same reusable subject and should be merged. Shared category, agency, document "
-    "style, or generic words are not enough. Merge durable umbrella programs or "
-    "subjects whose member headlines would all fit one compact label. Keep related "
-    "but distinct subjects separate. " + THEME_SCOPE_GUIDANCE +
-    CATEGORY_ASSIGNMENT_GUIDANCE +
-    "When merging, provide one canonical name and copy exactly one seeded category_id. "
-    'Respond with JSON only: {"same_theme": boolean, "canonical_name": string or null, '
-    '"category_id": string or null, "reason": "one sentence"}'
+THEME_PROMOTION_SYSTEM = (
+    "You review a cluster of US government news storylines that grew inside "
+    "one broad category and decide whether the relationships between them "
+    "justify a durable topic theme. Promote only when the storylines share a "
+    "recurring subject that will plausibly keep producing distinct events; a "
+    "shared category, agency, or press-release boilerplate is not enough. If "
+    "an existing theme listed under existing_themes already covers this "
+    "subject, answer attach_existing with its theme_id instead of creating a "
+    "duplicate. When promoting, name the theme with this rubric: " +
+    THEME_SCOPE_GUIDANCE +
+    "Also write inclusion_criterion: one sentence stating the rule a future "
+    "storyline must satisfy to join this theme; describe the recurring "
+    "subject, not the current members. "
+    'Respond with JSON only: {"verdict": "promote" or "attach_existing" or '
+    '"reject", "theme_name": string or null (only when promote), '
+    '"inclusion_criterion": string or null (only when promote), '
+    '"theme_id": string or null (copy an existing_themes theme_id verbatim, '
+    'only when attach_existing), "reason": "one sentence"}'
 )
 
 
-def build_theme_pair_adjudicator_prompt(
-        a: dict, b: dict, categories: list[dict]) -> tuple[str, str]:
-    user = (
-        "Theme A:\n" + json.dumps(a, indent=2) +
-        "\n\nTheme B:\n" + json.dumps(b, indent=2) +
-        "\n\nSeeded categories (required when merging):\n" +
-        json.dumps(_shape_seed_categories(categories), indent=2)
-    )
-    return THEME_PAIR_ADJUDICATOR_SYSTEM, user
+def build_theme_promotion_prompt(dossier: dict) -> tuple[str, str]:
+    return THEME_PROMOTION_SYSTEM, json.dumps(dossier, indent=2, default=str)
+
+
+THEME_REVIEW_SYSTEM = (
+    "You review one existing US government news topic theme whose members "
+    "have drifted apart geometrically. Decide whether the theme still names "
+    "one recurring subject its members satisfy (keep), or whether it should "
+    "be demoted so its storylines fall back to their broad categories "
+    "(demote). Demotion is safe and reversible; keeping a polluted theme is "
+    "not. "
+    'Respond with JSON only: {"verdict": "keep" or "demote", '
+    '"reason": "one sentence"}'
+)
+
+
+def build_theme_review_prompt(dossier: dict) -> tuple[str, str]:
+    return THEME_REVIEW_SYSTEM, json.dumps(dossier, indent=2, default=str)

@@ -143,14 +143,12 @@ def make_harness(topics_enabled):
     return TopicClusterFakeStore(), StubModels(), cfg
 
 
-def test_cluster_with_topics_enabled_assigns_every_storyline_a_theme():
+def test_cluster_with_topics_enabled_never_spawns_themes_on_stream():
     store, models, cfg = make_harness(topics_enabled=True)
     add(store, 1, 0, 0)
     add(store, 2, 30, 3, entities=("oxprenol",))
     cluster(store, models, cfg)
-    themed = [s for s in store.storylines.values() if s.get("theme_id")]
-    assert len(themed) == len(store.storylines)
-    assert len(store.themes) >= 1
+    assert store.themes == {}
 
 
 def test_cluster_with_topics_disabled_never_touches_themes():
@@ -184,3 +182,49 @@ def test_balanced_sample_takes_newest_capped_per_agency_until_limit():
     rows = store.prepared_unclustered(limit=2, per_agency=2)
     # newest two picked (items 2 and 3), replayed in ascending time
     assert [r["title"] for r in rows] == ["item 2", "item 3"]
+
+
+class SweepClusterFakeStore(TopicClusterFakeStore):
+    """Add storyline timestamps maintained by the real episode RPCs."""
+
+    def attach_entry(self, entry_id, episode_id, *args, **kw):
+        result = super().attach_entry(entry_id, episode_id, *args, **kw)
+        story_id = self.episodes[episode_id]["storyline_id"]
+        t = self.entries[entry_id]["published_at"]
+        story = self.storylines[story_id]
+        story["first_entry_at"] = min(story.get("first_entry_at") or t, t)
+        story["newest_entry_at"] = max(story.get("newest_entry_at") or t, t)
+        return result
+
+
+class PromoteJudgeModels(StubModels):
+    def judge_promotion(self, dossier):
+        return {"verdict": "promote", "theme_name": "Recurring Item Updates",
+                "inclusion_criterion": "storylines about recurring item updates",
+                "theme_id": None, "reason": "test: always promote"}
+
+
+def test_cluster_categorizes_storylines_and_final_sweep_promotes():
+    store = SweepClusterFakeStore()
+    store.categories["c-health"] = {
+        "id": "c-health", "display_name": "Public Health", "origin": "seed"}
+    for i, hours in enumerate((0, 26, 52, 78)):
+        add(store, i, hours, i, entities=(f"uniq{i}",))
+    cfg = Config(
+        database_url="x", cf_account_id="a", cf_api_token="t",
+        topics_enabled=True, theme_promotion_min_storylines=2,
+        theme_promotion_min_active_days=2,
+        theme_promotion_cohesion_floor=0.0,
+        theme_promotion_cluster_floor=0.05,
+        theme_sweep_interval_hours=24.0)
+    report = cluster(store, PromoteJudgeModels(), cfg)
+
+    assert all(s.get("category_id") == "c-health"
+               for s in store.storylines.values())
+    assert report["theme_sweeps"] >= 2
+    assert report["theme_sweep_totals"]["promoted"] >= 1
+    themed = [s for s in store.storylines.values() if s.get("theme_id")]
+    assert themed
+    theme = next(iter(store.all_themes()))
+    assert theme["inclusion_criterion"] == \
+        "storylines about recurring item updates"

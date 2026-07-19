@@ -95,16 +95,5 @@ class CachedModels:
         return self._memo_json("rank_pair", [a, b],
                                lambda: self.inner.compare_rank(a, b))
 
-    def create_theme_metadata(self, storyline: dict,
-                              categories: list[dict]) -> dict:
-        valid_category_ids = {str(category["id"]) for category in categories}
-        return self._memo_json(
-            "theme_metadata", [storyline, categories],
-            lambda: self.inner.create_theme_metadata(storyline, categories),
-            cache_when=lambda result: (
-                bool(str(result.get("theme_name") or "").strip())
-                and str(result.get("category_id")) in valid_category_ids),
-        )
-
     def __getattr__(self, name: str) -> Any:
         return getattr(self.inner, name)

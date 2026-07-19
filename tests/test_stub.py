@@ -3,8 +3,7 @@ from pipeline.vectors import cosine
 
 
 def test_stub_embedder_similarity_ordering():
-    stub = StubModels()
-    a, b, c = stub.embed([
+    a, b, c = StubModels().embed([
         "FDA recalls Valsatrex blood pressure medication contamination",
         "Valsatrex recall expanded by FDA after contamination found",
         "EPA finalizes emissions rule for power plants",
@@ -17,22 +16,19 @@ def test_stub_adjudicator_uses_entity_overlap():
     same, _ = stub.adjudicate_same_event(
         {"title": "x", "summary": "", "entities": ["valsatrex"]},
         {"title": "y", "summary": "", "entities": ["valsatrex", "sundexo"]},
-        context="",
-    )
+        context="")
     assert same is True
     same, _ = stub.adjudicate_same_event(
         {"title": "x", "summary": "", "entities": ["valsatrex"]},
-        {"title": "y", "summary": "", "entities": ["oxprenol"]},
-        context="",
-    )
+        {"title": "y", "summary": "", "entities": ["oxprenol"]}, context="")
     assert same is False
 
 
 def test_stub_compressor_cites_episodes():
-    stub = StubModels()
-    card = stub.compress_overview(
+    card = StubModels().compress_overview(
         {"id": "s1"},
-        [{"episode_id": "e1", "date": "2026-05-14", "headline": "Recall announced", "summary": "..."}],
+        [{"episode_id": "e1", "date": "2026-05-14",
+          "headline": "Recall announced", "summary": "..."}],
     )
     assert card["timeline"][0]["episode_id"] == "e1"
     assert set(card["rubric"]) == {
@@ -41,37 +37,22 @@ def test_stub_compressor_cites_episodes():
     }
 
 
-def test_stub_theme_metadata_returns_short_label_and_seeded_category():
-    metadata = StubModels().create_theme_metadata(
-        {"headline": "FDA recalls Valsatrex lots after contamination review",
-         "summary": ""},
-        [{"id": "c-1", "display_name": "Food & Drug Safety", "origin": "seed"}],
-    )
-    assert metadata["theme_name"] == "FDA recalls Valsatrex lots after"
-    assert len(metadata["theme_name"].split()) <= 5
-    assert metadata["category_id"] == "c-1"
-
-
 def test_stub_embedding_tag_never_collides_with_real_models():
     assert StubModels.embedding_tag == "stub-bow-256"
     assert "bge" not in StubModels.embedding_tag
 
 
 def test_stub_compare_rank_is_swap_consistent():
-    from pipeline.stub import StubModels
     a = {"headline": "FDA recalls Valsatrex", "summary": "x", "agencies": 3,
          "feeds": 4, "entries": 6, "age_hours": 2.0}
     b = {"headline": "NPS trail closure", "summary": "y", "agencies": 1,
          "feeds": 1, "entries": 1, "age_hours": 1.0}
     m = StubModels()
-    fwd = m.compare_rank(a, b)
-    rev = m.compare_rank(b, a)
-    assert fwd["prefers"] == "a"
-    assert rev["prefers"] == "b"
+    assert m.compare_rank(a, b)["prefers"] == "a"
+    assert m.compare_rank(b, a)["prefers"] == "b"
 
 
 def test_stub_compare_rank_breaks_ties_deterministically():
-    from pipeline.stub import StubModels
     a = {"headline": "Alpha", "summary": "", "agencies": 1, "feeds": 1,
          "entries": 1, "age_hours": 0.0}
     b = {"headline": "Beta", "summary": "", "agencies": 1, "feeds": 1,
@@ -81,26 +62,17 @@ def test_stub_compare_rank_breaks_ties_deterministically():
     assert m.compare_rank(b, a)["prefers"] == "b"
 
 
-def test_stub_adjudicate_theme_joins_nearest_candidate():
-    stub = StubModels()
-    out = stub.adjudicate_theme(
-        {"headline": "h", "summary": ""},
-        [{"theme_id": "t-1", "name": "A", "storyline_count": 1,
-          "recent_headlines": []},
-         {"theme_id": "t-2", "name": "B", "storyline_count": 5,
-          "recent_headlines": []}],
-        [{"id": "c-1", "display_name": "Public Health", "origin": "seed"}],
-    )
-    assert out["decision"] == "join"
+def test_stub_category_classifier_prefers_token_overlap():
+    out = StubModels().classify_category(
+        {"headline": "Public health emergency", "summary": ""},
+        [{"id": "c-health", "display_name": "Public Health", "origin": "seed"},
+         {"id": "c-tax", "display_name": "Taxes & Revenue", "origin": "seed"}])
+    assert out["category_id"] == "c-health"
+
+
+def test_stub_membership_joins_on_criterion_overlap():
+    out = StubModels().adjudicate_membership(
+        {"headline": "FDA recalls Valsatrex", "summary": ""},
+        [{"theme_id": "t-1", "name": "Drug Enforcement",
+          "inclusion_criterion": "recalls of specific drugs"}])
     assert out["theme_id"] == "t-1"
-    assert out["merge_theme_ids"] == []
-
-
-def test_stub_adjudicate_theme_spawns_without_candidates():
-    out = StubModels().adjudicate_theme(
-        {"headline": "h", "summary": ""}, [],
-        [{"id": "c-1", "display_name": "Public Health", "origin": "seed"}],
-    )
-    assert out["decision"] == "spawn"
-    assert out["theme_id"] is None
-    assert out["category_id"] == "c-1"

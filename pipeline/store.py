@@ -402,7 +402,8 @@ class Store:
             ) picked
             order by published_at, id
             """,
-            {"limit": limit, "until": until, "per_agency": per_agency},
+            {"limit": limit, "since": since, "until": until,
+             "per_agency": per_agency},
         )
         return _require_publisher_attribution(rows)
 
@@ -411,25 +412,14 @@ class Store:
         rows = self.db.all(
             """
             select id, display_name, centroid, category_id, storyline_count,
-                   created_at
-            from public.topic_themes where merged_into is null
+                   inclusion_criterion, newest_storyline_at, created_at
+            from public.topic_themes
+            where merged_into is null and demoted_at is null
             order by display_name, first_storyline_at, storyline_count, centroid
             """
         )
         return [dict(r, centroid=unpack_fp16(r["centroid"]) if r["centroid"] is not None else None)
                 for r in rows]
-
-    def themed_storylines(self) -> list[dict]:
-        rows = self.db.all(
-            """
-            select id, theme_id, centroid from public.storylines
-            where merged_into is null and theme_id is not null
-              and centroid is not null
-            order by id
-            """
-        )
-        return [dict(r, id=str(r["id"]), theme_id=str(r["theme_id"]),
-                     centroid=unpack_fp16(r["centroid"])) for r in rows]
 
     def theme_member_centroids(self, theme_id: str) -> list:
         rows = self.db.all(
@@ -442,7 +432,8 @@ class Store:
     def storyline_theme_state(self, storyline_id: str) -> dict | None:
         row = self.db.one(
             """
-            select s.centroid, s.theme_id, c.headline, c.summary
+            select s.centroid, s.theme_id, s.category_id, s.newest_entry_at,
+                   c.headline, c.summary
             from public.storylines s
             left join public.event_cards c on c.id = s.latest_card_id
             where s.id = %(s)s
@@ -453,7 +444,9 @@ class Store:
             return None
         return dict(row, centroid=unpack_fp16(row["centroid"])
                     if row["centroid"] is not None else None,
-                    theme_id=str(row["theme_id"]) if row["theme_id"] else None)
+                    theme_id=str(row["theme_id"]) if row["theme_id"] else None,
+                    category_id=str(row["category_id"])
+                    if row["category_id"] else None)
 
     def unthemed_storyline_ids(self) -> list[str]:
         return [
@@ -476,10 +469,6 @@ class Store:
         )
         return [r["headline"] for r in rows]
 
-    def merge_theme(self, loser_id: str, winner_id: str) -> None:
-        self.db.rpc("merge_topic_theme", p_loser_id=loser_id,
-                    p_winner_id=winner_id)
-
     def all_categories(self) -> list[dict]:
         return [dict(r, id=str(r["id"]))
                 for r in self.db.all(
@@ -487,10 +476,12 @@ class Store:
                     "order by display_name")]
 
     def create_theme(self, display_name: str, centroid: bytes,
-                     category_id: str | None, name_model: str | None) -> str:
+                     category_id: str | None, name_model: str | None,
+                     inclusion_criterion: str | None) -> str:
         return str(self.db.rpc("create_topic_theme", p_display_name=display_name,
                                p_centroid=centroid, p_category_id=category_id,
-                               p_name_model=name_model))
+                               p_name_model=name_model,
+                               p_inclusion_criterion=inclusion_criterion))
 
     def assign_theme(self, storyline_id: str, theme_id: str, method: str,
                      similarity: float | None, reason: str | None,
@@ -513,3 +504,35 @@ class Store:
                         proposal_reason: str | None) -> str:
         return str(self.db.rpc("upsert_topic_category", p_display_name=display_name,
                                p_origin=origin, p_proposal_reason=proposal_reason))
+
+    def set_storyline_category(self, storyline_id: str, category_id: str,
+                               method: str, reason: str | None) -> None:
+        self.db.rpc("set_storyline_category", p_storyline_id=storyline_id,
+                    p_category_id=category_id, p_method=method, p_reason=reason)
+
+    def demote_theme(self, theme_id: str) -> None:
+        self.db.rpc("demote_topic_theme", p_theme_id=theme_id)
+
+    def uncategorized_storyline_ids(self) -> list[str]:
+        return [
+            str(r["id"]) for r in self.db.all(
+                "select id from public.storylines "
+                "where merged_into is null and category_id is null "
+                "and centroid is not null "
+                "order by first_entry_at, id")
+        ]
+
+    def categorized_unthemed(self) -> list[dict]:
+        rows = self.db.all(
+            """
+            select s.id, s.category_id, s.centroid, s.first_entry_at,
+                   c.headline, c.summary
+            from public.storylines s
+            left join public.event_cards c on c.id = s.latest_card_id
+            where s.merged_into is null and s.theme_id is null
+              and s.category_id is not null and s.centroid is not null
+            order by s.first_entry_at, s.id
+            """
+        )
+        return [dict(r, id=str(r["id"]), category_id=str(r["category_id"]),
+                     centroid=unpack_fp16(r["centroid"])) for r in rows]
