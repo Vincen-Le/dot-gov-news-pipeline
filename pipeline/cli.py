@@ -158,11 +158,12 @@ def main() -> None:
                       limit=args.limit, concurrency=args.concurrency,
                       per_agency=args.per_agency, agencies=args.agencies)
     elif args.command == "reextract":
-        from pipeline.extraction import EXTRACTOR_VERSION, extract
+        from pipeline.extraction import EXTRACTOR_VERSION, extract, extraction_content
         rows = store.entries_needing_reextraction(EXTRACTOR_VERSION, limit=args.limit)
         for row in rows:
             entities, keys = extract(row["title"],
-                                     row.get("body_text") or row.get("summary"))
+                                     extraction_content(
+                                         row.get("summary"), row.get("body_text")))
             store.update_entry_features(
                 row["id"], None, None, None, None,
                 entity_set=entities, event_keys=keys,

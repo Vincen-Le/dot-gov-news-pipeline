@@ -16,7 +16,7 @@ from pipeline.categories import CategoryEngine
 from pipeline.cards import CardEngine
 from pipeline.config import Config
 from pipeline.episodes import EpisodeEngine
-from pipeline.extraction import EXTRACTOR_VERSION, extract
+from pipeline.extraction import EXTRACTOR_VERSION, extract, extraction_content
 from pipeline.promotion import PromotionSweep
 from pipeline.storylines import StorylineEngine
 from pipeline.topics import ThemeEngine
@@ -40,7 +40,7 @@ def _semantic_content(row: dict) -> str | None:
     # summary first: it is a human-condensed description of the event, so
     # title+summary embeds nearer related events than full article body,
     # which drowns the signal in quotes and boilerplate
-    return row.get("summary") or row.get("body_text")
+    return extraction_content(row.get("summary"), row.get("body_text"))
 
 
 def _fallback_text(row: dict) -> str:

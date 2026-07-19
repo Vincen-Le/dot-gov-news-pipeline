@@ -1,9 +1,15 @@
-from pipeline.extraction import EXTRACTOR_VERSION, extract
+from pipeline.extraction import EXTRACTOR_VERSION, extract, extraction_content
 
 
 def test_version_frozen():
-    # v3: recurrent judge-confirmed generic fragments filtered
-    assert EXTRACTOR_VERSION == 3
+    # v4: preparation and regeneration share one summary-first source policy
+    assert EXTRACTOR_VERSION == 4
+
+
+def test_extraction_content_prefers_summary_and_falls_back_to_body():
+    assert extraction_content("Condensed event.", "Long article.") == "Condensed event."
+    assert extraction_content(None, "Long article.") == "Long article."
+    assert extraction_content("", "Long article.") == "Long article."
 
 
 def test_drug_recall_headline():

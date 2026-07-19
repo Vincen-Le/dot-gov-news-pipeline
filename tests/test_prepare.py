@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import numpy as np
 
 from pipeline.config import Config
+from pipeline.extraction import EXTRACTOR_VERSION
 from pipeline.runner import prepare
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)
@@ -70,7 +71,7 @@ def test_prepare_enriches_embeds_and_backfills_extraction():
     assert feat["embedding"] is not None
     assert feat["embedding_model"] == "fake-embedder"  # the producing client's tag, never cfg
     assert "valsatrex" in feat["entity_set"]          # extraction backfilled from RAW text
-    assert feat["extractor_version"] == 2  # tracks pipeline.extraction.EXTRACTOR_VERSION
+    assert feat["extractor_version"] == EXTRACTOR_VERSION
 
 
 def test_prepare_respects_existing_enrichment_and_anchors():
