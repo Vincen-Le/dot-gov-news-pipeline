@@ -70,7 +70,7 @@ def test_prepare_enriches_embeds_and_backfills_extraction():
     assert feat["embedding"] is not None
     assert feat["embedding_model"] == "fake-embedder"  # the producing client's tag, never cfg
     assert "valsatrex" in feat["entity_set"]          # extraction backfilled from RAW text
-    assert feat["extractor_version"] == 1
+    assert feat["extractor_version"] == 2  # tracks pipeline.extraction.EXTRACTOR_VERSION
 
 
 def test_prepare_respects_existing_enrichment_and_anchors():

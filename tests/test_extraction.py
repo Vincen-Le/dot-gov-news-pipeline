@@ -2,7 +2,8 @@ from pipeline.extraction import EXTRACTOR_VERSION, extract
 
 
 def test_version_frozen():
-    assert EXTRACTOR_VERSION == 1
+    # v2: cfr citations dropped, case numbers context-anchored
+    assert EXTRACTOR_VERSION == 2
 
 
 def test_drug_recall_headline():
@@ -27,7 +28,7 @@ def test_event_keys_extracted():
     assert "epa-hq-oar-2026-0143" in keys
     assert "cve-2026-12345" in keys
     assert "2026-11234" in keys
-    assert "40 cfr 60" in keys
+    assert not any("cfr" in k for k in keys)  # v2: authority citations != events
 
 
 def test_all_caps_title_yields_inconclusive_not_noise():
@@ -71,3 +72,21 @@ def test_nav_blob_summary_skipped():
     assert "bureaus" not in entities
     assert "directories" not in entities
     assert "kestrel" in entities
+
+
+def test_cfr_citations_are_not_event_keys():
+    _, keys = extract("Fire restrictions increase in Southeast Utah parks",
+                      "Under 36 CFR 261.50, superintendents prohibit campfires.")
+    assert keys == []
+
+
+def test_bare_release_numbering_is_not_an_event_key():
+    _, keys = extract("Employment Cost Index News Release",
+                      "USDL No. 23-01 covers the June quarter.")
+    assert not any("23-01" in k for k in keys)
+
+
+def test_docket_case_numbers_still_extracted():
+    _, keys = extract("Court ruling in visa case",
+                      "The order in Case No. 23-104 was affirmed.")
+    assert any("23-104" in k for k in keys)

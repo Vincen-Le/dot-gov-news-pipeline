@@ -269,6 +269,19 @@ class Store:
             {**params, "per_agency": per_agency},
         )
 
+    def entries_needing_reextraction(self, version: int,
+                                     limit: int | None = None) -> list[dict]:
+        return self.db.all(
+            """
+            select id, title, summary, body_text
+            from public.news_entries
+            where extractor_version is null or extractor_version < %(v)s
+            order by published_at, id
+            limit %(limit)s
+            """,
+            {"v": version, "limit": limit},
+        )
+
     def prepared_unclustered(self, limit: int | None = None,
                              until: "datetime | None" = None,
                              per_agency: int | None = None) -> list[dict]:

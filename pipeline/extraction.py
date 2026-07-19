@@ -14,15 +14,18 @@ from __future__ import annotations
 import re
 import unicodedata
 
-EXTRACTOR_VERSION = 1
+EXTRACTOR_VERSION = 2
 
+# v2: CFR citations dropped (legal-authority references shared by unrelated
+# notices — 36 CFR 261.50 appeared in 6 different park announcements) and bare
+# "No. XX-XX" now requires case/docket context (release-numbering boilerplate
+# like BLS "No. 23-01" glued unrelated chains via the tier-1 event-key attach).
 _EVENT_KEY_PATTERNS = [
     re.compile(r"\bCVE-\d{4}-\d{4,7}\b", re.IGNORECASE),                       # CVEs
     re.compile(r"\b[A-Z]{2,6}(?:-[A-Z]{1,6})*-\d{4}-\d{3,5}(?:-\d{1,6})?\b"),  # dockets
     re.compile(r"\b(?<!-)\d{4}-\d{5,6}\b"),                                    # FR doc numbers
-    re.compile(r"\b\d{1,3}\s?CFR\s?(?:Part\s?)?\d+(?:\.\d+)?\b", re.IGNORECASE),
     re.compile(r"\b[ZF]-\d{4}-\d{2,4}\b"),                                     # FDA recall numbers
-    re.compile(r"\bNo\.\s?\d{2}-\d{2,5}\b"),                                   # case numbers
+    re.compile(r"\b(?:case|docket)\s+no\.\s?\d{2}-\d{2,5}\b", re.IGNORECASE),  # court case numbers (context-anchored)
 ]
 
 _DOLLAR = re.compile(r"\$\d[\d,.]*(?:\s?(?:million|billion|trillion))?", re.IGNORECASE)
