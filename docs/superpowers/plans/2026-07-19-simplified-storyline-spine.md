@@ -1578,7 +1578,45 @@ DATABASE_URL="$SPINE_DB" pnpm ops dashboard --port 4174
 
 Expected: dashboard on `127.0.0.1:4174` shows the spine bench (lab corpus page reflects `spine_bench` counts; run history shows only spine runs) while the classic dashboard on 4173 (started without the env override) is unaffected. Lab runs from this instance inherit the DSN (`server.ts:242` passes `config.databaseUrl` through to the Python harness).
 
-- [ ] **Step 5: Document the workflow**
+- [ ] **Step 5: Startup banners — both entrypoints announce their database**
+
+Docs go stale; the process itself must say where it points. Add a sanitized-DSN helper somewhere importable by both sides — top of `pipeline/experiment.py` is fine:
+
+```python
+def _dsn_label(database_url: str) -> str:
+    """host:port/dbname only — never credentials."""
+    from urllib.parse import urlsplit
+    parts = urlsplit(database_url)
+    return f"{parts.hostname}:{parts.port}{parts.path}"
+```
+
+In `run_experiment`, immediately after `started = datetime.now(timezone.utc)`:
+
+```python
+    import sys
+    print(f"[experiment] engine={cfg.engine} "
+          f"database={_dsn_label(cfg.database_url)}", file=sys.stderr)
+```
+
+(stderr, not stdout — the TS harness parses stdout's last JSON line for `run_id`.)
+
+In `apps/operator-console/src/server.ts`, where the dashboard prints its startup line (near `apps/operator-console/src/cli.ts:432` "Operator dashboard: ..."), extend the output with the sanitized database (host:port/dbname parsed from `config.databaseUrl` — reuse or mirror whatever sanitization `lab/db.ts` has; never print credentials):
+
+```ts
+process.stdout.write(`Operator dashboard: ${dashboard.url}\n`);
+process.stdout.write(`Lab database: ${sanitizedDsn(config.databaseUrl)}\n`);
+```
+
+Verify:
+
+```bash
+uv run python -m pipeline.cli experiment banner-check --stub --limit 5   # stderr: [experiment] engine=classic database=127.0.0.1:57422/postgres
+DATABASE_URL="$SPINE_DB" LAB_ENGINE=spine \
+  uv run python -m pipeline.cli experiment banner-check2 --stub --limit 5  # engine=spine database=.../spine_bench
+pnpm ops dashboard                                                        # prints Lab database: 127.0.0.1:57422/postgres
+```
+
+- [ ] **Step 6: Document the workflow**
 
 Extend the "Engines" subsection in `docs/operations/clustering-lab.md`:
 
@@ -1588,19 +1626,31 @@ Extend the "Engines" subsection in `docs/operations/clustering-lab.md`:
 Spine evaluates in its own database so classic bench state survives:
 
     ./scripts/create-spine-bench.sh   # clone corpus+features -> spine_bench, wipe derived state
-    export DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'
-    pnpm ops dashboard --port 4174    # classic dashboard stays on 4173
-    pnpm ops lab run --name spine-x --stub --set LAB_ENGINE=spine
+
+### Entrypoints — which database each spins up
+
+| Engine | Database | Experiment entrypoint | Dashboard |
+|---|---|---|---|
+| classic | `postgresql://postgres:postgres@127.0.0.1:57422/postgres` (the default — no env needed) | `uv run python -m pipeline.cli experiment NAME --limit 500` or `pnpm ops lab run --name NAME` | `pnpm ops dashboard` → http://127.0.0.1:4173 |
+| spine | `postgresql://postgres:postgres@127.0.0.1:57422/spine_bench` (must set `DATABASE_URL`) | `DATABASE_URL=$SPINE_DB LAB_ENGINE=spine uv run python -m pipeline.cli experiment NAME --limit 500` or `DATABASE_URL=$SPINE_DB pnpm ops lab run --name NAME --set LAB_ENGINE=spine` | `DATABASE_URL=$SPINE_DB pnpm ops dashboard --port 4174` → http://127.0.0.1:4174 |
+
+where `SPINE_DB='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'`.
+
+Rules of thumb: no `DATABASE_URL` = classic bench; spine work always pairs
+`DATABASE_URL=$SPINE_DB` with `LAB_ENGINE=spine` — setting only one of the
+two either runs spine over the classic bench (clobbers classic derived
+state) or runs classic over the spine bench. A dashboard instance evaluates
+whichever database its `DATABASE_URL` pointed at when it started.
 
 Re-run the script anytime to re-clone (it drops and recreates `spine_bench`;
 corpus refreshes in the primary propagate on the next clone).
 ```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/create-spine-bench.sh docs/operations/clustering-lab.md
-git commit -m "feat: parallel spine bench database provisioning + second dashboard workflow"
+git add scripts/create-spine-bench.sh docs/operations/clustering-lab.md pipeline/experiment.py apps/operator-console/src/server.ts
+git commit -m "feat: parallel spine bench provisioning, startup DB banners, second dashboard workflow"
 ```
 
 ---

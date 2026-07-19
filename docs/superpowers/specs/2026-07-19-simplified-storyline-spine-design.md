@@ -137,13 +137,17 @@ harness, and the dashboard — resolves its DSN from `DATABASE_URL`
 identically with no re-prepare — then truncates `experiment_runs` history
 and wipes derived clustering state.
 
-Second dashboard/CLI mounts against it with env only:
+Second dashboard/CLI mounts against it with env only. Entrypoint ↔ database
+mapping (the startup reference; also documented in
+`docs/operations/clustering-lab.md`):
 
-```bash
-export DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:57422/spine_bench'
-pnpm ops dashboard --port 4174        # classic dashboard stays on 4173
-pnpm ops lab run --name spine-x --set LAB_ENGINE=spine
-```
+| Engine | Database | Experiment entrypoint | Dashboard |
+|---|---|---|---|
+| classic | `…:57422/postgres` (default — no env) | `uv run python -m pipeline.cli experiment NAME` / `pnpm ops lab run --name NAME` | `pnpm ops dashboard` → 4173 |
+| spine | `…:57422/spine_bench` (`DATABASE_URL` required) | same commands prefixed `DATABASE_URL=$SPINE_DB LAB_ENGINE=spine` (lab: `--set LAB_ENGINE=spine`) | `DATABASE_URL=$SPINE_DB pnpm ops dashboard --port 4174` |
+
+Spine work always pairs `DATABASE_URL` + `LAB_ENGINE` — setting only one
+runs the wrong engine or the wrong database.
 
 ### Success criteria
 
