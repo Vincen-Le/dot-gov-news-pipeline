@@ -95,5 +95,10 @@ class CachedModels:
         return self._memo_json("rank_pair", [a, b],
                                lambda: self.inner.compare_rank(a, b))
 
+    def link_storyline(self, entry: dict, candidates: list[dict]) -> dict:
+        from spine.prompts import link_cache_parts
+        return self._memo_json("spine_link", link_cache_parts(entry, candidates),
+                               lambda: self.inner.link_storyline(entry, candidates))
+
     def __getattr__(self, name: str) -> Any:
         return getattr(self.inner, name)

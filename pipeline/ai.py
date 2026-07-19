@@ -152,3 +152,34 @@ class WorkersAI:
         except Exception:
             self.errors["theme_review"] += 1
             raise
+
+    def link_storyline(self, entry: dict, candidates: list[dict]) -> dict:
+        from spine.prompts import build_link_prompt
+        try:
+            system, user = build_link_prompt(entry, candidates)
+            data = _extract_json(self._chat(self.cfg.adjudicator_model, system, user))
+            match = data.get("match")
+            if match is not None:
+                match = int(match)
+                if not 0 <= match < len(candidates):
+                    match = None
+            return {"match": match,
+                    "same_development": bool(data.get("same_development")),
+                    "reason": str(data.get("reason", ""))[:512]}
+        except Exception as exc:
+            self.errors["link_storyline"] += 1
+            return {"match": None, "same_development": False,
+                    "reason": f"adjudicator_error: {exc}"[:512]}
+
+    def induce_theme(self, members: list[dict]) -> dict:
+        from spine.prompts import build_theme_prompt
+        try:
+            system, user = build_theme_prompt(members)
+            data = _extract_json(self._chat(self.cfg.judge_model, system, user))
+            return {"theme": bool(data.get("theme")),
+                    "name": str(data.get("name", "")).strip()[:120],
+                    "reason": str(data.get("reason", ""))[:512]}
+        except Exception as exc:
+            self.errors["induce_theme"] += 1
+            return {"theme": False, "name": "",
+                    "reason": f"adjudicator_error: {exc}"[:512]}

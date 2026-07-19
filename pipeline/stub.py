@@ -8,6 +8,7 @@ verbatim episode citations. No randomness, no network, no clock.
 from __future__ import annotations
 
 import hashlib
+from collections import Counter
 
 import numpy as np
 
@@ -117,3 +118,17 @@ class StubModels:
         if dossier["cohesion"] < 0.2:
             return {"verdict": "demote", "reason": "stub: cohesion collapsed"}
         return {"verdict": "keep", "reason": "stub: cohesion acceptable"}
+
+    def link_storyline(self, entry: dict, candidates: list[dict]) -> dict:
+        entry_tokens = _tokens(entry["title"])
+        for i, c in enumerate(candidates):
+            if len(entry_tokens & _tokens(c["headline"])) >= 3:
+                return {"match": i, "same_development": True,
+                        "reason": "stub token overlap"}
+        return {"match": None, "same_development": False, "reason": "stub no overlap"}
+
+    def induce_theme(self, members: list[dict]) -> dict:
+        counts = Counter(t for m in members for t in _tokens(m["headline"]))
+        top = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:2]
+        return {"theme": True, "name": " ".join(w for w, _ in top).title(),
+                "reason": "stub theme"}
