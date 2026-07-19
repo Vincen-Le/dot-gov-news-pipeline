@@ -177,4 +177,29 @@ sweeps will use only keys verified in the live `load_config()` implementation.
   preserving the 10 real continuations; best-case V1 rises from 0.307692 to
   1.000000 and reward rises by 0.138462
 - Cost tier: Tier 2 (prompt/cache-version code, targeted tests, full replay)
-- Status: hypothesis recorded; implementation pending after rejected-state rollback
+- Implementation receipt: committed as `3b254d0`; 44 focused tests passed.
+  The first replay reached 65/150 before a model transport timeout and the
+  exact retry reached 3/150 before the same failure; neither wrote an
+  `experiment_runs` row. A separate non-semantic retry hardening change was
+  committed as `82e79a6` with a two-timeout-then-success test, after which the
+  unchanged experiment completed.
+- Run ID: `2ebb9ac8-a9aa-47f1-9c90-45bee7f49414`
+- Duration: 4,081.0s; processed 150; cache 17 hits / 118 misses; 140 episodes,
+  128 storylines, 12 multi-episode storylines, 3 themes / 14 themed
+  storylines; no model errors
+- Blinded crawl: V1 12 non-anchor episodes; V2 14 memberships across 3 themes;
+  V3 14 category/storyline pairs; V4 0 deterministic merge candidates; V5
+  480 entity tokens + 2 event keys across 100 entries; V6 10 non-anchor
+  entries
+- Intruder self-test: 10/10 (three themes cycled to retain 10 independent
+  least-fit trials)
+- Mechanical scores: V1 0.000000; V2 -0.166667; V3 1.000000; V4 penalty 0;
+  V5 0.127083; V6 1.000000; **R = 0.392083**
+- Delta: -0.296955 versus the current best, below the targeted V1 reward
+  quantum 0.050000. Four of 12 continuation joins were still false, and the
+  `International Conflict Diplomacy` theme admitted only 1/6 members and was
+  judged too broad.
+- Decision: **REJECT**; prompt/cache-version code reverted by `24b4404`.
+  Keep the independent transport-retry hardening because it changes no
+  successful model result and was necessary for a completed crawl.
+- Status: complete
