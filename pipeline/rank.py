@@ -4,6 +4,8 @@ audit. The audit never mutates rank_key — its verdicts are tuning signal
 
 from __future__ import annotations
 
+import json
+
 from pipeline.config import Config
 
 # One insert-select freezes the whole per-facet ranking. Facets expand via a
@@ -58,3 +60,114 @@ def snapshot_run(db, cfg: Config, run_id: str) -> dict:
     cursor = db.conn.execute(
         _SNAPSHOT_SQL, {"run_id": run_id, "tau": cfg.tau_seconds})
     return {"snapshot_rows": cursor.rowcount}
+
+
+_TERM_KEYS = ("rubric_points", "agency_term", "feed_term", "source_term",
+              "freshness_term")
+
+
+def _audit_item(row: dict, newest) -> dict:
+    age_h = 0.0
+    if row.get("newest_entry_at") is not None and newest is not None:
+        age_h = max(0.0, (newest - row["newest_entry_at"]).total_seconds() / 3600)
+    return {"headline": row["headline"] or "(no headline)",
+            "summary": row.get("summary") or "",
+            "agencies": row["agencies"], "feeds": row["feeds"],
+            "entries": row["entry_count"], "age_hours": round(age_h, 1)}
+
+
+def _verdict(fwd: dict, rev: dict) -> str:
+    # position-bias control: keep only swap-consistent verdicts
+    if fwd["prefers"] == "a" and rev["prefers"] == "b":
+        return "a"
+    if fwd["prefers"] == "b" and rev["prefers"] == "a":
+        return "b"
+    return "inconsistent"
+
+
+def audit_run(db, models, cfg: Config, run_id: str) -> dict:
+    facets = [f.strip() for f in cfg.rank_audit_facets.split(",") if f.strip()]
+    rows = db.all(
+        """
+        select facet_type, facet_key, position, storyline_id, headline, summary,
+               agencies, feeds, entry_count, newest_entry_at, terms
+        from public.rank_snapshots
+        where run_id = %(run)s and facet_type = any(%(facets)s)
+          and position <= %(k)s
+        order by facet_type, facet_key, position
+        """,
+        {"run": run_id, "facets": facets, "k": cfg.rank_audit_top_k})
+
+    groups: dict[tuple, list[dict]] = {}
+    for row in rows:
+        groups.setdefault((row["facet_type"], row["facet_key"]), []).append(row)
+
+    pairs = agree = disagree = inconsistent = 0
+    per_facet: dict[str, dict] = {}
+    delta_sums = {k: 0.0 for k in _TERM_KEYS}
+    for (facet_type, facet_key), members in groups.items():
+        newest = max((m["newest_entry_at"] for m in members
+                      if m["newest_entry_at"] is not None), default=None)
+        stats = per_facet.setdefault(facet_type, {"pairs": 0, "agree": 0,
+                                                  "disagree": 0, "inconsistent": 0})
+        for i, a in enumerate(members):
+            for b in members[i + 1: i + 1 + cfg.rank_audit_window]:
+                fwd = models.compare_rank(_audit_item(a, newest), _audit_item(b, newest))
+                rev = models.compare_rank(_audit_item(b, newest), _audit_item(a, newest))
+                llm = _verdict(fwd, rev)
+                pairs += 1
+                stats["pairs"] += 1
+                if llm == "a":
+                    agree += 1
+                    stats["agree"] += 1
+                elif llm == "b":
+                    disagree += 1
+                    stats["disagree"] += 1
+                    for key in _TERM_KEYS:
+                        delta_sums[key] += float(a["terms"][key]) - float(b["terms"][key])
+                else:
+                    inconsistent += 1
+                    stats["inconsistent"] += 1
+                db.conn.execute(
+                    """
+                    insert into public.rank_audit_pairs
+                        (run_id, facet_type, facet_key, position_a, position_b,
+                         storyline_a, storyline_b, llm_prefers, llm_reason,
+                         judge_model, prompt_version)
+                    values (%(run)s, %(ft)s, %(fk)s, %(pa)s, %(pb)s, %(sa)s, %(sb)s,
+                            %(llm)s, %(reason)s, %(model)s, %(pv)s)
+                    on conflict (run_id, facet_type, facet_key, position_a, position_b)
+                    do update set llm_prefers = excluded.llm_prefers,
+                                  llm_reason = excluded.llm_reason,
+                                  sampled_at = now()
+                    """,
+                    {"run": run_id, "ft": facet_type, "fk": facet_key,
+                     "pa": a["position"], "pb": b["position"],
+                     "sa": a["storyline_id"], "sb": b["storyline_id"],
+                     "llm": llm,
+                     "reason": (fwd["reason"] if llm != "inconsistent"
+                                else f"fwd: {fwd['reason']} / rev: {rev['reason']}")[:2048],
+                     "model": cfg.audit_model, "pv": cfg.prompt_version})
+
+    decided = agree + disagree
+    metrics = {
+        "pairs": pairs,
+        "agreement_rate": (agree / decided) if decided else None,
+        # Kendall tau over the sampled pairs: concordant - discordant fraction
+        "kendall_tau_sampled": ((agree - disagree) / decided) if decided else None,
+        "inconsistent_rate": (inconsistent / pairs) if pairs else None,
+        "per_facet": per_facet,
+        "disagreement_term_deltas": (
+            {k: delta_sums[k] / disagree for k in _TERM_KEYS} if disagree else {}),
+    }
+    db.conn.execute(
+        "insert into public.rank_audit_runs (run_id, config, metrics) "
+        "values (%(run)s, %(config)s::jsonb, %(metrics)s::jsonb)",
+        {"run": run_id,
+         "config": json.dumps({"top_k": cfg.rank_audit_top_k,
+                               "window": cfg.rank_audit_window,
+                               "facets": facets,
+                               "audit_model": cfg.audit_model,
+                               "prompt_version": cfg.prompt_version}),
+         "metrics": json.dumps(metrics, default=str)})
+    return metrics

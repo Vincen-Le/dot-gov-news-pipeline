@@ -32,6 +32,9 @@ class Config:
     theme_knn_k: int = 5
     publisher_weight_version: int = 1
     audit_model: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+    rank_audit_top_k: int = 30
+    rank_audit_window: int = 3
+    rank_audit_facets: str = "global,category"
 
 
 def _f(key: str, default: float) -> float:
@@ -72,4 +75,7 @@ def load_config() -> Config:
         publisher_weight_version=int(os.environ.get(
             "PUBLISHER_WEIGHT_VERSION", Config.publisher_weight_version)),
         audit_model=os.environ.get("AUDIT_MODEL", Config.audit_model),
+        rank_audit_top_k=int(os.environ.get("RANK_AUDIT_TOP_K", Config.rank_audit_top_k)),
+        rank_audit_window=int(os.environ.get("RANK_AUDIT_WINDOW", Config.rank_audit_window)),
+        rank_audit_facets=os.environ.get("RANK_AUDIT_FACETS", Config.rank_audit_facets),
     )
