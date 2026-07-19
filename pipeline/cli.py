@@ -153,7 +153,9 @@ def main() -> None:
 
     if args.command == "sync":
         from pipeline.bench import sync_corpus
-        out = sync_corpus(db, os.environ["SUPABASE_URL"], os.environ["SUPABASE_SECRET_KEY"])
+        from pipeline.hosted import load_hosted
+        url, key = load_hosted()
+        out = sync_corpus(db, url, key)
     elif args.command == "prepare":
         from pipeline.runner import prepare
         out = prepare(store, _models(cfg, args.stub, no_cache=True), cfg,
