@@ -52,6 +52,10 @@ def main() -> None:
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
 
+    p = sub.add_parser("rank", help="rank observability: snapshot | audit")
+    p.add_argument("action", choices=["snapshot"])
+    p.add_argument("--run", required=True, help="experiment_runs.id")
+
     p = sub.add_parser("reset", help="wipe experiment state (local db only)")
     group = p.add_mutually_exclusive_group(required=True)
     group.add_argument("--clusters", action="store_true")
@@ -85,6 +89,9 @@ def main() -> None:
         out = cluster(store, _models(cfg, args.stub, args.no_cache), cfg,
                       limit=args.limit, until=_until(args.until),
                       per_agency=args.per_agency)
+    elif args.command == "rank":
+        from pipeline.rank import snapshot_run
+        out = snapshot_run(db, cfg, args.run)
     elif args.command == "reset":
         from pipeline.bench import reset_clusters, reset_features
         (reset_features if args.features else reset_clusters)(db)

@@ -162,4 +162,6 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     with open(path, "w") as handle:
         handle.write(report)
     run_id = record_run(db, name, cfg, cluster_report, summary, cache_stats, started, finished)
-    return {"report": path, "run_id": run_id}
+    from pipeline.rank import snapshot_run
+    snapshot = snapshot_run(db, cfg, run_id)
+    return {"report": path, "run_id": run_id, **snapshot}
