@@ -12,13 +12,18 @@ import {
   type CheckResult,
 } from "./checks";
 import { defaultEnvInitDeps, envInit } from "./env-init";
+import {
+  defaultSetupLocalDeps,
+  setupLocal,
+  type SetupLocalOpts,
+  type SetupLocalReport,
+} from "./setup-local";
 
 export interface OnboardDeps {
   doctorTooling: () => Promise<CheckResult[]>;
   envReady: () => Promise<boolean>;
   envInit: () => Promise<void>;
-  dbUp: () => Promise<boolean>;
-  corpusCount: () => Promise<number>;
+  setupLocal: (opts: SetupLocalOpts) => Promise<SetupLocalReport>;
   embeddedCount: () => Promise<number>;
   run: (command: string, args: string[]) => Promise<void>;
   log: (message: string) => void;
@@ -53,34 +58,22 @@ export async function onboard(
     deps.log("✓ credentials present");
   }
 
-  const dbWasUp = await deps.dbUp();
-  if (!dbWasUp) {
-    await act("start local supabase", () =>
-      deps.run("pnpm", ["supabase", "start"]),
+  const report = await deps.setupLocal({
+    dryRun: opts.dryRun,
+    fresh: opts.fresh,
+  });
+  const brokenPipelines = report.pipelines.filter((p) =>
+    p.status.startsWith("broken"),
+  );
+  if (brokenPipelines.length > 0) {
+    throw new Error(
+      `pipeline databases not ready:\n${brokenPipelines
+        .map((p) => `${p.name} (${p.database}): ${p.status}`)
+        .join("\n")}`,
     );
-  } else {
-    deps.log("✓ local database running");
   }
 
-  const corpus =
-    opts.dryRun && !dbWasUp ? 0 : await deps.corpusCount();
-  if (opts.fresh || corpus === 0) {
-    await act("apply migrations (supabase db reset)", () =>
-      deps.run("pnpm", ["supabase", "db", "reset"]),
-    );
-  } else {
-    deps.log(`✓ schema present (${String(corpus)} corpus entries)`);
-  }
-
-  await act("install python environment (uv sync)", () =>
-    deps.run("uv", ["sync"]),
-  );
-  await act("sync hosted corpus", () =>
-    deps.run("uv", ["run", "python", "-m", "pipeline.cli", "sync"]),
-  );
-
-  const embedded =
-    opts.dryRun && !dbWasUp ? 0 : await deps.embeddedCount();
+  const embedded = opts.dryRun ? 1 : await deps.embeddedCount();
   if (embedded === 0) {
     await act("embed a 25-entry sample with your Cloudflare models", () =>
       deps.run("uv", [
@@ -155,8 +148,7 @@ export function defaultOnboardDeps(): OnboardDeps {
         close();
       }
     },
-    dbUp: async () => (await doctor.probeSql(LOCAL_DSN)) === null,
-    corpusCount: () => count(""),
+    setupLocal: (opts) => setupLocal(defaultSetupLocalDeps(), opts),
     embeddedCount: () => count("where embedding is not null"),
     run: (command, args) =>
       new Promise((resolveRun, rejectRun) => {

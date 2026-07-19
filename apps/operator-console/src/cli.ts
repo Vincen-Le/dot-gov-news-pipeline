@@ -169,7 +169,10 @@ program
     "Guided setup: toolchain, credentials, local db, corpus, smoke run",
   )
   .option("--dry-run", "show the plan and run checks without changing anything")
-  .option("--fresh", "force supabase db reset even if a corpus exists")
+  .option(
+    "--fresh",
+    "wipe and rebuild the local database (asks for confirmation)",
+  )
   .action((options: { dryRun?: boolean; fresh?: boolean }) =>
     runAction(async () => {
       await onboard(defaultOnboardDeps(), {

@@ -4,14 +4,18 @@ import { onboard, type OnboardDeps } from "./onboard";
 
 function fakeDeps(overrides: Partial<OnboardDeps> = {}) {
   const commands: string[] = [];
+  const setupCalls: object[] = [];
   const deps: OnboardDeps = {
     doctorTooling: async () => [{ name: "mise", ok: true, detail: "2026.7.1" }],
     envReady: async () => true,
     envInit: async () => {
       commands.push("envInit");
     },
-    dbUp: async () => true,
-    corpusCount: async () => 1000,
+    setupLocal: async (opts) => {
+      setupCalls.push(opts);
+      commands.push("setupLocal");
+      return { ok: true, pipelines: [], steps: [] };
+    },
     embeddedCount: async () => 50,
     run: async (command, args) => {
       commands.push([command, ...args].join(" "));
@@ -19,42 +23,38 @@ function fakeDeps(overrides: Partial<OnboardDeps> = {}) {
     log: () => undefined,
     ...overrides,
   };
-  return { deps, commands };
+  return { commands, deps, setupCalls };
 }
 
 describe("onboard", () => {
-  it("skips env init, db start, reset, and prepare when state is already good", async () => {
-    const { deps, commands } = fakeDeps();
+  it("delegates local preparation to setupLocal exactly once", async () => {
+    const { commands, deps, setupCalls } = fakeDeps();
     await onboard(deps, {});
-    expect(commands).not.toContain("envInit");
-    expect(commands.join("\n")).not.toContain("supabase start");
-    expect(commands.join("\n")).not.toContain("db reset");
-    expect(commands.join("\n")).not.toContain("prepare");
-    // Always refreshes corpus and runs the smoke experiment.
-    expect(commands.join("\n")).toContain("pipeline.cli sync");
-    expect(commands.join("\n")).toContain("experiment onboarding-smoke");
+    expect(setupCalls).toHaveLength(1);
+    const joined = commands.join("\n");
+    expect(joined).not.toContain("supabase");
+    expect(joined).not.toContain("db reset");
+    expect(joined).toContain("experiment onboarding-smoke");
   });
 
-  it("runs every step on a fresh machine", async () => {
-    const { deps, commands } = fakeDeps({
-      envReady: async () => false,
-      dbUp: async () => false,
-      corpusCount: async () => 0,
-      embeddedCount: async () => 0,
-    });
-    await onboard(deps, {});
-    const joined = commands.join("\n");
-    expect(commands[0]).toBe("envInit");
-    expect(joined).toContain("supabase start");
-    expect(joined).toContain("supabase db reset");
-    expect(joined).toContain("uv sync");
-    expect(joined).toContain("pipeline.cli sync");
-    expect(joined).toContain("pipeline.cli prepare --limit 25");
-    expect(joined).toContain("pipeline.cli experiment onboarding-smoke");
+  it("forwards fresh and dryRun to setupLocal", async () => {
+    const { deps, setupCalls } = fakeDeps();
+    await onboard(deps, { dryRun: true, fresh: true });
+    expect(setupCalls[0]).toMatchObject({ dryRun: true, fresh: true });
+  });
+
+  it("skips env init when credentials exist and runs it when missing", async () => {
+    const ready = fakeDeps();
+    await onboard(ready.deps, {});
+    expect(ready.commands).not.toContain("envInit");
+
+    const missing = fakeDeps({ envReady: async () => false });
+    await onboard(missing.deps, {});
+    expect(missing.commands[0]).toBe("envInit");
   });
 
   it("stops with fix guidance when tooling checks fail", async () => {
-    const { deps, commands } = fakeDeps({
+    const { commands, deps } = fakeDeps({
       doctorTooling: async () => [
         {
           name: "docker",
@@ -68,52 +68,39 @@ describe("onboard", () => {
     expect(commands).toHaveLength(0);
   });
 
-  it("dry run performs checks but executes nothing", async () => {
-    const { deps, commands } = fakeDeps({ corpusCount: async () => 0 });
-    await onboard(deps, { dryRun: true });
-    expect(commands).toHaveLength(0);
-  });
-
-  it("dry run reports real counts when the db is up, and would-reset when empty", async () => {
-    const logs: string[] = [];
-    const { deps, commands } = fakeDeps({
-      dbUp: async () => true,
-      corpusCount: async () => 0,
-      embeddedCount: async () => 0,
-      log: (message) => logs.push(message),
+  it("stops when setupLocal reports a broken pipeline", async () => {
+    const { deps } = fakeDeps({
+      setupLocal: async () => ({
+        ok: false,
+        pipelines: [
+          {
+            database: "simple_v1_db",
+            engine: "spine",
+            entries: null,
+            name: "simple_v1",
+            status: "broken: provisioning failed",
+          },
+        ],
+        steps: [],
+      }),
     });
-    await onboard(deps, { dryRun: true });
-    expect(commands).toHaveLength(0);
-    expect(logs).toContain("[dry-run] would apply migrations (supabase db reset)");
-    expect(logs).toContain(
-      "[dry-run] would embed a 25-entry sample with your Cloudflare models",
-    );
+    await expect(onboard(deps, {})).rejects.toThrow(/simple_v1/);
   });
 
-  it("dry run treats counts as 0 when the db is down, without probing it", async () => {
-    const logs: string[] = [];
-    const { deps, commands } = fakeDeps({
-      dbUp: async () => false,
-      corpusCount: async () => {
-        throw new Error("corpusCount should not be called when db is down");
-      },
-      embeddedCount: async () => {
-        throw new Error("embeddedCount should not be called when db is down");
-      },
-      log: (message) => logs.push(message),
-    });
-    await onboard(deps, { dryRun: true });
-    expect(commands).toHaveLength(0);
-    expect(logs).toContain("[dry-run] would start local supabase");
-    expect(logs).toContain("[dry-run] would apply migrations (supabase db reset)");
-    expect(logs).toContain(
-      "[dry-run] would embed a 25-entry sample with your Cloudflare models",
-    );
+  it("embeds the sample only when nothing is embedded yet", async () => {
+    const embedded = fakeDeps();
+    await onboard(embedded.deps, {});
+    expect(embedded.commands.join("\n")).not.toContain("prepare --limit 25");
+
+    const empty = fakeDeps({ embeddedCount: async () => 0 });
+    await onboard(empty.deps, {});
+    expect(empty.commands.join("\n")).toContain("prepare --limit 25");
   });
 
-  it("fresh forces a db reset even with an existing corpus", async () => {
-    const { deps, commands } = fakeDeps();
-    await onboard(deps, { fresh: true });
-    expect(commands.join("\n")).toContain("supabase db reset");
+  it("dry run executes no commands", async () => {
+    const { commands, deps } = fakeDeps({ embeddedCount: async () => 0 });
+    await onboard(deps, { dryRun: true });
+    // setupLocal is still invoked (it handles dryRun itself); nothing else runs.
+    expect(commands).toEqual(["setupLocal"]);
   });
 });
