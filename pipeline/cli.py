@@ -22,7 +22,7 @@ def _models(cfg, stub: bool, no_cache: bool):
         inner, tag = WorkersAI(cfg), cfg.adjudicator_model
     if no_cache:
         return inner
-    return CachedModels(inner, DecisionCache(CACHE_PATH), tag, cfg.prompt_version)
+    return CachedModels(inner, DecisionCache(CACHE_PATH), tag)
 
 
 def _until(value: str | None):

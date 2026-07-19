@@ -1,6 +1,6 @@
 """Content-keyed memo for adjudicator decisions.
 
-Keys are sha256 over (model_tag, prompt_version, a, b, context) — pure content, never row ids
+Keys are sha256 over (model_tag, a, b, context) — pure content, never row ids
 (ids regenerate on every experiment reset). Temperature-0 adjudication is
 deterministic, so a cached verdict is exactly what the model would return;
 repeat experiments only pay for decisions the config change actually altered.
@@ -53,11 +53,10 @@ class DecisionCache:
 class CachedModels:
     """ModelClient wrapper: memoizes adjudicate_same_event, delegates the rest."""
 
-    def __init__(self, inner: Any, cache: DecisionCache, model_tag: str,
-                 prompt_version: int = 1) -> None:
+    def __init__(self, inner: Any, cache: DecisionCache, model_tag: str) -> None:
         self.inner = inner
         self.cache = cache
-        self.model_tag = f"{model_tag}:prompt-v{prompt_version}"
+        self.model_tag = model_tag
         self.hits = 0
         self.misses = 0
 

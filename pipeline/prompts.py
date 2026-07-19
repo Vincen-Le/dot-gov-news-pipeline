@@ -22,11 +22,6 @@ ADJUDICATOR_SYSTEM = (
     "the same specific event; that relationship belongs at the theme level. "
     "Items about different actions under the same program are separate unless "
     "one is a direct update in the same concrete rollout, case, incident, or decision. "
-    "Recurring-format meetings, calls, visits, advisories, restrictions, and reports "
-    "on different dates are separate occurrences unless a shared unique incident, "
-    "order, docket, deadline, or explicit continuation ties them together. Identical "
-    "titles, the same officials, place, or topic, and a model-inferred 'likely update' "
-    "are not enough; an elapsed time gap is evidence for separate events. "
     "When uncertain, answer false. "
     'Respond with JSON only: {"same_event": boolean, "reason": "one sentence"}'
 )

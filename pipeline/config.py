@@ -24,7 +24,7 @@ class Config:
     enrichment_enabled: bool = True
     enricher_version: int = 1
     rubric_version: int = 1
-    prompt_version: int = 2
+    prompt_version: int = 1
     tau_seconds: float = 124_600.0
     topics_enabled: bool = False
     theme_sim_floor: float = 0.55
