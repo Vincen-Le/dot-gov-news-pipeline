@@ -3,6 +3,9 @@
 Independent infrastructure and source inventory for collecting news from U.S.
 government websites.
 
+**New contributor?** See [ONBOARDING.md](ONBOARDING.md) — two commands to a
+working local experiment environment.
+
 The repository currently implements:
 
 - Supabase for durable pipeline events, GSA inventory runs, government sites,
