@@ -1,0 +1,15 @@
+{
+  "run": {
+    "id": "aa4e1564-5055-47d3-a6f7-2e5288e3371c",
+    "name": "jul19-01-junk-lexicon",
+    "finished_at": "2026-07-19 10:48:54.093138+00"
+  },
+  "counts": {
+    "v1_chains": 12,
+    "v2_themes": 4,
+    "v3_pairs": 24,
+    "v4_candidates": 0,
+    "v5_entries": 100,
+    "v6_episodes": 8
+  }
+}

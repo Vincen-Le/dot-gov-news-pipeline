@@ -1,0 +1,5 @@
+theme_id,theme_name,granularity,generalized_label,gained_storyline_ids,proposed_split,reason
+"29422849-5943-464e-9660-390a2c03d493","Veteran Health Research","too_granular","Veteran Health and Wellbeing Initiatives","f43cdc69-852c-4f95-9d49-d109bb9ba282","","The research-only label is narrower than its care and empowerment members; the lifted label remains a coherent veteran-wellbeing beat."
+"2b33a929-d491-4f26-b421-ce3e84906951","International Diplomatic Efforts","too_broad","","","Bilateral meetings and calls|Conflict and regional-security diplomacy|Public and ceremonial diplomatic statements","It combines unrelated countries, regions, and diplomatic purposes into a general foreign-affairs bucket rather than one reader-follow storyline."
+"31143d94-861d-49e6-9430-9085722611c9","National Park Tourism","right","","","","The shared focus on measured local economic impact from park tourism is specific, repeatable, and coherent across sites."
+"43129039-c8f6-405a-a9ac-392690ebc9ed","Severe Weather Recovery","right","","","","Federal post-weather aid, deadlines, grants, and rebuilding form a coherent recovery beat despite differing states and storms."

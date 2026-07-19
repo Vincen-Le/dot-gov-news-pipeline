@@ -99,4 +99,45 @@ sweeps will use only keys verified in the live `load_config()` implementation.
 - Expected effect: materially higher V5 precision; fewer ubiquitous entity
   gates may also reduce V1/V2 false merges; event-key validity unchanged
 - Cost tier: Tier 2 (deterministic extraction only; test, reextract, replay)
+- Implementation receipt: committed as `17bbabd`; extraction tests 13/13 pass;
+  all 9,657 local entries were regenerated at extractor version 3 before the
+  replay
+- Run ID: `aa4e1564-5055-47d3-a6f7-2e5288e3371c`
+- Duration: 3,215.4s; processed 150; cache 3 hits / 132 misses; 140 episodes,
+  127 storylines, 12 multi-episode storylines, 4 themes / 24 themed storylines;
+  no model errors
+- Blinded crawl: V1 13 non-anchor episodes; V2 24 memberships across 4 themes;
+  V3 24 category/storyline pairs; V4 0 deterministic merge candidates; V5
+  480 entity tokens + 2 event keys across 100 entries; V6 10 non-anchor entries
+- Intruder self-test: 10/10 (four themes cycled to retain 10 independent
+  least-fit trials)
+- Mechanical scores: V1 0.307692; V2 0.875000; V3 1.000000; V4 penalty 0;
+  V5 0.262500; V6 1.000000; **R = 0.689038**
+- Delta: +0.276593 versus baseline, far above the targeted V5 reward quantum
+  0.000417; worst V1 method precision also improved from 0.692308 to 0.769231
+- Decision: **KEEP**
+- Reproducibility discovery: the required regeneration exposed a pre-existing
+  path mismatch. Normal `prepare` extracts from `summary or body_text`, while
+  `reextract` extracts from `body_text or summary`. The scored result therefore
+  reflects the committed lexicon plus regeneration through the existing
+  body-first command. This is explicitly isolated in iteration 02 rather than
+  silently folded into this decision.
+- Status: complete
+
+## Iteration 02 — extraction source parity
+
+- Vector targeted: V5 entity extraction validity and feature reproducibility
+- Exact change proposed: centralize the extraction input policy and make both
+  normal preparation and deterministic regeneration use `summary or body_text`;
+  bump the extractor version once to force a coherent local refresh
+- Evidence before change: on the fixed 100-entry V5 sample, the version-3
+  summary-first policy emits 441 tokens versus 480 body-first. Of 425 shared
+  tokens, the blind judge marked 122 valid and 303 invalid; 51/55 body-only
+  tokens were invalid. Summary-first removes those 51 known-invalid tokens and
+  restores 16 summary-only candidates, while retaining all 59 entities the
+  baseline V5 judge marked valid (body-first retained 54/59).
+- Expected effect: V5 precision above the current 0.262500 lower bound of
+  0.276644 before judging the 16 restored tokens, with one versioned and
+  reproducible input policy for current and future entries
+- Cost tier: Tier 2 (deterministic source-policy fix, test, reextract, replay)
 - Status: hypothesis recorded; implementation pending
