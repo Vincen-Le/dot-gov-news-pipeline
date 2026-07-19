@@ -42,6 +42,25 @@ class StorylineIndex:
         self.new_episode(storyline_id, episode_id, vec, entities, t)
         return story
 
+    def restore(self, storyline_id: str, member_vecs: list, entities: set,
+                newest_entry_at: datetime, episode_count: int) -> LiveStoryline:
+        """Rebuild a storyline from persisted state (anchored continuation).
+
+        All persisted episodes are closed, so the storyline is restored
+        dormant: retrievable as a candidate, but a same-story article opens a
+        new episode rather than reviving a finalized one.
+        """
+        story = LiveStoryline(id=storyline_id, order=len(self._stories))
+        self._stories[storyline_id] = story
+        story.member_vecs = list(member_vecs)
+        story.centroid = None
+        for i, vec in enumerate(story.member_vecs):
+            story.centroid = running_mean(story.centroid, i, vec)
+        story.entities = set(entities)
+        story.newest_entry_at = newest_entry_at
+        story.episode_count = episode_count
+        return story
+
     def new_episode(self, storyline_id: str, episode_id: str, vec: np.ndarray,
                     entities: set, t: datetime) -> None:
         s = self._stories[storyline_id]

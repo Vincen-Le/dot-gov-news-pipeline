@@ -72,3 +72,20 @@ def test_new_episode_resets_open_state():
     s = idx.all()[0]
     assert s.open_episode_id == "e2" and s.episode_count == 2
     assert s.entities == {"a", "b"} and len(s.member_vecs) == 2
+
+
+def test_restore_rebuilds_a_dormant_retrievable_storyline():
+    index = StorylineIndex()
+    t = datetime(2025, 7, 18, tzinfo=timezone.utc)
+    story = index.restore("s1", member_vecs=[VX, VY], entities={"fda"},
+                          newest_entry_at=t, episode_count=2)
+    # retrievable by max member cosine
+    top = index.top_candidates(VX, k=3, floor=0.5)
+    assert [(s.id, round(sim, 3)) for s, sim in top] == [("s1", 1.0)]
+    # dormant: no open episode, so a same-story article opens a new one
+    assert story.open_episode_id is None
+    assert not index.episode_active(story, t + timedelta(hours=1), 48)
+    assert story.episode_count == 2
+    assert story.newest_entry_at == t
+    # centroid is the running mean of the restored members
+    assert np.allclose(story.centroid, np.mean(np.stack([VX, VY]), axis=0))

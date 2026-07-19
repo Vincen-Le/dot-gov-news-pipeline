@@ -274,11 +274,34 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     print(f"[experiment] engine={cfg.engine} "
           f"database={_dsn_label(cfg.database_url)}", file=sys.stderr)
     _validate_engine(cfg)
-    if cfg.engine == "spine" and (topology_label_set_id is not None or use_golden):
-        raise ValueError("spine engine does not support topology curation "
-                         "or --use-golden yet")
+    if cfg.engine == "spine" and topology_label_set_id is not None:
+        raise ValueError("spine engine does not support topology curation")
     golden_anchor = None
-    if use_golden:
+    if use_golden and cfg.engine == "spine":
+        # anchored continue: the live tables ARE the reviewed golden image
+        # (golden promote froze them); verify that, skip the reset, and let
+        # the replay layer the next slice on top (spine/replay.py primes its
+        # index from the live storylines).
+        from pipeline.golden import GoldenValidationError
+        drifted = db.one("""
+            select count(*)::integer as n from public.golden_news_entries g
+            where g.review_status = 'reviewed'
+              and not exists (
+                  select 1 from public.news_entries ne
+                  where ne.id = g.news_entry_id
+                    and ne.episode_id = g.gold_episode_id)
+        """)
+        if drifted["n"] > 0:
+            raise GoldenValidationError(
+                f"live tables drifted from the reviewed golden image for "
+                f"{drifted['n']} entries; re-run golden promote (or rebuild) "
+                "before continuing")
+        golden_anchor = {"mode": "continue",
+                         "reviewed": db.one(
+                             "select count(*)::integer as n from "
+                             "public.golden_news_entries "
+                             "where review_status = 'reviewed'")["n"]}
+    elif use_golden:
         from pipeline.golden import GoldenValidationError, apply_reviewed, validate
         since = _anchored_replay_since(since)
         validation = validate(db, complete=True)

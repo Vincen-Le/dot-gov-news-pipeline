@@ -22,6 +22,36 @@ from spine.linker import Linker
 from spine.themes import sweep
 
 
+def _prime_index(db, index: StorylineIndex) -> int:
+    """Restore live storylines into the in-memory index (anchored continue).
+
+    After a reset this is a no-op; after a golden-anchored run it makes every
+    existing storyline retrievable so new slices layer on top instead of
+    re-clustering from nothing. Member order matches build order.
+    """
+    rows = db.all("""
+        select e.storyline_id::text, ne.embedding, ne.entity_set,
+               ne.published_at, s.episode_count
+        from public.episode_entries ee
+        join public.episodes e on e.id = ee.episode_id
+        join public.storylines s on s.id = e.storyline_id
+        join public.news_entries ne on ne.id = ee.entry_id
+        where s.merged_into is null
+        order by e.storyline_id, ne.published_at, ne.id
+    """)
+    by_story: dict[str, list[dict]] = {}
+    for row in rows:
+        by_story.setdefault(row["storyline_id"], []).append(row)
+    for storyline_id, members in by_story.items():
+        index.restore(
+            storyline_id,
+            member_vecs=[unpack_fp16(m["embedding"]) for m in members],
+            entities={e for m in members for e in (m["entity_set"] or [])},
+            newest_entry_at=max(m["published_at"] for m in members),
+            episode_count=members[-1]["episode_count"])
+    return len(by_story)
+
+
 def _close(replay, card_engine: CardEngine, index: StorylineIndex, story) -> None:
     replay.close_episode(story.open_episode_id)
     card_engine.on_episode_closed(
@@ -57,6 +87,9 @@ def run(store, models, cfg, limit=None, since=None, until=None,
         replay = _WindowedFake(store, window)
 
     index = StorylineIndex()
+    primed = 0
+    if hasattr(store, "db"):  # real Store; fakes replay from a clean slate
+        primed = _prime_index(store.db, index)
     card_engine = CardEngine(replay, models, cfg)
     if rows:
         # corpus dim (e.g. 1024 for real bge-m3 embeddings) guards
@@ -124,6 +157,6 @@ def run(store, models, cfg, limit=None, since=None, until=None,
         sweep_runs += 1
 
     return {"engine": "spine", "processed": processed,
-            "episodes_closed": closed_count,
+            "episodes_closed": closed_count, "storylines_primed": primed,
             "storylines_created": created, "attach_mix": attach_mix,
             "theme_sweeps": sweep_runs, "theme_sweep_totals": sweep_totals}
