@@ -59,3 +59,10 @@ def test_adjudicate_parses_json_and_defaults_to_split_on_error():
 def test_workers_ai_embedding_tag_is_the_configured_model():
     ai = WorkersAI(_cfg(), transport=_transport(lambda request: None))
     assert ai.embedding_tag == _cfg().embedding_model
+
+
+def test_extract_json_passes_through_parsed_dict():
+    from pipeline.ai import _extract_json
+
+    parsed = {"category_id": "c-1", "reason": "already parsed by workers ai"}
+    assert _extract_json(parsed) == parsed

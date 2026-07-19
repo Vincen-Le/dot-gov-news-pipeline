@@ -18,7 +18,9 @@ from pipeline.prompts import (
 )
 
 
-def _extract_json(text: str) -> dict:
+def _extract_json(text: str | dict) -> dict:
+    if isinstance(text, dict):  # workers ai may return pre-parsed json
+        return text
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         raise ValueError(f"no json object in model output: {text[:200]}")
