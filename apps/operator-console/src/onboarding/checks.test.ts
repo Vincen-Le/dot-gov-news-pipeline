@@ -25,6 +25,8 @@ function fakeDeps(overrides: Partial<DoctorDeps> = {}): DoctorDeps {
       supabaseUrl: "https://x.supabase.co",
       publishableKey: "sb_publishable_abc",
     },
+    registry: () => null,
+    probePipeline: async () => null,
     ...overrides,
   };
 }
@@ -96,5 +98,44 @@ describe("runDoctor", () => {
       }),
     );
     expect(broken.find((r) => r.name === "hosted direct read")?.ok).toBe(false);
+  });
+
+  it("reports one row per registry pipeline", async () => {
+    const deps = fakeDeps({
+      registry: () => ({
+        pipelines: [
+          {
+            databaseUrl: "postgresql://x@127.0.0.1:57422/postgres",
+            engine: "classic",
+            name: "complex_v1",
+          },
+          {
+            databaseUrl: "postgresql://x@127.0.0.1:57422/simple_v1_db",
+            engine: "spine",
+            name: "simple_v1",
+          },
+        ],
+      }),
+      probePipeline: async (entry) =>
+        entry.name === "simple_v1" ? "missing experiment tables" : null,
+    });
+    const results = await runDoctor(deps);
+    const complex = results.find((r) => r.name === "pipeline complex_v1");
+    const simple = results.find((r) => r.name === "pipeline simple_v1");
+    expect(complex?.ok).toBe(true);
+    expect(simple?.ok).toBe(false);
+    expect(simple?.fix).toContain("pnpm ops setup");
+  });
+
+  it("omits pipeline rows without a registry", async () => {
+    const results = await runDoctor(fakeDeps());
+    expect(results.some((r) => r.name.startsWith("pipeline "))).toBe(false);
+  });
+
+  it("reports the remote API as optional when unconfigured", async () => {
+    const results = await runDoctor(fakeDeps());
+    const remote = results.find((r) => r.name === "remote API");
+    expect(remote?.ok).toBe(true);
+    expect(remote?.detail).toContain("not deployed");
   });
 });

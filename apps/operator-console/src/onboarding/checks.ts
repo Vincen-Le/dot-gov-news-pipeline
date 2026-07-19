@@ -5,7 +5,15 @@ import { resolve } from "node:path";
 
 import postgres from "postgres";
 
-import { repositoryRoot } from "../config";
+import {
+  repositoryRoot,
+  loadPipelineRegistry,
+  type PipelineEntry,
+  type PipelineRegistry,
+} from "../config";
+import { createLabDb } from "../lab/db";
+import { namespaceForEngine, namespaceTables } from "../lab/namespace";
+import { pipelineDbName, probePipelineDatabase } from "../lab/setup";
 
 export const LOCAL_DSN =
   "postgresql://postgres:postgres@127.0.0.1:57422/postgres";
@@ -29,6 +37,9 @@ export interface DoctorDeps {
   probeSql: (dsn: string) => Promise<string | null>;
   env: Record<string, string | undefined>;
   hosted: HostedConfig;
+  registry: () => PipelineRegistry | null;
+  /** null = ready, string = problem detail */
+  probePipeline: (entry: PipelineEntry) => Promise<string | null>;
 }
 
 const PLACEHOLDER_PREFIX = "REPLACE_";
@@ -142,6 +153,27 @@ async function credentialChecks(deps: DoctorDeps): Promise<CheckResult[]> {
         },
   );
 
+  const registry = deps.registry();
+  if (registry !== null) {
+    for (const entry of registry.pipelines) {
+      const problem = await deps.probePipeline(entry);
+      results.push(
+        problem === null
+          ? {
+              name: `pipeline ${entry.name}`,
+              ok: true,
+              detail: `${pipelineDbName(entry) || "postgres"} ready`,
+            }
+          : {
+              name: `pipeline ${entry.name}`,
+              ok: false,
+              detail: problem,
+              fix: "Run: pnpm ops setup",
+            },
+      );
+    }
+  }
+
   const accountId = deps.env.CLOUDFLARE_ACCOUNT_ID;
   const token = deps.env.CLOUDFLARE_API_TOKEN;
   if (!accountId || !token) {
@@ -224,6 +256,21 @@ async function credentialChecks(deps: DoctorDeps): Promise<CheckResult[]> {
     );
   }
 
+  results.push(
+    deps.env.OPS_API_URL
+      ? {
+          name: "remote API",
+          ok: true,
+          detail: `configured (${deps.env.OPS_API_URL})`,
+        }
+      : {
+          name: "remote API",
+          ok: true,
+          detail:
+            "not deployed (optional) — pnpm ops deploy enables remote commands",
+        },
+  );
+
   return results;
 }
 
@@ -268,5 +315,25 @@ export function defaultDoctorDeps(): DoctorDeps {
     },
     env: process.env,
     hosted: loadHostedConfig(),
+    registry: () => loadPipelineRegistry(),
+    probePipeline: async (entry) => {
+      const { experimentRuns, rankSnapshots } = namespaceTables(
+        namespaceForEngine(entry.engine),
+      );
+      const probe = await probePipelineDatabase(
+        () => createLabDb(entry.databaseUrl),
+        {
+          experiment_runs: experimentRuns,
+          news_entries: "news_entries",
+          rank_snapshots: rankSnapshots,
+        },
+      );
+      if (probe.status === "missing") {
+        return `database ${pipelineDbName(entry) || entry.databaseUrl} does not exist`;
+      }
+      return probe.missing.length === 0
+        ? null
+        : `missing ${probe.missing.join(", ")}`;
+    },
   };
 }
