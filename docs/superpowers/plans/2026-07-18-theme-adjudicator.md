@@ -33,7 +33,7 @@ Workers AI returns `result["response"]` as an already-parsed dict when the model
 **Interfaces:**
 - Produces: `_extract_json(text: str | dict) -> dict` — dict input returned unchanged; string input regex + `json.loads` as today.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_ai.py`:
 
@@ -45,12 +45,12 @@ def test_extract_json_passes_through_parsed_dict():
     assert _extract_json(parsed) == parsed
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `uv run pytest tests/test_ai.py::test_extract_json_passes_through_parsed_dict -q`
 Expected: FAIL with `TypeError: expected string or bytes-like object, got 'dict'`
 
-- [ ] **Step 3: Implement the fix**
+- [x] **Step 3: Implement the fix**
 
 In `pipeline/ai.py`, replace `_extract_json`:
 
@@ -64,12 +64,12 @@ def _extract_json(text: str | dict) -> dict:
     return json.loads(match.group(0))
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_ai.py -q`
 Expected: all PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pipeline/ai.py tests/test_ai.py
@@ -89,7 +89,7 @@ git commit -m "fix: accept pre-parsed dict responses from workers ai json output
   - `storyline`: `{"headline": str, "summary": str}`
   - each candidate: `{"theme_id": str, "name": str, "storyline_count": int, "recent_headlines": list[str]}`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_prompts.py` (add `build_theme_adjudicator_prompt` to the existing `from pipeline.prompts import (...)` block):
 
@@ -110,12 +110,12 @@ def test_theme_adjudicator_prompt_lists_candidates_and_json_contract():
     assert "Harvard exchange-program" in user
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `uv run pytest tests/test_prompts.py::test_theme_adjudicator_prompt_lists_candidates_and_json_contract -q`
 Expected: FAIL with `ImportError: cannot import name 'build_theme_adjudicator_prompt'`
 
-- [ ] **Step 3: Implement the prompt**
+- [x] **Step 3: Implement the prompt**
 
 Append to `pipeline/prompts.py`:
 
@@ -152,12 +152,12 @@ def build_theme_adjudicator_prompt(storyline: dict,
     return THEME_ADJUDICATOR_SYSTEM, user
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_prompts.py -q`
 Expected: all PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pipeline/prompts.py tests/test_prompts.py
@@ -178,7 +178,7 @@ git commit -m "feat: theme adjudicator prompt with join/spawn/merge json contrac
   `{"decision": str, "theme_id": str | None, "new_theme_name": str | None, "merge_theme_ids": list[str], "reason": str}`.
   Raises on transport/parse errors — the engine handles fallback, this method does not catch.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_ai.py`:
 
@@ -221,12 +221,12 @@ def test_adjudicate_theme_raises_on_transport_error():
 
 Add `import pytest` to the imports of `tests/test_ai.py` if not present.
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_ai.py -q -k adjudicate_theme`
 Expected: FAIL with `AttributeError: 'WorkersAI' object has no attribute 'adjudicate_theme'`
 
-- [ ] **Step 3: Implement the method**
+- [x] **Step 3: Implement the method**
 
 In `pipeline/ai.py`: add `build_theme_adjudicator_prompt` to the `from pipeline.prompts import (...)` block, then append to `WorkersAI` (after `classify_category`):
 
@@ -246,12 +246,12 @@ In `pipeline/ai.py`: add `build_theme_adjudicator_prompt` to the `from pipeline.
         }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_ai.py -q`
 Expected: all PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pipeline/ai.py tests/test_ai.py
@@ -271,7 +271,7 @@ Stub joins the first (nearest) candidate — deterministic, keeps offline `topic
 **Interfaces:**
 - Produces: `StubModels.adjudicate_theme(storyline, candidates) -> dict`, same shape as Task 3. Joins `candidates[0]` when candidates exist; spawns otherwise. Never merges.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_stub.py`:
 
@@ -298,12 +298,12 @@ def test_stub_adjudicate_theme_spawns_without_candidates():
 
 (`StubModels` is already imported in `tests/test_stub.py`; if not, add `from pipeline.stub import StubModels`.)
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_stub.py -q -k adjudicate_theme`
 Expected: FAIL with `AttributeError`
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Append to `StubModels` in `pipeline/stub.py` (after `classify_category`):
 
@@ -317,12 +317,12 @@ Append to `StubModels` in `pipeline/stub.py` (after `classify_category`):
                 "merge_theme_ids": [], "reason": "stub: no candidates"}
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_stub.py -q`
 Expected: all PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pipeline/stub.py tests/test_stub.py
@@ -346,7 +346,7 @@ git commit -m "feat: stub theme adjudicator joins nearest candidate"
   - `Store.merge_theme(loser_id: str, winner_id: str) -> None` — wraps RPC `merge_topic_theme(p_loser_id uuid, p_winner_id uuid)`: repoints `storylines.theme_id`, sets loser `merged_into` + `storyline_count = 0`, recomputes winner aggregates.
   - `FakeStore` mirrors all three.
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 Create `supabase/migrations/20260718100900_create_merge_topic_theme.sql`:
 
@@ -393,12 +393,12 @@ revoke execute on function public.merge_topic_theme(uuid, uuid)
 grant execute on function public.merge_topic_theme(uuid, uuid) to service_role;
 ```
 
-- [ ] **Step 2: Apply migration locally**
+- [x] **Step 2: Apply migration locally**
 
 Run: `npx supabase migration up`
 Expected: `20260718100900` applied without error.
 
-- [ ] **Step 3: Write the failing integration test**
+- [x] **Step 3: Write the failing integration test**
 
 Append to `tests/test_store_integration.py`:
 
@@ -459,12 +459,12 @@ def test_merge_topic_theme_repoints_storylines_and_tombstones_loser():
                     "delete from public.topic_themes where id = %(t)s", {"t": tid})
 ```
 
-- [ ] **Step 4: Run integration test to verify it fails**
+- [x] **Step 4: Run integration test to verify it fails**
 
 Run: `DATABASE_URL=postgresql://postgres:postgres@localhost:57422/postgres uv run pytest tests/test_store_integration.py::test_merge_topic_theme_repoints_storylines_and_tombstones_loser -m integration -q`
 Expected: FAIL with `AttributeError: 'Store' object has no attribute 'merge_theme'`
 
-- [ ] **Step 5: Implement Store methods**
+- [x] **Step 5: Implement Store methods**
 
 In `pipeline/store.py`, change `all_themes` select list to include `created_at`:
 
@@ -503,7 +503,7 @@ Append after `storyline_theme_state`:
                     p_winner_id=winner_id)
 ```
 
-- [ ] **Step 6: Mirror in FakeStore**
+- [x] **Step 6: Mirror in FakeStore**
 
 In `tests/fakes.py`:
 
@@ -547,12 +547,12 @@ Append after `upsert_category`:
             if s.get("theme_id") == winner_id)
 ```
 
-- [ ] **Step 7: Run tests to verify they pass**
+- [x] **Step 7: Run tests to verify they pass**
 
 Run: `DATABASE_URL=postgresql://postgres:postgres@localhost:57422/postgres uv run pytest tests/test_store_integration.py -m integration -q && uv run pytest tests/ -q`
 Expected: all PASS (unit suite proves the FakeStore changes broke nothing).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add supabase/migrations/20260718100900_create_merge_topic_theme.sql pipeline/store.py tests/fakes.py tests/test_store_integration.py
@@ -577,7 +577,7 @@ Rewrites `_assign` to shortlist by theme centroids and defer the decision to `mo
   - `_spawn(..., name: str | None = None)` uses the adjudicator-provided name when present, otherwise the namer/headline path;
   - `_knn_fallback(storyline_id, state, vec, method, note)` = previous majority-vote logic, reason suffixed with `note`.
 
-- [ ] **Step 1: Update existing tests whose behavior changes**
+- [x] **Step 1: Update existing tests whose behavior changes**
 
 In `tests/test_topics.py`:
 
@@ -632,7 +632,7 @@ def test_adjudicator_failure_falls_back_to_knn_majority_vote():
 
 Update `test_drift_below_stick_floor_reassigns_via_knn`: rename to `test_drift_below_stick_floor_reassigns_via_adjudicator` (body unchanged — the stub joins the nearest theme, method stays `reassigned`; keep both existing asserts).
 
-- [ ] **Step 2: Write new failing tests**
+- [x] **Step 2: Write new failing tests**
 
 Append to `tests/test_topics.py`:
 
@@ -676,12 +676,12 @@ def test_adjudicator_spawn_uses_provided_name_without_namer_call():
     assert store.storylines[second]["theme_reason"] == "different subject than candidates"
 ```
 
-- [ ] **Step 3: Run tests to verify the new ones fail**
+- [x] **Step 3: Run tests to verify the new ones fail**
 
 Run: `uv run pytest tests/test_topics.py -q`
 Expected: new/updated adjudicator tests FAIL (current code never calls `adjudicate_theme`); spawn-path tests like `test_first_storyline_spawns_theme_with_short_llm_name` still PASS.
 
-- [ ] **Step 4: Rewrite the engine**
+- [x] **Step 4: Rewrite the engine**
 
 Replace `pipeline/topics.py` content from the docstring through `_spawn` (keep `_refresh_centroid` and `_classify` unchanged):
 
@@ -850,17 +850,17 @@ class ThemeEngine:
 
 Note: `test_first_storyline_spawns_theme_with_short_llm_name` asserts nothing about the reason string, but `test_dissimilar_storyline_below_floor_spawns` relies only on `theme_attach_method`; the no-candidates reason changed from "no themed storyline above sim floor" to "no theme above sim floor" — grep tests for the old string and update if any assert it (none do today).
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_topics.py tests/test_cluster_phase.py -q`
 Expected: all PASS
 
-- [ ] **Step 6: Run the whole unit suite**
+- [x] **Step 6: Run the whole unit suite**
 
 Run: `uv run pytest tests/ -q`
 Expected: all PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add pipeline/topics.py tests/test_topics.py
@@ -879,7 +879,7 @@ git commit -m "feat: llm adjudicator decides theme join/spawn with knn fallback"
 - Consumes: `store.merge_theme` / FakeStore mirror (Task 5), verdict `merge_theme_ids` (Task 3/4 shape), `_join`/`_spawn` (Task 6).
 - Produces: `_merge(merge_ids: list[str], top) -> str` returning the surviving theme id. Winner = highest `storyline_count`, ties → smallest `created_at`. Applied before join/spawn so a join into a merged loser lands on the survivor.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Append to `tests/test_topics.py`:
 
@@ -933,12 +933,12 @@ def test_merge_with_fewer_than_two_valid_ids_is_ignored():
     assert store.storylines[new]["theme_id"] == theme_a
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_topics.py -q -k merge`
 Expected: `test_merge_directive_...` FAILS (`merged_into` never set); `test_merge_with_fewer...` may pass already — fine.
 
-- [ ] **Step 3: Implement the merge branch**
+- [x] **Step 3: Implement the merge branch**
 
 In `pipeline/topics.py` `_assign`, replace the block after the `except` clause (from `valid = ...` to the end of the method) with:
 
@@ -977,17 +977,17 @@ Add the helper after `_join`:
         return winner
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_topics.py -q`
 Expected: all PASS
 
-- [ ] **Step 5: Run the whole unit suite**
+- [x] **Step 5: Run the whole unit suite**
 
 Run: `uv run pytest tests/ -q`
 Expected: all PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add pipeline/topics.py tests/test_topics.py
@@ -1010,7 +1010,7 @@ git commit -m "feat: adjudicator-directed inline theme merges"
 **Interfaces:**
 - Produces: `Store.touch_entities(tokens: list[str], t: datetime) -> None` wrapping the (now service_role-executable) `touch_entity_stats` RPC. `FakeStore` mirror bumps `self.emas[token] += 1.0` per touch (no decay — enough for unit tests) and appends to `self.touches`.
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 Create `supabase/migrations/20260718101000_grant_replay_entity_touch.sql`:
 
@@ -1023,12 +1023,12 @@ grant execute on function public.touch_entity_stats(text[], timestamptz)
     to service_role;
 ```
 
-- [ ] **Step 2: Apply migration locally**
+- [x] **Step 2: Apply migration locally**
 
 Run: `npx supabase migration up`
 Expected: `20260718101000` applied.
 
-- [ ] **Step 3: Write the failing test**
+- [x] **Step 3: Write the failing test**
 
 Append to `tests/test_cluster_phase.py` (reuse its harness helpers):
 
@@ -1046,12 +1046,12 @@ def test_cluster_touches_entity_stats_per_entry_in_event_time():
 
 (Adapt `make_harness`/`run_cluster` to the file's actual helper names; entries in the harness carry `entity_set`/`event_keys`.)
 
-- [ ] **Step 4: Run test to verify it fails**
+- [x] **Step 4: Run test to verify it fails**
 
 Run: `uv run pytest tests/test_cluster_phase.py -q -k touches`
 Expected: FAIL with `AttributeError: 'FakeStore' object has no attribute 'touches'` (or empty `touches`).
 
-- [ ] **Step 5: Implement**
+- [x] **Step 5: Implement**
 
 `pipeline/store.py`, after `update_entry_features`:
 
@@ -1077,12 +1077,12 @@ Expected: FAIL with `AttributeError: 'FakeStore' object has no attribute 'touche
             list(row["entity_set"]) + list(row["event_keys"]), t)
 ```
 
-- [ ] **Step 6: Run tests to verify they pass**
+- [x] **Step 6: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_cluster_phase.py tests/test_topics.py -q`
 Expected: all PASS (topics tests confirm the fake change broke nothing).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add supabase/migrations/20260718101000_grant_replay_entity_touch.sql pipeline/store.py pipeline/runner.py tests/fakes.py tests/test_cluster_phase.py
@@ -1105,7 +1105,7 @@ The analyzed run had a 100% LLM failure rate (dict-response bug) and produced a 
 - `summarize(db)` gains `"llm_health": {"overview_fallback_rate": float | None, "uncategorized_themes": int, "namer_errors": int}` (SQL-side truth, independent of in-process counters).
 - `run_experiment` merges `dict(getattr(models, "errors", {}))` into the summary as `summary["llm_health"]["model_errors"]` before rendering/recording.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_ai.py`:
 
@@ -1132,12 +1132,12 @@ def test_summary_reports_llm_health():
         assert key in health
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_ai.py tests/test_experiment.py -q -k "errors or llm_health"`
 Expected: FAIL (`AttributeError: errors` / `KeyError: llm_health`).
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `pipeline/ai.py`: `from collections import Counter`; in `WorkersAI.__init__` add `self.errors: Counter = Counter()`; in the except branches add `self.errors["adjudicator"] += 1` (adjudicate_same_event), `self.errors["classifier"] += 1` (classify_category), `self.errors["rank_audit"] += 1` (compare_rank).
 
@@ -1184,12 +1184,12 @@ and add `"llm_health": llm_health,` to the returned dict. In `run_experiment`, a
 
 (`render_report` runs after `run_experiment` injects `model_errors`; the `.get` keeps `summarize()`-only tests passing.)
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_ai.py tests/test_experiment.py -q`
 Expected: all PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pipeline/ai.py pipeline/experiment.py tests/test_ai.py tests/test_experiment.py
@@ -1211,7 +1211,7 @@ git commit -m "feat: count swallowed llm failures and surface llm health in repo
 **Interfaces:**
 - Produces: `EXTRACTOR_VERSION = 2`; `Store.entries_needing_reextraction(version: int, limit: int | None = None) -> list[dict]` (id/title/summary/body_text of rows with `extractor_version` null or `< version`); CLI `pipeline reextract [--limit N]` — pure-python re-extraction via `update_entry_features` (anchors + version only; embeddings and enrichment untouched, zero LLM cost).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_extraction.py`:
 
@@ -1239,12 +1239,12 @@ def test_extractor_version_bumped_for_pattern_change():
     assert EXTRACTOR_VERSION == 2
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_extraction.py -q`
 Expected: the four new tests FAIL.
 
-- [ ] **Step 3: Implement extraction changes**
+- [x] **Step 3: Implement extraction changes**
 
 In `pipeline/extraction.py`: set `EXTRACTOR_VERSION = 2`; in `_EVENT_KEY_PATTERNS` delete the CFR pattern line and replace the case-number pattern:
 
@@ -1254,7 +1254,7 @@ In `pipeline/extraction.py`: set `EXTRACTOR_VERSION = 2`; in `_EVENT_KEY_PATTERN
 
 (The CFR line `re.compile(r"\b\d{1,3}\s?CFR\s?...")` is removed entirely.)
 
-- [ ] **Step 4: Implement the reextract path**
+- [x] **Step 4: Implement the reextract path**
 
 `pipeline/store.py`, after `entries_needing_features`:
 
@@ -1296,12 +1296,12 @@ and the dispatch branch:
         out = {"reextracted": len(rows)}
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_extraction.py tests/ -q`
 Expected: all PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add pipeline/extraction.py pipeline/store.py pipeline/cli.py tests/test_extraction.py
@@ -1322,7 +1322,7 @@ Defense in depth: even with v2 patterns, one colliding key deterministically wre
 - Consumes: `cfg.storyline_sim_floor` (0.60), existing `cosine`.
 - Produces: event-key joins return `(id, "event_key", sim | None, None, None)` — `sim` set when the candidate has a centroid; candidates below the floor are skipped (loop continues, then tiers 2/3 run unchanged).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_storylines.py` (reuse the file's engine/store fixtures; shapes below match `FakeStore`-style dicts):
 
@@ -1356,12 +1356,12 @@ def test_event_key_join_allowed_without_centroid():
 
 (Adapt helper names to the file's existing fixtures — it already builds engines and seeded storylines for the tier-2/3 tests.)
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_storylines.py -q`
 Expected: the sanity-floor test FAILS (current tier 1 joins unconditionally).
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `pipeline/storylines.py` `resolve`, replace tier 1:
 
@@ -1378,12 +1378,12 @@ In `pipeline/storylines.py` `resolve`, replace tier 1:
                 return str(cand["id"]), "event_key", sim, None, None
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_storylines.py tests/ -q`
 Expected: all PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pipeline/storylines.py tests/test_storylines.py
@@ -1396,17 +1396,17 @@ git commit -m "fix: event-key joins demand centroid sanity so colliding keys can
 
 **Files:** none new.
 
-- [ ] **Step 1: Full unit suite**
+- [x] **Step 1: Full unit suite**
 
 Run: `uv run pytest tests/ -q`
 Expected: all PASS
 
-- [ ] **Step 2: Integration suite**
+- [x] **Step 2: Integration suite**
 
 Run: `DATABASE_URL=postgresql://postgres:postgres@localhost:57422/postgres uv run pytest tests/ -m integration -q`
 Expected: all PASS
 
-- [ ] **Step 3: Live smoke of the category fix (optional but cheap)**
+- [x] **Step 3: Live smoke of the category fix (optional but cheap)**
 
 With `.env` loaded (`set -a && source .env && set +a`):
 
@@ -1431,6 +1431,6 @@ EOF
 
 Expected: prints a verdict with a non-null `category_id` (no `classifier_error`).
 
-- [ ] **Step 4: Commit any stragglers, confirm clean tree**
+- [x] **Step 4: Commit any stragglers, confirm clean tree**
 
 Run: `git status --short` — only pre-existing unrelated modifications (news-backfill, operator-console) remain.
