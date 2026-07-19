@@ -32,7 +32,9 @@ def episode():
 
 def test_single_episode_close_also_writes_overview():
     store = CardFakeStore()
-    CardEngine(store, StubModels(), CFG).on_episode_closed(episode())
+    engine = CardEngine(store, StubModels(), CFG)
+    engine.corpus_dim = 256  # matches stub embed() dim exactly
+    engine.on_episode_closed(episode())
     kinds = [c["kind"] for c in store.cards]
     assert kinds == ["episode", "overview"]  # overview at birth: themes need a centroid
     overview = store.cards[1]
@@ -41,7 +43,9 @@ def test_single_episode_close_also_writes_overview():
 
 def test_overview_regenerated_on_multi_episode_storyline():
     store = CardFakeStore()
-    CardEngine(store, StubModels(), CFG).on_episode_closed(episode())
+    engine = CardEngine(store, StubModels(), CFG)
+    engine.corpus_dim = 256  # matches stub embed() dim exactly
+    engine.on_episode_closed(episode())
     kinds = [c["kind"] for c in store.cards]
     assert kinds == ["episode", "overview"]
     overview = store.cards[1]
@@ -89,7 +93,9 @@ class ExplodingCompressorModels(StubModels):
 
 def test_compressor_failure_falls_back_to_deterministic_overview():
     store = CardFakeStore()
-    CardEngine(store, ExplodingCompressorModels(), CFG).on_episode_closed(episode())
+    engine = CardEngine(store, ExplodingCompressorModels(), CFG)
+    engine.corpus_dim = 256  # matches stub embed() dim exactly
+    engine.on_episode_closed(episode())
     kinds = [c["kind"] for c in store.cards]
     assert kinds == ["episode", "overview"]          # close never blocks on the LLM
     overview = store.cards[1]
@@ -130,3 +136,14 @@ def test_overview_embedding_passes_through_when_dim_matches_corpus():
     overview = store.cards[1]
     assert overview["overview_embedding"] is not None
     assert engine.skipped_overview_embeddings == 0
+
+
+def test_overview_embedding_skipped_when_corpus_dim_unverified():
+    # A finalize-only invocation (zero new rows, stale open episodes) never
+    # sets corpus_dim -- it must be treated as unverified, not pass-through.
+    store = CardFakeStore()
+    engine = CardEngine(store, StubModels(), CFG)  # corpus_dim left at default None
+    engine.on_episode_closed(episode())
+    overview = store.cards[1]
+    assert overview["overview_embedding"] is None
+    assert engine.skipped_overview_embeddings == 1

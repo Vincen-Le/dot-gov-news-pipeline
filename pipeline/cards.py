@@ -21,16 +21,18 @@ class CardEngine:
         # Corpus embedding dimension (e.g. 1024 for bge-m3, 256 for the stub
         # bag-of-words embedder). Set by the replay driver (pipeline/runner.py,
         # spine/replay.py) from the first prepared row's stored embedding.
-        # None means "unknown" and disables the guard below, so callers that
-        # never set it (unit tests, single-model setups) keep prior behavior.
+        # None means "unknown" (e.g. a finalize-only invocation with zero new
+        # rows) and must never be treated as "trust the embedding" -- the
+        # guard below is fail-safe: unverified dimension always skips.
         self.corpus_dim: int | None = None
-        # Count of overview embeddings skipped because models.embed()
-        # returned a different dimension than corpus_dim -- e.g. a --stub
-        # run over a db seeded with real embeddings. storylines.centroid
-        # started at corpus_dim (news_entries.embedding); overwriting it with
-        # a mismatched vector would corrupt every downstream pairwise cosine
-        # (spine/themes.py cluster_storylines). Passing overview_embedding
-        # None keeps the existing centroid (insert_event_card does
+        # Count of overview embeddings skipped because either corpus_dim is
+        # unverified (None) or models.embed() returned a different dimension
+        # than corpus_dim -- e.g. a --stub run over a db seeded with real
+        # embeddings. storylines.centroid started at corpus_dim
+        # (news_entries.embedding); overwriting it with a mismatched vector
+        # would corrupt every downstream pairwise cosine (spine/themes.py
+        # cluster_storylines). Passing overview_embedding None keeps the
+        # existing centroid (insert_event_card does
         # `coalesce(p_overview_embedding, centroid)`).
         self.skipped_overview_embeddings = 0
 
@@ -76,11 +78,11 @@ class CardEngine:
         valid_ids = {str(c["episode_id"]) for c in episode_cards}
         timeline = validate_timeline(card.get("timeline", []), valid_ids)
         overview_vec = self.models.embed([card["summary"]])[0]
-        if self.corpus_dim is not None and len(overview_vec) != self.corpus_dim:
+        if self.corpus_dim is not None and len(overview_vec) == self.corpus_dim:
+            overview_embedding = pack_fp16(overview_vec)
+        else:
             self.skipped_overview_embeddings += 1
             overview_embedding = None
-        else:
-            overview_embedding = pack_fp16(overview_vec)
 
         self.store.insert_card(
             storyline_id=storyline_id, episode_id=None, kind="overview",
