@@ -7,6 +7,7 @@ import {
   LOCAL_DATABASE_URL,
   loadOperatorConfig,
   loadPipelineRegistry,
+  remoteConfigured,
 } from "../src/config";
 
 describe("loadOperatorConfig databaseUrl", () => {
@@ -30,6 +31,21 @@ describe("loadOperatorConfig databaseUrl", () => {
   });
 });
 
+describe("remoteConfigured", () => {
+  it("reflects OPS_API_URL presence", () => {
+    const original = process.env.OPS_API_URL;
+    try {
+      delete process.env.OPS_API_URL;
+      expect(remoteConfigured()).toBe(false);
+      process.env.OPS_API_URL = "https://ops.example.workers.dev";
+      expect(remoteConfigured()).toBe(true);
+    } finally {
+      if (original === undefined) delete process.env.OPS_API_URL;
+      else process.env.OPS_API_URL = original;
+    }
+  });
+});
+
 describe("loadPipelineRegistry", () => {
   let root: string | undefined;
 
@@ -46,7 +62,9 @@ describe("loadPipelineRegistry", () => {
   }
 
   it("returns null when the registry file is absent (backward compatible)", () => {
-    expect(loadPipelineRegistry("/nonexistent/config/pipelines.json")).toBeNull();
+    expect(
+      loadPipelineRegistry("/nonexistent/config/pipelines.json"),
+    ).toBeNull();
   });
 
   it("parses the documented registry shape", async () => {
@@ -54,12 +72,14 @@ describe("loadPipelineRegistry", () => {
       JSON.stringify({
         pipelines: [
           {
-            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/complex_db",
+            databaseUrl:
+              "postgresql://postgres:postgres@127.0.0.1:57422/complex_db",
             engine: "classic",
             name: "complex",
           },
           {
-            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/spine_db",
+            databaseUrl:
+              "postgresql://postgres:postgres@127.0.0.1:57422/spine_db",
             engine: "spine",
             name: "spine",
           },
