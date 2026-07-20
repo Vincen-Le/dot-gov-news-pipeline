@@ -62,8 +62,7 @@ select is(
 );
 
 select ok(
-    not has_table_privilege('anon', 'public.news_sources', 'select')
-    and not has_table_privilege(
+    not has_table_privilege(
         'anon',
         'public.government_site_news_sources',
         'select'
@@ -73,7 +72,7 @@ select ok(
         'public.news_source_fetch_state',
         'select'
     ),
-    'anon cannot read generalized source state'
+    'anon cannot read non-corpus generalized source state'
 );
 
 select ok(

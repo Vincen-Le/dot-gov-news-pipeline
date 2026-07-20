@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { isLocalDsn, labCapability, type LabDb } from "../src/lab/db";
 
-const LOCAL = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+const LOCAL = "postgresql://postgres:postgres@127.0.0.1:57422/postgres";
 const REMOTE =
   "postgresql://u:p@aws-1-us-east-2.pooler.supabase.com:5432/postgres";
 

@@ -19,7 +19,7 @@ import { LabQueries } from "../src/lab/queries";
 const enabled = process.env.LAB_DB_TESTS === "1";
 const dsn =
   process.env.DATABASE_URL ??
-  "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+  "postgresql://postgres:postgres@127.0.0.1:57422/postgres";
 const fixture = readFileSync(
   resolve(import.meta.dirname, "fixtures/lab-fixture.sql"),
   "utf8",

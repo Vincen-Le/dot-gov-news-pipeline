@@ -19,7 +19,7 @@
     "news:backfill": "pnpm --filter @dot-gov-news/news-backfill backfill",
     "lint": "eslint .",
     "ops": "pnpm --filter @dot-gov-news/operator-console ops",
-    "ops:setup": "pnpm --filter @dot-gov-news/operator-console run setup",
+    "ops:deploy": "pnpm --filter @dot-gov-news/operator-console run deploy",
     "ops:start": "pnpm ops dashboard",
     "supabase": "supabase",
     "test": "pnpm --recursive --if-present test && vitest run scripts --exclude '**/.claude/**' --exclude '**/.superpowers/**'",

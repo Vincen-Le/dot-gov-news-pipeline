@@ -1,10 +1,12 @@
 #!/usr/bin/env node
+import { spawn } from "node:child_process";
+import { resolve } from "node:path";
 import { Command } from "commander";
 
 import { OperatorApiClient, OperatorApiError } from "./api-client";
 import {
   loadOperatorConfig,
-  loadPipelineRegistry,
+  remoteConfigured,
   repositoryRoot,
   requireOperatorConfig,
 } from "./config";
@@ -18,9 +20,11 @@ import {
 import { ExperimentHarness, defaultSpawner } from "./lab/harness";
 import { snapshotLabMetrics } from "./lab/metrics";
 import { LabQueries } from "./lab/queries";
-import { defaultProvisioner, setupPipeline } from "./lab/setup";
+import { defaultDoctorDeps, runDoctor } from "./onboarding/checks";
+import { defaultEnvInitDeps, envInit } from "./onboarding/env-init";
+import { defaultOnboardDeps, onboard } from "./onboarding/onboard";
+import { defaultSetupLocalDeps, setupLocal } from "./onboarding/setup-local";
 import { formatAge, printJson, printRows, sinceTimestamp } from "./output";
-import { operatorRecipes } from "./recipes";
 import { sanitizedDsn, startDashboard } from "./server";
 import { WorkerTail, type TailEvent } from "./tail-process";
 
@@ -73,7 +77,11 @@ const program = new Command()
   .showHelpAfterError()
   .version("0.1.0");
 
-program
+const remote = new Command("remote").description(
+  "Observe the deployed pipeline (read-only)",
+);
+
+remote
   .command("health")
   .description("Run shallow or deep dependency health checks")
   .option("--deep", "verify the latest R2 artifact as well")
@@ -102,7 +110,7 @@ program
     }),
   );
 
-program
+remote
   .command("queues")
   .description("Read realtime Queue and DLQ pressure")
   .option("--json", "print validated JSON only")
@@ -125,7 +133,111 @@ program
     }),
   );
 
-const inventory = program
+program
+  .command("doctor")
+  .description("Check local toolchain, credentials, and hosted access")
+  .option("--json", "machine-readable output")
+  .action((options: { json?: boolean }) =>
+    runAction(async () => {
+      const results = await runDoctor(defaultDoctorDeps());
+      if (options.json) {
+        console.log(JSON.stringify(results, null, 2));
+      } else {
+        for (const result of results) {
+          console.log(
+            `${result.ok ? "✓" : "✗"} ${result.name} — ${result.detail}`,
+          );
+          if (!result.ok && result.fix) console.log(`    fix: ${result.fix}`);
+        }
+      }
+      if (results.some((r) => !r.ok)) process.exitCode = 1;
+    }),
+  )
+  .helpGroup("Local:");
+
+const env = program
+  .command("env")
+  .description("Manage the local .env file")
+  .helpGroup("Local:");
+env
+  .command("init")
+  .description("Prompt for contributor credentials, validate, write .env")
+  .action(() =>
+    runAction(async () => {
+      const { close, deps } = defaultEnvInitDeps();
+      try {
+        await envInit(deps);
+      } finally {
+        close();
+      }
+    }),
+  );
+
+program
+  .command("onboard")
+  .description(
+    "Guided setup: toolchain, credentials, local db, corpus, smoke run",
+  )
+  .option("--dry-run", "show the plan and run checks without changing anything")
+  .option(
+    "--fresh",
+    "wipe and rebuild the local database (asks for confirmation)",
+  )
+  .action((options: { dryRun?: boolean; fresh?: boolean }) =>
+    runAction(async () => {
+      await onboard(defaultOnboardDeps(), {
+        dryRun: options.dryRun,
+        fresh: options.fresh,
+      });
+    }),
+  )
+  .helpGroup("Local:");
+
+program
+  .command("setup")
+  .description(
+    "Prepare local databases for every pipeline: stack, migrations, corpus, registry",
+  )
+  .option(
+    "--fresh",
+    "wipe and rebuild the local database (asks for confirmation)",
+  )
+  .option("--yes", "skip the --fresh confirmation prompt")
+  .option("--dry-run", "print the step plan without changing anything")
+  .option("--json", "print the pipeline report as JSON")
+  .action(
+    (
+      options: JsonOption & {
+        dryRun?: boolean;
+        fresh?: boolean;
+        yes?: boolean;
+      },
+    ) =>
+      runAction(async () => {
+        const report = await setupLocal(defaultSetupLocalDeps(), {
+          dryRun: options.dryRun,
+          fresh: options.fresh,
+          yes: options.yes,
+        });
+        if (options.json) {
+          printJson(report);
+        } else if (report.pipelines.length > 0) {
+          printRows(
+            report.pipelines.map((result) => ({
+              database: result.database,
+              engine: result.engine,
+              entries: result.entries ?? "—",
+              name: result.name,
+              status: result.status,
+            })),
+          );
+        }
+        if (!report.ok) process.exitCode = 1;
+      }),
+  )
+  .helpGroup("Local:");
+
+const inventory = remote
   .command("inventory")
   .description("Inspect GSA inventory synchronization");
 
@@ -262,7 +374,7 @@ inventory
     }),
   );
 
-const discovery = program
+const discovery = remote
   .command("discovery")
   .description("Inspect discovery state when migration 00400 is enabled");
 for (const commandName of ["summary", "active", "failures"] as const) {
@@ -276,7 +388,7 @@ for (const commandName of ["summary", "active", "failures"] as const) {
     );
 }
 
-const events = program.command("events").description("Inspect pipeline events");
+const events = remote.command("events").description("Inspect pipeline events");
 events
   .command("list")
   .option("--since <duration>", "for example 30m or 2h")
@@ -346,7 +458,7 @@ events
     }),
   );
 
-program
+remote
   .command("site")
   .description("Site inspection commands")
   .command("inspect <hostname>")
@@ -379,7 +491,7 @@ program
     }),
   );
 
-program
+remote
   .command("worker")
   .description("Worker observability commands")
   .command("tail")
@@ -420,6 +532,49 @@ program
       }),
   );
 
+if (remoteConfigured()) {
+  program.addCommand(remote.helpGroup("Remote:"));
+} else {
+  program.addCommand(remote, { hidden: true });
+  remote.hook("preSubcommand", () => {
+    process.stderr.write(
+      "remote: not configured — deploy the operator API first (pnpm ops deploy)\n",
+    );
+    process.exit(3);
+  });
+  program.addHelpText(
+    "after",
+    "\nremote: not configured — deploy the operator API first (pnpm ops deploy)\n",
+  );
+}
+
+// Hidden shims: the seven observability groups used to live at the top
+// level. Any invocation — bare name or with subcommands/options — routes
+// here and points operators at the new `remote` home. commander's
+// `.command("*", { hidden: true })` wildcard only catches the zero-argument
+// case, so we use a variadic `[args...]` argument plus
+// allowExcessArguments() to swallow every shape of the old invocation.
+for (const moved of [
+  "health",
+  "queues",
+  "events",
+  "inventory",
+  "discovery",
+  "site",
+  "worker",
+] as const) {
+  const shim = new Command(moved)
+    .allowUnknownOption()
+    .allowExcessArguments()
+    .argument("[args...]")
+    .helpOption(false)
+    .action(() => {
+      process.stderr.write(`moved: pnpm ops remote ${moved}\n`);
+      process.exitCode = 2;
+    });
+  program.addCommand(shim, { hidden: true });
+}
+
 program
   .command("dashboard")
   .description("Start the private local dashboard")
@@ -433,35 +588,59 @@ program
         port: Number(options.port),
       });
       process.stdout.write(`Operator dashboard: ${dashboard.url}\n`);
-      process.stdout.write(`Lab database: ${sanitizedDsn(config.databaseUrl)}\n`);
+      process.stdout.write(
+        `Lab database: ${sanitizedDsn(config.databaseUrl)}\n`,
+      );
       await new Promise<void>((resolve) => {
         process.once("SIGINT", resolve);
         process.once("SIGTERM", resolve);
       });
       await dashboard.close();
     }),
-  );
+  )
+  .helpGroup("Local:");
 
 program
-  .command("examples")
-  .option("--json", "print recipe catalog as JSON")
-  .action((options: JsonOption) => {
-    if (options.json) printJson(operatorRecipes);
-    else
-      printRows(
-        operatorRecipes.map((recipe) => ({
-          command: recipe.cli,
-          purpose: recipe.description,
-        })),
-      );
-  });
+  .command("docs:generate")
+  .action(() =>
+    runAction(async () => {
+      await generateCheatsheet();
+      process.stdout.write("Generated docs/operations/cli-cheatsheet.md\n");
+    }),
+  )
+  .helpGroup("Meta:");
 
-program.command("docs:generate").action(() =>
-  runAction(async () => {
-    await generateCheatsheet();
-    process.stdout.write("Generated docs/operations/cli-cheatsheet.md\n");
-  }),
-);
+program
+  .command("deploy")
+  .description(
+    "Deploy the read-only Operator API to Cloudflare and configure .env",
+  )
+  .helpGroup("Meta:")
+  .allowUnknownOption()
+  .argument(
+    "[args...]",
+    "flags forwarded to the deploy script (--dry-run, --rotate-token, --yes)",
+  )
+  .action((args: string[]) =>
+    runAction(
+      () =>
+        new Promise<void>((resolveRun, rejectRun) => {
+          const child = spawn("npx", ["tsx", "src/setup.ts", ...args], {
+            cwd: resolve(repositoryRoot, "apps/operator-console"),
+            env: process.env,
+            stdio: "inherit",
+          });
+          child.once("error", rejectRun);
+          child.once("close", (code) => {
+            if (code === 0) resolveRun();
+            else
+              rejectRun(new Error(`deploy exited with code ${String(code)}`));
+          });
+        }),
+    ),
+  );
+
+program.addHelpText("beforeAll", "start here: pnpm ops onboard\n");
 
 interface LabContext {
   capability: LabCapability;
@@ -502,54 +681,16 @@ async function withLab(
 
 const lab = program
   .command("lab")
-  .description("Clustering lab: browse chains, run and compare experiments");
+  .description("Clustering lab: browse chains, run and compare experiments")
+  .helpGroup("Lab:");
 
 lab
   .command("setup")
-  .description(
-    "Provision or verify every config/pipelines.json pipeline's database",
-  )
-  .option("--registry <path>", "override the registry path (testing)")
-  .option("--json", "print JSON only")
-  .action((options: JsonOption & { registry?: string }) =>
-    runAction(async () => {
-      const registry = loadPipelineRegistry(options.registry);
-      if (registry === null) {
-        process.stdout.write(
-          "No config/pipelines.json registry found; nothing to set up.\n",
-        );
-        return;
-      }
-      const results = [];
-      for (const entry of registry.pipelines) {
-        process.stderr.write(
-          `Checking pipeline "${entry.name}" (${entry.engine})...\n`,
-        );
-        results.push(
-          await setupPipeline(entry, {
-            connect: createLabDb,
-            provision: defaultProvisioner(repositoryRoot),
-          }),
-        );
-      }
-      if (options.json) {
-        printJson(results);
-      } else {
-        printRows(
-          results.map((result) => ({
-            database: result.database,
-            engine: result.engine,
-            entries: result.entries ?? "—",
-            name: result.name,
-            status: result.status,
-          })),
-        );
-      }
-      if (results.some((result) => result.status.startsWith("broken"))) {
-        process.exitCode = 1;
-      }
-    }),
-  );
+  .description("(moved) use: pnpm ops setup")
+  .action(() => {
+    process.stderr.write("moved: pnpm ops setup\n");
+    process.exitCode = 2;
+  });
 
 lab
   .command("corpus")

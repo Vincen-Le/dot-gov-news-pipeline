@@ -267,7 +267,7 @@ async function runSetup(options: SetupOptions): Promise<void> {
 }
 
 const program = new Command()
-  .name("ops:setup")
+  .name("ops:deploy")
   .description(
     "Deploy the Operator API and configure the local operator console",
   )

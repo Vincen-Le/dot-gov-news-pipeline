@@ -73,7 +73,7 @@ function SiteInspector({
         </div>
       </dl>
       <CopyCommand
-        command={`pnpm ops site inspect ${site.baseDomain ?? site.sourceInitialUrl}`}
+        command={`pnpm ops remote site inspect ${site.baseDomain ?? site.sourceInitialUrl}`}
       />
     </dialog>
   );
@@ -182,7 +182,9 @@ export function InventoryPage() {
         <SectionHeading
           index="II"
           title="Run history"
-          aside={<CopyCommand command="pnpm ops inventory runs --limit 10" />}
+          aside={
+            <CopyCommand command="pnpm ops remote inventory runs --limit 10" />
+          }
         />
         {runs.isLoading ? (
           <LoadingState />
@@ -228,8 +230,8 @@ export function InventoryPage() {
             <CopyCommand
               command={
                 hostname === ""
-                  ? "pnpm ops inventory sites --limit 50"
-                  : `pnpm ops inventory sites --hostname ${hostname}`
+                  ? "pnpm ops remote inventory sites --limit 50"
+                  : `pnpm ops remote inventory sites --hostname ${hostname}`
               }
             />
           }

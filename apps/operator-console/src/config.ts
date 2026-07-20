@@ -64,6 +64,14 @@ export function loadOperatorConfig(): OperatorConsoleConfig {
   });
 }
 
+/** True when the deployed operator API is configured — gates the remote
+ * command group. ensureEnvironment() has already merged .env by the time
+ * any caller runs. */
+export function remoteConfigured(): boolean {
+  ensureEnvironment();
+  return Boolean(process.env.OPS_API_URL);
+}
+
 export function requireOperatorConfig(): RequiredOperatorConsoleConfig {
   const parsed = loadOperatorConfig();
   if (parsed.apiToken === undefined || parsed.apiUrl === undefined) {
@@ -109,7 +117,9 @@ export function loadPipelineRegistry(
   }
   const result = PipelineRegistrySchema.safeParse(parsed);
   if (!result.success) {
-    throw new Error(`${path} failed validation: ${z.prettifyError(result.error)}`);
+    throw new Error(
+      `${path} failed validation: ${z.prettifyError(result.error)}`,
+    );
   }
   const seen = new Set<string>();
   for (const entry of result.data.pipelines) {

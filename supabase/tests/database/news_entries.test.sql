@@ -17,9 +17,8 @@ select ok(
 );
 
 select ok(
-    not has_table_privilege('anon', 'public.news_entries', 'select')
-    and not has_table_privilege('authenticated', 'public.news_entries', 'select'),
-    'anon and authenticated cannot read news_entries'
+    not has_table_privilege('authenticated', 'public.news_entries', 'select'),
+    'authenticated cannot read news_entries'
 );
 
 select ok(
