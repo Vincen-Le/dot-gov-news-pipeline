@@ -14,6 +14,7 @@ function dayDistance(start: string, end: string): number {
   return Math.max(0, Math.round((endAt - startAt) / 86_400_000));
 }
 
+const ARROW_MOTION_MS = 360;
 const SNAP_MOTION_MS = 220;
 
 function magneticProgress(value: number): number {
@@ -22,6 +23,11 @@ function magneticProgress(value: number): number {
   const position = 1 - Math.exp(-tension * progress) * (1 + tension * progress);
   const end = 1 - Math.exp(-tension) * (1 + tension);
   return position / end;
+}
+
+function smoothProgress(value: number): number {
+  const progress = Math.max(0, Math.min(1, value));
+  return progress * progress * (3 - 2 * progress);
 }
 
 function prefersReducedMotion(): boolean {
@@ -121,7 +127,12 @@ export function DateNavigator({
     setIsAnimating(false);
   }
 
-  function animateTo(targetValue: number, duration: number): void {
+  function animateTo(
+    targetValue: number,
+    duration: number,
+    progress: (value: number) => number = magneticProgress,
+    emitImmediately = false,
+  ): void {
     cancelAnimation();
     const target = Math.round(Math.max(0, Math.min(span, targetValue)));
     const origin = visualPosition.current;
@@ -134,12 +145,13 @@ export function DateNavigator({
 
     animating.current = true;
     setIsAnimating(true);
+    if (emitImmediately) emitDay(target);
     let startedAt: number | null = null;
 
     const animate = (now: number) => {
       startedAt ??= now;
       const elapsed = Math.min(1, (now - startedAt) / duration);
-      const next = origin + (target - origin) * magneticProgress(elapsed);
+      const next = origin + (target - origin) * progress(elapsed);
       updateVisualPosition(elapsed === 1 ? target : next);
 
       if (elapsed < 1) {
@@ -169,9 +181,7 @@ export function DateNavigator({
       Math.min(span, emittedPosition.current + direction),
     );
     if (target === emittedPosition.current) return;
-    cancelAnimation();
-    updateVisualPosition(target);
-    emitDay(target);
+    animateTo(target, ARROW_MOTION_MS, smoothProgress, true);
   }
 
   const progress = span === 0 ? 0 : (dragPosition / span) * 100;
@@ -237,7 +247,7 @@ export function DateNavigator({
                 onPointerUp={(event) =>
                   finishDrag(Number(event.currentTarget.value))
                 }
-                step="1"
+                step={isAnimating ? "any" : "1"}
                 style={rangeStyle}
                 type="range"
                 value={dragPosition}
@@ -264,7 +274,7 @@ export function DateNavigator({
             <button
               aria-label="Previous date"
               className="date-arrow"
-              disabled={isAnimating || asOf <= minimum}
+              disabled={asOf <= minimum}
               onClick={() => stepDate(-1)}
               title="Previous date"
               type="button"
@@ -274,7 +284,7 @@ export function DateNavigator({
             <button
               aria-label="Next date"
               className="date-arrow"
-              disabled={isAnimating || asOf >= maximum}
+              disabled={asOf >= maximum}
               onClick={() => stepDate(1)}
               title="Next date"
               type="button"
