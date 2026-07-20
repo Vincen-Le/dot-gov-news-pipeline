@@ -181,7 +181,17 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
         ]
     golden = cluster_report.get("golden_anchor")
     golden_lines = []
-    if golden is not None:
+    if golden is not None and golden.get("mode") == "continue":
+        # spine anchored-continue: nothing is materialized — the live tables
+        # already are the reviewed image; the replay layered on top of it
+        golden_lines = [
+            "## Golden anchor", "",
+            f"- mode: continue (layered on the reviewed image, no reset)",
+            f"- reviewed entries verified intact: {golden['reviewed']}",
+            f"- storylines primed: {cluster_report.get('storylines_primed')}",
+            "",
+        ]
+    elif golden is not None:
         golden_lines = [
             "## Golden anchor", "",
             f"- reviewed entries materialized: {golden['materialized_entries']}",
