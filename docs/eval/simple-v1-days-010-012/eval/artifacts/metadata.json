@@ -5,7 +5,7 @@
     "finished_at": "2026-07-20 03:01:52.465485+00"
   },
   "pipeline": "simple_v1",
-  "judge_model": null,
+  "judge_model": "claude-opus-4-8",
   "counts": {
     "v1_chains": 19,
     "v2_themes": 9,
