@@ -98,9 +98,15 @@ describe("onboard", () => {
   });
 
   it("dry run executes no commands", async () => {
-    const { commands, deps } = fakeDeps({ embeddedCount: async () => 0 });
+    const logs: string[] = [];
+    const { commands, deps } = fakeDeps({
+      embeddedCount: async () => 0,
+      log: (message) => logs.push(message),
+    });
     await onboard(deps, { dryRun: true });
     // setupLocal is still invoked (it handles dryRun itself); nothing else runs.
     expect(commands).toEqual(["setupLocal"]);
+    // dry-run should show the conditional step honestly
+    expect(logs.join("\n")).toContain("[dry-run] would embed a 25-entry sample");
   });
 });

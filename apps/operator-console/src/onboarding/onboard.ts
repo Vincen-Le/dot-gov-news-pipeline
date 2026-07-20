@@ -73,7 +73,7 @@ export async function onboard(
     );
   }
 
-  const embedded = opts.dryRun ? 1 : await deps.embeddedCount();
+  const embedded = opts.dryRun ? 0 : await deps.embeddedCount();
   if (embedded === 0) {
     await act("embed a 25-entry sample with your Cloudflare models", () =>
       deps.run("uv", [
