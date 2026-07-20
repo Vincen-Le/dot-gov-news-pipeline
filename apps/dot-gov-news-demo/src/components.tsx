@@ -1,0 +1,403 @@
+import { useQuery } from "@tanstack/react-query";
+import { type ReactNode, useEffect, useMemo, useRef } from "react";
+
+import { type AgencyOption, type StorylineListItem } from "./api/contracts";
+import { dotGovApi } from "./api/client";
+import { cardAsOf, detailAsOf } from "./domain/as-of";
+
+export function displayDate(value: string | null | undefined): string {
+  if (value === null || value === undefined) return "Date unavailable";
+  const date = new Date(value.includes("T") ? value : `${value}T12:00:00Z`);
+  if (Number.isNaN(date.valueOf())) return "Date unavailable";
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+    year: "numeric",
+  }).format(date);
+}
+
+export function agencyNames(options: AgencyOption[]): Map<string, string> {
+  return new Map(options.map((option) => [option.key, option.displayName]));
+}
+
+export function StatePanel({
+  children,
+  title,
+}: {
+  children: ReactNode;
+  title: string;
+}) {
+  return (
+    <section className="state-panel" role="status">
+      <span aria-hidden="true" className="state-mark" />
+      <div>
+        <h2>{title}</h2>
+        <p>{children}</p>
+      </div>
+    </section>
+  );
+}
+
+export interface FilterOption {
+  label: string;
+  value: string;
+}
+
+export function FilterGroup({
+  label,
+  onToggle,
+  options,
+  selected,
+}: {
+  label: string;
+  onToggle: (value: string) => void;
+  options: FilterOption[];
+  selected: Set<string>;
+}) {
+  if (options.length === 0) return null;
+  return (
+    <div className="facet-row">
+      <span className="facet-label" id={`filter-${label.toLowerCase()}`}>
+        {label}
+      </span>
+      <div
+        aria-labelledby={`filter-${label.toLowerCase()}`}
+        className="pill-rail"
+      >
+        {options.map((option) => {
+          const pressed = selected.has(option.value);
+          return (
+            <button
+              aria-pressed={pressed}
+              className="pill"
+              key={option.value}
+              onClick={() => onToggle(option.value)}
+              type="button"
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function StorylineCard({
+  agencyMap,
+  asOf,
+  item,
+  onOpen,
+}: {
+  agencyMap: Map<string, string>;
+  asOf: string;
+  item: StorylineListItem;
+  onOpen: () => void;
+}) {
+  const detail = useQuery({
+    queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
+    queryKey: ["storyline", item.id],
+  });
+  const overview = useMemo(
+    () =>
+      detail.data === undefined || detail.data.unreviewedEntryCount !== 0
+        ? null
+        : cardAsOf(detail.data.overviewCards, asOf),
+    [asOf, detail.data],
+  );
+  const headline =
+    overview?.headline ?? item.headline ?? "Developing storyline";
+  const rankKey = overview?.rankKey ?? item.rankKey;
+  const agencies = item.agencies
+    .map((agency) => agencyMap.get(agency) ?? agency)
+    .slice(0, 2);
+
+  return (
+    <article className="storyline-card event-card">
+      <button
+        aria-label={`Read ${headline}`}
+        className="event-card-hit"
+        onClick={onOpen}
+        type="button"
+      >
+        <div className="storyline-visual event-image">
+          {overview?.thumbnail === null || overview === null ? (
+            <div className="image-placeholder">
+              <span aria-hidden="true" className="placeholder-image-mark">
+                <i />
+                <i />
+                <i />
+              </span>
+              <span>
+                <strong>Event image pending</strong>
+                <small>Editorial enrichment queued</small>
+              </span>
+            </div>
+          ) : (
+            <>
+              <img
+                alt={overview.thumbnail.altText}
+                loading="lazy"
+                src={overview.thumbnail.cardUrl}
+                style={{
+                  objectPosition: `${overview.thumbnail.focalX * 100}% ${overview.thumbnail.focalY * 100}%`,
+                }}
+              />
+              <span className="image-credit">Reviewed editorial image</span>
+            </>
+          )}
+        </div>
+        <div className="storyline-body event-card-body">
+          <div className="event-card-meta">
+            <span className="rank-key">
+              rank_key {rankKey === null ? "—" : rankKey.toFixed(3)}
+            </span>
+            <time dateTime={item.newestEntryAt}>
+              {displayDate(item.newestEntryAt)}
+            </time>
+          </div>
+          <h2>{headline}</h2>
+          {overview === null ? (
+            <div className="card-copy-placeholder">
+              <span>
+                {detail.isLoading
+                  ? "Loading storyline overview"
+                  : "Storyline overview pending"}
+              </span>
+              <i aria-hidden="true" />
+              <i aria-hidden="true" />
+              <i aria-hidden="true" />
+            </div>
+          ) : (
+            <p>{overview.summary}</p>
+          )}
+          <div className="taxonomy">
+            <span>{item.categoryName ?? "Government"}</span>
+            <span>{item.themeName ?? "Current affairs"}</span>
+          </div>
+          <footer>
+            <span className="card-volume">
+              {agencies.join(" · ") || "Agency source pending"} ·{" "}
+              {item.episodeCount} episode{item.episodeCount === 1 ? "" : "s"} ·{" "}
+              {item.entryCount} source{item.entryCount === 1 ? "" : "s"}
+            </span>
+            <span className="open-cue">Open storyline</span>
+          </footer>
+        </div>
+      </button>
+    </article>
+  );
+}
+
+export function StorylineDialog({
+  agencyMap,
+  asOf,
+  close,
+  item,
+}: {
+  agencyMap: Map<string, string>;
+  asOf: string;
+  close: () => void;
+  item: StorylineListItem;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const detail = useQuery({
+    queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
+    queryKey: ["storyline", item.id],
+  });
+  const asOfDetail = useMemo(
+    () =>
+      detail.data === undefined || detail.data.unreviewedEntryCount !== 0
+        ? null
+        : detailAsOf(detail.data, asOf),
+    [asOf, detail.data],
+  );
+
+  useEffect(() => {
+    const current = dialog.current;
+    if (current === null) return;
+    current.showModal();
+    return () => current.close();
+  }, []);
+
+  const headline =
+    asOfDetail?.overview?.headline ?? item.headline ?? "Developing storyline";
+  const namedAgencies = item.agencies.map(
+    (agency) => agencyMap.get(agency) ?? agency,
+  );
+  const visibleEntries =
+    asOfDetail?.episodes.flatMap((episode) => episode.entries) ?? [];
+  const synthesisCutoff = asOfDetail?.overview?.newestEntryAt ?? null;
+
+  return (
+    <dialog
+      aria-label={headline}
+      className="storyline-dialog story-dialog"
+      onCancel={(event) => {
+        event.preventDefault();
+        close();
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) close();
+      }}
+      ref={dialog}
+    >
+      <div className="dialog-shell">
+        <header className="dialog-header">
+          <div>
+            <p className="eyebrow">Storyline as of {displayDate(asOf)}</p>
+            <h1>{headline}</h1>
+            <p className="dialog-taxonomy">
+              {[item.categoryName, item.themeName, ...namedAgencies]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          </div>
+          <button
+            aria-label="Close storyline"
+            className="dialog-close"
+            onClick={close}
+            type="button"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+
+        {detail.isLoading ? (
+          <StatePanel title="Opening storyline">
+            Loading the timeline and sources.
+          </StatePanel>
+        ) : detail.error ? (
+          <StatePanel title="Storyline unavailable">
+            The detail API did not return this storyline. Try again shortly.
+          </StatePanel>
+        ) : detail.data?.unreviewedEntryCount !== 0 ? (
+          <StatePanel title="Storyline unavailable">
+            This storyline is not available for the demonstration.
+          </StatePanel>
+        ) : asOfDetail === null ? null : (
+          <div className="dialog-columns">
+            <main className="storyline-reading-column chain-pane">
+              <div className="pane-heading">Overview + episode chain</div>
+              <article className="overview-card">
+                <p className="eyebrow">Overview</p>
+                <h2>{headline}</h2>
+                <p>
+                  {asOfDetail.overview?.summary ??
+                    "An editorial overview has not been generated for this date."}
+                </p>
+                {asOfDetail.overview?.interestReason === null ||
+                asOfDetail.overview?.interestReason === undefined ? null : (
+                  <blockquote>{asOfDetail.overview.interestReason}</blockquote>
+                )}
+              </article>
+
+              <ol className="episode-stack">
+                {asOfDetail.episodes.map((episode, index) => (
+                  <li key={episode.id}>
+                    <article>
+                      <header>
+                        <span>
+                          Episode {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <time>{displayDate(episode.firstEntryAt)}</time>
+                      </header>
+                      <h3>
+                        {episode.card?.headline ??
+                          episode.entries[0]?.title ??
+                          "Developing episode"}
+                      </h3>
+                      <p>
+                        {episode.card?.summary ??
+                          "Episode-level editorial summary is queued."}
+                      </p>
+                    </article>
+                  </li>
+                ))}
+              </ol>
+            </main>
+
+            <aside className="source-column synthesis-pane">
+              <div className="pane-heading">Article synthesis</div>
+              {asOfDetail.overview?.articleOverview === null ||
+              asOfDetail.overview === null ? (
+                <section
+                  aria-label="Article synthesis pending"
+                  className="article-overview synthesis-placeholder"
+                >
+                  <header>
+                    <p className="eyebrow">Pending enrichment</p>
+                    <h2>Article synthesis pending</h2>
+                    <p>
+                      Source records remain available below while the aggregate
+                      analysis is prepared.
+                    </p>
+                  </header>
+                  <div aria-hidden="true" className="placeholder-lines">
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                </section>
+              ) : (
+                <section className="article-overview">
+                  <header>
+                    <h2>What the available articles say</h2>
+                    <div className="article-summary">
+                      {asOfDetail.overview.articleOverview.summary.text
+                        .split(/\n{2,}/u)
+                        .map((paragraph, index) => (
+                          <p key={`${index}:${paragraph}`}>{paragraph}</p>
+                        ))}
+                    </div>
+                  </header>
+                  <ol className="synthesis-points">
+                    {asOfDetail.overview.articleOverview.keyPoints.map(
+                      (point, index) => (
+                        <li
+                          key={`${point.sourceEntryIds.join(":")}:${point.text}`}
+                        >
+                          <span aria-hidden="true">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <p>{point.text}</p>
+                        </li>
+                      ),
+                    )}
+                  </ol>
+                </section>
+              )}
+              <header className="source-records-header">
+                <p className="eyebrow">Source record</p>
+                <h2>Available source articles</h2>
+                <p className="source-availability">
+                  {visibleEntries.length} source article
+                  {visibleEntries.length === 1 ? "" : "s"} available as of{" "}
+                  {displayDate(asOf)}.
+                  {synthesisCutoff === null
+                    ? ""
+                    : ` Synthesis reflects source material through ${displayDate(synthesisCutoff)}.`}
+                </p>
+              </header>
+              <ul className="source-list">
+                {visibleEntries.map((entry) => (
+                  <li key={entry.id}>
+                    <a href={entry.url} rel="noreferrer" target="_blank">
+                      <span>{agencyMap.get(entry.agency) ?? entry.agency}</span>
+                      <strong>{entry.title ?? "Untitled agency update"}</strong>
+                      <small>
+                        {displayDate(entry.publishedAt)} · Open source ↗
+                      </small>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          </div>
+        )}
+      </div>
+    </dialog>
+  );
+}

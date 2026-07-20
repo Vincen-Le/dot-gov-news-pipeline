@@ -14,6 +14,7 @@
     "discovery:dispatch-canary": "node scripts/dispatch-discovery-canary.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "golden:enrich": "pnpm --filter @dot-gov-news/golden-enrichment enrich",
     "inventory:sync": "pnpm --filter @dot-gov-news/inventory-sync sync",
     "news:backfill": "pnpm --filter @dot-gov-news/news-backfill backfill",
     "lint": "eslint .",
