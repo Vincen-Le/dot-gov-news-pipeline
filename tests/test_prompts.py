@@ -78,7 +78,7 @@ def test_membership_prompt_is_none_biased_and_lists_criterion():
           "storyline_count": 2, "recent_headlines": [],
           "days_since_active": 1}],
     )
-    assert "when unsure, answer null" in system
+    assert "when unsure, answer with an empty theme_id" in system
     assert "Creating themes is not your job" in system
     assert "t-1" in user
     assert "recalls after FDA safety reviews" in user

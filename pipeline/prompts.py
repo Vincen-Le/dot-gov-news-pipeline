@@ -61,10 +61,13 @@ CATEGORY_CLASSIFIER_JSON_SCHEMA = {
     "required": ["category_id", "reason"],
 }
 
+# No union types in any schema: Workers AI's constrained decoder hangs or
+# 403s on ["x", "null"]. Empty string is the "none" sentinel — the parsers
+# already coerce falsy values to None.
 THEME_MEMBERSHIP_JSON_SCHEMA = {
     "type": "object",
     "properties": {
-        "theme_id": {"type": ["string", "null"]},
+        "theme_id": {"type": "string"},
         "reason": {"type": "string"},
     },
     "required": ["theme_id", "reason"],
@@ -75,9 +78,9 @@ THEME_PROMOTION_JSON_SCHEMA = {
     "properties": {
         "verdict": {"type": "string",
                     "enum": ["promote", "attach_existing", "reject"]},
-        "theme_name": {"type": ["string", "null"]},
-        "inclusion_criterion": {"type": ["string", "null"]},
-        "theme_id": {"type": ["string", "null"]},
+        "theme_name": {"type": "string"},
+        "inclusion_criterion": {"type": "string"},
+        "theme_id": {"type": "string"},
         "reason": {"type": "string"},
     },
     "required": ["verdict", "theme_name", "inclusion_criterion", "theme_id",
@@ -269,10 +272,11 @@ THEME_MEMBERSHIP_SYSTEM = (
     "created. Join a candidate only when the storyline clearly satisfies its "
     "inclusion criterion; a shared agency, entity, or press-release "
     "boilerplate is not enough. Creating themes is not your job, and joining "
-    "nothing is a normal, correct outcome — when unsure, answer null. "
-    'Respond with JSON only: {"theme_id": string or null (copy one candidate '
+    "nothing is a normal, correct outcome — when unsure, answer with an "
+    "empty theme_id. "
+    'Respond with JSON only: {"theme_id": string (copy one candidate '
     "theme_id verbatim, only when the storyline clearly satisfies that "
-    'candidate\'s criterion), "reason": "one sentence"}'
+    'candidate\'s criterion; empty string otherwise), "reason": "one sentence"}'
 )
 
 
@@ -308,10 +312,10 @@ THEME_PROMOTION_SYSTEM = (
     "storyline must satisfy to join this theme; describe the recurring "
     "subject, not the current members. "
     'Respond with JSON only: {"verdict": "promote" or "attach_existing" or '
-    '"reject", "theme_name": string or null (only when promote), '
-    '"inclusion_criterion": string or null (only when promote), '
-    '"theme_id": string or null (copy an existing_themes theme_id verbatim, '
-    'only when attach_existing), "reason": "one sentence"}'
+    '"reject", "theme_name": string (empty unless promote), '
+    '"inclusion_criterion": string (empty unless promote), '
+    '"theme_id": string (copy an existing_themes theme_id verbatim, '
+    'empty unless attach_existing), "reason": "one sentence"}'
 )
 
 

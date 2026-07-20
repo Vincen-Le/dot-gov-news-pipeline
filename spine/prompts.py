@@ -11,10 +11,13 @@ SPINE_ENRICHER_SYSTEM = (
 )
 
 # Workers AI JSON mode schemas — see pipeline/prompts.py for rationale.
+# No union types ("type": [..., "null"]): Workers AI's constrained decoder
+# hangs or 403s on them (observed 2026-07-19, 56 corrupted link verdicts in
+# one run). Nullable semantics use sentinels instead: match -1 = none.
 LINK_JSON_SCHEMA = {
     "type": "object",
     "properties": {
-        "match": {"type": ["integer", "null"]},
+        "match": {"type": "integer"},
         "same_development": {"type": "boolean"},
         "reason": {"type": "string"},
     },
@@ -35,11 +38,11 @@ LINK_SYSTEM = (
     "You link government news articles into storylines (chains of episodes "
     "about one evolving real-world matter). Given a new article and candidate "
     "storylines, respond with strict JSON: "
-    '{"match": <candidate index or null>, "same_development": <bool>, '
+    '{"match": <candidate index, or -1 if none>, "same_development": <bool>, '
     '"reason": "<one sentence>"}. '
     "match is the index of the storyline this article continues — the same "
-    "specific evolving matter, not merely the same topic or agency. Use null "
-    "if none qualify (prefer null when unsure; over-merging is worse than "
+    "specific evolving matter, not merely the same topic or agency. Use -1 "
+    "if none qualify (prefer -1 when unsure; over-merging is worse than "
     "splitting). same_development is true only if the article reports the "
     "same concrete development as the storyline's latest coverage (a "
     "follow-up, restatement, or detail of it), false if it is a new "

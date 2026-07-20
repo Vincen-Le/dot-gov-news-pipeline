@@ -17,7 +17,7 @@ UNRELATED = {"headline": "NASA launches lunar probe", "summary": "NASA probe.",
 def test_link_prompt_states_facts():
     system, user = build_link_prompt(ENTRY, [CAND, UNRELATED])
     assert "24.0" in user and "ftc" in user      # gap + shared entities explicit
-    assert '"match"' in system and "null" in system  # none-option instructed
+    assert '"match"' in system and "-1" in system  # none-option instructed
 
 
 def test_stub_link_matches_on_token_overlap():

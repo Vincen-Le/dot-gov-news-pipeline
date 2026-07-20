@@ -150,9 +150,11 @@ class Linker:
             overview_embedding=pack_fp16(vec), tau=self.cfg.tau_seconds)
         # category assignment is deferred to the driver's end-of-run batch
         # (spine/replay.py): it never gates linking, and inline LLM calls
-        # were the second-largest per-entry cost in the replay loop
+        # were the second-largest per-entry cost in the replay loop.
+        # reason rides along so the driver's judge-error circuit breaker can
+        # see adjudicator failures (they are otherwise swallowed by design)
         return {"episode_id": episode_id, "storyline_id": storyline_id,
-                "method": method}
+                "method": method, "reason": attach_reason}
 
     def _attach(self, row: dict, episode_id: str, method: str,
                 similarity: float | None, matched: str | None,

@@ -102,6 +102,7 @@ def run(store, models, cfg, limit=None, since=None, until=None,
 
     attach_mix: dict[str, int] = {}
     processed = closed_count = created = 0
+    consecutive_judge_errors = 0
     last_sweep_at = None
     sweep_totals = {"themes_created": 0, "themes_kept": 0,
                     "themes_demoted": 0, "storylines_assigned": 0}
@@ -121,6 +122,18 @@ def run(store, models, cfg, limit=None, since=None, until=None,
             closed_count += 1
         vec = unpack_fp16(row["embedding"])
         decision = linker.process_entry(row, vec)
+        # circuit breaker: the judge fallback is split-biased by design, so a
+        # dead adjudicator silently shreds every chain (observed: 56 error
+        # births in one run when a bad schema drew 403s). Persistent errors
+        # mean the run is producing garbage — stop instead.
+        if str(decision.get("reason") or "").startswith("adjudicator_error"):
+            consecutive_judge_errors += 1
+            if consecutive_judge_errors >= 10:
+                raise RuntimeError(
+                    "link judge failed 10 times in a row — aborting replay "
+                    f"(last: {decision['reason'][:200]})")
+        else:
+            consecutive_judge_errors = 0
         replaced_episode_id = decision.get("replaced_episode_id")
         if replaced_episode_id is not None:
             # the judge opened a new episode on this storyline mid-window;
