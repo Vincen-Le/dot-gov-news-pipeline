@@ -14,6 +14,7 @@ export {
   type DemoRepositoryConfig,
   type DemoStorylineDetail,
   type DemoStorylineListItem,
+  type DemoStorylineRankSnapshot,
   type DemoTheme,
   type DemoThumbnail,
   type DemoThumbnailAsset,

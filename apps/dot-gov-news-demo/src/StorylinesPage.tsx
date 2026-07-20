@@ -13,12 +13,18 @@ import {
   StorylineTableRow,
   type FilterOption,
 } from "./components";
-import { isAvailableAsOf, isThemeAvailableAsOf } from "./domain/as-of";
+import {
+  detailAsOf,
+  isAvailableAsOf,
+  isThemeAvailableAsOf,
+  rankKeyAsOf,
+} from "./domain/as-of";
 import { relativeStorylinePlacements } from "./domain/relative-rank";
 import {
   groupStorylinesForTable,
   type StorylineGroupBy,
 } from "./domain/storyline-groups";
+import { StorylinesHero } from "./StorylinesHero";
 
 const INITIAL_COUNT = 18;
 
@@ -79,11 +85,40 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   );
   const available = useMemo(
     () =>
-      (storylines.data?.items ?? []).filter((item) =>
-        isAvailableAsOf(item, asOf),
-      ),
+      (storylines.data?.items ?? [])
+        .filter((item) => isAvailableAsOf(item, asOf))
+        .map((item) => ({ ...item, rankKey: rankKeyAsOf(item, asOf) })),
     [asOf, storylines.data],
   );
+  const topStoryline = useMemo(
+    () =>
+      available.reduce<StorylineListItem | null>((top, item) => {
+        if (item.rankKey === null) return top;
+        if (
+          top === null ||
+          top.rankKey === null ||
+          item.rankKey > top.rankKey
+        ) {
+          return item;
+        }
+        return top;
+      }, null),
+    [available],
+  );
+  const topStorylineDetail = useQuery({
+    enabled: topStoryline !== null,
+    queryFn: ({ signal }) => dotGovApi.storyline(topStoryline!.id, signal),
+    queryKey: ["storyline", topStoryline?.id],
+  });
+  const heroArtwork = useMemo(() => {
+    if (topStoryline === null) return null;
+    if (topStorylineDetail.data === undefined) {
+      return topStorylineDetail.isError ? null : undefined;
+    }
+    return (
+      detailAsOf(topStorylineDetail.data, asOf).overview?.thumbnail ?? null
+    );
+  }, [asOf, topStoryline, topStorylineDetail.data, topStorylineDetail.isError]);
   const placements = useMemo(
     () => relativeStorylinePlacements(available),
     [available],
@@ -240,7 +275,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
 
   return (
     <div className="page-stack">
-      <section className="page-intro">
+      <StorylinesHero artwork={heroArtwork}>
         <div className="intro-content">
           <div>
             <p className="eyebrow">Government news connected.</p>
@@ -252,7 +287,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             </p>
           </div>
         </div>
-      </section>
+      </StorylinesHero>
 
       <section className="workspace" aria-labelledby="browse-title">
         <header className="browse-heading">

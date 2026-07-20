@@ -28,12 +28,19 @@ const storyline = {
 describe("operator-console API contracts", () => {
   it("requires the reviewed-state field instead of defaulting missing data to reviewed", () => {
     expect(StorylineListItemSchema.safeParse(storyline).success).toBe(false);
-    expect(
-      StorylineListItemSchema.parse({
-        ...storyline,
-        unreviewedEntryCount: 0,
-      }).unreviewedEntryCount,
-    ).toBe(0);
+    const parsed = StorylineListItemSchema.parse({
+      ...storyline,
+      rankHistory: [
+        {
+          newestEntryAt: "2026-07-18T12:00:00.000Z",
+          rankKey: 1,
+          version: 1,
+        },
+      ],
+      unreviewedEntryCount: 0,
+    });
+    expect(parsed.unreviewedEntryCount).toBe(0);
+    expect(parsed.rankHistory?.[0]?.rankKey).toBe(1);
   });
 
   it("accepts the API's dormant episode and LLM category values", () => {

@@ -245,9 +245,16 @@ export interface DemoStorylineListItem {
   id: string;
   newestEntryAt: string;
   rankKey: number | null;
+  rankHistory?: DemoStorylineRankSnapshot[];
   themeId: string | null;
   themeName: string | null;
   unreviewedEntryCount: number;
+}
+
+export interface DemoStorylineRankSnapshot {
+  newestEntryAt: string;
+  rankKey: number;
+  version: number;
 }
 
 export interface DemoEntry {
@@ -641,6 +648,23 @@ class SupabaseDemoRepository implements DemoRepository {
     const reviewedByStoryline = countBy(
       memberships.map((row) => row.gold_storyline_id),
     );
+    const rankHistoryByStoryline = new Map<
+      string,
+      DemoStorylineRankSnapshot[]
+    >();
+    for (const cardRow of cards) {
+      if (cardRow.kind !== "overview") continue;
+      const history = rankHistoryByStoryline.get(cardRow.storyline_id) ?? [];
+      history.push({
+        newestEntryAt: cardRow.newest_entry_at,
+        rankKey: cardRow.rank_key,
+        version: cardRow.version,
+      });
+      rankHistoryByStoryline.set(cardRow.storyline_id, history);
+    }
+    for (const history of rankHistoryByStoryline.values()) {
+      history.sort((left, right) => right.version - left.version);
+    }
 
     return storylines.map((row) => {
       const latest =
@@ -665,6 +689,7 @@ class SupabaseDemoRepository implements DemoRepository {
         id: row.id,
         newestEntryAt: row.newest_entry_at,
         rankKey: latest?.rank_key ?? null,
+        rankHistory: rankHistoryByStoryline.get(row.id) ?? [],
         themeId: row.theme_id,
         themeName:
           row.theme_id === null

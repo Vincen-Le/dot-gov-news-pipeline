@@ -20,6 +20,15 @@ export const StorylineListItemSchema = z.object({
   id: z.string(),
   newestEntryAt: z.string(),
   rankKey: z.number().nullable().default(null),
+  rankHistory: z
+    .array(
+      z.object({
+        newestEntryAt: z.string(),
+        rankKey: z.number(),
+        version: z.number().int().positive(),
+      }),
+    )
+    .optional(),
   themeId: z.string().nullable(),
   themeName: z.string().nullable(),
   unreviewedEntryCount: z.number().int().nonnegative(),

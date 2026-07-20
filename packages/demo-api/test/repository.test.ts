@@ -269,6 +269,13 @@ describe("demo repository", () => {
       categoryName: "Public Health",
       firstOverviewAt: "2025-07-20T12:00:00.000Z",
       headline: "FDA issues a reviewed public-health update",
+      rankHistory: [
+        {
+          newestEntryAt: "2025-07-20T12:00:00.000Z",
+          rankKey: 9.5,
+          version: 1,
+        },
+      ],
       themeName: "Food safety",
       unreviewedEntryCount: 0,
     });

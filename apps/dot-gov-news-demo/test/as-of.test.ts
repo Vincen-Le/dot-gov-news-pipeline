@@ -11,6 +11,7 @@ import {
   episodesAsOf,
   isAvailableAsOf,
   isThemeAvailableAsOf,
+  rankKeyAsOf,
 } from "../src/domain/as-of";
 
 const storyline: StorylineListItem = {
@@ -123,6 +124,20 @@ describe("as-of selection", () => {
   it("uses the newest card whose represented news event was published by the selected date", () => {
     expect(cardAsOf(cards, "2026-07-11")?.id).toBe("card-1");
     expect(cardAsOf(cards, "2026-07-12")?.id).toBe("card-2");
+  });
+
+  it("uses the historical rank from the selected day's card version", () => {
+    const ranked = {
+      ...storyline,
+      rankHistory: cards.map(({ newestEntryAt, rankKey, version }) => ({
+        newestEntryAt,
+        rankKey,
+        version,
+      })),
+    };
+
+    expect(rankKeyAsOf(ranked, "2026-07-11")).toBe(0.5);
+    expect(rankKeyAsOf(ranked, "2026-07-12")).toBe(0.7);
   });
 
   it("reveals an episode card at its event time rather than its later processing time", () => {

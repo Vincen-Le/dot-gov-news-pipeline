@@ -27,6 +27,19 @@ export function isAvailableAsOf(
   );
 }
 
+export function rankKeyAsOf(
+  storyline: StorylineListItem,
+  day: string,
+): number | null {
+  if (storyline.rankHistory === undefined) return storyline.rankKey;
+  const cutoff = endOfDay(day);
+  return (
+    storyline.rankHistory
+      .filter((snapshot) => Date.parse(snapshot.newestEntryAt) <= cutoff)
+      .sort((left, right) => right.version - left.version)[0]?.rankKey ?? null
+  );
+}
+
 export const THEME_SURFACE_THRESHOLD = 4;
 
 export function isThemeAvailableAsOf(

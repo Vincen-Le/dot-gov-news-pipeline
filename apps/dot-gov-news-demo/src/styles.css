@@ -17,6 +17,7 @@
   --rank-agency: #34c875;
   --rank-feed: #e2b534;
   --rank-source: #ff7728;
+  --hero-image-opacity: 0.58;
   --max: 1600px;
   --control-height: 44px;
   --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -44,6 +45,7 @@
   --rank-agency: #167a42;
   --rank-feed: #9b6d00;
   --rank-source: #bd4c08;
+  --hero-image-opacity: 0.42;
 }
 
 * {
@@ -244,13 +246,80 @@ main {
 }
 
 .page-intro {
+  position: relative;
   min-height: 330px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: end;
   justify-items: center;
   padding: clamp(2rem, 5vw, 5rem);
+  overflow: hidden;
   border-bottom: 1px solid var(--rule);
+}
+
+.storylines-hero-artwork {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.storylines-hero-artwork::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--surface) 84%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 52%, transparent) 58%,
+      color-mix(in srgb, var(--surface) 68%, transparent) 100%
+    ),
+    linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--surface) 72%, transparent),
+      color-mix(in srgb, var(--surface) 26%, transparent)
+    );
+  content: "";
+}
+
+.storylines-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: saturate(0.78) contrast(1.08);
+}
+
+.storylines-hero-image--incoming {
+  animation: storylines-hero-fade-in 520ms ease-out both;
+}
+
+.storylines-hero-image--outgoing {
+  animation: storylines-hero-fade-out 420ms ease-in both;
+}
+
+@keyframes storylines-hero-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.025);
+  }
+
+  to {
+    opacity: var(--hero-image-opacity);
+    transform: scale(1);
+  }
+}
+
+@keyframes storylines-hero-fade-out {
+  from {
+    opacity: var(--hero-image-opacity);
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 .section-index,
@@ -269,6 +338,7 @@ main {
 }
 
 .intro-content {
+  position: relative;
   width: min(920px, 100%);
   min-width: 0;
 }
