@@ -3,7 +3,7 @@ import {
   handleDemoRequest,
   type DemoRepository,
   type DemoRepositoryConfig,
-} from "@dot-gov-news/demo-api";
+} from "../../../packages/demo-api/src/index.js";
 import { z } from "zod";
 
 import {
