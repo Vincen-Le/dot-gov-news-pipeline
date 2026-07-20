@@ -168,7 +168,8 @@ flowchart LR
     storylines -."logical ID links".-> cards["golden_event_cards"]
     episodes -."logical ID links".-> cards
     cards -."event_card_id".-> overview["golden_event_card_article_overviews"]
-    cards -."event_card_id".-> thumbnail["golden_event_card_thumbnails"]
+    cards -."storyline_id".-> thumbnail["golden_storyline_thumbnails"]
+    thumbnail --> images["images"]
 ```
 
 Only `golden_news_entries.news_entry_id` has a database-enforced foreign key to
@@ -177,9 +178,9 @@ keys to live clustering tables—or even between mirror tables—so a reviewed
 snapshot is self-contained and can survive live resets.
 
 The dashed edges are logical and must be validated by curation/export tests.
-Enrichment rows also use logical `event_card_id` links, plus input hashes,
-source IDs, versions, prompt hashes, and artifact hashes to make publication
-reproducible and stale-input detection possible.
+Article enrichment uses logical `event_card_id` links. Thumbnail enrichment
+uses one logical `storyline_id` association plus an enforced image foreign key,
+so every card version in a chain resolves the same immutable asset.
 
 ## Delete and reset behavior
 

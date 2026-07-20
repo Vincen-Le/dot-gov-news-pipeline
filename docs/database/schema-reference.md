@@ -790,16 +790,16 @@ Source ID/hash arrays are nonempty, bounded, aligned, and null-free. Versions
 are positive and the overview is a bounded JSON object. Publication is owned
 by `publish_golden_event_card_article_overview`.
 
-### `golden_event_card_thumbnails`
+### `images`
 
-Reproducible image metadata and R2 object references for master, card, and
-social variants.
+Reusable image metadata and R2 object references for master, card, and social
+variants. Images contain provenance but no serving-surface foreign key.
 
 ```text
-event_card_id       uuid        PK
+id                  uuid        PK DEFAULT gen_random_uuid()
 input_hash          text        NOT NULL
 enrichment_version  integer     NOT NULL
-source_card_version integer     NOT NULL
+source_card_version integer     NULL
 source_entry_ids    uuid[]      NOT NULL
 image_concept       jsonb       NOT NULL
 r2_master_key       text        NOT NULL
@@ -830,8 +830,30 @@ updated_at          timestamptz NOT NULL DEFAULT now()
 
 Hashes are SHA-256; versions and dimensions are positive and bounded; focal
 coordinates are between 0 and 1. MIME types are AVIF, JPEG, PNG, or WebP.
-Source IDs are nonempty and null-free, R2 keys and alt text are bounded, and
-the concept is a bounded JSON object.
+Source IDs are bounded and null-free (seeded fallback assets may have none), R2
+keys and alt text are bounded, and the concept is a bounded JSON object.
+
+### `golden_storyline_thumbnails`
+
+The insert-once selection that gives every event card in a golden storyline
+the same thumbnail.
+
+```text
+storyline_id      uuid        PK
+image_id          uuid        NOT NULL FK -> images.id
+selection_source  text        NOT NULL
+created_at        timestamptz NOT NULL DEFAULT now()
+updated_at        timestamptz NOT NULL DEFAULT now()
+```
+
+`selection_source` is `generated`, `category_fallback`, or `agency_fallback`.
+There is intentionally no image column on `storylines` or
+`golden_storylines`. Golden storyline IDs remain logical rather than foreign
+keys because the mirror may be reconstructed; `image_id` is enforced.
+
+`golden_event_card_thumbnails` remains temporarily as a read-only compatibility
+view that projects the storyline association back onto each event-card ID.
+New readers and all writers use `golden_storyline_thumbnails` and `images`.
 
 ## Access summary
 

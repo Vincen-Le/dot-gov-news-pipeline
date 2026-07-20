@@ -1,8 +1,8 @@
 # Image and synthesis generation
 
-This package owns the tools used to generate, validate, and publish a card's
-thumbnail and article synthesis. Those assets are useful for any card; they are
-not conceptually limited to golden cards. The current export coordinator is
+This package owns the tools used to generate and publish a storyline's
+thumbnail and each event card's article synthesis. Those assets are not
+conceptually limited to golden data. The current export coordinator is
 deliberately narrower: it exports reviewed golden overview cards because those
 are the only cards with the complete, hash-locked trust boundary required for
 safe backfill publication today.
@@ -42,7 +42,9 @@ operational runbook for:
 - generating historical, citizen-focused overview content with two to five
   meaningful findings of one or two sentences each;
 - generating and visually reviewing the civic editorial-collage thumbnails;
-- reusing only artifacts whose `eventCardId` and `inputHash` still match;
+- reusing thumbnail artifacts only when their storyline has no different
+  canonical image, while article artifacts still match `eventCardId` and
+  `inputHash`;
 - publishing synthesis and images independently in validated Supabase/R2
   checkpoints; and
 - recovering safely from interrupted batches, stale inputs, duplicate image
@@ -77,6 +79,38 @@ Every command accepts `--limit`. `export` additionally accepts `--dry-run`,
 `--partitions`, and `--output-dir`; validation and publishing accept repeated
 `--input` flags and `--manifest-dir`.
 
+### Storyline thumbnail identity and reconciliation
+
+For image artifacts, `eventCardId`, `inputHash`, and the event-card-named bundle
+directory locate and authenticate a task in the trusted export manifest; they
+are not the persisted thumbnail identity. Validation and publication derive
+that identity only from the matched trusted task's
+`inputBasis.storyline.storylineId`. Select no more than one artifact for each
+such storyline ID. Before generation or publication, look up those IDs in
+`golden_storyline_thumbnails` and discard every candidate whose storyline
+already has a canonical association. Exact publication retries are idempotent;
+a different image for an associated storyline is rejected.
+
+Use the same frozen manifest for validation, dry-run, and publication:
+
+```bash
+pnpm card:generate validate-images \
+  --manifest-dir <frozen-export-directory> \
+  --input <reviewed-image-proof-directory>
+pnpm card:generate publish-images --dry-run \
+  --manifest-dir <frozen-export-directory> \
+  --input <reviewed-image-proof-directory>
+pnpm card:generate publish-images \
+  --manifest-dir <frozen-export-directory> \
+  --input <reviewed-image-proof-directory>
+```
+
+The final command atomically creates one immutable `images` row and one
+`golden_storyline_thumbnails(storyline_id, image_id)` association through
+`publish_golden_storyline_thumbnail`. It does not create one database row per
+event card; readers resolve every card in the chain through its existing
+`storyline_id`.
+
 ## Reviewed golden-card backfill
 
 Golden construction and enrichment use separate lanes:
@@ -96,14 +130,16 @@ Golden construction and enrichment use separate lanes:
 5. Publish overview v2 artifacts independently with `publish-overviews`. It
    upgrades a matching v1 row without reading or writing R2, and refuses to
    replace a different v2 artifact unless its version is incremented.
-6. Repeat the export. Already-published card IDs are idempotent, while newly
-   reviewed card versions enter a stable hash partition.
+6. Repeat the export. Article rows remain idempotent by card ID. Image workers
+   select at most one task per storyline, and a storyline with a thumbnail is
+   never regenerated when later card versions appear.
 
 Publication is the only privileged lane. `publish-images` writes three
-content-addressed image objects to R2 and then one row to
-`golden_event_card_thumbnails`; it never touches article overviews. A retry
-HEAD-verifies existing objects and requires any existing thumbnail row to
-match every immutable field. Eligibility for the entire selected batch is
+content-addressed image objects to R2, one reusable `images` row, and one
+`golden_storyline_thumbnails` association; it never touches article overviews
+or adds an image column to a storyline. A retry HEAD-verifies existing objects
+and requires the storyline's existing thumbnail to match every immutable
+field. Eligibility for the entire selected batch is
 rebuilt immediately before the first write, so a stale or no-longer-reviewed
 card fails before the batch is mutated. The legacy `publish` command still
 accepts combined v1 overview/image bundles.
@@ -124,7 +160,8 @@ bundle. Recursive directory discovery considers only the canonical
 `image-generation.json` filename. To publish a reviewed sibling proof, pass
 its JSON file explicitly and set its `masterPath`; this prevents alternate
 variants from entering a bulk run accidentally. Selecting more than one image
-artifact for the same card is rejected.
+artifact for the same storyline is rejected, even when the artifacts target
+different card versions.
 
 Each worker output directory contains:
 
@@ -172,11 +209,13 @@ points, and caps the full synthesis at 380 words. The image validator separately
 checks the frozen input hash, prompt and model provenance, alt text, prompt
 leakage, bundle path, and exact 1536×1024 PNG master dimensions. Publishing
 derives 1200×480 and 1200×630 WebPs, uses content-addressed R2 keys, and
-HEAD-verifies every object before inserting immutable thumbnail rows.
-Immediately before each card in a dry run or real publish, the coordinator
-rebuilds eligibility from hosted Supabase and requires the card ID and full
-trusted-input hash to match the exported manifest. The database then applies
-overview upgrades atomically and rejects competing same-version rewrites. This
+HEAD-verifies every object before atomically publishing the immutable image and
+storyline association. Immediately before each artifact in a dry run or real
+publish, the coordinator rebuilds eligibility from hosted Supabase. Article
+publication requires the card ID and full trusted-input hash to match; image
+publication additionally refuses a second image for the same storyline. The
+database applies overview upgrades atomically and rejects competing
+same-version or same-storyline rewrites. This
 keeps the stale-state window narrow while golden construction and enrichment
 generation run concurrently. A hard cross-system snapshot would additionally
 require golden writers and enrichment publishing to share a database revision

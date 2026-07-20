@@ -1,4 +1,3 @@
-import { assertImmutableInputHashes } from "../legacy/publisher.js";
 import { type SupabaseRestClient } from "../shared/database.js";
 import { prepareImages, type PreparedImage } from "./images.js";
 import { R2ImageStore } from "./r2.js";
@@ -16,11 +15,11 @@ export interface ImagePublishResult {
   thumbnailRows: number;
 }
 
-type ImageDatabase = Pick<SupabaseRestClient, "insertImmutable" | "select">;
+type ImageDatabase = Pick<SupabaseRestClient, "rpc" | "select">;
 type ImageStore = Pick<R2ImageStore, "uploadAndVerify">;
 
 export interface ExistingThumbnailRow extends Record<string, unknown> {
-  event_card_id: unknown;
+  storyline_id: unknown;
   input_hash: unknown;
 }
 
@@ -35,6 +34,7 @@ const THUMBNAIL_COLUMNS = [
   "focal_x",
   "focal_y",
   "generated_at",
+  "id",
   "image_concept",
   "input_hash",
   "master_height",
@@ -68,7 +68,6 @@ export function imageThumbnailRecord(
     card_sha256: card.sha256,
     card_width: card.width,
     enrichment_version: task.inputBasis.enrichmentVersion,
-    event_card_id: artifact.eventCardId,
     focal_x: artifact.focalPoint.x,
     focal_y: artifact.focalPoint.y,
     generated_at: artifact.generatedAt,
@@ -139,22 +138,22 @@ function normalized(field: string, value: unknown): unknown {
 
 export function assertThumbnailRowsMatch(
   existingRows: readonly ExistingThumbnailRow[],
-  expectedByCard: ReadonlyMap<string, PreparedImageArtifact>,
+  expectedByStoryline: ReadonlyMap<string, PreparedImageArtifact>,
 ): void {
   for (const row of existingRows) {
     if (
-      typeof row.event_card_id !== "string" ||
+      typeof row.storyline_id !== "string" ||
       typeof row.input_hash !== "string"
     ) {
-      throw new Error("golden_event_card_thumbnails returned an invalid row");
+      throw new Error("golden_storyline_thumbnails returned an invalid row");
     }
-    const expected = expectedByCard.get(row.event_card_id);
+    const expected = expectedByStoryline.get(row.storyline_id);
     if (
       expected === undefined ||
       row.input_hash !== expected.record.input_hash
     ) {
       throw new Error(
-        `golden_event_card_thumbnails already contains a different input hash for card ${row.event_card_id}`,
+        `storyline ${row.storyline_id} already has a different immutable thumbnail`,
       );
     }
     for (const [field, expectedValue] of Object.entries(expected.record)) {
@@ -163,7 +162,7 @@ export function assertThumbnailRowsMatch(
         JSON.stringify(normalized(field, expectedValue))
       ) {
         throw new Error(
-          `golden_event_card_thumbnails already contains different ${field} for card ${row.event_card_id}`,
+          `storyline ${row.storyline_id} already has different thumbnail ${field}`,
         );
       }
     }
@@ -172,33 +171,63 @@ export function assertThumbnailRowsMatch(
 
 async function selectThumbnailRows(
   database: Pick<SupabaseRestClient, "select">,
-  cardIds: readonly string[],
+  storylineIds: readonly string[],
 ): Promise<ExistingThumbnailRow[]> {
-  if (cardIds.length === 0) return [];
-  return (await database.select(
-    "golden_event_card_thumbnails",
-    THUMBNAIL_COLUMNS,
-    { filters: { event_card_id: `in.(${cardIds.join(",")})` } },
-  )) as ExistingThumbnailRow[];
+  if (storylineIds.length === 0) return [];
+  const associations = (await database.select(
+    "golden_storyline_thumbnails",
+    "storyline_id,image_id",
+    { filters: { storyline_id: `in.(${storylineIds.join(",")})` } },
+  )) as Array<{ image_id: unknown; storyline_id: unknown }>;
+  const imageIds = associations.flatMap((row) =>
+    typeof row.image_id === "string" ? [row.image_id] : [],
+  );
+  if (imageIds.length === 0) return [];
+  const images = (await database.select("images", THUMBNAIL_COLUMNS, {
+    filters: { id: `in.(${imageIds.join(",")})` },
+  })) as Array<Record<string, unknown> & { id: unknown }>;
+  const imageById = new Map(images.map((row) => [row.id, row]));
+  return associations.map((association) => {
+    if (
+      typeof association.storyline_id !== "string" ||
+      typeof association.image_id !== "string"
+    ) {
+      throw new Error("golden_storyline_thumbnails returned an invalid row");
+    }
+    const image = imageById.get(association.image_id);
+    if (image === undefined || typeof image.input_hash !== "string") {
+      throw new Error(
+        `storyline ${association.storyline_id} references a missing image`,
+      );
+    }
+    return {
+      ...image,
+      input_hash: image.input_hash,
+      storyline_id: association.storyline_id,
+    };
+  });
+}
+
+function storylineId(artifact: PreparedImageArtifact): string {
+  return artifact.validated.task.inputBasis.storyline.storylineId;
 }
 
 export async function assertPersistedImageRows(
   database: Pick<SupabaseRestClient, "select">,
   artifacts: readonly PreparedImageArtifact[],
 ): Promise<void> {
-  const expectedByCard = new Map(
-    artifacts.map((artifact) => [
-      artifact.validated.artifact.eventCardId,
-      artifact,
-    ]),
+  const expectedByStoryline = new Map(
+    artifacts.map((artifact) => [storylineId(artifact), artifact]),
   );
-  const rows = await selectThumbnailRows(database, [...expectedByCard.keys()]);
-  assertThumbnailRowsMatch(rows, expectedByCard);
-  const persistedCardIds = new Set(rows.map((row) => row.event_card_id));
-  for (const cardId of expectedByCard.keys()) {
-    if (!persistedCardIds.has(cardId)) {
+  const rows = await selectThumbnailRows(database, [
+    ...expectedByStoryline.keys(),
+  ]);
+  assertThumbnailRowsMatch(rows, expectedByStoryline);
+  const persistedStorylineIds = new Set(rows.map((row) => row.storyline_id));
+  for (const id of expectedByStoryline.keys()) {
+    if (!persistedStorylineIds.has(id)) {
       throw new Error(
-        `golden_event_card_thumbnails is missing card ${cardId} after insert`,
+        `golden_storyline_thumbnails is missing storyline ${id} after insert`,
       );
     }
   }
@@ -208,32 +237,13 @@ export async function assertImageRowsCompatible(
   database: Pick<SupabaseRestClient, "select">,
   artifacts: readonly PreparedImageArtifact[],
 ): Promise<void> {
-  const expectedByCard = new Map(
-    artifacts.map((artifact) => [
-      artifact.validated.artifact.eventCardId,
-      artifact,
-    ]),
+  const expectedByStoryline = new Map(
+    artifacts.map((artifact) => [storylineId(artifact), artifact]),
   );
-  const cardIds = [...expectedByCard.keys()];
-  if (cardIds.length === 0) return;
-  const filters = { event_card_id: `in.(${cardIds.join(",")})` };
-  const overviewRows = (await database.select(
-    "golden_event_card_article_overviews",
-    "event_card_id,input_hash",
-    { filters },
-  )) as Array<{ event_card_id: unknown; input_hash: unknown }>;
-  assertImmutableInputHashes(
-    "golden_event_card_article_overviews",
-    overviewRows,
-    new Map(
-      artifacts.map(({ validated }) => [
-        validated.artifact.eventCardId,
-        validated.artifact.inputHash,
-      ]),
-    ),
-  );
-  const thumbnailRows = await selectThumbnailRows(database, cardIds);
-  assertThumbnailRowsMatch(thumbnailRows, expectedByCard);
+  const ids = [...expectedByStoryline.keys()];
+  if (ids.length === 0) return;
+  const thumbnailRows = await selectThumbnailRows(database, ids);
+  assertThumbnailRowsMatch(thumbnailRows, expectedByStoryline);
 }
 
 export async function publishImageArtifacts(
@@ -253,9 +263,11 @@ export async function publishImageArtifacts(
       await Promise.all(
         artifact.images.map(async (image) => imageStore.uploadAndVerify(image)),
       );
-      await options.database.insertImmutable("golden_event_card_thumbnails", [
-        artifact.record,
-      ]);
+      await options.database.rpc("publish_golden_storyline_thumbnail", {
+        p_image: artifact.record,
+        p_selection_source: "generated",
+        p_storyline_id: storylineId(artifact),
+      });
       await assertPersistedImageRows(options.database, [artifact]);
     }
   }

@@ -52,10 +52,7 @@ export async function assertImmutableRowsCompatible(
   const cardIds = [...expectedByCard.keys()];
   if (cardIds.length === 0) return;
   const filters = { event_card_id: `in.(${cardIds.join(",")})` };
-  const tables = [
-    "golden_event_card_article_overviews",
-    "golden_event_card_thumbnails",
-  ];
+  const tables = ["golden_event_card_article_overviews"];
   for (const table of tables) {
     const existingRows = (await database.select(
       table,
@@ -73,7 +70,6 @@ export function overviewRecord(
   return {
     article_overview: artifact.articleOverview,
     enrichment_version: artifact.enrichmentVersion,
-    event_card_id: artifact.eventCardId,
     generated_at: artifact.generatedAt,
     input_hash: artifact.inputHash,
     model: artifact.model,
@@ -160,9 +156,11 @@ export async function publishArtifacts(
     await Promise.all(
       images.map(async (image) => imageStore.uploadAndVerify(image)),
     );
-    await options.database.insertImmutable("golden_event_card_thumbnails", [
-      thumbnailRecord(validated, images),
-    ]);
+    await options.database.rpc("publish_golden_storyline_thumbnail", {
+      p_image: thumbnailRecord(validated, images),
+      p_selection_source: "generated",
+      p_storyline_id: validated.task.inputBasis.storyline.storylineId,
+    });
     thumbnailRows += 1;
   }
   return {

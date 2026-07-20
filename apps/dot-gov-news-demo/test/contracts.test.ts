@@ -69,7 +69,7 @@ describe("operator-console API contracts", () => {
     ).toBe("llm");
   });
 
-  it("parses nullable generated content and card-scoped thumbnail metadata", () => {
+  it("parses nullable generated content and storyline-derived thumbnail metadata", () => {
     const card = CardSchema.parse({
       articleOverview: {
         keyPoints: [

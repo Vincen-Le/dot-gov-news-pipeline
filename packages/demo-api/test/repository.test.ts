@@ -94,10 +94,12 @@ const storylineId = "00000000-0000-4000-8000-000000000021";
 const episodeId = "00000000-0000-4000-8000-000000000031";
 const entryId = "00000000-0000-4000-8000-000000000011";
 const cardId = "00000000-0000-4000-8000-000000000041";
+const secondCardId = "00000000-0000-4000-8000-000000000042";
 const categoryId = "00000000-0000-4000-8000-000000000051";
 const themeId = "00000000-0000-4000-8000-000000000061";
 const sourceId = "00000000-0000-4000-8000-000000000071";
 const runId = "00000000-0000-4000-8000-000000000081";
+const imageId = "00000000-0000-4000-8000-000000000091";
 
 function fixtures(entryCount = 1): Tables {
   return {
@@ -145,14 +147,20 @@ function fixtures(entryCount = 1): Tables {
         version: 1,
       },
     ],
-    golden_event_card_thumbnails: [
+    golden_storyline_thumbnails: [
+      {
+        image_id: imageId,
+        storyline_id: storylineId,
+      },
+    ],
+    images: [
       {
         alt_text: "Geometric editorial illustration of the agency action.",
         card_mime_type: "image/webp",
-        event_card_id: cardId,
         focal_x: "0.4",
         focal_y: "0.6",
-        r2_card_key: `golden/event-cards/${cardId}/card.webp`,
+        id: imageId,
+        r2_card_key: `golden/storylines/${storylineId}/card.webp`,
       },
     ],
     golden_news_entries: [
@@ -327,7 +335,7 @@ describe("demo repository", () => {
       "whatRemainsUnresolved",
     );
     expect(await repository.getCardThumbnailAsset(cardId)).toEqual({
-      key: `golden/event-cards/${cardId}/card.webp`,
+      key: `golden/storylines/${storylineId}/card.webp`,
       mimeType: "image/webp",
     });
 
@@ -354,7 +362,7 @@ describe("demo repository", () => {
   it("keeps generated card content nullable when exact card rows are absent", async () => {
     const tables = fixtures();
     tables.golden_event_card_article_overviews = [];
-    tables.golden_event_card_thumbnails = [];
+    tables.golden_storyline_thumbnails = [];
     const repository = createDemoRepositoryFromClient(client(tables));
 
     expect(
@@ -365,6 +373,31 @@ describe("demo repository", () => {
       thumbnail: null,
     });
     expect(await repository.getCardThumbnailAsset(cardId)).toBeNull();
+  });
+
+  it("resolves every card version through the storyline thumbnail", async () => {
+    const tables = fixtures();
+    tables.golden_event_cards?.push({
+      ...tables.golden_event_cards[0],
+      generated_at: "2025-07-21T18:00:00.000Z",
+      id: secondCardId,
+      newest_entry_at: "2025-07-21T12:00:00.000Z",
+      version: 2,
+    });
+    const repository = createDemoRepositoryFromClient(client(tables));
+
+    const detail = await repository.getStoryline(storylineId);
+    expect(detail?.overviewCards).toHaveLength(2);
+    expect(
+      detail?.overviewCards.map((card) => card.thumbnail?.altText),
+    ).toEqual([
+      "Geometric editorial illustration of the agency action.",
+      "Geometric editorial illustration of the agency action.",
+    ]);
+    expect(await repository.getCardThumbnailAsset(secondCardId)).toEqual({
+      key: `golden/storylines/${storylineId}/card.webp`,
+      mimeType: "image/webp",
+    });
   });
 
   it("accepts the v2 synthesis shape with two distinct key points", async () => {

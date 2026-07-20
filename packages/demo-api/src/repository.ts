@@ -117,7 +117,7 @@ const GoldenArticleOverviewRowSchema = z.object({
   event_card_id: z.string(),
 });
 
-const GoldenThumbnailRowSchema = z.object({
+const ImageThumbnailRowSchema = z.object({
   alt_text: z.string().min(1),
   card_mime_type: z.enum([
     "image/avif",
@@ -125,10 +125,20 @@ const GoldenThumbnailRowSchema = z.object({
     "image/png",
     "image/webp",
   ]),
-  event_card_id: z.string(),
   focal_x: z.coerce.number().min(0).max(1),
   focal_y: z.coerce.number().min(0).max(1),
+  id: z.string(),
   r2_card_key: z.string().min(1),
+});
+
+const GoldenStorylineThumbnailRowSchema = z.object({
+  image_id: z.string(),
+  storyline_id: z.string(),
+});
+
+const CardStorylineRowSchema = z.object({
+  id: z.string(),
+  storyline_id: z.string(),
 });
 
 const GoldenMembershipRowSchema = z.object({
@@ -525,8 +535,15 @@ class SupabaseDemoRepository implements DemoRepository {
       .filter((row) => row.kind === "overview")
       .map((row) => row.id);
     if (overviewIds.length === 0) return cards.map(card);
+    const storylineIds = [
+      ...new Set(
+        cards
+          .filter((row) => row.kind === "overview")
+          .map((row) => row.storyline_id),
+      ),
+    ];
 
-    const [articleOverviews, thumbnails] = await Promise.all([
+    const [articleOverviews, storylineThumbnails] = await Promise.all([
       rows(
         "golden card article overviews",
         await this.client
@@ -537,28 +554,43 @@ class SupabaseDemoRepository implements DemoRepository {
         GoldenArticleOverviewRowSchema,
       ),
       rows(
-        "golden card thumbnails",
+        "golden storyline thumbnails",
         await this.client
-          .from("golden_event_card_thumbnails")
-          .select(
-            "event_card_id,r2_card_key,card_mime_type,alt_text,focal_x,focal_y",
-          )
-          .in("event_card_id", overviewIds)
-          .limit(overviewIds.length),
-        GoldenThumbnailRowSchema,
+          .from("golden_storyline_thumbnails")
+          .select("storyline_id,image_id")
+          .in("storyline_id", storylineIds)
+          .limit(storylineIds.length),
+        GoldenStorylineThumbnailRowSchema,
       ),
     ]);
+    const imageIds = storylineThumbnails.map((row) => row.image_id);
+    const images =
+      imageIds.length === 0
+        ? []
+        : rows(
+            "storyline thumbnail images",
+            await this.client
+              .from("images")
+              .select("id,r2_card_key,card_mime_type,alt_text,focal_x,focal_y")
+              .in("id", imageIds)
+              .limit(imageIds.length),
+            ImageThumbnailRowSchema,
+          );
     const articleOverviewByCard = new Map(
       articleOverviews.map((row) => [row.event_card_id, row.article_overview]),
     );
-    const thumbnailByCard = new Map(
-      thumbnails.map((row) => [row.event_card_id, row]),
+    const imageById = new Map(images.map((row) => [row.id, row]));
+    const thumbnailByStoryline = new Map(
+      storylineThumbnails.flatMap((row) => {
+        const image = imageById.get(row.image_id);
+        return image === undefined ? [] : [[row.storyline_id, image] as const];
+      }),
     );
 
     return cards.map((row) => {
       const shaped = card(row);
       if (row.kind !== "overview") return shaped;
-      const thumbnail = thumbnailByCard.get(row.id);
+      const thumbnail = thumbnailByStoryline.get(row.storyline_id);
       return {
         ...shaped,
         articleOverview: articleOverviewByCard.get(row.id) ?? null,
@@ -576,20 +608,38 @@ class SupabaseDemoRepository implements DemoRepository {
   }
 
   async getCardThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null> {
-    const row = nullableRow(
-      "golden card thumbnail asset",
+    const cardRow = nullableRow(
+      "golden card thumbnail storyline",
       await this.client
-        .from("golden_event_card_thumbnails")
-        .select(
-          "event_card_id,r2_card_key,card_mime_type,alt_text,focal_x,focal_y",
-        )
-        .eq("event_card_id", id)
+        .from("golden_event_cards")
+        .select("id,storyline_id")
+        .eq("id", id)
         .maybeSingle(),
-      GoldenThumbnailRowSchema,
+      CardStorylineRowSchema,
     );
-    return row === null
+    if (cardRow === null) return null;
+    const association = nullableRow(
+      "golden storyline thumbnail association",
+      await this.client
+        .from("golden_storyline_thumbnails")
+        .select("storyline_id,image_id")
+        .eq("storyline_id", cardRow.storyline_id)
+        .maybeSingle(),
+      GoldenStorylineThumbnailRowSchema,
+    );
+    if (association === null) return null;
+    const image = nullableRow(
+      "golden storyline thumbnail image",
+      await this.client
+        .from("images")
+        .select("id,r2_card_key,card_mime_type,alt_text,focal_x,focal_y")
+        .eq("id", association.image_id)
+        .maybeSingle(),
+      ImageThumbnailRowSchema,
+    );
+    return image === null
       ? null
-      : { key: row.r2_card_key, mimeType: row.card_mime_type };
+      : { key: image.r2_card_key, mimeType: image.card_mime_type };
   }
 
   private async categoriesRaw(): Promise<CategoryRow[]> {

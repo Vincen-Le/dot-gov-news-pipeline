@@ -205,6 +205,7 @@ export async function validateImageArtifacts(
   }
   const validated: ValidatedImageArtifact[] = [];
   const cardIds = new Set<string>();
+  const storylineIds = new Set<string>();
   for (const artifactPath of artifactPaths) {
     const artifact = await validateOne(artifactPath, trustedTasks);
     if (cardIds.has(artifact.artifact.eventCardId)) {
@@ -213,6 +214,13 @@ export async function validateImageArtifacts(
       );
     }
     cardIds.add(artifact.artifact.eventCardId);
+    const storylineId = artifact.task.inputBasis.storyline.storylineId;
+    if (storylineIds.has(storylineId)) {
+      throw new Error(
+        `multiple image artifacts selected for storyline ${storylineId}`,
+      );
+    }
+    storylineIds.add(storylineId);
     validated.push(artifact);
   }
   return validated;

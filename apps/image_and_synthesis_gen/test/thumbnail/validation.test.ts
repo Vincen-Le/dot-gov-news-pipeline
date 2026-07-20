@@ -17,6 +17,7 @@ import {
 } from "../../src/shared/types.js";
 
 const CARD_ID = "66b2b179-f85b-440a-a804-9c4ec6741a49";
+const SECOND_CARD_ID = "49f0ca47-ce98-4dad-aa7d-686c19143b91";
 const ENTRY_ID = "08fd7905-1015-4edc-9b3c-2cc16a5c214e";
 const STORYLINE_ID = "11ae6748-ab78-428a-966a-2c285ecc08db";
 const temporaryDirectories: string[] = [];
@@ -169,6 +170,55 @@ describe("image artifact validation", () => {
         manifestDirectory: value.manifestDirectory,
       }),
     ).resolves.toHaveLength(1);
+  });
+
+  it("rejects multiple generated images for one storyline", async () => {
+    const value = await fixture();
+    const secondDirectory = path.join(
+      path.dirname(value.artifactDirectory),
+      SECOND_CARD_ID,
+    );
+    await mkdir(secondDirectory, { recursive: true });
+    await writeFile(
+      path.join(secondDirectory, "storyline-master.png"),
+      value.master,
+    );
+    const secondBasis = inputBasis();
+    secondBasis.card = { ...secondBasis.card, version: 2 };
+    const secondHash = fingerprint(secondBasis);
+    const firstTask: OverviewTask = {
+      eventCardId: CARD_ID,
+      inputBasis: inputBasis(),
+      inputHash: fingerprint(inputBasis()),
+      partition: 0,
+      taskKey: `overview/${CARD_ID}/v1`,
+    };
+    const secondTask: OverviewTask = {
+      eventCardId: SECOND_CARD_ID,
+      inputBasis: secondBasis,
+      inputHash: secondHash,
+      partition: 0,
+      taskKey: `overview/${SECOND_CARD_ID}/v1`,
+    };
+    await writeFile(
+      path.join(value.manifestDirectory, "cards", "part-000-of-001.jsonl"),
+      `${JSON.stringify(firstTask)}\n${JSON.stringify(secondTask)}\n`,
+    );
+    await writeFile(
+      path.join(secondDirectory, "image-generation.json"),
+      JSON.stringify({
+        ...value.artifact,
+        eventCardId: SECOND_CARD_ID,
+        inputHash: secondHash,
+      }),
+    );
+
+    await expect(
+      validateImageArtifacts({
+        artifactInputs: [path.dirname(value.artifactDirectory)],
+        manifestDirectory: value.manifestDirectory,
+      }),
+    ).rejects.toThrow(`multiple image artifacts selected for storyline`);
   });
 
   it("ignores alternate metadata during directory discovery", async () => {
