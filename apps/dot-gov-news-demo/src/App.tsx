@@ -5,6 +5,7 @@ import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { dotGovApi } from "./api/client";
 import { isoDay } from "./domain/as-of";
 import { DateNavigator } from "./DateNavigator";
+import { NewsMark } from "./NewsMark";
 import { RankingPage } from "./RankingPage";
 import { StorylinesPage } from "./StorylinesPage";
 
@@ -60,11 +61,7 @@ export function App() {
       </a>
       <header className="site-header">
         <Link aria-label="Dot Gov News storylines" className="brand" to="/">
-          <span className="brand-mark" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
+          <NewsMark className="news-mark news-mark--brand" />
           <span>
             Dot Gov News <b>/ {sectionName}</b>
           </span>

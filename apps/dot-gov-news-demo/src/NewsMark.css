@@ -1,0 +1,15 @@
+.news-mark {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.news-mark--brand {
+  width: 24px;
+  height: 18px;
+}
+
+.news-mark--placeholder {
+  width: 42px;
+  height: 32px;
+  color: var(--muted);
+}

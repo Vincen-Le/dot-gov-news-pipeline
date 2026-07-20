@@ -6,6 +6,7 @@ import {
   PipelineEnvironmentProvider,
   PipelineEnvironmentSelector,
 } from "./pipeline-environment";
+import { NewsMark } from "./NewsMark";
 import { CapabilityPage } from "./pages/CapabilityPage";
 import { EventsPage } from "./pages/EventsPage";
 import { InventoryPage } from "./pages/InventoryPage";
@@ -125,11 +126,7 @@ export function App() {
       <div className="app-shell">
         <header className="app-header">
           <Link className="brand" to="/">
-            <span aria-hidden="true" className="brand-mark">
-              <i />
-              <i />
-              <i />
-            </span>
+            <NewsMark className="news-mark" />
             <span>
               Dot Gov News <b>/ Operations</b>
             </span>

@@ -13,6 +13,7 @@ import { type AgencyOption, type StorylineListItem } from "./api/contracts";
 import { dotGovApi } from "./api/client";
 import { detailAsOf, isoDay } from "./domain/as-of";
 import type { StorylinePlacement } from "./domain/relative-rank";
+import { NewsMark } from "./NewsMark";
 
 export function displayDate(value: string | null | undefined): string {
   if (value === null || value === undefined) return "Date unavailable";
@@ -163,11 +164,7 @@ export function StorylineCard({
         <div className="storyline-visual event-image">
           {overview?.thumbnail === null || overview === null ? (
             <div className="image-placeholder">
-              <span aria-hidden="true" className="placeholder-image-mark">
-                <i />
-                <i />
-                <i />
-              </span>
+              <NewsMark className="news-mark news-mark--placeholder" />
               <span>
                 <strong>Event image pending</strong>
                 <small>Editorial enrichment queued</small>
