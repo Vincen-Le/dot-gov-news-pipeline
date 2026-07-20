@@ -18,8 +18,8 @@ select throws_ok(
     'select id from public.pipeline_events limit 1',
     '42501', null, 'anon cannot select pipeline_events');
 select throws_ok(
-    'select id from public.experiment_runs limit 1',
-    '42501', null, 'anon cannot select experiment_runs');
+    'select id from public.complex_v1_experiment_runs limit 1',
+    '42501', null, 'anon cannot select complex_v1_experiment_runs');
 select throws_ok(
     'select id from public.storylines limit 1',
     '42501', null, 'anon cannot select storylines');

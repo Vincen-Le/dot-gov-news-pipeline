@@ -144,7 +144,7 @@ alter role corpus_reader password '<new-password>';
 One-time steps to activate contributor access (repo owner, requires the
 linked Supabase project):
 
-1. Push the migration: `mise exec -- pnpm supabase db push`
+1. Push the migration: `mise exec -- pnpm supabase db push --include-all`
 2. Copy the publishable key (`sb_publishable_...`) from
    **Supabase Dashboard → Project Settings → API Keys** into
    `config/hosted.json`, replacing the `REPLACE_WITH_...` placeholder, and
