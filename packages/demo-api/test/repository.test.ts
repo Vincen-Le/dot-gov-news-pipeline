@@ -203,6 +203,7 @@ function fixtures(entryCount = 1): Tables {
         first_storyline_at: "2025-07-20T12:00:00.000Z",
         id: themeId,
         merged_into: null,
+        name_model: "golden-human",
         newest_storyline_at: "2025-07-20T12:00:00.000Z",
       },
     ],
@@ -269,6 +270,7 @@ describe("demo repository", () => {
     ]);
     expect((await repository.listThemes())[0]).toMatchObject({
       firstStorylineAt: "2025-07-20T12:00:00.000Z",
+      manuallySet: true,
     });
 
     const detail = await repository.getStoryline(storylineId);

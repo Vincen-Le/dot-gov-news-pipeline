@@ -4,79 +4,12 @@ import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 
 import { dotGovApi } from "./api/client";
 import { isoDay } from "./domain/as-of";
-import { displayDate } from "./components";
+import { DateNavigator } from "./DateNavigator";
 import { RankingPage } from "./RankingPage";
 import { StorylinesPage } from "./StorylinesPage";
 
-function offsetDay(day: string, amount: number): string {
-  const date = new Date(`${day}T12:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + amount);
-  return date.toISOString().slice(0, 10);
-}
-
 function clamp(value: string, minimum: string, maximum: string): string {
   return value < minimum ? minimum : value > maximum ? maximum : value;
-}
-
-function dayDistance(start: string, end: string): number {
-  const startAt = Date.parse(`${start}T12:00:00Z`);
-  const endAt = Date.parse(`${end}T12:00:00Z`);
-  return Math.max(0, Math.round((endAt - startAt) / 86_400_000));
-}
-
-function DateSimulator({
-  asOf,
-  maximum,
-  minimum,
-  onChange,
-}: {
-  asOf: string;
-  maximum: string;
-  minimum: string;
-  onChange: (day: string) => void;
-}) {
-  const span = dayDistance(minimum, maximum);
-  const position = dayDistance(minimum, asOf);
-  const midpoint = offsetDay(minimum, Math.round(span / 2));
-
-  return (
-    <section className="date-simulator" aria-labelledby="date-simulator-label">
-      <header>
-        <span className="micro-label" id="date-simulator-label">
-          Simulated publication date
-        </span>
-        <time className="as-of-value" dateTime={asOf}>
-          {displayDate(asOf)}
-        </time>
-      </header>
-      <div className="date-control-row">
-        <input
-          aria-label="Simulated publication date"
-          max={span}
-          min="0"
-          onChange={(event) =>
-            onChange(offsetDay(minimum, Number(event.target.value)))
-          }
-          step="1"
-          type="range"
-          value={Math.min(position, span)}
-        />
-        <button
-          className="primary-button"
-          disabled={asOf >= maximum}
-          onClick={() => onChange(clamp(offsetDay(asOf, 1), minimum, maximum))}
-          type="button"
-        >
-          Advance date <span aria-hidden="true">→</span>
-        </button>
-      </div>
-      <div className="date-ticks" aria-hidden="true">
-        <span>{displayDate(minimum)}</span>
-        {span > 1 ? <span>{displayDate(midpoint)}</span> : null}
-        <span>{displayDate(maximum)}</span>
-      </div>
-    </section>
-  );
 }
 
 export function App() {
@@ -154,60 +87,24 @@ export function App() {
           <span className="environment">Preview edition</span>
         </div>
       </header>
+      <DateNavigator
+        asOf={effectiveDay}
+        maximum={bounds.maximum}
+        minimum={bounds.minimum}
+        onChange={setAsOf}
+      />
       <main id="main-content">
         <Routes>
+          <Route element={<StorylinesPage asOf={effectiveDay} />} path="/" />
           <Route
-            element={
-              <StorylinesPage
-                asOf={effectiveDay}
-                dateSimulator={
-                  <DateSimulator
-                    asOf={effectiveDay}
-                    maximum={bounds.maximum}
-                    minimum={bounds.minimum}
-                    onChange={(day) => setAsOf(day)}
-                  />
-                }
-              />
-            }
-            path="/"
-          />
-          <Route
-            element={
-              <StorylinesPage
-                asOf={effectiveDay}
-                dateSimulator={
-                  <DateSimulator
-                    asOf={effectiveDay}
-                    maximum={bounds.maximum}
-                    minimum={bounds.minimum}
-                    onChange={(day) => setAsOf(day)}
-                  />
-                }
-              />
-            }
+            element={<StorylinesPage asOf={effectiveDay} />}
             path="/storylines"
           />
           <Route
             element={<RankingPage asOf={effectiveDay} />}
             path="/ranking"
           />
-          <Route
-            element={
-              <StorylinesPage
-                asOf={effectiveDay}
-                dateSimulator={
-                  <DateSimulator
-                    asOf={effectiveDay}
-                    maximum={bounds.maximum}
-                    minimum={bounds.minimum}
-                    onChange={(day) => setAsOf(day)}
-                  />
-                }
-              />
-            }
-            path="*"
-          />
+          <Route element={<StorylinesPage asOf={effectiveDay} />} path="*" />
         </Routes>
       </main>
       <footer className="site-footer">

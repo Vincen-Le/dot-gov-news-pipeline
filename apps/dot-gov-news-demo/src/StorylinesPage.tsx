@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import type { StorylineListItem } from "./api/contracts";
@@ -39,13 +39,7 @@ function retainAvailable(
   return next.size === current.size ? current : next;
 }
 
-export function StorylinesPage({
-  asOf,
-  dateSimulator,
-}: {
-  asOf: string;
-  dateSimulator: ReactNode;
-}) {
+export function StorylinesPage({ asOf }: { asOf: string }) {
   const [params, setParams] = useSearchParams();
   const [agencies, setAgencies] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<Set<string>>(new Set());
@@ -53,6 +47,7 @@ export function StorylinesPage({
   const [sort, setSort] = useState<SortOrder>("rank");
   const [view, setView] = useState<ViewMode>("product");
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const loadMore = useRef<HTMLDivElement>(null);
 
   const storylines = useQuery({
     queryFn: ({ signal }) => dotGovApi.storylines(signal),
@@ -114,10 +109,17 @@ export function StorylinesPage({
       ),
     );
     return (themeQuery.data?.themes ?? [])
-      .filter((theme) => ids.has(theme.id) && isThemeAvailableAsOf(theme, asOf))
+      .filter(
+        (theme) =>
+          ids.has(theme.id) && isThemeAvailableAsOf(theme, available, asOf),
+      )
       .map((theme) => ({ label: theme.displayName, value: theme.id }))
       .sort(optionSort);
   }, [asOf, available, themeQuery.data]);
+  const surfacedThemeIds = useMemo(
+    () => new Set(themeOptions.map((theme) => theme.value)),
+    [themeOptions],
+  );
 
   useEffect(
     () => setAgencies((current) => retainAvailable(current, agencyOptions)),
@@ -160,8 +162,39 @@ export function StorylinesPage({
     [agencies, asOf, categories, sort, themes],
   );
 
+  useEffect(() => {
+    const target = loadMore.current;
+    if (
+      target === null ||
+      view !== "product" ||
+      visibleCount >= filtered.length ||
+      globalThis.IntersectionObserver === undefined
+    ) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        setVisibleCount((count) =>
+          Math.min(count + INITIAL_COUNT, filtered.length),
+        );
+      },
+      { rootMargin: "480px 0px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [filtered.length, view, visibleCount]);
+
+  const displayItem = (item: StorylineListItem): StorylineListItem =>
+    item.themeId !== null && surfacedThemeIds.has(item.themeId)
+      ? item
+      : { ...item, themeId: null, themeName: null };
+  const visibleItems = filtered.slice(0, visibleCount).map(displayItem);
+
   const selectedId = params.get("storyline");
-  const selected = available.find((item) => item.id === selectedId) ?? null;
+  const selectedSource =
+    available.find((item) => item.id === selectedId) ?? null;
+  const selected = selectedSource === null ? null : displayItem(selectedSource);
   const open = (item: StorylineListItem) => {
     const next = new URLSearchParams(params);
     next.set("storyline", item.id);
@@ -207,7 +240,6 @@ export function StorylinesPage({
               would have appeared on the selected date.
             </p>
           </div>
-          {dateSimulator}
         </div>
       </section>
 
@@ -296,14 +328,19 @@ export function StorylinesPage({
             Try clearing a filter or moving the publication date forward.
           </StatePanel>
         ) : view === "product" ? (
-          <section className="storyline-grid" aria-label="Storylines">
-            {filtered.slice(0, visibleCount).map((item) => (
+          <section
+            className="storyline-grid"
+            aria-label="Storylines"
+            key={asOf}
+          >
+            {visibleItems.map((item, index) => (
               <StorylineCard
                 agencyMap={agencyMap}
                 asOf={asOf}
                 item={item}
                 key={item.id}
                 onOpen={() => open(item)}
+                revealIndex={index}
               />
             ))}
           </section>
@@ -323,7 +360,7 @@ export function StorylinesPage({
                 </tr>
               </thead>
               <tbody>
-                {filtered.slice(0, visibleCount).map((item) => (
+                {visibleItems.map((item) => (
                   <tr key={item.id}>
                     <td>{item.rankKey?.toFixed(3) ?? "—"}</td>
                     <th scope="row">
@@ -358,13 +395,22 @@ export function StorylinesPage({
           </div>
         )}
         {visibleCount < filtered.length ? (
-          <button
-            className="load-more primary-button"
-            onClick={() => setVisibleCount((count) => count + INITIAL_COUNT)}
-            type="button"
-          >
-            Show more storylines
-          </button>
+          <div className="load-more-sentinel" ref={loadMore}>
+            <span aria-live="polite">
+              {Math.min(visibleCount, filtered.length)} of {filtered.length}
+            </span>
+            <button
+              className="load-more primary-button"
+              onClick={() =>
+                setVisibleCount((count) =>
+                  Math.min(count + INITIAL_COUNT, filtered.length),
+                )
+              }
+              type="button"
+            >
+              Load next storylines
+            </button>
+          </div>
         ) : null}
       </section>
       {selected === null ? null : (

@@ -26,10 +26,19 @@ export function isAvailableAsOf(
   );
 }
 
-export function isThemeAvailableAsOf(theme: Theme, day: string): boolean {
+export const THEME_SURFACE_THRESHOLD = 4;
+
+export function isThemeAvailableAsOf(
+  theme: Theme,
+  storylines: StorylineListItem[],
+  day: string,
+): boolean {
+  const requiredStorylines = theme.manuallySet ? 1 : THEME_SURFACE_THRESHOLD;
   return (
-    theme.firstStorylineAt === null ||
-    Date.parse(theme.firstStorylineAt) <= endOfDay(day)
+    storylines.filter(
+      (storyline) =>
+        storyline.themeId === theme.id && isAvailableAsOf(storyline, day),
+    ).length >= requiredStorylines
   );
 }
 

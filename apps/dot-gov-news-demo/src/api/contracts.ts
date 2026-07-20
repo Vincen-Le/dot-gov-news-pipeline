@@ -110,6 +110,7 @@ export const ThemeSchema = z.object({
   displayName: z.string(),
   firstStorylineAt: z.string().nullable().optional().default(null),
   id: z.string(),
+  manuallySet: z.boolean().optional().default(false),
   newestStorylineAt: z.string().nullable(),
   storylineCount: z.number(),
 });

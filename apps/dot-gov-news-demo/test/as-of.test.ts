@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import type { Card, Episode, StorylineListItem } from "../src/api/contracts";
+import type {
+  Card,
+  Episode,
+  StorylineListItem,
+  Theme,
+} from "../src/api/contracts";
 import {
   cardAsOf,
   episodesAsOf,
@@ -66,18 +71,49 @@ describe("as-of selection", () => {
     ).toBe(false);
   });
 
-  it("only exposes a theme once its first storyline has emerged", () => {
-    const theme = {
+  it("only exposes a generated theme once four storylines have emerged", () => {
+    const theme: Theme = {
       categoryId: null,
       categoryName: null,
       displayName: "Food safety",
       firstStorylineAt: "2025-07-20T14:00:00.000Z",
       id: "theme-1",
+      manuallySet: false,
       newestStorylineAt: "2025-07-25T14:00:00.000Z",
-      storylineCount: 2,
+      storylineCount: 4,
     };
-    expect(isThemeAvailableAsOf(theme, "2025-07-19")).toBe(false);
-    expect(isThemeAvailableAsOf(theme, "2025-07-20")).toBe(true);
+    const storylines = [20, 21, 22, 23].map((day, index) => ({
+      ...storyline,
+      firstEntryAt: `2025-07-${day}T14:00:00.000Z`,
+      id: `storyline-${index + 1}`,
+    }));
+
+    expect(isThemeAvailableAsOf(theme, storylines, "2025-07-22")).toBe(false);
+    expect(isThemeAvailableAsOf(theme, storylines, "2025-07-23")).toBe(true);
+  });
+
+  it("exposes a manually set theme with its first emerged storyline", () => {
+    const theme: Theme = {
+      categoryId: null,
+      categoryName: null,
+      displayName: "Food safety",
+      firstStorylineAt: "2025-07-20T14:00:00.000Z",
+      id: "theme-1",
+      manuallySet: true,
+      newestStorylineAt: "2025-07-20T14:00:00.000Z",
+      storylineCount: 1,
+    };
+    const firstStoryline = {
+      ...storyline,
+      firstEntryAt: "2025-07-20T14:00:00.000Z",
+    };
+
+    expect(isThemeAvailableAsOf(theme, [firstStoryline], "2025-07-19")).toBe(
+      false,
+    );
+    expect(isThemeAvailableAsOf(theme, [firstStoryline], "2025-07-20")).toBe(
+      true,
+    );
   });
 
   it("uses the newest card whose represented news event was published by the selected date", () => {
@@ -126,8 +162,6 @@ describe("as-of selection", () => {
     };
 
     expect(episodesAsOf([episode], "2026-07-09")[0]?.card).toBeNull();
-    expect(episodesAsOf([episode], "2026-07-10")[0]?.card?.id).toBe(
-      "card-1",
-    );
+    expect(episodesAsOf([episode], "2026-07-10")[0]?.card?.id).toBe("card-1");
   });
 });
