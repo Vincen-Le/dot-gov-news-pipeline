@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from dotenv import load_dotenv
 
-from pipeline.judge import (
+from pipeline.shared.judge import (
     DEFAULT_JUDGE_MODEL,
     VECTORS,
     anthropic_complete,

@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 import numpy as np
 
-from pipeline.config import Config
-from pipeline.extraction import EXTRACTOR_VERSION
+from pipeline.shared.config import Config
+from pipeline.shared.extraction import EXTRACTOR_VERSION
 from pipeline.runner import prepare
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)
@@ -124,7 +124,7 @@ def test_prepare_records_stub_tag_not_config_model():
     """Regression: --stub prepare used to label 256-dim stub vectors with the
     real cfg.embedding_model, so a later real-model run crashed on a
     256-vs-1024 dim mismatch instead of failing loudly at prepare time."""
-    from pipeline.stub import StubModels
+    from pipeline.shared.stub import StubModels
 
     store = PrepFakeStore([row(1)])
     prepare(store, StubModels(), CFG)

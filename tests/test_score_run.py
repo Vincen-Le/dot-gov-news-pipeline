@@ -2,7 +2,7 @@ import importlib.util
 import json
 from pathlib import Path
 
-import pipeline.db
+import pipeline.shared.db
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "eval" / "score_run.py"
 spec = importlib.util.spec_from_file_location("score_run", SCRIPT)
@@ -97,7 +97,7 @@ def test_write_reward_targets_selected_pipeline_namespace(monkeypatch):
         def jsonb(value):
             return value
 
-    monkeypatch.setattr(pipeline.db, "Db", FakeDb)
+    monkeypatch.setattr(pipeline.shared.db, "Db", FakeDb)
     monkeypatch.setenv("DATABASE_URL", "postgresql://local/test")
     result = {
         "reward_v2": 0.75,

@@ -1,6 +1,6 @@
 import pytest
 
-from pipeline.store import Store
+from pipeline.shared.store import Store
 
 
 class ReadDb:

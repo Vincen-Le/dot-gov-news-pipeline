@@ -1,4 +1,4 @@
-from pipeline.normalize import canonicalize_url, content_hash
+from pipeline.shared.normalize import canonicalize_url, content_hash
 
 
 def test_strips_tracking_and_fragment():

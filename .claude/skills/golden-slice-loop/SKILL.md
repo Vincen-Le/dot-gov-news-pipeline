@@ -21,7 +21,7 @@ Supabase project `qdqmahimrnwhzdjlcont` (creds in .env). Run names:
 - `find pipeline spine -name __pycache__ -type d -exec rm -rf {} +` —
   stale bytecode once ran a whole slice with an outdated prompt. Then
   verify any config you changed is live: `uv run python -c "from
-  pipeline.config import load_config; print(load_config().prompt_version)"`.
+  pipeline.shared.config import load_config; print(load_config().prompt_version)"`.
 - Coverage: count `news_entries` in window with `embedding is null`; if
   > 0, `pipeline.cli prepare --limit <n>` and re-check until 0.
 
@@ -35,7 +35,7 @@ DATABASE_URL=<dsn> LAB_ENGINE=spine uv run python -m pipeline.cli \
 Background it (~3s/entry). `--use-golden` = anchored continue: no reset,
 replays only unclustered entries, verifies reviewed golden intact.
 **Workers AI 429/5xx crash → just relaunch the same command** (safe by
-design); if it crashes twice, add backoff to `pipeline/ai.py` first.
+design); if it crashes twice, add backoff to `pipeline/shared/ai.py` first.
 Clean finish = `docs/eval/<run>/report.md` exists, its Golden anchor
 section says "reviewed entries verified intact", LLM health shows
 `model_errors: {}`.

@@ -1,7 +1,7 @@
 # Entity Extraction Reliability Spec
 
 2026-07-18. Findings and ranked hypotheses for the identity-anchor extractor
-(`pipeline/extraction.py`), triggered by a reproduced production defect: entry
+(`pipeline/shared/extraction.py`), triggered by a reproduced production defect: entry
 `39517aff-d949-4f04-913c-d8ebe05a9637` ("How to get reimbursed for your
 VA-related travel", news.va.gov) carries `entity_set = {editor}`.
 
@@ -16,20 +16,20 @@ Companions:
 
 `entity_set` is not display metadata. It is load-bearing in four places:
 
-1. **Tier-4 auto-join gate** (`pipeline/episodes.py:116-126`): a centroid
-   nominee joins *without adjudication* when the entry and episode share one
+1. **Tier-4 auto-join gate** (`pipeline/complex/episodes.py:116-126`): a centroid
+   nominee joins _without adjudication_ when the entry and episode share one
    rare entity (daily EMA below `ambient_ema_ceiling`). A spurious rare
    entity is a false auto-join, silently bypassing the adjudicator.
-2. **Adjudicator evidence** (`pipeline/episodes.py:127-132`): the episode
+2. **Adjudicator evidence** (`pipeline/complex/episodes.py:127-132`): the episode
    side of the prompt is largely its entity set — the adjudicator judges
    partly on entity garbage in, garbage out.
-3. **Storyline resolution / merge** (`pipeline/storylines.py`): merges gate
+3. **Storyline resolution / merge** (`pipeline/complex/storylines.py`): merges gate
    on rare shared discriminators (commit `a998717`).
 4. **Entity EMA stats** (`touch_entity_stats` at ingest and feature update):
    bad entities pollute the ambient baseline other decisions read.
 
-The failure profile is inverted from intuition: *frequent* junk ("va",
-"announces") is neutralized by the ambient-EMA ceiling; *rare* junk
+The failure profile is inverted from intuition: _frequent_ junk ("va",
+"announces") is neutralized by the ambient-EMA ceiling; _rare_ junk
 ("editor", 8 entries corpus-wide) is exactly what the gate treats as a
 discriminator. Low-frequency noise is the dangerous kind.
 
@@ -37,7 +37,7 @@ discriminator. Low-frequency noise is the dangerous kind.
 
 ### F1. Runner violates the extractor's input contract (root cause, reproduced)
 
-`pipeline/extraction.py` is documented and designed to run on **raw title +
+`pipeline/shared/extraction.py` is documented and designed to run on **raw title +
 first summary sentence only**. `pipeline/runner.py:71-72` instead passes
 `body_text or summary` (introduced by `4408ae7`, "preserve full news
 content"):
@@ -47,8 +47,8 @@ content = row.get("body_text") or row.get("summary")
 entities, keys = extract(row["title"], content) if needs_anchors else (None, None)
 ```
 
-For the VA entry, body text begins *"Editor's note: This story was edited on
-7/25/25 …"* — that becomes the "first sentence", `_CAP_SPAN` matches
+For the VA entry, body text begins _"Editor's note: This story was edited on
+7/25/25 …"_ — that becomes the "first sentence", `_CAP_SPAN` matches
 `Editor` (the apostrophe ends the span), and it survives every lexicon.
 Reproduced exactly:
 
@@ -60,7 +60,7 @@ entries have entities extracted while `body_text` was present** — all
 anchored on article-body first sentences (editor's notes, datelines,
 bylines, nav residue) instead of feed summaries.
 
-Note the asymmetry: full body text *is* correct for enrichment and
+Note the asymmetry: full body text _is_ correct for enrichment and
 embedding; it is wrong only for the entity guard, whose noise control is the
 narrow input scope.
 
@@ -70,7 +70,7 @@ narrow input scope.
 
 - the backfill **metadata** extractor (`apps/news-backfill/src/extract.ts`,
   `EXTRACTOR_VERSION = 4`, previously 3) via `ingest_news_entries_v2`, and
-- the pipeline **entity** extractor (`pipeline/extraction.py`,
+- the pipeline **entity** extractor (`pipeline/shared/extraction.py`,
   `EXTRACTOR_VERSION = 1`) via `update_entry_features`.
 
 The flagged row shows `extractor_version = 3` with a pipeline-produced
@@ -138,7 +138,7 @@ model-based extraction only if entity precision still limits attach quality.
 ### H3. Grounded small-LLM entity extraction, piggybacked on enrichment
 
 The "would a small fast LLM be better?" hypothesis. Verdict: yes for
-*entities*, no for *event keys*, and only in the shape below.
+_entities_, no for _event keys_, and only in the shape below.
 
 - **Do**: extend the existing enrichment call (`models.enrich`, already
   concurrent, versioned by `enricher_version`, cached in the DB) to also
@@ -211,7 +211,7 @@ prefixes.
 ## Explicit non-goals
 
 - Replacing event-key regexes with a model (H3 keeps them).
-- NER for display/search purposes — this spec is about *identity anchors*
+- NER for display/search purposes — this spec is about _identity anchors_
   for clustering; broader entity products are out of scope.
 - Fixing the backfill metadata extractor (`extract.ts`) — different
   workstream; only its version-column collision (F2) is in scope.

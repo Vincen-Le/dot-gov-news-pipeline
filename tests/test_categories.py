@@ -1,6 +1,6 @@
-from pipeline.categories import CategoryEngine
-from pipeline.config import Config
-from pipeline.stub import StubModels
+from pipeline.shared.categories import CategoryEngine
+from pipeline.shared.config import Config
+from pipeline.shared.stub import StubModels
 from tests.test_fakes_topics import _storyline
 from tests.fakes import FakeStore
 

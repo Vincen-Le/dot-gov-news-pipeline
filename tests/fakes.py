@@ -6,7 +6,7 @@ import uuid
 from datetime import timedelta
 from typing import Any
 
-from pipeline.vectors import pack_fp16, unpack_fp16
+from pipeline.shared.vectors import pack_fp16, unpack_fp16
 
 
 class FakeStore:

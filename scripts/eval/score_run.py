@@ -1,6 +1,6 @@
 """Mechanical scoring: verdict CSVs -> score.json (clustering-eval skill, step 4).
 
-Zero judgment — formulas live in pipeline/evals.py. Optionally stamps the
+Zero judgment — formulas live in pipeline/shared/evals.py. Optionally stamps the
 score onto the run's cluster snapshot (`--write-reward`), tying
 the ledger to the experiment the autoresearch loop actually ran.
 
@@ -24,8 +24,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from pipeline import evals
-from pipeline.eval_namespace import EVAL_NAMESPACES, get_eval_namespace
+from pipeline.shared import evals
+from pipeline.shared.eval_namespace import EVAL_NAMESPACES, get_eval_namespace
 
 DISCRIMINATION_FLOOR = 0.40
 
@@ -98,7 +98,7 @@ def score(verdicts: Path, artifacts: Path) -> dict:
 
 def write_reward(run_id: str, result: dict, best: bool,
                  pipeline: str = "complex_v1") -> None:
-    from pipeline.db import Db
+    from pipeline.shared.db import Db
 
     namespace = get_eval_namespace(pipeline)
     db = Db(os.environ["DATABASE_URL"])

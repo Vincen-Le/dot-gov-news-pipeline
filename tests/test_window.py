@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
-from pipeline.window import ReplayWindow
+from pipeline.shared.window import ReplayWindow
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)
 

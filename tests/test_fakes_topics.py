@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import numpy as np
 
-from pipeline.vectors import pack_fp16
+from pipeline.shared.vectors import pack_fp16
 from tests.fakes import FakeStore
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)

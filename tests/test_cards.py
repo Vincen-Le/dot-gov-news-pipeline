@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
-from pipeline.cards import CardEngine
-from pipeline.config import Config
-from pipeline.stub import StubModels
+from pipeline.shared.cards import CardEngine
+from pipeline.shared.config import Config
+from pipeline.shared.stub import StubModels
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)
 CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
@@ -151,7 +151,7 @@ def test_compressor_failure_falls_back_to_deterministic_overview():
 # then running a --stub (256-dim bag-of-words) experiment corrupts
 # storylines.centroid (insert_event_card does
 # `centroid = coalesce(p_overview_embedding, centroid)`), producing
-# mixed-dimension centroids that crash spine/themes.py's pairwise cosine
+# mixed-dimension centroids that crash pipeline/simple/themes.py's pairwise cosine
 # three files away. CardEngine.corpus_dim (set by the replay driver from the
 # corpus's real embedding dimension) guards _regenerate_overview so a
 # dimension mismatch omits the embedding instead of corrupting the centroid.

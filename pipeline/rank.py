@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 
-from pipeline.config import Config
+from pipeline.shared.config import Config
 from pipeline.experiment import _NAMESPACES
 
 # rank_snapshots predates per-pipeline namespacing (supabase/migrations/

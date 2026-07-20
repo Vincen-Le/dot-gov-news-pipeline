@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from pipeline.judge import VECTORS, build_judge_prompt, judge_vector, parse_judge_output
+from pipeline.shared.judge import VECTORS, build_judge_prompt, judge_vector, parse_judge_output
 
 RUBRIC = "Per non-anchor episode: related y/n."
 FILES = {"chain-verdicts.csv": ["storyline_id", "episode_id", "related", "attach_method", "reason"]}

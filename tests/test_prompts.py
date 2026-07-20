@@ -1,4 +1,4 @@
-from pipeline.prompts import (
+from pipeline.shared.prompts import (
     COMPRESSOR_SYSTEM,
     build_adjudicator_prompt,
     build_category_classifier_prompt,
@@ -42,7 +42,7 @@ def test_compressor_rubric_judges_whole_chain():
 
 
 def test_rank_audit_prompt_shape():
-    from pipeline.prompts import RANK_AUDIT_SYSTEM, build_rank_audit_prompt
+    from pipeline.shared.prompts import RANK_AUDIT_SYSTEM, build_rank_audit_prompt
     a = {"headline": "A", "summary": "sa", "agencies": 2, "feeds": 3,
          "entries": 4, "age_hours": 5.0}
     b = {"headline": "B", "summary": "sb", "agencies": 1, "feeds": 1,

@@ -12,16 +12,16 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
-from pipeline.categories import CategoryEngine
-from pipeline.cards import CardEngine
-from pipeline.config import Config
-from pipeline.episodes import EpisodeEngine
-from pipeline.extraction import EXTRACTOR_VERSION, extract
-from pipeline.promotion import PromotionSweep
-from pipeline.storylines import StorylineEngine
-from pipeline.topics import ThemeEngine
-from pipeline.vectors import pack_fp16, unpack_fp16
-from pipeline.window import ReplayStore, ReplayWindow
+from pipeline.shared.categories import CategoryEngine
+from pipeline.shared.cards import CardEngine
+from pipeline.shared.config import Config
+from pipeline.complex.episodes import EpisodeEngine
+from pipeline.shared.extraction import EXTRACTOR_VERSION, extract
+from pipeline.complex.promotion import PromotionSweep
+from pipeline.complex.storylines import StorylineEngine
+from pipeline.complex.topics import ThemeEngine
+from pipeline.shared.vectors import pack_fp16, unpack_fp16
+from pipeline.shared.window import ReplayStore, ReplayWindow
 
 # DB constraint news_entries_enriched_text_bounded caps enriched_text at this length.
 _MAX_ENRICHED_LEN = 16384

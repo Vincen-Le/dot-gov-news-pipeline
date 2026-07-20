@@ -28,7 +28,7 @@ never in `.env`.
 
 1. **Orient.** Read `docs/eval/<run>/report.md`: run_id, which pipeline
    (`simple_v1` | `complex_v1`), corpus size. Verify against the selected
-   pipeline's `<pipeline>_experiment_runs` table (read-only `pipeline.db.Db`) that no newer
+   pipeline's `<pipeline>_experiment_runs` table (read-only `pipeline.shared.db.Db`) that no newer
    run superseded this one — artifact IDs are per-replay; a stale run cannot
    be judged. Stale → stop, tell the caller. (The exporter records the
    newest run in `metadata.json`; confirm it matches `<run>`.)
@@ -49,7 +49,7 @@ never in `.env`.
        --artifacts docs/eval/<run>/eval/artifacts \
        --verdicts docs/eval/<run>/eval/verdicts
    ```
-   Protocol in `scoring.md`; judge = Anthropic API (`pipeline/judge.py`,
+   Protocol in `scoring.md`; judge = Anthropic API (`pipeline/shared/judge.py`,
    default `claude-opus-4-8`, override `EVAL_JUDGE_MODEL`) — always a model
    family ≠ the pipeline's llama models. If `ANTHROPIC_API_KEY` is absent,
    the skill agent must dispatch blinded subagent judges with the same
@@ -62,12 +62,12 @@ never in `.env`.
        --artifacts docs/eval/<run>/eval/artifacts \
        --out docs/eval/<run>/eval/score.json
    ```
-   Formulas live in `pipeline/evals.py` (never inline). Gold recall via
+   Formulas live in `pipeline/shared/evals.py` (never inline). Gold recall via
    `pairwise_f1`/`b_cubed` over `golden_news_entries`; unpopulated →
    `n/a (no gold labels)`, keep the rows. score.json carries R_v2, flip
    quanta, and validity flags (discrimination < 0.40 → V2/V4 weak).
 5. **Report.** Render `docs/eval/<run>/eval-report.md` with
-   `pipeline.eval_report.render_eval_report(score, metadata, diagnostics)`
+   `pipeline.shared.eval_report.render_eval_report(score, metadata, diagnostics)`
    (inputs: score.json, artifacts/metadata.json, artifacts/diagnostics.json)
    — every metric carries value, n, strong/weak meaning, first lever;
    worst-chain ids for spot-checking. Append run-specific caveats by hand.
@@ -92,7 +92,7 @@ changes, re-runs. A one-off eval ends at the report; the autoresearch loop
 takes score.json from here and does its own bookkeeping. Never write into
 `docs/eval/loop/` from this skill.
 
-Frozen during a pass: the three scoring files, `pipeline/evals.py`,
-`pipeline/judge.py`, `pipeline/eval_report.py`, `scripts/eval/*`, verdict
+Frozen during a pass: the three scoring files, `pipeline/shared/evals.py`,
+`pipeline/shared/judge.py`, `pipeline/shared/eval_report.py`, `scripts/eval/*`, verdict
 CSVs. Rubric looks wrong → note it in the report's caveats, finish the pass
 unchanged.

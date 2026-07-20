@@ -19,11 +19,11 @@ from typing import Iterable
 
 import numpy as np
 
-from pipeline.bench import assert_local_dsn, reset_clusters
-from pipeline.config import Config
+from pipeline.shared.bench import assert_local_dsn, reset_clusters
+from pipeline.shared.config import Config
 from pipeline.runner import _valid_enrichment, cluster
-from pipeline.store import Store
-from pipeline.vectors import pack_fp16, running_mean, unpack_fp16
+from pipeline.shared.store import Store
+from pipeline.shared.vectors import pack_fp16, running_mean, unpack_fp16
 
 GOLDEN_START = datetime(2025, 7, 1, tzinfo=timezone.utc)
 GOLDEN_BEFORE = datetime(2025, 9, 1, tzinfo=timezone.utc)

@@ -17,7 +17,7 @@ edit `golden_*` tables by hand. All hand-set fields use
 5. Recompute A: entry/episode counts, first/newest_entry_at,
    distinct_feeds (count distinct news_source_id), entity_set/agency_ids
    union, source_weight_max max, centroid = normalized mean of member
-   episode centroids (`pipeline.vectors.unpack_fp16/pack_fp16`).
+   episode centroids (`pipeline.shared.vectors.unpack_fp16/pack_fp16`).
 6. Rewrite A's overview: headline (keep current-state), summary, timeline
    (one item per episode, newest-first, `episode_id` keys must be episode
    ids, NOT card ids), `newest_entry_at`, and

@@ -94,7 +94,7 @@ importers:
         specifier: 4.0.16
         version: 4.0.16(@types/node@26.1.1)(jsdom@27.4.0(@noble/hashes@1.8.0))(lightningcss@1.32.0)(tsx@4.23.1)
 
-  apps/golden-enrichment:
+  apps/image_and_synthesis_gen:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: 3.1090.0

@@ -2,8 +2,8 @@ import random
 
 import pytest
 
-from pipeline.eval_namespace import get_eval_namespace
-from pipeline.evals import (
+from pipeline.shared.eval_namespace import get_eval_namespace
+from pipeline.shared.evals import (
     b_cubed,
     pairwise_f1,
     quanta,

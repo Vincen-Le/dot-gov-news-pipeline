@@ -5,8 +5,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from pipeline.config import Config
-from pipeline.db import Db
+from pipeline.shared.config import Config
+from pipeline.shared.db import Db
 from pipeline.golden import (
     GoldenValidationError,
     _one_parent_errors,
@@ -21,9 +21,9 @@ from pipeline.golden import (
     status,
     validate,
 )
-from pipeline.stub import StubModels
-from pipeline.store import Store
-from pipeline.vectors import pack_fp16
+from pipeline.shared.stub import StubModels
+from pipeline.shared.store import Store
+from pipeline.shared.vectors import pack_fp16
 
 
 def complete_row(**overrides):

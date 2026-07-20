@@ -22,7 +22,7 @@ Two findings from the literature the current design **already implements** —
 these need no experiment, only measurement:
 
 1. **Dedup-before-cluster** (Feedly: LSH first, 80% of articles are dupes,
-   dupes inherit cluster id) = tiers 1–2 in `pipeline/episodes.py`. Worth one
+   dupes inherit cluster id) = tiers 1–2 in `pipeline/complex/episodes.py`. Worth one
    query: what share of attaches are `content_hash`/`near_dup` on the real
    corpus? That share is the latency/cost lever.
 2. **Dense embeddings alone under-cluster at event granularity; entity
@@ -39,15 +39,15 @@ NewsCatcher v3 docs.
 
 ## Current knobs (baseline)
 
-| Knob | Value | Status |
-|---|---|---|
-| `embedding_model` | `@cf/baai/bge-m3` (Workers AI, dense only) | fixed reference |
-| `near_dup_threshold` | 0.90 | placeholder, uncalibrated |
-| `cluster_join_threshold` | 0.78 | placeholder, uncalibrated |
-| `theme_sim_floor` / `theme_stick_floor` | 0.55 / 0.50 | placeholder (see companion doc) |
-| `ambient_ema_ceiling` | 3.0 | placeholder |
-| `dedupe_window_hours` | 72 | assumed, unmeasured |
-| `episode_dormancy_hours` | 4 | assumed, unmeasured |
+| Knob                                    | Value                                      | Status                          |
+| --------------------------------------- | ------------------------------------------ | ------------------------------- |
+| `embedding_model`                       | `@cf/baai/bge-m3` (Workers AI, dense only) | fixed reference                 |
+| `near_dup_threshold`                    | 0.90                                       | placeholder, uncalibrated       |
+| `cluster_join_threshold`                | 0.78                                       | placeholder, uncalibrated       |
+| `theme_sim_floor` / `theme_stick_floor` | 0.55 / 0.50                                | placeholder (see companion doc) |
+| `ambient_ema_ceiling`                   | 3.0                                        | placeholder                     |
+| `dedupe_window_hours`                   | 72                                         | assumed, unmeasured             |
+| `episode_dormancy_hours`                | 4                                          | assumed, unmeasured             |
 
 ---
 
@@ -57,7 +57,7 @@ NewsCatcher v3 docs.
 
 Everything below needs a change-detection metric better than attach-mix
 deltas. The field standard is B-Cubed F1 on labeled pairs; operational
-metrics (singleton rate, attach mix) cannot say whether a change *helped*.
+metrics (singleton rate, attach mix) cannot say whether a change _helped_.
 
 - **Do**: extend the lab label queue (`pnpm ops lab borderline`,
   `docs/eval/labels.csv`) beyond theme pairs: sample ~150–200 episode-attach
@@ -104,7 +104,7 @@ judge; storyline similarity is diagnostic rather than a routing floor. Stage
 ### A2. Near-dup threshold sweep
 
 - **Hypothesis**: 0.90 is mis-set for bge-m3 on gov press releases (heavy
-  templated boilerplate inflates cosine between *different* events from the
+  templated boilerplate inflates cosine between _different_ events from the
   same agency; the fp16 quantization also compresses the top of the range).
 - **Do**: sweep 0.87–0.94; inspect false-merge pairs at each step via the
   storyline QA view. Boilerplate-heavy agencies (State nav-blob class) are
@@ -147,7 +147,7 @@ markets, and the one entity features exist to catch).
 - **Success**: episode B³ recall up, precision flat; adjudicator call count
   increase bounded (report shows cache misses); no megacluster regression
   (largest-episode share).
-- **Evidence**: entity similarity as a *feature* (not just a gate) worth ~3 F1
+- **Evidence**: entity similarity as a _feature_ (not just a gate) worth ~3 F1
   (Saravanakumar); Event Registry weights entities above ordinary words in
   the clustering vector itself.
 
@@ -210,7 +210,7 @@ by that doc; listed here only so the temporal track reads complete.
 
 All D experiments require `--clear-features` runs and an embedding-tag bump;
 run them after Track A so floor comparisons are clean. The offline Python
-pipeline binds embeddings only through the client in `pipeline/ai.py` — local
+pipeline binds embeddings only through the client in `pipeline/shared/ai.py` — local
 HF inference is an implementation detail plus the tag.
 
 ### D1. Hybrid sparse+dense scoring via local BGE-M3
@@ -240,7 +240,7 @@ changing embedding space — existing dense centroids stay comparable.
 
 Today one bge-m3 vector serves three granularities with three scalar floors
 (0.78/0.60/0.55) — the literature says granularity is not a scalar threshold
-in one space (dense encoders blur event vs topic; that is *why* the floors
+in one space (dense encoders blur event vs topic; that is _why_ the floors
 fight each other). Hanley & Durumeric: multilingual-e5-base fine-tuned so
 full dims decide same-event, mid dims same-topic, low dims same-theme;
 per-level calibrated thresholds; bi-encoder SOTA on SemEval 2022 Task 8
@@ -278,18 +278,18 @@ latency actually bites; the cache already absorbs replay cost.
 
 ## Suggested order
 
-| # | Experiment | Type | Cost | Blocked by |
-|---|---|---|---|---|
-| 1 | E0 gold labels + B³ harness | eval infra | S | — |
-| 2 | A1 floor calibration from verdicts | query + sweep | S | E0 (for confirmation) |
-| 3 | C1 dedupe-window measurement | query | XS | — |
-| 4 | A2 near-dup sweep | sweep | S | E0 |
-| 5 | B1 entity-nominated tier-4 | code + A/B | M | E0 |
-| 6 | B2 recency in storyline ranking | code + σ sweep | M | E0 |
-| 7 | A3 ambient EMA ceiling | query + sweep | S | E0 |
-| 8 | D1 sparse+dense hybrid | infra + re-embed | L | A1 (clean floors) |
-| 9 | D3 Matryoshka hierarchy | infra + re-embed | L | A1 |
-| 10 | E1 verdict-distilled pre-filter | model | M | volume |
+| #   | Experiment                         | Type             | Cost | Blocked by            |
+| --- | ---------------------------------- | ---------------- | ---- | --------------------- |
+| 1   | E0 gold labels + B³ harness        | eval infra       | S    | —                     |
+| 2   | A1 floor calibration from verdicts | query + sweep    | S    | E0 (for confirmation) |
+| 3   | C1 dedupe-window measurement       | query            | XS   | —                     |
+| 4   | A2 near-dup sweep                  | sweep            | S    | E0                    |
+| 5   | B1 entity-nominated tier-4         | code + A/B       | M    | E0                    |
+| 6   | B2 recency in storyline ranking    | code + σ sweep   | M    | E0                    |
+| 7   | A3 ambient EMA ceiling             | query + sweep    | S    | E0                    |
+| 8   | D1 sparse+dense hybrid             | infra + re-embed | L    | A1 (clean floors)     |
+| 9   | D3 Matryoshka hierarchy            | infra + re-embed | L    | A1                    |
+| 10  | E1 verdict-distilled pre-filter    | model            | M    | volume                |
 
 D2 is an optional cheap probe before committing to D1/D3. C2 only on QA
 evidence of same-burst fragmentation. C3 tracked in the companion doc.
@@ -297,4 +297,4 @@ evidence of same-burst fragmentation. C3 tracked in the companion doc.
 Rule of thumb from both research passes: measure before changing (C1, A3
 start as queries), calibrate before swapping models (A before D), and keep
 the split-bias — every experiment that loosens a gate must show the false
-merges it did *not* create, not just the joins it gained.
+merges it did _not_ create, not just the joins it gained.

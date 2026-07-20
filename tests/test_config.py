@@ -1,4 +1,4 @@
-from pipeline.config import Config, load_config
+from pipeline.shared.config import Config, load_config
 
 
 def test_defaults(monkeypatch):

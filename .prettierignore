@@ -6,7 +6,7 @@ apps/pipeline-worker/worker-configuration.d.ts
 config/news-backfill/top-20-diversity-v*.json
 coverage/
 dist/
-docs/superpowers/
+docs/archive/
 node_modules/
 pnpm-lock.yaml
 supabase/.temp/

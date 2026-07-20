@@ -30,10 +30,10 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from pipeline.db import Db
-from pipeline.eval_namespace import EVAL_NAMESPACES, get_eval_namespace
-from pipeline.evals import sample_intruders
-from pipeline.vectors import cosine, unpack_fp16
+from pipeline.shared.db import Db
+from pipeline.shared.eval_namespace import EVAL_NAMESPACES, get_eval_namespace
+from pipeline.shared.evals import sample_intruders
+from pipeline.shared.vectors import cosine, unpack_fp16
 
 INTRUDERS_PER_THEME = 5
 
@@ -186,7 +186,7 @@ def assert_live_matches_snapshot(db: Db, snapshot: dict) -> None:
 
 def generate_probe_labels(themes: list[dict]) -> dict[str, str]:
     """One-level-up granularity probe label per theme, via the judge client."""
-    from pipeline.judge import anthropic_complete, judge_vector
+    from pipeline.shared.judge import anthropic_complete, judge_vector
 
     rubric = (
         "For each theme, rewrite its label exactly one abstraction level up: "

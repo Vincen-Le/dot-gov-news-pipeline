@@ -2,7 +2,7 @@
 
 2026-07-19. Supersedes the stream-time theme spawn design (and the
 "healing sweep" framing that patched it). Implemented by
-`docs/superpowers/plans/2026-07-19-lazy-theme-promotion.md`.
+`docs/archive/implementation-plans/2026-07-19-lazy-theme-promotion.md`.
 
 ## Why
 
@@ -19,16 +19,16 @@ online/offline split are the precedents.
 
 ## Decisions in force
 
-| Layer | Decision |
-|---|---|
-| Category | LLM classify against seed taxonomy at card time; sole stream-time topic label; audit pair `category_method`/`category_reason` |
-| Theme birth | promotion sweep only: greedy within-category clustering, gate = size >= `theme_promotion_min_storylines` AND distinct active days >= `theme_promotion_min_active_days` AND cohesion >= `theme_promotion_cohesion_floor`, then the promotion judge promotes / attaches-to-existing / rejects |
-| Inclusion criterion | written by the promotion judge at birth; the membership rule every future attach is tested against |
-| Stream attach | attach-only, sticky, none-biased; candidates = top-k themes by centroid cosine >= `theme_sim_floor`, cross-category by design |
-| Cross-category | themes born category-local, live globally; sweep dossier lists cross-category near-misses; newborns immediately criterion-check them |
-| Dormancy | derived, not stored: `newest_storyline_at` older than ~45 days; dormant themes stay attach targets (attach = revival); no poaching |
-| Demotion | naive v1: member cohesion < `theme_demotion_cohesion_floor` triggers an LLM keep/demote review; demote reverts members to category-only; every review logged |
-| Failure bias | failed verdicts leave work undone (uncategorized / unattached / unpromoted / kept), never act |
+| Layer               | Decision                                                                                                                                                                                                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Category            | LLM classify against seed taxonomy at card time; sole stream-time topic label; audit pair `category_method`/`category_reason`                                                                                                                                                               |
+| Theme birth         | promotion sweep only: greedy within-category clustering, gate = size >= `theme_promotion_min_storylines` AND distinct active days >= `theme_promotion_min_active_days` AND cohesion >= `theme_promotion_cohesion_floor`, then the promotion judge promotes / attaches-to-existing / rejects |
+| Inclusion criterion | written by the promotion judge at birth; the membership rule every future attach is tested against                                                                                                                                                                                          |
+| Stream attach       | attach-only, sticky, none-biased; candidates = top-k themes by centroid cosine >= `theme_sim_floor`, cross-category by design                                                                                                                                                               |
+| Cross-category      | themes born category-local, live globally; sweep dossier lists cross-category near-misses; newborns immediately criterion-check them                                                                                                                                                        |
+| Dormancy            | derived, not stored: `newest_storyline_at` older than ~45 days; dormant themes stay attach targets (attach = revival); no poaching                                                                                                                                                          |
+| Demotion            | naive v1: member cohesion < `theme_demotion_cohesion_floor` triggers an LLM keep/demote review; demote reverts members to category-only; every review logged                                                                                                                                |
+| Failure bias        | failed verdicts leave work undone (uncategorized / unattached / unpromoted / kept), never act                                                                                                                                                                                               |
 
 ## Calibration procedure (golden bootstrap -> replay)
 

@@ -15,8 +15,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from pipeline.db import Db
-from pipeline.store import Store
+from pipeline.shared.db import Db
+from pipeline.shared.store import Store
 
 
 @pytest.mark.integration

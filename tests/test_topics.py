@@ -2,10 +2,10 @@ from datetime import datetime, timezone
 
 import numpy as np
 
-from pipeline.config import Config
-from pipeline.stub import StubModels
-from pipeline.topics import ThemeEngine, valid_theme_name
-from pipeline.vectors import pack_fp16
+from pipeline.shared.config import Config
+from pipeline.shared.stub import StubModels
+from pipeline.complex.topics import ThemeEngine, valid_theme_name
+from pipeline.shared.vectors import pack_fp16
 from tests.fakes import FakeStore
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)

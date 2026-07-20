@@ -2,8 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
-from pipeline.config import Config
-from pipeline.episodes import EpisodeEngine
+from pipeline.shared.config import Config
+from pipeline.complex.episodes import EpisodeEngine
 from tests.fakes import FakeStore
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)

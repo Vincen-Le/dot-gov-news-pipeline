@@ -4,8 +4,8 @@ import httpx
 import numpy as np
 import pytest
 
-from pipeline.ai import WorkersAI
-from pipeline.config import Config
+from pipeline.shared.ai import WorkersAI
+from pipeline.shared.config import Config
 
 
 _CF_LLAMA = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
@@ -83,7 +83,7 @@ def test_workers_ai_embedding_tag_is_the_configured_model():
 
 
 def test_extract_json_passes_through_parsed_dict():
-    from pipeline.ai import _extract_json
+    from pipeline.shared.ai import _extract_json
     parsed = {"category_id": "c-1", "reason": "already parsed"}
     assert _extract_json(parsed) == parsed
 

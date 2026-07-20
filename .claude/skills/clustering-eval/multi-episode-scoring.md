@@ -7,7 +7,7 @@ format — live in `scoring.md` and are not restated here.
 
 Ordering contract (two different orders, do not conflate):
 - **Display order** — reader-facing chain reads `overview → most recent →
-  oldest`. Enforced in `pipeline/cards.py` (overview timeline sorted date
+  oldest`. Enforced in `pipeline/shared/cards.py` (overview timeline sorted date
   desc). Compressor *input* stays oldest-first — chronological input is what
   the narrative summary needs; only the emitted timeline is newest-first.
 - **Judging order** — chain verdicts walk BUILD order (oldest → newest,
@@ -134,6 +134,6 @@ The Storylines section of the eval report must contain, in this order:
    (upstream of everything; fix before touching storyline levers).
 4. `V7` + per-criterion pass rates — lever mapping per criterion above.
 5. Embedding diagnostics: chains with decaying entity persistence.
-6. Storyline-axis recall vs gold (`pipeline.evals.pairwise_f1` / `b_cubed`
+6. Storyline-axis recall vs gold (`pipeline.shared.evals.pairwise_f1` / `b_cubed`
    on gold_storyline_id) — `n/a (no gold labels)` until
    `golden_news_entries` is populated.

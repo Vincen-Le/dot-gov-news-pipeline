@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from pipeline.config import Config
+from pipeline.shared.config import Config
 from pipeline.experiment import _anchored_replay_since, _namespace, render_report
 from pipeline.golden import GOLDEN_BEFORE, GoldenValidationError
 

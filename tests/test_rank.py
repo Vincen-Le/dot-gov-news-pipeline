@@ -2,9 +2,9 @@
 
 from datetime import datetime, timezone
 
-from pipeline.config import Config
+from pipeline.shared.config import Config
 from pipeline.rank import audit_run
-from pipeline.stub import StubModels
+from pipeline.shared.stub import StubModels
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)
 CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t",

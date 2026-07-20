@@ -1,5 +1,5 @@
-from pipeline.stub import StubModels
-from pipeline.vectors import cosine
+from pipeline.shared.stub import StubModels
+from pipeline.shared.vectors import cosine
 
 
 def test_stub_embedder_similarity_ordering():

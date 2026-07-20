@@ -94,7 +94,7 @@ validity ≥ 0.95; mean missed-salient-entities per entry; junk-token list
 Every judged vector above audits clusters that exist; none catches the
 story that should have joined and didn't. Fragmentation is the split-biased
 pipeline's dominant error direction and is measured ONLY against gold
-labels: `pipeline/evals.py` (`pairwise_f1`, `b_cubed`) over
+labels: `pipeline/shared/evals.py` (`pairwise_f1`, `b_cubed`) over
 `golden_news_entries` (gold_storyline_id / gold_theme_id vs actual
 assignments). Until the golden set is populated, every eval report prints
 the recall rows as `n/a (no gold labels)` — the empty slot is deliberate;

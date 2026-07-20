@@ -1,5 +1,5 @@
-from pipeline.cache import CachedModels, DecisionCache
-from pipeline.stub import StubModels
+from pipeline.shared.cache import CachedModels, DecisionCache
+from pipeline.shared.stub import StubModels
 
 
 class CountingModels:
@@ -58,12 +58,12 @@ def test_database_url_defaults_local(monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.setenv("CLOUDFLARE_ACCOUNT_ID", "a")
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "t")
-    from pipeline.config import load_config
+    from pipeline.shared.config import load_config
     assert load_config().database_url == "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 
 
 def test_compare_rank_is_memoized(tmp_path):
-    from pipeline.cache import CachedModels, DecisionCache
+    from pipeline.shared.cache import CachedModels, DecisionCache
 
     class Counting:
         calls = 0

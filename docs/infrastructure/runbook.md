@@ -52,6 +52,10 @@ mise exec -- pnpm --filter @dot-gov-news/operator-console build
 
 ## Supabase development
 
+For a database-only reconstruction guide, the complete current table catalog,
+and relationship diagrams, see the [database documentation](../database/README.md).
+The commands below remain the operational verification path.
+
 Start and verify the local stack:
 
 ```sh

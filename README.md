@@ -3,7 +3,7 @@
 Independent infrastructure and source inventory for collecting news from U.S.
 government websites.
 
-**New contributor?** See [ONBOARDING.md](ONBOARDING.md) — two commands to a
+**New contributor?** See [onboarding.md](docs/onboarding.md) — two commands to a
 working local experiment environment.
 
 The repository currently implements:
@@ -15,18 +15,21 @@ The repository currently implements:
   GSA Federal Website Index.
 - Content-addressed source snapshot archival in Cloudflare R2.
 - A scheduled and manually dispatchable GitHub Actions inventory workflow.
-- Cloudflare Workers, Cron Triggers, Queues, and R2 for asynchronous compute
-  and artifacts, including bounded site feed discovery.
+- Cloudflare Workers, Cron Triggers, Queues, and R2 scaffolding for asynchronous
+  compute and artifacts. The heartbeat is live; bounded site discovery is
+  provisioned but disabled.
 - Canonical `news_sources`, site-to-source provenance, source-fetch handoff
   state, and a resumable direct discovery backfill runner for initial database
   seeding.
 - A Node/TypeScript news-corpus backfill (`apps/news-backfill`) that fetches
   curated publisher histories from manifests in `config/news-backfill/`,
   archives every raw response in R2, and ingests normalized entries.
-- A Python clustering pipeline (`pipeline/`) that prepares entries
-  (extraction, normalization, fp16 embeddings stored in Postgres), clusters
-  them into episodes and storylines, assigns topics and themes, and generates
-  event and overview cards.
+- Python clustering pipelines (`pipeline/`) organized as the active simple
+  storyline spine, the retained earlier complex implementation, and shared
+  preparation/evaluation code. The simple pipeline produced the golden data.
+- A card asset package (`apps/image_and_synthesis_gen`) that exports trusted
+  generation tasks, validates thumbnails and article syntheses independently,
+  and publishes approved artifacts.
 - A clustering lab in the operator console (`pnpm ops lab …`) for corpus QA,
   experiments, quality metrics, and borderline labeling.
 - Local Chroma through Docker, retained as unused scaffolding for a possible
@@ -34,8 +37,31 @@ The repository currently implements:
 
 The database and shared TypeScript contracts support RSS, Atom, JSON Feed,
 publisher APIs, HTML archives, and sitemaps through the generalized
-`news_sources` model. Recurring source fetching at scale, learned ranking,
-search, the public API, and the user interface remain follow-up work.
+`news_sources` model.
+
+## Infrastructure status: scaffolding, not continuous ingestion
+
+This repository is **not yet a continuously running government-news feed
+monitor**. It has the durable schema, provider resources, heartbeat, one-time
+GSA inventory reconciliation, bounded discovery implementation, direct
+discovery backfill tooling, and curated corpus backfill needed to build one.
+The deployed discovery switch remains `DISCOVERY_ENABLED=false`, and the live
+hourly cron primarily proves the Queue → Worker → R2/Supabase path.
+
+Production collection still needs:
+
+- a reviewed, maintained inventory of all government news endpoints worth
+  monitoring, including periodic re-discovery as sites change;
+- recurring discovery and source-polling schedules with safe rollout controls;
+- workers/adapters that claim `news_source_fetch_state`, poll every supported
+  source type, archive responses, normalize entries, and advance leases;
+- queue capacity, retry/backoff, idempotency, dead-letter recovery, freshness
+  alerts, and coverage monitoring; and
+- an operating plan for enabling discovery in canaries before broad rollout.
+
+Learned ranking, search, the public API, and the user interface are also
+follow-up work. The current corpus is populated through explicit backfills and
+offline experiments, not an always-on polling service.
 
 ## Architecture smoke path
 
@@ -88,10 +114,11 @@ site_discovery_state
             -> news_source_fetch_state
 ```
 
-Cloudflare Queue/Cron is the recurring path and keeps one active lane per base
-domain. The initial inventory seed can run directly with
-`pnpm discovery:backfill` using a wider, explicit lane cap; Supabase remains the
-checkpoint, so the job is safe to resume after interruption. See the
+The Queue/Cron discovery path is implemented but intentionally disabled while
+the inventory and operating controls are completed. The initial seed can run
+directly with `pnpm discovery:backfill` using a wider, explicit lane cap;
+Supabase remains the checkpoint, so the job is safe to resume after
+interruption. See the
 [discovery operations guide](docs/operations/site-feed-discovery.md).
 
 ## News corpus backfill and clustering lab
@@ -118,6 +145,25 @@ See the [clustering lab guide](docs/operations/clustering-lab.md) and the
 The [golden news curation guide](docs/operations/golden-news-curation.md)
 covers the chronological July-August human-review loop and September-forward
 anchored experiments.
+
+The [`pipeline/` guide](pipeline/README.md) explains the `simple`, `complex`,
+and `shared` boundaries, local database setup, and the experiment/snapshot
+tables selected for each engine.
+
+## Card images and article synthesis
+
+`apps/image_and_synthesis_gen` contains separate `thumbnail` and
+`article_synthesis` lanes with shared trust-boundary and publication helpers.
+The generators and validators are card-oriented; the current coordinator
+exports reviewed golden overview cards because that is the trusted dataset
+available today. Existing golden database table names, R2 keys, artifact
+directories, and the `pnpm golden:enrich` command remain compatibility
+contracts.
+
+Use `pnpm card:generate` as the canonical CLI. For a guided reviewed-card
+backfill or recovery, ask Codex to use the **Backfill Golden Enrichment** skill
+with `$golden-enrichment-backfill`. See the
+[image and synthesis package guide](apps/image_and_synthesis_gen/README.md).
 
 ## Dependency management
 
@@ -241,13 +287,18 @@ complete read-only command catalog, including the clustering lab commands.
 ## Infrastructure documentation
 
 - [Documentation index](docs/index.md)
-- [Architecture and implementation status](architecture.md)
+- [Architecture and implementation status](docs/architecture.md)
+- [Database rebuild guide](docs/database/README.md)
+- [Database schema reference](docs/database/schema-reference.md)
+- [Database relationships and lifecycle](docs/database/relationships.md)
+- [Python pipeline organization and experiment tables](pipeline/README.md)
+- [Card image and synthesis generation](apps/image_and_synthesis_gen/README.md)
 - [Provider access](docs/infrastructure/access.md)
 - [Operations runbook](docs/infrastructure/runbook.md)
 - [Teardown procedure](docs/infrastructure/teardown.md)
 - [Operator CLI cheatsheet](docs/operations/cli-cheatsheet.md)
-- [Operator dashboard design proposal](docs/superpowers/specs/2026-07-17-operator-dashboard-nds-design.md)
-- [Ranking pipeline design proposal](docs/superpowers/specs/2026-07-17-ranking-pipeline-design.md)
-- [Operator observability implementation plan](.claude/plans/operator-cli-dashboard-observability-implementation-plan.md)
-- [Implementation plan](.claude/plans/minimal-infrastructure-bootstrap-implementation-plan.md)
-- [Inventory and news-source-discovery plan](.claude/plans/gsa-inventory-and-news-source-discovery-implementation-plan.md)
+- [Operator dashboard design proposal](docs/archive/design-specs/2026-07-17-operator-dashboard-nds-design.md)
+- [Ranking pipeline design proposal](docs/archive/design-specs/2026-07-17-ranking-pipeline-design.md)
+- [Operator observability implementation plan](docs/archive/implementation-plans/operator-cli-dashboard-observability-implementation-plan.md)
+- [Infrastructure bootstrap plan](docs/archive/implementation-plans/minimal-infrastructure-bootstrap-implementation-plan.md)
+- [Inventory and news-source-discovery plan](docs/archive/implementation-plans/gsa-inventory-and-news-source-discovery-implementation-plan.md)

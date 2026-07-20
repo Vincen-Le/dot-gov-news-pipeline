@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from pipeline.fit import fit_weights
-from pipeline.prompts import RUBRIC_CRITERIA
+from pipeline.complex.fit import fit_weights
+from pipeline.shared.prompts import RUBRIC_CRITERIA
 
 
 def _bits(**on):

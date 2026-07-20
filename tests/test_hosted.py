@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from pipeline.hosted import load_hosted
+from pipeline.shared.hosted import load_hosted
 
 
 def _write(tmp_path, url="https://x.supabase.co", key="sb_publishable_abc"):
@@ -36,7 +36,7 @@ def test_placeholder_key_rejected(tmp_path, monkeypatch):
 
 
 def test_default_path_points_at_repo_config():
-    from pipeline.hosted import _DEFAULT_PATH
+    from pipeline.shared.hosted import _DEFAULT_PATH
     assert _DEFAULT_PATH.name == "hosted.json"
     assert _DEFAULT_PATH.parent.name == "config"
     assert _DEFAULT_PATH.exists()

@@ -5,7 +5,7 @@ import os
 import httpx
 import pytest
 
-from pipeline.bench import assert_local_dsn, reset_clusters, sync_corpus
+from pipeline.shared.bench import assert_local_dsn, reset_clusters, sync_corpus
 
 
 class FakeConnInfo:
@@ -73,7 +73,7 @@ def test_reset_refuses_remote_dsn():
 
 @pytest.mark.integration
 def test_reset_clusters_preserves_news_entries_against_real_db():
-    from pipeline.db import Db
+    from pipeline.shared.db import Db
 
     db = Db(os.environ["DATABASE_URL"])
     before = db.one("select count(*) as n from public.news_entries")["n"]

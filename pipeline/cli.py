@@ -4,20 +4,20 @@ import argparse
 import json
 from datetime import datetime
 
-from pipeline.cache import CachedModels, DecisionCache
-from pipeline.config import load_config
-from pipeline.db import Db
-from pipeline.store import Store
+from pipeline.shared.cache import CachedModels, DecisionCache
+from pipeline.shared.config import load_config
+from pipeline.shared.db import Db
+from pipeline.shared.store import Store
 
 CACHE_PATH = ".cache/decisions.sqlite"
 
 
 def _models(cfg, stub: bool, no_cache: bool):
     if stub:
-        from pipeline.stub import StubModels
+        from pipeline.shared.stub import StubModels
         inner, tag = StubModels(), "stub"
     else:
-        from pipeline.ai import WorkersAI
+        from pipeline.shared.ai import WorkersAI
         inner, tag = WorkersAI(cfg), cfg.adjudicator_model
     if no_cache:
         return inner
@@ -149,14 +149,14 @@ def main() -> None:
     cfg = load_config()
     # Experiments are local-only; hosted writes go through the worker RPCs.
     # Direct hosted reads use psql with HOSTED_READONLY_DATABASE_URL instead.
-    from pipeline.bench import assert_local_dsn
+    from pipeline.shared.bench import assert_local_dsn
     assert_local_dsn(cfg.database_url)
     db = Db(cfg.database_url)
     store = Store(db)
 
     if args.command == "sync":
-        from pipeline.bench import sync_corpus
-        from pipeline.hosted import load_hosted
+        from pipeline.shared.bench import sync_corpus
+        from pipeline.shared.hosted import load_hosted
         url, key = load_hosted()
         out = sync_corpus(db, url, key)
     elif args.command == "prepare":
@@ -165,7 +165,7 @@ def main() -> None:
                       limit=args.limit, concurrency=args.concurrency,
                       per_agency=args.per_agency, agencies=args.agencies)
     elif args.command == "reextract":
-        from pipeline.extraction import EXTRACTOR_VERSION, extract
+        from pipeline.shared.extraction import EXTRACTOR_VERSION, extract
         rows = store.entries_needing_reextraction(EXTRACTOR_VERSION, limit=args.limit)
         for row in rows:
             entities, keys = extract(row["title"], row.get("summary"),
@@ -195,7 +195,7 @@ def main() -> None:
         elif args.action == "audit":
             out = audit_run(db, _models(cfg, args.stub, args.no_cache), cfg, args.run)
         else:
-            from pipeline.fit import fit_weights, load_pairs, write_weights
+            from pipeline.complex.fit import fit_weights, load_pairs, write_weights
             run_ids = [r.strip() for r in (args.runs or "").split(",") if r.strip()]
             if not run_ids:
                 parser.error("--runs is required for fit")
@@ -209,7 +209,7 @@ def main() -> None:
                 if args.write:
                     out["rubric_version"] = write_weights(db, weights)
     elif args.command == "reset":
-        from pipeline.bench import reset_clusters, reset_features
+        from pipeline.shared.bench import reset_clusters, reset_features
         (reset_features if args.features else reset_clusters)(db)
         out = {"reset": "features" if args.features else "clusters"}
     elif args.command == "golden":

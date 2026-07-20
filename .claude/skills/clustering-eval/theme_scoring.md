@@ -83,7 +83,7 @@ scorecard; < 0.40 flags the crawl's V2 as weak regardless of the score.
 Judged granularity of a single theme lives in V2; V4 is the cross-theme view.
 
 - **Merge candidates:** theme pairs with centroid cosine ≥ 0.75 (unpack via
-  `pipeline.vectors`) or shared distinctive name token (corpus-wide — do NOT
+  `pipeline.shared.vectors`) or shared distinctive name token (corpus-wide — do NOT
   scope the token heuristic to same-category; themes cross categories).
   Judge each: should-merge 1/0, applying the V2 probe-label test to the pair.
 - **Threshold audit (retroactive, every run):** log the centroid-cosine
@@ -121,6 +121,6 @@ The Themes section of the eval report must contain, in this order:
 2. Granularity verdicts table: theme, verdict, probe label, members gained.
 3. V4 merge-candidate verdicts + cosine histogram + threshold note.
 4. Cohesion quadrant lists (router output).
-5. Theme-axis recall vs gold (`pipeline.evals.pairwise_f1` /
+5. Theme-axis recall vs gold (`pipeline.shared.evals.pairwise_f1` /
    `b_cubed` on gold_theme_id) — `n/a (no gold labels)` until
    `golden_news_entries` is populated.

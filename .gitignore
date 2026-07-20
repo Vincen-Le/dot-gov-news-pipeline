@@ -1,10 +1,21 @@
 # Operating system and editor files
 .DS_Store
+Thumbs.db
+*.swo
 *.swp
+*~
+.idea/
+.vscode/
 
 # JavaScript dependencies and package-manager state
 node_modules/
 .pnpm-store/
+.npm/
+.yarn/
+.turbo/
+.vite/
+*.tsbuildinfo
+.eslintcache
 
 # Python environments, caches, and build output
 .venv/
@@ -14,6 +25,12 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.hypothesis/
+.nox/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
 build/
 dist/
 *.egg-info/
@@ -30,6 +47,7 @@ dist/
 supabase/.branches/
 supabase/.temp/
 .wrangler/
+.vercel/
 
 # Local service data
 chroma-data/
@@ -37,10 +55,18 @@ chroma-data/
 
 # Test and coverage output
 coverage/
+playwright-report/
+test-results/
 *-backup.sql
+*.log
+
+# Transient evaluation backup snapshots (canonical artifacts stay tracked)
+docs/eval/**/artifacts.bak-*/
 
 .cache/
 
 # Agent tooling local state
 .claude/worktrees/
+.claude/plans/
+.claude/settings.local.json
 .superpowers/

@@ -25,7 +25,7 @@ metric definitions, ranking evaluation, and recovery.
    work against any DSN; experiments require a local one (the pipeline bench
    tools structurally refuse remote hosts). Direct Python CLI invocations
    still need it exported because the pipeline's own fallback is the stock
-   Supabase port 54322. Caveat: `pipeline/config.py` loads the root `.env`, and
+   Supabase port 54322. Caveat: `pipeline/shared/config.py` loads the root `.env`, and
    `tests/test_cache.py` asserts the built-in default — export the variable in
    your shell (or per command) instead of committing it to `.env` if you also
    run `uv run pytest`.
@@ -88,7 +88,7 @@ Notes:
 - **spine** — a simpler aggregation pipeline (decision-tree join/spawn per
   article against a dense master-node overview, retroactive theme merge/split)
   that A/Bs against classic on the same corpus. See the
-  [Simplified Storyline Spine design doc](../superpowers/specs/2026-07-19-simplified-storyline-spine-design.md).
+  [Simplified Storyline Spine design doc](../archive/design-specs/2026-07-19-simplified-storyline-spine-design.md).
   `SPINE_ENRICHER_SYSTEM` and `SPINE_EMBED_SOURCE` are not yet wired into
   `prepare` — v1 evaluates on classic enrichment, so any A/B readout must not
   be attributed to enrichment differences.

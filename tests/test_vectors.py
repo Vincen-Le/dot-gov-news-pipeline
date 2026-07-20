@@ -1,6 +1,6 @@
 import numpy as np
 
-from pipeline.vectors import cosine, pack_fp16, running_mean, unpack_fp16
+from pipeline.shared.vectors import cosine, pack_fp16, running_mean, unpack_fp16
 
 
 def test_fp16_roundtrip():

@@ -26,7 +26,7 @@ from typing import Iterable
 import httpx
 from dotenv import load_dotenv
 
-from pipeline.extraction import extract as extract_anchors
+from pipeline.shared.extraction import extract as extract_anchors
 
 
 SEEDED_CATEGORIES = (

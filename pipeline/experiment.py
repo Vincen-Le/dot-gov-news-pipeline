@@ -11,8 +11,8 @@ import os
 from dataclasses import asdict
 from datetime import datetime, timezone
 
-from pipeline.bench import reset_clusters
-from pipeline.config import Config
+from pipeline.shared.bench import reset_clusters
+from pipeline.shared.config import Config
 from pipeline.runner import cluster
 
 
@@ -290,7 +290,7 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     if use_golden and cfg.engine == "spine":
         # anchored continue: the live tables ARE the reviewed golden image
         # (golden promote froze them); verify that, skip the reset, and let
-        # the replay layer the next slice on top (spine/replay.py primes its
+        # the replay layer the next slice on top (pipeline/simple/replay.py primes its
         # index from the live storylines).
         from pipeline.golden import GoldenValidationError
         drifted = db.one("""
@@ -322,7 +322,7 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     else:
         reset_clusters(db)
     if cfg.engine == "spine":
-        from spine.replay import run as spine_run
+        from pipeline.simple.replay import run as spine_run
         cluster_report = spine_run(store, models, cfg, limit=limit,
                                    since=since, until=until,
                                    per_agency=per_agency)

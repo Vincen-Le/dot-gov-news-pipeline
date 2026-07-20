@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from pipeline.config import Config
-from pipeline.db import Db
+from pipeline.shared.config import Config
+from pipeline.shared.db import Db
 from pipeline.rank import snapshot_run
 
 pytestmark = pytest.mark.integration

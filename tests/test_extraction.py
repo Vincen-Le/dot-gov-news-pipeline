@@ -1,4 +1,4 @@
-from pipeline.extraction import EXTRACTOR_VERSION, extract
+from pipeline.shared.extraction import EXTRACTOR_VERSION, extract
 
 
 def test_version_frozen():
