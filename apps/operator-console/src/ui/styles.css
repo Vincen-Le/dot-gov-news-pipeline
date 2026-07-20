@@ -112,7 +112,7 @@ input:focus-visible {
   min-height: 64px;
   display: grid;
   grid-template-columns: minmax(260px, 1fr) auto minmax(300px, 1fr);
-  align-items: center;
+  align-items: end;
   gap: 2rem;
   padding: 0.8rem 1.25rem;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
@@ -120,6 +120,7 @@ input:focus-visible {
   backdrop-filter: blur(18px);
 }
 .brand {
+  min-height: var(--control-height);
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -179,7 +180,7 @@ input:focus-visible {
 .header-actions {
   justify-self: end;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.7rem;
 }
 .experiment-view-selector {
@@ -215,9 +216,14 @@ input:focus-visible {
 }
 .pipeline-environment-selector {
   display: grid;
-  grid-template-columns: auto minmax(155px, 210px);
-  align-items: center;
-  gap: 0.12rem 0.45rem;
+  grid-template-columns: minmax(210px, 250px);
+  gap: 0.3rem;
+}
+.pipeline-environment-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 .pipeline-environment-selector label,
 .pipeline-environment-selector small {
@@ -227,15 +233,13 @@ input:focus-visible {
   text-transform: uppercase;
 }
 .pipeline-environment-selector select {
+  width: 100%;
   min-width: 0;
   padding: 0.36rem 0.5rem;
   border: 1px solid var(--rule);
   background: var(--canvas);
   color: var(--text);
   font: 0.7rem var(--mono);
-}
-.pipeline-environment-selector small {
-  grid-column: 2;
 }
 .row-view-actions {
   display: flex;
@@ -539,6 +543,10 @@ thead th {
 .storyline-group-row strong {
   font-size: 0.9rem;
   font-weight: 600;
+}
+.storyline-group-row small {
+  margin-left: 0.4rem;
+  color: var(--muted);
 }
 tbody th {
   font-weight: 550;
@@ -1870,7 +1878,14 @@ footer {
   }
 
   .app-header nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
     justify-content: flex-start;
+  }
+
+  .header-actions {
+    grid-column: 2;
+    grid-row: 1;
   }
 }
 

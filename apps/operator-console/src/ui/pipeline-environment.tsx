@@ -87,7 +87,10 @@ export function PipelineEnvironmentSelector() {
   if (pipelines.length === 0 || pipeline === undefined) return null;
   return (
     <div className="pipeline-environment-selector">
-      <label htmlFor="pipeline-environment">Evaluation pipeline</label>
+      <div className="pipeline-environment-meta">
+        <label htmlFor="pipeline-environment">Evaluation pipeline</label>
+        <small>{engine}</small>
+      </div>
       <select
         id="pipeline-environment"
         onChange={(event) => setPipeline(event.currentTarget.value)}
@@ -99,7 +102,6 @@ export function PipelineEnvironmentSelector() {
           </option>
         ))}
       </select>
-      <small>{engine}</small>
     </div>
   );
 }
