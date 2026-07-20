@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import type { StorylineListItem, StorylinePreview } from "./api/contracts";
@@ -24,12 +24,11 @@ import {
   groupStorylinesForTable,
   type StorylineGroupBy,
 } from "./domain/storyline-groups";
+import { filterMotion } from "./motion";
 import { StorylinesHero } from "./StorylinesHero";
 
 const RENDER_BATCH_SIZE = 18;
 const LOAD_AHEAD_ROOT_MARGIN = "1200px 0px";
-const FILTER_EXIT_DURATION_MS = 320;
-const FILTER_ENTRY_DELAY_MS = 140;
 
 type SortOrder = "episodes" | "newest" | "rank";
 type ViewMode = "product" | "table";
@@ -55,14 +54,25 @@ function retainAvailable(
 }
 
 function useFilterPresence(options: FilterOption[]): {
+  completeExit: (value: string) => void;
   exitingIds: ReadonlySet<string>;
   options: FilterOption[];
 } {
   const [displayed, setDisplayed] = useState(options);
   const [exitingIds, setExitingIds] = useState<ReadonlySet<string>>(new Set());
   const displayedRef = useRef(displayed);
+  const pendingExitIds = useRef(new Set<string>());
+  const retainedAfterExit = useRef(options);
+  const incomingAfterExit = useRef(options);
+  const entryTimer =
+    useRef<ReturnType<typeof globalThis.setTimeout>>(undefined);
 
   useEffect(() => {
+    if (entryTimer.current !== undefined) {
+      globalThis.clearTimeout(entryTimer.current);
+      entryTimer.current = undefined;
+    }
+
     const activeIds = new Set(options.map((option) => option.value));
     const exiting = displayedRef.current.filter(
       (option) => !activeIds.has(option.value),
@@ -75,35 +85,54 @@ function useFilterPresence(options: FilterOption[]): {
     const nextExitingIds = new Set(exiting.map((option) => option.value));
 
     if (exiting.length === 0) {
+      pendingExitIds.current.clear();
       displayedRef.current = options;
       setDisplayed(options);
       setExitingIds(nextExitingIds);
       return;
     }
 
+    pendingExitIds.current = new Set(nextExitingIds);
+    retainedAfterExit.current = retained;
+    incomingAfterExit.current = options;
     displayedRef.current = nextDisplayed;
     setDisplayed(nextDisplayed);
     setExitingIds(nextExitingIds);
-
-    let entryTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
-    const exitTimer = globalThis.setTimeout(() => {
-      displayedRef.current = retained;
-      setDisplayed(retained);
-      setExitingIds(new Set());
-
-      entryTimer = globalThis.setTimeout(() => {
-        displayedRef.current = options;
-        setDisplayed(options);
-      }, FILTER_ENTRY_DELAY_MS);
-    }, FILTER_EXIT_DURATION_MS);
-
-    return () => {
-      globalThis.clearTimeout(exitTimer);
-      if (entryTimer !== undefined) globalThis.clearTimeout(entryTimer);
-    };
   }, [options]);
 
-  return { exitingIds, options: displayed };
+  const completeExit = useCallback((value: string) => {
+    if (!pendingExitIds.current.delete(value)) return;
+    if (pendingExitIds.current.size > 0) return;
+
+    const retained = retainedAfterExit.current;
+    const incoming = incomingAfterExit.current;
+    displayedRef.current = retained;
+    setDisplayed(retained);
+    setExitingIds(new Set());
+
+    const retainedIds = new Set(retained.map((option) => option.value));
+    const hasIncoming = incoming.some(
+      (option) => !retainedIds.has(option.value),
+    );
+    if (!hasIncoming) return;
+
+    entryTimer.current = globalThis.setTimeout(() => {
+      displayedRef.current = incomingAfterExit.current;
+      setDisplayed(incomingAfterExit.current);
+      entryTimer.current = undefined;
+    }, filterMotion.entryDelayMs);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (entryTimer.current !== undefined) {
+        globalThis.clearTimeout(entryTimer.current);
+      }
+    },
+    [],
+  );
+
+  return { completeExit, exitingIds, options: displayed };
 }
 
 export function StorylinesPage({ asOf }: { asOf: string }) {
@@ -368,6 +397,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             animateLayout
             exitingOptions={displayedAgencies.exitingIds}
             label="Agency"
+            onOptionExit={displayedAgencies.completeExit}
             onToggle={(value) =>
               setAgencies((current) => toggled(current, value))
             }
@@ -379,6 +409,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             animateLayout
             exitingOptions={displayedCategories.exitingIds}
             label="Category"
+            onOptionExit={displayedCategories.completeExit}
             onToggle={(value) =>
               setCategories((current) => toggled(current, value))
             }
@@ -390,6 +421,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             animateLayout
             exitingOptions={displayedThemes.exitingIds}
             label="Theme"
+            onOptionExit={displayedThemes.completeExit}
             onToggle={(value) =>
               setThemes((current) => toggled(current, value))
             }

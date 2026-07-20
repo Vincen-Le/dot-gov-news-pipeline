@@ -13,6 +13,7 @@ import {
   StorylineDialog,
   StorylineTableRow,
 } from "../src/components";
+import { filterMotion } from "../src/motion";
 
 const storylineId = "00000000-0000-4000-8000-000000000021";
 const sourceEntryId = "00000000-0000-4000-8000-000000000011";
@@ -454,8 +455,8 @@ describe("filter option layout", () => {
       expect(animate).toHaveBeenCalledWith(
         [{ transform: "translateX(100px)" }, { transform: "translateX(0)" }],
         {
-          duration: 360,
-          easing: "cubic-bezier(0.2, 0.75, 0.2, 1)",
+          duration: filterMotion.layoutDurationMs,
+          easing: filterMotion.layoutEasing,
         },
       );
     } finally {

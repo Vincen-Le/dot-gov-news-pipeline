@@ -229,7 +229,7 @@ describe("storyline rendering window", () => {
       view.container.querySelectorAll(".taxonomy .theme-emergence.is-exiting"),
     ).toHaveLength(4);
 
-    act(() => vi.advanceTimersByTime(320));
+    fireEvent.animationEnd(themeFilter);
 
     expect(screen.queryByText("Food safety")).toBeNull();
   });
@@ -296,14 +296,13 @@ describe("storyline rendering window", () => {
 
     view.rerender(page("2026-07-26"));
 
-    expect(
-      screen
-        .getByRole("button", { name: "Outgoing theme" })
-        .classList.contains("is-exiting"),
-    ).toBe(true);
+    const outgoingTheme = screen.getByRole("button", {
+      name: "Outgoing theme",
+    });
+    expect(outgoingTheme.classList.contains("is-exiting")).toBe(true);
     expect(screen.queryByRole("button", { name: "Incoming theme" })).toBeNull();
 
-    act(() => vi.advanceTimersByTime(320));
+    fireEvent.animationEnd(outgoingTheme);
 
     expect(screen.queryByRole("button", { name: "Outgoing theme" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Incoming theme" })).toBeNull();

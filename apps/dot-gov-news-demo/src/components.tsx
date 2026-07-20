@@ -18,6 +18,7 @@ import {
 import { dotGovApi } from "./api/client";
 import { cardAsOf, detailAsOf, isoDay } from "./domain/as-of";
 import type { StorylinePlacement } from "./domain/relative-rank";
+import { filterMotion } from "./motion";
 import { NewsMark } from "./NewsMark";
 
 export function displayDate(value: string | null | undefined): string {
@@ -63,6 +64,7 @@ export function FilterGroup({
   animateLayout = false,
   exitingOptions,
   label,
+  onOptionExit,
   onToggle,
   optionClassName,
   options,
@@ -71,6 +73,7 @@ export function FilterGroup({
   animateLayout?: boolean;
   exitingOptions?: ReadonlySet<string>;
   label: string;
+  onOptionExit?: (value: string) => void;
   onToggle: (value: string) => void;
   optionClassName?: string;
   options: FilterOption[];
@@ -118,8 +121,8 @@ export function FilterGroup({
             { transform: "translateX(0)" },
           ],
           {
-            duration: 360,
-            easing: "cubic-bezier(0.2, 0.75, 0.2, 1)",
+            duration: filterMotion.layoutDurationMs,
+            easing: filterMotion.layoutEasing,
           },
         );
       }
@@ -148,6 +151,9 @@ export function FilterGroup({
               data-filter-option={option.value}
               disabled={exiting}
               key={option.value}
+              onAnimationEnd={() => {
+                if (exiting) onOptionExit?.(option.value);
+              }}
               onClick={() => onToggle(option.value)}
               type="button"
             >
