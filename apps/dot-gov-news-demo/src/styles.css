@@ -492,9 +492,9 @@ p {
 
 .date-carousel-item.is-selected {
   z-index: 1;
-  background: var(--text);
+  background: transparent;
   border-color: var(--text);
-  color: var(--surface);
+  color: var(--text);
   opacity: 1;
 }
 
