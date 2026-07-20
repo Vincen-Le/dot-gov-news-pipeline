@@ -445,117 +445,100 @@ p {
   gap: 0.75rem;
 }
 
-.date-track {
-  min-width: 0;
-  display: grid;
-  gap: 0.4rem;
-}
-
-.date-slider {
+.date-carousel {
   position: relative;
   min-width: 0;
 }
 
-.date-range {
-  height: var(--control-height);
+.date-carousel-window {
+  position: relative;
+  height: 64px;
   width: 100%;
-  margin: 0;
-  appearance: none;
-  background: transparent;
-  cursor: ew-resize;
-  touch-action: pan-y;
+  overflow: hidden;
+  border-inline: 1px solid var(--rule);
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 4rem,
+    #000 calc(100% - 4rem),
+    transparent
+  );
 }
 
-.date-drag-value {
+.date-carousel-item {
   position: absolute;
-  top: calc(100% - 3px);
-  left: clamp(42px, var(--date-progress), calc(100% - 42px));
-  padding: 0.12rem 0.28rem;
-  background: var(--surface);
+  top: 0;
+  left: 50%;
+  width: 104px;
+  height: 64px;
+  display: grid;
+  place-content: center;
+  gap: 0.2rem;
+  padding: 0.4rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0.62;
+  transform: translate3d(calc(-50% + var(--date-offset)), 0, 0);
+  will-change: transform;
+}
+
+.date-carousel-item:hover {
+  border-color: var(--rule-strong);
   color: var(--text);
+  opacity: 1;
+}
+
+.date-carousel-item.is-selected {
+  z-index: 1;
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--surface);
+  opacity: 1;
+}
+
+.date-carousel-item:focus-visible {
+  outline: 2px solid var(--live);
+  outline-offset: -3px;
+}
+
+.date-carousel-weekday {
   font: 600 var(--font-micro) var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.date-carousel-item time {
+  font: 500 var(--font-small) var(--mono);
   font-variant-numeric: tabular-nums;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, -3px);
-  transition:
-    opacity 100ms ease,
-    transform 140ms ease;
   white-space: nowrap;
 }
 
-.date-range:active + .date-drag-value,
-.date-range:focus-visible + .date-drag-value {
-  opacity: 1;
-  transform: translate(-50%, 0);
+.date-carousel-item.is-ticking {
+  animation: date-card-tick 160ms ease-out;
 }
 
-.date-range::-webkit-slider-runnable-track {
-  height: 3px;
-  background: linear-gradient(
-    to right,
-    var(--text) 0 var(--date-progress),
-    var(--rule-strong) var(--date-progress) 100%
-  );
-}
-
-.date-range::-moz-range-track {
-  height: 3px;
-  background: linear-gradient(
-    to right,
-    var(--text) 0 var(--date-progress),
-    var(--rule-strong) var(--date-progress) 100%
-  );
-}
-
-.date-range::-webkit-slider-thumb {
-  width: 19px;
-  height: 19px;
-  margin-top: -8px;
-  appearance: none;
-  background: var(--text);
-  border: 2px solid var(--surface);
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--text);
-}
-
-.date-range::-moz-range-thumb {
-  width: 15px;
-  height: 15px;
-  background: var(--text);
-  border: 2px solid var(--surface);
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--text);
-}
-
-.date-range.is-ticking::-webkit-slider-thumb {
-  animation: date-thumb-tick 160ms ease-out;
-}
-
-.date-range.is-ticking::-moz-range-thumb {
-  animation: date-thumb-tick 160ms ease-out;
-}
-
-.date-range:active {
-  cursor: grabbing;
-}
-
-@keyframes date-thumb-tick {
+@keyframes date-card-tick {
   0%,
   100% {
     scale: 1;
   }
 
   45% {
-    scale: 1.32;
+    scale: 1.06;
   }
 }
 
-.date-ticks {
-  display: flex;
-  justify-content: space-between;
-  color: var(--muted);
-  font: var(--font-micro) var(--mono);
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .date-stepper {
@@ -2162,10 +2145,6 @@ select {
     align-items: center;
   }
 
-  .date-ticks {
-    grid-column: 1;
-  }
-
   .storyline-grid {
     grid-template-columns: 1fr;
   }
@@ -2248,8 +2227,14 @@ select {
     width: 100%;
   }
 
-  .date-ticks span:nth-child(2) {
-    display: none;
+  .date-carousel-window {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 1.5rem,
+      #000 calc(100% - 1.5rem),
+      transparent
+    );
   }
 
   .workspace {

@@ -42,7 +42,7 @@ function installAnimationClock() {
 }
 
 describe("date navigator", () => {
-  it("keeps the ending date aligned to the end of the range track", () => {
+  it("shows nearby dates as selectable carousel items", () => {
     const view = render(
       <DateNavigator
         asOf="2025-07-18"
@@ -52,17 +52,21 @@ describe("date navigator", () => {
       />,
     );
 
-    const track = view.container.querySelector(".date-track");
-    const endDate = screen.getByText("Jul 29, 2025");
+    const carousel = view.container.querySelector(".date-carousel");
+    const currentDate = screen.getByRole("button", { name: "Jul 18, 2025" });
+    const nearbyDate = screen.getByRole("button", { name: "Jul 24, 2025" });
     const nextButton = screen.getByRole("button", { name: "Next date" });
 
-    expect(track?.contains(endDate)).toBe(true);
-    expect(track?.contains(nextButton)).toBe(false);
+    expect(carousel?.contains(currentDate)).toBe(true);
+    expect(carousel?.contains(nearbyDate)).toBe(true);
+    expect(carousel?.contains(nextButton)).toBe(false);
+    expect(currentDate.getAttribute("aria-pressed")).toBe("true");
   });
 
-  it("snaps to whole dates while the thumb is being dragged", () => {
+  it("selects a specific date directly from the carousel", () => {
+    installAnimationClock();
     const onChange = vi.fn();
-    const view = render(
+    render(
       <DateNavigator
         asOf="2025-07-18"
         maximum="2025-07-29"
@@ -70,24 +74,12 @@ describe("date navigator", () => {
         onChange={onChange}
       />,
     );
-    const slider = screen.getByRole("slider") as HTMLInputElement;
-    const dragValue = view.container.querySelector(".date-drag-value");
+    const targetDate = screen.getByRole("button", { name: "Jul 20, 2025" });
+    fireEvent.click(targetDate);
 
-    expect(slider.step).toBe("1");
-    fireEvent.pointerDown(slider);
-    fireEvent.change(slider, { target: { value: "2.1" } });
-    fireEvent.change(slider, { target: { value: "2.4" } });
-
-    expect(slider.value).toBe("2");
     expect(onChange).toHaveBeenCalledOnce();
     expect(onChange).toHaveBeenCalledWith("2025-07-20");
-    expect(dragValue?.textContent).toContain("Jul 20, 2025");
-
-    fireEvent.change(slider, { target: { value: "2.6" } });
-
-    expect(slider.value).toBe("3");
-    expect(onChange).toHaveBeenLastCalledWith("2025-07-21");
-    expect(dragValue?.textContent).toContain("Jul 21, 2025");
+    expect(targetDate.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("updates immediately while smoothly retargeting consecutive arrow clicks", () => {
@@ -101,7 +93,6 @@ describe("date navigator", () => {
         onChange={onChange}
       />,
     );
-    const slider = screen.getByRole("slider") as HTMLInputElement;
     const previous = screen.getByRole("button", { name: "Previous date" });
     const next = screen.getByRole("button", { name: "Next date" });
 
@@ -110,16 +101,21 @@ describe("date navigator", () => {
     expect(screen.queryByText(/Advance date/u)).toBeNull();
 
     fireEvent.click(next);
-    expect(slider.value).toBe("0");
     expect(onChange).toHaveBeenCalledOnce();
     expect(onChange).toHaveBeenCalledWith("2025-07-19");
     expect((next as HTMLButtonElement).disabled).toBe(false);
+    const july19 = screen.getByRole("button", { name: "Jul 19, 2025" });
+    expect(july19.getAttribute("aria-pressed")).toBe("true");
+    expect(july19.style.getPropertyValue("--date-offset")).toBe("112px");
 
     clock.advance(0);
     clock.advance(0);
     clock.advance(180);
-    expect(Number(slider.value)).toBeGreaterThan(0);
-    expect(Number(slider.value)).toBeLessThan(1);
+    const movingOffset = Number.parseFloat(
+      july19.style.getPropertyValue("--date-offset"),
+    );
+    expect(movingOffset).toBeGreaterThan(0);
+    expect(movingOffset).toBeLessThan(112);
 
     fireEvent.click(next);
     expect(onChange).toHaveBeenCalledTimes(2);
@@ -128,7 +124,9 @@ describe("date navigator", () => {
     clock.advance(180);
     clock.advance(180);
     clock.advance(540);
-    expect(slider.value).toBe("2");
+    const july20 = screen.getByRole("button", { name: "Jul 20, 2025" });
+    expect(july20.getAttribute("aria-pressed")).toBe("true");
+    expect(july20.style.getPropertyValue("--date-offset")).toBe("0px");
   });
 
   it("starts the app on day zero when the timeline bounds load", () => {
@@ -173,9 +171,10 @@ describe("date navigator", () => {
       </QueryClientProvider>,
     );
 
-    expect((screen.getByRole("slider") as HTMLInputElement).value).toBe("0");
-    expect(screen.getByRole("slider").getAttribute("aria-valuetext")).toBe(
-      "Jul 18, 2025",
-    );
+    expect(
+      screen
+        .getByRole("button", { name: "Jul 18, 2025" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
   });
 });

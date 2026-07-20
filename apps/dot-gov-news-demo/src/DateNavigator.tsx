@@ -1,4 +1,10 @@
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { displayDate } from "./components";
 
@@ -16,6 +22,22 @@ function dayDistance(start: string, end: string): number {
 
 const ARROW_MOTION_MS = 360;
 const SNAP_MOTION_MS = 220;
+const CAROUSEL_BUFFER_DAYS = 8;
+
+const carouselWeekday = new Intl.DateTimeFormat("en-US", {
+  timeZone: "UTC",
+  weekday: "short",
+});
+
+const carouselMonthDay = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+
+function dateAtNoon(day: string): Date {
+  return new Date(`${day}T12:00:00Z`);
+}
 
 function magneticProgress(value: number): number {
   const progress = Math.max(0, Math.min(1, value));
@@ -51,11 +73,9 @@ export function DateNavigator({
   const span = dayDistance(minimum, maximum);
   const position = dayDistance(minimum, asOf);
   const clampedPosition = Math.min(position, span);
-  const midpoint = offsetDay(minimum, Math.round(span / 2));
   const [dragPosition, setDragPosition] = useState(clampedPosition);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isTicking, setIsTicking] = useState(false);
-  const dragging = useRef(false);
   const animating = useRef(false);
   const animationFrame = useRef<number | null>(null);
   const tickFrame = useRef<number | null>(null);
@@ -65,7 +85,7 @@ export function DateNavigator({
 
   useEffect(() => {
     emittedPosition.current = clampedPosition;
-    if (!dragging.current && !animating.current) {
+    if (!animating.current) {
       visualPosition.current = clampedPosition;
       setDragPosition(clampedPosition);
     }
@@ -110,12 +130,6 @@ export function DateNavigator({
     emittedPosition.current = day;
     if (withTick) signalTick();
     onChange(offsetDay(minimum, day));
-  }
-
-  function moveThumb(value: number): void {
-    const next = Math.round(Math.max(0, Math.min(span, value)));
-    updateVisualPosition(next);
-    emitDay(next);
   }
 
   function cancelAnimation(): void {
@@ -168,13 +182,6 @@ export function DateNavigator({
     animationFrame.current = window.requestAnimationFrame(animate);
   }
 
-  function finishDrag(value: number): void {
-    if (animating.current) return;
-    dragging.current = false;
-    const snapped = Math.round(Math.max(0, Math.min(span, value)));
-    animateTo(snapped, SNAP_MOTION_MS);
-  }
-
   function stepDate(direction: -1 | 1): void {
     const target = Math.max(
       0,
@@ -184,11 +191,34 @@ export function DateNavigator({
     animateTo(target, ARROW_MOTION_MS, smoothProgress, true);
   }
 
-  const progress = span === 0 ? 0 : (dragPosition / span) * 100;
-  const dragDay = offsetDay(minimum, Math.round(dragPosition));
-  const rangeStyle = {
-    "--date-progress": `${progress}%`,
-  } as CSSProperties;
+  function selectDate(target: number): void {
+    if (target === emittedPosition.current) return;
+    animateTo(target, SNAP_MOTION_MS, magneticProgress, true);
+  }
+
+  function handleCarouselKey(event: KeyboardEvent): void {
+    if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+      event.preventDefault();
+      stepDate(-1);
+    } else if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+      event.preventDefault();
+      stepDate(1);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      selectDate(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      selectDate(span);
+    }
+  }
+
+  const centerPosition = Math.round(dragPosition);
+  const firstVisible = Math.max(0, centerPosition - CAROUSEL_BUFFER_DAYS);
+  const lastVisible = Math.min(span, centerPosition + CAROUSEL_BUFFER_DAYS);
+  const visibleDates = Array.from(
+    { length: lastVisible - firstVisible + 1 },
+    (_, index) => firstVisible + index,
+  );
 
   return (
     <aside className="date-navigation" aria-label="Timeline navigation">
@@ -205,66 +235,44 @@ export function DateNavigator({
           </time>
         </header>
         <div className="date-control-row">
-          <div className="date-track">
-            <div className="date-slider">
-              <input
-                aria-label="Simulated publication date"
-                aria-valuetext={displayDate(dragDay)}
-                max={span}
-                min="0"
-                className={`date-range${isTicking ? " is-ticking" : ""}`}
-                onBlur={(event) =>
-                  finishDrag(Number(event.currentTarget.value))
-                }
-                onChange={(event) =>
-                  moveThumb(Number(event.currentTarget.value))
-                }
-                onKeyDown={(event) => {
-                  if (
-                    [
-                      "ArrowDown",
-                      "ArrowLeft",
-                      "ArrowRight",
-                      "ArrowUp",
-                      "End",
-                      "Home",
-                      "PageDown",
-                      "PageUp",
-                    ].includes(event.key)
-                  )
-                    dragging.current = true;
-                }}
-                onKeyUp={(event) =>
-                  finishDrag(Number(event.currentTarget.value))
-                }
-                onPointerCancel={(event) =>
-                  finishDrag(Number(event.currentTarget.value))
-                }
-                onPointerDown={() => {
-                  cancelAnimation();
-                  dragging.current = true;
-                }}
-                onPointerUp={(event) =>
-                  finishDrag(Number(event.currentTarget.value))
-                }
-                step={isAnimating ? "any" : "1"}
-                style={rangeStyle}
-                type="range"
-                value={dragPosition}
-              />
-              <output
-                aria-hidden="true"
-                className="date-drag-value"
-                style={rangeStyle}
-              >
-                {displayDate(dragDay)}
-              </output>
+          <div
+            aria-label="Choose simulated publication date"
+            aria-roledescription="carousel"
+            className={`date-carousel${isAnimating ? " is-animating" : ""}`}
+            onKeyDown={handleCarouselKey}
+            role="group"
+          >
+            <div className="date-carousel-window">
+              {visibleDates.map((dayIndex) => {
+                const day = offsetDay(minimum, dayIndex);
+                const date = dateAtNoon(day);
+                const selected = dayIndex === emittedPosition.current;
+                const itemStyle = {
+                  "--date-offset": `${(dayIndex - dragPosition) * 112}px`,
+                } as CSSProperties;
+
+                return (
+                  <button
+                    aria-label={displayDate(day)}
+                    aria-pressed={selected}
+                    className={`date-carousel-item${selected ? " is-selected" : ""}${selected && isTicking ? " is-ticking" : ""}`}
+                    key={day}
+                    onClick={() => selectDate(dayIndex)}
+                    style={itemStyle}
+                    tabIndex={selected ? 0 : -1}
+                    type="button"
+                  >
+                    <span className="date-carousel-weekday">
+                      {carouselWeekday.format(date)}
+                    </span>
+                    <time dateTime={day}>{carouselMonthDay.format(date)}</time>
+                  </button>
+                );
+              })}
             </div>
-            <div className="date-ticks" aria-hidden="true">
-              <span>{displayDate(minimum)}</span>
-              {span > 1 ? <span>{displayDate(midpoint)}</span> : null}
-              <span>{displayDate(maximum)}</span>
-            </div>
+            <p aria-live="polite" className="sr-only">
+              {displayDate(offsetDay(minimum, emittedPosition.current))}
+            </p>
           </div>
           <div
             aria-label="Step through publication dates"
