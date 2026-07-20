@@ -71,6 +71,65 @@ afterEach(() => {
 });
 
 describe("storylines hero artwork", () => {
+  it("uses the top-ranked storyline within the selected filters", async () => {
+    const first = {
+      ...storyline(firstId, "2026-07-10T12:00:00.000Z", 20),
+      agencies: ["fda"],
+    };
+    const second = {
+      ...storyline(secondId, "2026-07-10T12:00:00.000Z", 10),
+      agencies: ["epa"],
+    };
+    const firstCard = overview(
+      "00000000-0000-4000-8000-000000000041",
+      first.firstOverviewAt!,
+    );
+    const secondCard = overview(
+      "00000000-0000-4000-8000-000000000042",
+      second.firstOverviewAt!,
+    );
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    client.setQueryData(["bootstrap"], {
+      agencies: [
+        { displayName: "Food and Drug Administration", key: "fda" },
+        { displayName: "Environmental Protection Agency", key: "epa" },
+      ],
+      categories: [],
+      previews: [
+        { overviewCards: [firstCard], storylineId: firstId },
+        { overviewCards: [secondCard], storylineId: secondId },
+      ],
+      storylines: { hasMore: false, items: [first, second] },
+      themes: [],
+    });
+    const view = render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <StorylinesPage asOf="2026-07-10" />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() =>
+      expect(heroImage(view.container, "preload")?.getAttribute("src")).toBe(
+        firstCard.thumbnail?.cardUrl,
+      ),
+    );
+    fireEvent.load(heroImage(view.container, "preload")!);
+
+    fireEvent.click(
+      view.getByRole("button", { name: "Environmental Protection Agency" }),
+    );
+
+    await waitFor(() =>
+      expect(heroImage(view.container, "preload")?.getAttribute("src")).toBe(
+        secondCard.thumbnail?.cardUrl,
+      ),
+    );
+  });
+
   it("crossfades to the top-ranked storyline available on the selected day", async () => {
     const fetch = vi.spyOn(globalThis, "fetch");
     vi.spyOn(dotGovApi, "storyline").mockImplementation(

@@ -143,27 +143,6 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       ),
     [bootstrap.data],
   );
-  const topStoryline = useMemo(
-    () =>
-      available.reduce<StorylineListItem | null>((top, item) => {
-        if (item.rankKey === null) return top;
-        if (
-          top === null ||
-          top.rankKey === null ||
-          item.rankKey > top.rankKey
-        ) {
-          return item;
-        }
-        return top;
-      }, null),
-    [available],
-  );
-  const heroArtwork = useMemo(() => {
-    if (topStoryline === null) return null;
-    const preview = previewByStoryline.get(topStoryline.id);
-    if (preview === undefined) return undefined;
-    return cardAsOf(preview.overviewCards, asOf)?.thumbnail ?? null;
-  }, [asOf, previewByStoryline, topStoryline]);
   const placements = useMemo(
     () => relativeStorylinePlacements(available),
     [available],
@@ -252,6 +231,27 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       return right.rankKey - left.rankKey;
     });
   }, [agencies, available, categories, sort, themes]);
+  const topStoryline = useMemo(
+    () =>
+      filtered.reduce<StorylineListItem | null>((top, item) => {
+        if (item.rankKey === null) return top;
+        if (
+          top === null ||
+          top.rankKey === null ||
+          item.rankKey > top.rankKey
+        ) {
+          return item;
+        }
+        return top;
+      }, null),
+    [filtered],
+  );
+  const heroArtwork = useMemo(() => {
+    if (topStoryline === null) return null;
+    const preview = previewByStoryline.get(topStoryline.id);
+    if (preview === undefined) return undefined;
+    return cardAsOf(preview.overviewCards, asOf)?.thumbnail ?? null;
+  }, [asOf, previewByStoryline, topStoryline]);
 
   useEffect(
     () => setVisibleCount(RENDER_BATCH_SIZE),
