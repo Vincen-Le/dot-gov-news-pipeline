@@ -1,304 +1,98 @@
-# dot-gov-news-pipeline
+# Dot Gov News
 
-Independent infrastructure and source inventory for collecting news from U.S.
-government websites.
+News from official U.S. government sources, clustered into storylines you can
+replay day by day.
 
-**New contributor?** See [onboarding.md](docs/onboarding.md) — two commands to a
-working local experiment environment.
+**Live demo:** [pdc-navy.vercel.app](https://pdc-navy.vercel.app/)
+(shared-password preview)
 
-The repository currently implements:
+![Dot Gov News storylines view](docs/assets/demo-storylines-hero.png)
 
-- Supabase for durable pipeline events, GSA inventory runs, government sites,
-  lease-based site-discovery state, canonical news sources, site/source
-  provenance, and source fetch scheduling.
-- A Node/TypeScript batch application that validates and reconciles the weekly
-  GSA Federal Website Index.
-- Content-addressed source snapshot archival in Cloudflare R2.
-- A scheduled and manually dispatchable GitHub Actions inventory workflow.
-- Cloudflare Workers, Cron Triggers, Queues, and R2 scaffolding for asynchronous
-  compute and artifacts. The heartbeat is live; bounded site discovery is
-  provisioned but disabled.
-- Canonical `news_sources`, site-to-source provenance, source-fetch handoff
-  state, and a resumable direct discovery backfill runner for initial database
-  seeding.
-- A Node/TypeScript news-corpus backfill (`apps/news-backfill`) that fetches
-  curated publisher histories from manifests in `config/news-backfill/`,
-  archives every raw response in R2, and ingests normalized entries.
-- Python clustering pipelines (`pipeline/`) organized as the active simple
-  storyline spine, the retained earlier complex implementation, and shared
-  preparation/evaluation code. The simple pipeline produced the golden data.
-- A card asset package (`apps/image_and_synthesis_gen`) that exports trusted
-  generation tasks, validates thumbnails and article syntheses independently,
-  and publishes approved artifacts.
-- A clustering lab in the operator console (`pnpm ops lab …`) for corpus QA,
-  experiments, quality metrics, and borderline labeling.
-- Local Chroma through Docker, retained as unused scaffolding for a possible
-  future vector store; pipeline embeddings currently live in Postgres.
+![Reviewed storyline cards with generated editorial images](docs/assets/demo-storyline-cards.png)
 
-The database and shared TypeScript contracts support RSS, Atom, JSON Feed,
-publisher APIs, HTML archives, and sitemaps through the generalized
-`news_sources` model.
+## What it does
 
-## Infrastructure status: scaffolding, not continuous ingestion
+- **Inventories the federal web.** A weekly batch validates and reconciles the
+  GSA Federal Website Index into Supabase — 29,569 audited source rows,
+  25,367 usable `.gov` discovery targets.
+- **Discovers and normalizes news sources.** RSS, Atom, JSON Feed, publisher
+  APIs, HTML archives, and sitemaps all flow through one canonical
+  `news_sources` model, with every raw response content-addressed in
+  Cloudflare R2.
+- **Builds a corpus.** Curated manifest backfills seed publisher histories
+  into idempotent, replayable `news_entries`.
+- **Clusters it.** A Python pipeline ([`pipeline/`](pipeline/README.md))
+  embeds entries and groups them into episodes, storylines, and themes; a
+  human-review loop promotes results into a golden serving dataset.
+- **Generates the presentation.** Reviewed editorial card images and article
+  syntheses come from
+  [`apps/image_and_synthesis_gen`](apps/image_and_synthesis_gen/README.md).
+- **Serves it.** The demo
+  ([`apps/dot-gov-news-demo`](apps/dot-gov-news-demo/README.md)) reads the
+  reviewed data through Vercel Functions and lets you scrub a simulated
+  publication date to watch coverage emerge.
 
-This repository is **not yet a continuously running government-news feed
-monitor**. It has the durable schema, provider resources, heartbeat, one-time
-GSA inventory reconciliation, bounded discovery implementation, direct
-discovery backfill tooling, and curated corpus backfill needed to build one.
-The deployed discovery switch remains `DISCOVERY_ENABLED=false`, and the live
-hourly cron primarily proves the Queue → Worker → R2/Supabase path.
-
-Production collection still needs:
-
-- a reviewed, maintained inventory of all government news endpoints worth
-  monitoring, including periodic re-discovery as sites change;
-- recurring discovery and source-polling schedules with safe rollout controls;
-- workers/adapters that claim `news_source_fetch_state`, poll every supported
-  source type, archive responses, normalize entries, and advance leases;
-- queue capacity, retry/backoff, idempotency, dead-letter recovery, freshness
-  alerts, and coverage monitoring; and
-- an operating plan for enabling discovery in canaries before broad rollout.
-
-Learned ranking, search, the public API, and the user interface are also
-follow-up work. The current corpus is populated through explicit backfills and
-offline experiments, not an always-on polling service.
-
-## Architecture smoke path
-
-```text
-Cloudflare Cron
-    -> Cloudflare Queue
-    -> queue consumer Worker
-        -> Supabase pipeline_events
-        -> R2 health/<event-id>.json
-```
-
-The queue is at-least-once. Event idempotency is enforced by the unique Supabase `idempotency_key`, and R2 objects use deterministic keys.
-
-## GSA inventory path
+## How it fits together
 
 ```text
 GSA Federal Website Index
-    -> inventory-sync batch (local or GitHub Actions)
-        -> R2 inventory/gsa/<sha256>.csv
-        -> Supabase private staging
-        -> atomic reconciliation
-            -> government_sites
-            -> site_discovery_state
-            -> usable_government_sites
+    -> inventory sync (GitHub Actions)      -> government_sites
+    -> site & feed discovery                -> news_sources
+    -> curated corpus backfill              -> news_entries + R2 archives
+    -> Python clustering (pipeline/)        -> episodes / storylines / themes
+    -> human review + card generation       -> golden serving data
+    -> Dot Gov News demo (Vercel)           -> pdc-navy.vercel.app
 ```
 
-Every source row is retained for audit. Only active, GSA-unfiltered, and
-ingestion-usable hostnames become due for news-source discovery. A full hosted import
-has reconciled 29,569 source rows into 25,367 usable discovery targets; replay
-of the same checksum completed as an unchanged no-op.
+Durable state lives in Supabase, raw artifacts in Cloudflare R2, and
+asynchronous compute on Cloudflare Workers with Cron Triggers and Queues. A
+read-only operator console (`pnpm ops …`) provides health, inventory, queue,
+and clustering-lab visibility.
 
-Run a read-only source inspection with:
+## Status
+
+Working scaffolding and a reviewed corpus — not yet a continuously running
+feed monitor. The corpus is populated by explicit backfills and offline
+experiments; recurring discovery is implemented but deployed disabled
+(`DISCOVERY_ENABLED=false`) while inventory review and rollout controls are
+completed. Recurring source polling, learned ranking, search, and a public API
+are follow-up work. [Architecture and implementation status](docs/architecture.md)
+tracks the details.
+
+## Getting started
+
+Two commands to a working local experiment environment:
 
 ```sh
-mise exec -- pnpm inventory:sync --dry-run
+mise install && pnpm install
+pnpm ops onboard
 ```
 
-The durable sync, credential setup, hosted verification record, and recovery
-queries are documented in the
-[infrastructure runbook](docs/infrastructure/runbook.md#gsa-government-site-inventory).
+See the [onboarding guide](docs/onboarding.md) for prerequisites, everyday
+commands, and troubleshooting. Verification, deployment, and recovery
+procedures live in the [infrastructure runbook](docs/infrastructure/runbook.md).
 
-## Site feed discovery path
+## Repository map
 
-```text
-site_discovery_state
-    -> lease-safe claim with bounded base-domain lanes
-        -> bounded publisher crawl and source validation
-            -> news_sources
-            -> government_site_news_sources
-            -> news_source_fetch_state
-```
+| Path                                                           | Purpose                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
+| [`apps/inventory-sync`](apps/inventory-sync)                   | GSA Federal Website Index validation and reconciliation |
+| [`apps/news-backfill`](apps/news-backfill)                     | Manifest-driven corpus backfill with R2 raw archival    |
+| [`apps/pipeline-worker`](apps/pipeline-worker)                 | Cloudflare Worker: heartbeat, queues, bounded discovery |
+| [`apps/operator-console`](apps/operator-console)               | Read-only operator CLI, dashboard, and clustering lab   |
+| [`apps/image_and_synthesis_gen`](apps/image_and_synthesis_gen) | Card thumbnail and article-synthesis generation         |
+| [`apps/dot-gov-news-demo`](apps/dot-gov-news-demo)             | Public storyline reader deployed to Vercel              |
+| [`pipeline/`](pipeline/README.md)                              | Python clustering: sync, prepare, cluster, experiments  |
+| [`packages/contracts`](packages/contracts)                     | Shared TypeScript event and news-source contracts       |
+| [`supabase/`](supabase)                                        | Migrations, roles, RLS, and database tests              |
 
-The Queue/Cron discovery path is implemented but intentionally disabled while
-the inventory and operating controls are completed. The initial seed can run
-directly with `pnpm discovery:backfill` using a wider, explicit lane cap;
-Supabase remains the checkpoint, so the job is safe to resume after
-interruption. See the
-[discovery operations guide](docs/operations/site-feed-discovery.md).
+## Documentation
 
-## News corpus backfill and clustering lab
-
-Seed the corpus from a curated manifest (raw responses archive to R2 by
-default):
-
-```sh
-mise exec -- pnpm news:backfill --manifest ../../config/news-backfill/top-20-diversity-v3.json
-```
-
-Then sync, prepare, and cluster locally with the Python pipeline, and QA the
-result in the lab:
-
-```sh
-uv run python -m pipeline.cli sync
-uv run python -m pipeline.cli prepare
-pnpm ops lab run --name baseline --stub
-pnpm ops lab storylines --min-episodes 2
-```
-
-See the [clustering lab guide](docs/operations/clustering-lab.md) and the
-[runbook's backfill section](docs/infrastructure/runbook.md#news-corpus-backfill-artifacts-and-content).
-The [golden news curation guide](docs/operations/golden-news-curation.md)
-covers the chronological July-August human-review loop and September-forward
-anchored experiments.
-
-The [`pipeline/` guide](pipeline/README.md) explains the `simple`, `complex`,
-and `shared` boundaries, local database setup, and the experiment/snapshot
-tables selected for each engine.
-
-## Card images and article synthesis
-
-`apps/image_and_synthesis_gen` contains separate `thumbnail` and
-`article_synthesis` lanes with shared trust-boundary and publication helpers.
-The generators and validators are card-oriented; the current coordinator
-exports reviewed golden overview cards because that is the trusted dataset
-available today. Existing golden database table names, R2 keys, artifact
-directories, and the `pnpm golden:enrich` command remain compatibility
-contracts.
-
-Use `pnpm card:generate` as the canonical CLI. For a guided reviewed-card
-backfill or recovery, ask Codex to use the **Backfill Golden Enrichment** skill
-with `$golden-enrichment-backfill`. See the
-[image and synthesis package guide](apps/image_and_synthesis_gen/README.md).
-
-## Dependency management
-
-This repository uses **pnpm** for Node.js and TypeScript dependencies and **uv** for Python dependencies. Generated dependency directories are local-only and ignored by Git.
-
-### Node.js tooling
-
-Install the pinned Node 24 toolchain and dependencies from the repository root:
-
-```sh
-mise install
-mise exec -- pnpm install --frozen-lockfile
-```
-
-Run the repository-managed Supabase CLI with:
-
-```sh
-mise exec -- pnpm supabase --version
-```
-
-Do not install or commit individual files from `node_modules`. The committed `package.json` and `pnpm-lock.yaml` files are the reproducible dependency source.
-
-### Python tooling
-
-Python 3.12+ hosts the clustering pipeline in `pipeline/` (sync, prepare,
-cluster, reset, and experiment stages behind `uv run python -m pipeline.cli`)
-with its test suite in `tests/`.
-
-Create `.venv` and install the exact dependencies from `uv.lock`:
-
-```sh
-uv sync --locked
-```
-
-Run Python commands inside the managed environment without activating it:
-
-```sh
-uv run python --version
-```
-
-Add or remove a Python dependency with `uv add <package>` or `uv remove <package>`. These commands update both `pyproject.toml` and `uv.lock`.
-
-`requirements.txt` is an exported compatibility file for tools that only understand pip-style requirements. Regenerate it after dependency changes:
-
-```sh
-uv export --format requirements-txt --no-dev --no-emit-project --output-file requirements.txt
-```
-
-Do not edit `requirements.txt` directly. The `.venv` directory is generated locally and must not be committed.
-
-## Local verification
-
-```sh
-mise exec -- pnpm format:check
-mise exec -- pnpm lint
-mise exec -- pnpm typecheck
-mise exec -- pnpm test
-mise exec -- pnpm supabase test db
-mise exec -- pnpm --filter @dot-gov-news/pipeline-worker check:deploy
-```
-
-Start Chroma locally:
-
-```sh
-mise exec -- pnpm dev:chroma
-curl --fail http://127.0.0.1:8000/api/v2/heartbeat
-```
-
-Run the local Supabase stack:
-
-```sh
-mise exec -- pnpm supabase start
-mise exec -- pnpm supabase db reset
-mise exec -- pnpm test:migration
-mise exec -- pnpm supabase test db
-```
-
-## Local secrets
-
-Copy the committed root template and add credentials only to the ignored `.env` file:
-
-```sh
-cp .env.example .env
-```
-
-Never add real credentials to `.env.example` or commit `.env`. Worker-local secrets belong in the ignored `apps/pipeline-worker/.dev.vars`, copied from its adjacent example file.
-
-## Operator CLI and dashboard
-
-The operator surface is read-only. Cloudflare continues running the pipeline
-when the local console is closed; the local process only protects credentials,
-proxies bounded reads, and optionally follows sampled Worker logs.
-
-For the one-time setup, add `SUPABASE_SECRET_KEY` to the ignored root `.env`,
-then let the bootstrap validate and deploy the Operator API, generate its token,
-and write the remaining local configuration:
-
-```sh
-pnpm ops deploy --dry-run
-pnpm ops deploy
-```
-
-After that, everyday startup is one command:
-
-```sh
-pnpm ops:start
-```
-
-The individual CLI queries remain available without Mise:
-
-```sh
-pnpm ops remote health --deep
-pnpm ops remote queues
-pnpm ops remote inventory summary
-pnpm ops lab corpus
-```
-
-See [the generated CLI cheatsheet](docs/operations/cli-cheatsheet.md) for the
-complete read-only command catalog, including the clustering lab commands.
-
-## Infrastructure documentation
-
-- [Documentation index](docs/index.md)
+- [Documentation index](docs/index.md) — start here; maps every goal to its
+  guide
+- [Onboarding](docs/onboarding.md)
 - [Architecture and implementation status](docs/architecture.md)
-- [Database rebuild guide](docs/database/README.md)
-- [Database schema reference](docs/database/schema-reference.md)
-- [Database relationships and lifecycle](docs/database/relationships.md)
-- [Python pipeline organization and experiment tables](pipeline/README.md)
-- [Card image and synthesis generation](apps/image_and_synthesis_gen/README.md)
-- [Provider access](docs/infrastructure/access.md)
-- [Operations runbook](docs/infrastructure/runbook.md)
-- [Teardown procedure](docs/infrastructure/teardown.md)
+- [Infrastructure runbook](docs/infrastructure/runbook.md)
+- [Database guide](docs/database/README.md)
+- [Clustering lab guide](docs/operations/clustering-lab.md)
 - [Operator CLI cheatsheet](docs/operations/cli-cheatsheet.md)
-- [Operator dashboard design proposal](docs/archive/design-specs/2026-07-17-operator-dashboard-nds-design.md)
-- [Ranking pipeline design proposal](docs/archive/design-specs/2026-07-17-ranking-pipeline-design.md)
-- [Operator observability implementation plan](docs/archive/implementation-plans/operator-cli-dashboard-observability-implementation-plan.md)
-- [Infrastructure bootstrap plan](docs/archive/implementation-plans/minimal-infrastructure-bootstrap-implementation-plan.md)
-- [Inventory and news-source-discovery plan](docs/archive/implementation-plans/gsa-inventory-and-news-source-discovery-implementation-plan.md)

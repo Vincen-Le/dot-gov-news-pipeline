@@ -38,6 +38,49 @@ mise install
 mise exec -- pnpm install --frozen-lockfile
 ```
 
+Do not install or commit individual files from `node_modules`. The committed
+`package.json` and `pnpm-lock.yaml` files are the reproducible dependency
+source. Run the repository-managed Supabase CLI with
+`mise exec -- pnpm supabase --version`.
+
+### Python dependencies
+
+Python 3.12+ hosts the clustering pipeline in `pipeline/` with its test suite
+in `tests/`. Create `.venv` and install the exact dependencies from `uv.lock`:
+
+```sh
+uv sync --locked
+```
+
+Run Python commands inside the managed environment without activating it, for
+example `uv run python --version`. Add or remove a Python dependency with
+`uv add <package>` or `uv remove <package>`; these commands update both
+`pyproject.toml` and `uv.lock`.
+
+`requirements.txt` is an exported compatibility file for tools that only
+understand pip-style requirements. Do not edit it directly; regenerate it after
+dependency changes:
+
+```sh
+uv export --format requirements-txt --no-dev --no-emit-project --output-file requirements.txt
+```
+
+The `.venv` directory is generated locally and must not be committed.
+
+### Local secrets
+
+Copy the committed root template and add credentials only to the ignored
+`.env` file:
+
+```sh
+cp .env.example .env
+```
+
+Never add real credentials to `.env.example` or commit `.env`. Worker-local
+secrets belong in the ignored `apps/pipeline-worker/.dev.vars`, copied from its
+adjacent example file. See [provider access](access.md) for which values go
+where.
+
 ## Verify the repository
 
 ```sh
