@@ -616,6 +616,14 @@ export const REUSABLE_IMAGE_DEFINITIONS: readonly ReusableImageDefinition[] = [
   }),
 ] as const;
 
+export function reusableImageByKey(
+  key: string,
+): ReusableImageDefinition | undefined {
+  return REUSABLE_IMAGE_DEFINITIONS.find(
+    (definition) => definition.key === key,
+  );
+}
+
 const BASE_PROMPT = `Use case: stylized-concept
 Asset type: reusable 1536 x 1024 landscape fallback thumbnail for a U.S. public-interest news dashboard
 Input images: Images 1, 2, and 3 are style and material references only. Do not copy their exact subjects or layouts.

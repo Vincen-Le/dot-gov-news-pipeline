@@ -16,6 +16,10 @@ import { hostedDatabase } from "./shared/database.js";
 import { exportTrustedManifests } from "./shared/exporter.js";
 import { type SynthesisCardKind } from "./shared/types.js";
 import {
+  prepareCompletedReusableImages,
+  publishReusableImages,
+} from "./reusable/publisher.js";
+import {
   assertImageRowsCompatible,
   prepareImageArtifacts,
   publishImageArtifacts,
@@ -210,6 +214,29 @@ async function main(): Promise<void> {
     );
     return;
   }
+  if (
+    command === "validate-reusable-images" ||
+    command === "publish-reusable-images"
+  ) {
+    const options = parseArtifactOptions(arguments_, "reusable-images");
+    const prepared = await prepareCompletedReusableImages(
+      options.artifactInputs,
+    );
+    if (command === "validate-reusable-images") {
+      process.stdout.write(
+        `${JSON.stringify({ artifacts: prepared.length, event: "reusable_image_validation_complete", imageKeys: prepared.flatMap(({ images }) => images.map((image) => image.key)) })}\n`,
+      );
+      return;
+    }
+    const result = await publishReusableImages(prepared, {
+      database: hostedDatabase(),
+      dryRun: options.dryRun,
+    });
+    process.stdout.write(
+      `${JSON.stringify({ dryRun: options.dryRun, event: "reusable_image_publish_complete", ...result })}\n`,
+    );
+    return;
+  }
   if (command === "validate-overviews" || command === "publish-overviews") {
     const options = parseArtifactOptions(arguments_, "generated-overviews-v2");
     const validated = await validateArticleOverviewV2Artifacts(options);
@@ -238,7 +265,7 @@ async function main(): Promise<void> {
     return;
   }
   throw new Error(
-    "usage: card:generate <export|validate|publish|validate-images|publish-images|validate-overviews|publish-overviews> [options]",
+    "usage: card:generate <export|validate|publish|validate-images|publish-images|validate-reusable-images|publish-reusable-images|validate-overviews|publish-overviews> [options]",
   );
 }
 
