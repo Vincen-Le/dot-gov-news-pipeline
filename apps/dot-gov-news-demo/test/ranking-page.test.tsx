@@ -72,14 +72,20 @@ describe("ranking score makeup", () => {
         },
       ],
     });
-    queryClient.setQueryData(["storylines"], {
-      hasMore: false,
-      items: [
-        storyline(
-          "00000000-0000-4000-8000-000000000021",
-          "2026-07-20T12:00:00.000Z",
-        ),
-      ],
+    queryClient.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: [],
+      storylines: {
+        hasMore: false,
+        items: [
+          storyline(
+            "00000000-0000-4000-8000-000000000021",
+            "2026-07-20T12:00:00.000Z",
+          ),
+        ],
+      },
+      themes: [],
     });
 
     render(
@@ -130,16 +136,22 @@ describe("ranking score makeup", () => {
       },
       filters: { agencies: [], categories: [], themes: [] },
     });
-    queryClient.setQueryData(["storylines"], {
-      hasMore: false,
-      items: [
-        storyline(earlierId, "2026-07-19T12:00:00.000Z"),
-        storyline(
-          futureId,
-          "2026-07-19T12:00:00.000Z",
-          "2026-07-21T12:00:00.000Z",
-        ),
-      ],
+    queryClient.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: [],
+      storylines: {
+        hasMore: false,
+        items: [
+          storyline(earlierId, "2026-07-19T12:00:00.000Z"),
+          storyline(
+            futureId,
+            "2026-07-19T12:00:00.000Z",
+            "2026-07-21T12:00:00.000Z",
+          ),
+        ],
+      },
+      themes: [],
     });
     const terms = {
       agencyTerm: 0.35,

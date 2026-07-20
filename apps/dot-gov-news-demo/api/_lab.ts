@@ -102,6 +102,7 @@ async function eventCardAssetResponse(
       "cache-control": "public, max-age=31536000, immutable",
       "content-type": asset.mimeType,
       "referrer-policy": "no-referrer",
+      "vercel-cdn-cache-control": "public, s-maxage=31536000, immutable",
       "x-content-type-options": "nosniff",
     });
     if (object.etag !== null) headers.set("etag", object.etag);

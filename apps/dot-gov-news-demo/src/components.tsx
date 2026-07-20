@@ -9,9 +9,13 @@ import {
   useState,
 } from "react";
 
-import { type AgencyOption, type StorylineListItem } from "./api/contracts";
+import {
+  type AgencyOption,
+  type StorylineListItem,
+  type StorylinePreview,
+} from "./api/contracts";
 import { dotGovApi } from "./api/client";
-import { detailAsOf, isoDay } from "./domain/as-of";
+import { cardAsOf, detailAsOf, isoDay } from "./domain/as-of";
 import type { StorylinePlacement } from "./domain/relative-rank";
 import { NewsMark } from "./NewsMark";
 
@@ -100,6 +104,7 @@ export function StorylineCard({
   item,
   onOpen,
   placement,
+  preview,
   revealIndex = 0,
 }: {
   agencyMap: Map<string, string>;
@@ -107,9 +112,11 @@ export function StorylineCard({
   item: StorylineListItem;
   onOpen: () => void;
   placement: StorylinePlacement;
+  preview?: StorylinePreview;
   revealIndex?: number;
 }) {
   const detail = useQuery({
+    enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
   });
@@ -120,19 +127,33 @@ export function StorylineCard({
         : detailAsOf(detail.data, asOf),
     [asOf, detail.data],
   );
-  const overview = asOfDetail?.overview ?? null;
+  const overview =
+    preview === undefined
+      ? (asOfDetail?.overview ?? null)
+      : cardAsOf(preview.overviewCards, asOf);
   const visibleEntries =
     asOfDetail?.episodes.flatMap((episode) => episode.entries) ?? [];
-  const agencies = [
-    ...new Set(
-      visibleEntries.map(
-        (entry) => agencyMap.get(entry.agency) ?? entry.agency,
-      ),
-    ),
-  ].slice(0, 2);
+  const agencies = (
+    preview === undefined
+      ? [
+          ...new Set(
+            visibleEntries.map(
+              (entry) => agencyMap.get(entry.agency) ?? entry.agency,
+            ),
+          ),
+        ]
+      : item.agencies.map((agency) => agencyMap.get(agency) ?? agency)
+  ).slice(0, 2);
+  const episodeCount =
+    preview === undefined
+      ? (asOfDetail?.episodes.length ?? 0)
+      : item.episodeCount;
+  const entryCount =
+    preview === undefined ? visibleEntries.length : item.entryCount;
+  const isLoading = preview === undefined && detail.isLoading;
   const headline =
     overview?.headline ??
-    (detail.isLoading ? "Loading storyline" : "Storyline unavailable");
+    (isLoading ? "Loading storyline" : "Storyline unavailable");
   const placementLabel = [
     placement.agencyPosition === null
       ? "Unranked agency"
@@ -146,7 +167,11 @@ export function StorylineCard({
       : `#${placement.categoryPosition} in ${item.categoryName ?? "Category"}`,
   ].join(" · ");
 
-  if (detail.data !== undefined && !detail.isLoading && overview === null) {
+  if (
+    (preview !== undefined || detail.data !== undefined) &&
+    !isLoading &&
+    overview === null
+  ) {
     return null;
   }
 
@@ -205,7 +230,7 @@ export function StorylineCard({
           {overview === null ? (
             <div className="card-copy-placeholder">
               <span>
-                {detail.isLoading
+                {isLoading
                   ? "Loading storyline overview"
                   : "Storyline overview pending"}
               </span>
@@ -222,11 +247,10 @@ export function StorylineCard({
           </div>
           <footer>
             <span className="card-volume">
-              {agencies.join(" · ") || "Agency source pending"} ·{" "}
-              {asOfDetail?.episodes.length ?? 0} episode
-              {asOfDetail?.episodes.length === 1 ? "" : "s"} ·{" "}
-              {visibleEntries.length} source
-              {visibleEntries.length === 1 ? "" : "s"}
+              {agencies.join(" · ") || "Agency source pending"} · {episodeCount}{" "}
+              episode
+              {episodeCount === 1 ? "" : "s"} · {entryCount} source
+              {entryCount === 1 ? "" : "s"}
             </span>
             <span className="open-cue">Open storyline</span>
           </footer>
@@ -241,13 +265,16 @@ export function StorylineTableRow({
   asOf,
   item,
   onOpen,
+  preview,
 }: {
   agencyMap: Map<string, string>;
   asOf: string;
   item: StorylineListItem;
   onOpen: () => void;
+  preview?: StorylinePreview;
 }) {
   const detail = useQuery({
+    enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
   });
@@ -258,16 +285,23 @@ export function StorylineTableRow({
         : detailAsOf(detail.data, asOf),
     [asOf, detail.data],
   );
-  const overview = snapshot?.overview ?? null;
+  const overview =
+    preview === undefined
+      ? (snapshot?.overview ?? null)
+      : cardAsOf(preview.overviewCards, asOf);
   const entries =
     snapshot?.episodes.flatMap((episode) => episode.entries) ?? [];
-  const agencies = [
-    ...new Set(
-      entries.map((entry) => agencyMap.get(entry.agency) ?? entry.agency),
-    ),
-  ];
+  const agencies =
+    preview === undefined
+      ? [
+          ...new Set(
+            entries.map((entry) => agencyMap.get(entry.agency) ?? entry.agency),
+          ),
+        ]
+      : item.agencies.map((agency) => agencyMap.get(agency) ?? agency);
 
-  if (detail.data !== undefined && overview === null) return null;
+  if ((preview !== undefined || detail.data !== undefined) && overview === null)
+    return null;
 
   return (
     <tr>
@@ -281,8 +315,18 @@ export function StorylineTableRow({
       <td className="wrap">
         {[item.categoryName, item.themeName].filter(Boolean).join(" · ") || "—"}
       </td>
-      <td>{snapshot?.episodes.length ?? "—"}</td>
-      <td>{snapshot === null ? "—" : entries.length}</td>
+      <td>
+        {preview === undefined
+          ? (snapshot?.episodes.length ?? "—")
+          : item.episodeCount}
+      </td>
+      <td>
+        {preview === undefined
+          ? snapshot === null
+            ? "—"
+            : entries.length
+          : item.entryCount}
+      </td>
       <td>{overview?.newestEntryAt.slice(0, 10) ?? "—"}</td>
       <td>
         <span className="reviewed-mark">Reviewed</span>

@@ -1,4 +1,4 @@
-const PASSWORD = "nds-news";
+const PASSWORD = "govnews";
 const COOKIE_NAME = "dot_gov_news_access";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 

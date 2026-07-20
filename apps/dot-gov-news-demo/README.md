@@ -64,8 +64,26 @@ The Vercel function and the operator Worker use the shared
 `@dot-gov-news/demo-api` package, so route validation, Supabase queries, and the
 reviewed-only boundary remain identical without a Worker-to-Worker proxy.
 
+Successful public API responses are cached at Vercel's edge for five minutes
+and may be served stale while they refresh in the background. Bootstrap data
+bundles the browse catalog, filters, and card-ready overview/thumbnail metadata
+so the initial grid does not fetch every storyline detail. Immutable thumbnail
+responses have a one-year browser and Vercel edge lifetime. Errors remain
+`no-store`.
+
+After a production deployment or reviewed-data publication, warm the bootstrap
+response and the first 18 available thumbnails from the deployment region:
+
+```sh
+DOT_GOV_DEMO_URL=https://news.example.gov pnpm --filter dot-gov-news-demo warm-cache
+```
+
+The command prints Vercel's observed cache status for the bootstrap and each
+thumbnail, making it suitable for a post-deploy CI step.
+
 ## Required read endpoints
 
+- `GET /api/lab/bootstrap`
 - `GET /api/lab/storylines`
 - `GET /api/lab/storylines/:id`
 - `GET /api/lab/agencies`

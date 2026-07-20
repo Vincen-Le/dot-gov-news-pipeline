@@ -53,9 +53,9 @@ export function RankingPage({ asOf }: { asOf: string }) {
     queryFn: ({ signal }) => dotGovApi.rankOverview(signal),
     queryKey: ["rank-overview"],
   });
-  const storylines = useQuery({
-    queryFn: ({ signal }) => dotGovApi.storylines(signal),
-    queryKey: ["storylines"],
+  const bootstrap = useQuery({
+    queryFn: ({ signal }) => dotGovApi.bootstrap(signal),
+    queryKey: ["bootstrap"],
   });
   const rows = useQuery({
     enabled: overview.data !== undefined,
@@ -75,18 +75,22 @@ export function RankingPage({ asOf }: { asOf: string }) {
       (overview.data?.filters.themes ?? []).filter(
         (item) =>
           (category === "" || item.categoryId === category) &&
-          isThemeAvailableAsOf(item, storylines.data?.items ?? [], asOf),
+          isThemeAvailableAsOf(
+            item,
+            bootstrap.data?.storylines.items ?? [],
+            asOf,
+          ),
       ),
-    [asOf, category, overview.data, storylines.data],
+    [asOf, bootstrap.data, category, overview.data],
   );
   const availableStorylineIds = useMemo(
     () =>
       new Set(
-        (storylines.data?.items ?? [])
+        (bootstrap.data?.storylines.items ?? [])
           .filter((item) => isAvailableAsOf(item, asOf))
           .map((item) => item.id),
       ),
-    [asOf, storylines.data],
+    [asOf, bootstrap.data],
   );
   const visibleRows = useMemo(
     () =>
@@ -228,11 +232,11 @@ export function RankingPage({ asOf }: { asOf: string }) {
         entries
       </p>
 
-      {rows.isLoading || storylines.isLoading ? (
+      {rows.isLoading || bootstrap.isLoading ? (
         <StatePanel title="Applying the ranking">
           Finding the reviewed stories available on this date.
         </StatePanel>
-      ) : rows.error || storylines.error ? (
+      ) : rows.error || bootstrap.error ? (
         <StatePanel title="This ranking slice is unavailable">
           Try removing one of the filters.
         </StatePanel>

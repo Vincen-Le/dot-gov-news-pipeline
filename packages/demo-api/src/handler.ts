@@ -2,10 +2,19 @@ import { z } from "zod";
 
 import type { DemoRepository } from "./repository.js";
 
-const responseHeaders = {
+const privateResponseHeaders = {
   "cache-control": "no-store",
   "content-type": "application/json; charset=utf-8",
   "referrer-policy": "no-referrer",
+  "x-content-type-options": "nosniff",
+} as const;
+
+const publicResponseHeaders = {
+  "cache-control": "public, max-age=0, must-revalidate",
+  "content-type": "application/json; charset=utf-8",
+  "referrer-policy": "no-referrer",
+  "vercel-cdn-cache-control":
+    "public, s-maxage=300, stale-while-revalidate=86400",
   "x-content-type-options": "nosniff",
 } as const;
 
@@ -53,11 +62,17 @@ function defaultMetadata(generatedAt: string): unknown {
   };
 }
 
-function responseBody(request: Request, body: unknown, status = 200): Response {
+function responseBody(
+  request: Request,
+  body: unknown,
+  status = 200,
+  cacheable = status === 200,
+): Response {
+  const headers = cacheable ? publicResponseHeaders : privateResponseHeaders;
   if (request.method === "HEAD") {
-    return new Response(null, { headers: responseHeaders, status });
+    return new Response(null, { headers, status });
   }
-  return Response.json(body, { headers: responseHeaders, status });
+  return Response.json(body, { headers, status });
 }
 
 function errorResponse(request: Request, error: unknown): Response {
@@ -81,6 +96,7 @@ function errorResponse(request: Request, error: unknown): Response {
       meta: { generatedAt: new Date().toISOString() },
     },
     safe.status,
+    false,
   );
 }
 
@@ -115,6 +131,14 @@ async function routeDemoRequest(
   const { pathname } = url;
   const generatedAt = new Date().toISOString();
   const meta = (options.metadata ?? defaultMetadata)(generatedAt);
+
+  if (pathname === "/api/lab/bootstrap") {
+    const query = parseQuery(StorylinesQuerySchema, url);
+    return responseBody(request, {
+      data: await options.repository.getBootstrap(query.limit),
+      meta,
+    });
+  }
 
   if (pathname === "/api/lab/storylines") {
     const query = parseQuery(StorylinesQuerySchema, url);
