@@ -1,5 +1,14 @@
 # Fast follow ups
 
+- **Adaptive article-synthesis depth for short sources.** Improve the overview
+  prompt so `2-5` key points is a ceiling based on the amount of distinct
+  source evidence, not a target to fill. For a short or single-source record,
+  prefer two strong points and stop rather than restating the summary, splitting
+  one fact into several bullets, inventing practical relevance, or adding
+  outside context. Add short-record regression cases that check redundancy and
+  source entailment, including the July 18, 2025 State Department visa
+  restriction announcement.
+
 - **Attach-time card refresh (newsfeed latency).** Episodes should get an
   event card immediately and the storyline overview should update on every
   attach — not at episode close. Today a development landing in an open
