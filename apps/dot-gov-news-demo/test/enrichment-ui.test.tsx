@@ -34,6 +34,11 @@ const item: StorylineListItem = {
   themeName: null,
   unreviewedEntryCount: 0,
 };
+const placement = {
+  agencyKey: "fda",
+  agencyPosition: 2,
+  categoryPosition: 3,
+};
 
 function overviewCard(
   id: string,
@@ -155,6 +160,7 @@ describe("generated event-card content", () => {
           asOf="2026-07-11"
           item={item}
           onOpen={vi.fn()}
+          placement={placement}
         />
       </QueryClientProvider>,
     );
@@ -165,6 +171,11 @@ describe("generated event-card content", () => {
       "25% 75%",
     );
     expect(screen.getByText("Jul 10, 2026")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "#2 in Food and Drug Administration · #3 in Public Health",
+      ),
+    ).toBeTruthy();
     expect(screen.queryByText("Jul 12, 2026")).toBeNull();
 
     view.rerender(
@@ -174,6 +185,7 @@ describe("generated event-card content", () => {
           asOf="2026-07-12"
           item={item}
           onOpen={vi.fn()}
+          placement={placement}
         />
       </QueryClientProvider>,
     );
@@ -283,6 +295,7 @@ describe("generated event-card content", () => {
           asOf="2026-07-10"
           item={item}
           onOpen={vi.fn()}
+          placement={placement}
         />
         <StorylineDialog
           agencyMap={new Map([["fda", "Food and Drug Administration"]])}
@@ -317,6 +330,7 @@ describe("generated event-card content", () => {
           asOf="2026-07-10"
           item={item}
           onOpen={vi.fn()}
+          placement={placement}
         />
       </QueryClientProvider>,
     );

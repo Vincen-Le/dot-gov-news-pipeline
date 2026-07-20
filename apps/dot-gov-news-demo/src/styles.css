@@ -802,8 +802,13 @@ select {
   text-transform: uppercase;
 }
 
-.rank-key {
+.storyline-placement {
   color: var(--live);
+  line-height: 1.4;
+}
+
+.event-card-meta time {
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 

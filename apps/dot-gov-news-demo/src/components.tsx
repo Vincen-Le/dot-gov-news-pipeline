@@ -12,6 +12,7 @@ import {
 import { type AgencyOption, type StorylineListItem } from "./api/contracts";
 import { dotGovApi } from "./api/client";
 import { detailAsOf } from "./domain/as-of";
+import type { StorylinePlacement } from "./domain/relative-rank";
 
 export function displayDate(value: string | null | undefined): string {
   if (value === null || value === undefined) return "Date unavailable";
@@ -97,12 +98,14 @@ export function StorylineCard({
   asOf,
   item,
   onOpen,
+  placement,
   revealIndex = 0,
 }: {
   agencyMap: Map<string, string>;
   asOf: string;
   item: StorylineListItem;
   onOpen: () => void;
+  placement: StorylinePlacement;
   revealIndex?: number;
 }) {
   const detail = useQuery({
@@ -129,7 +132,18 @@ export function StorylineCard({
   const headline =
     overview?.headline ??
     (detail.isLoading ? "Loading storyline" : "Storyline unavailable");
-  const rankKey = overview?.rankKey ?? null;
+  const placementLabel = [
+    placement.agencyPosition === null
+      ? "Unranked agency"
+      : `#${placement.agencyPosition} in ${
+          placement.agencyKey === null
+            ? "Agency"
+            : (agencyMap.get(placement.agencyKey) ?? placement.agencyKey)
+        }`,
+    placement.categoryPosition === null
+      ? "Unranked category"
+      : `#${placement.categoryPosition} in ${item.categoryName ?? "Category"}`,
+  ].join(" · ");
 
   if (detail.data !== undefined && !detail.isLoading && overview === null) {
     return null;
@@ -175,9 +189,7 @@ export function StorylineCard({
         </div>
         <div className="storyline-body event-card-body">
           <div className="event-card-meta">
-            <span className="rank-key">
-              rank_key {rankKey === null ? "—" : rankKey.toFixed(3)}
-            </span>
+            <span className="storyline-placement">{placementLabel}</span>
             {overview === null ? (
               <span>Snapshot loading</span>
             ) : (

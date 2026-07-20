@@ -14,6 +14,7 @@ import {
   type FilterOption,
 } from "./components";
 import { isAvailableAsOf, isThemeAvailableAsOf } from "./domain/as-of";
+import { relativeStorylinePlacements } from "./domain/relative-rank";
 
 const INITIAL_COUNT = 18;
 
@@ -77,6 +78,10 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
         isAvailableAsOf(item, asOf),
       ),
     [asOf, storylines.data],
+  );
+  const placements = useMemo(
+    () => relativeStorylinePlacements(available),
+    [available],
   );
 
   const agencyOptions = useMemo(() => {
@@ -340,6 +345,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
                 item={item}
                 key={item.id}
                 onOpen={() => open(item)}
+                placement={placements.get(item.id)!}
                 revealIndex={index}
               />
             ))}
