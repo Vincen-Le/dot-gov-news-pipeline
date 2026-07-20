@@ -391,11 +391,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             Try clearing a filter or moving the publication date forward.
           </StatePanel>
         ) : view === "product" ? (
-          <section
-            className="storyline-grid"
-            aria-label="Storylines"
-            key={asOf}
-          >
+          <section className="storyline-grid" aria-label="Storylines">
             {visibleItems.map((item, index) => (
               <StorylineCard
                 agencyMap={agencyMap}

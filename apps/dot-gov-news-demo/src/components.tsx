@@ -174,7 +174,13 @@ export function StorylineCard({
             <>
               <img
                 alt={overview.thumbnail.altText}
-                loading="lazy"
+                className="storyline-image"
+                fetchPriority={revealIndex < 4 ? "high" : "auto"}
+                key={overview.thumbnail.cardUrl}
+                loading={revealIndex < 4 ? "eager" : "lazy"}
+                onLoad={(event) =>
+                  event.currentTarget.classList.add("is-loaded")
+                }
                 src={overview.thumbnail.cardUrl}
                 style={{
                   objectPosition: `${overview.thumbnail.focalX * 100}% ${overview.thumbnail.focalY * 100}%`,

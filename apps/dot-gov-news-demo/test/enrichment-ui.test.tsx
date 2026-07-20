@@ -161,12 +161,15 @@ describe("generated event-card content", () => {
           item={item}
           onOpen={vi.fn()}
           placement={placement}
+          revealIndex={0}
         />
       </QueryClientProvider>,
     );
 
     const firstImage = screen.getByAltText("First card illustration");
     expect(firstImage.getAttribute("src")).toBe(firstCard.thumbnail?.cardUrl);
+    expect(firstImage.getAttribute("loading")).toBe("eager");
+    expect(firstImage.getAttribute("fetchpriority")).toBe("high");
     expect((firstImage as HTMLImageElement).style.objectPosition).toBe(
       "25% 75%",
     );

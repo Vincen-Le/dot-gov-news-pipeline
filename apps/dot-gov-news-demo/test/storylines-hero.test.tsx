@@ -72,7 +72,7 @@ function detail(item: StorylineListItem, card: Card): StorylineDetail {
 
 function heroImage(
   container: HTMLElement,
-  modifier: "incoming" | "outgoing",
+  modifier: "incoming" | "outgoing" | "preload",
 ): HTMLImageElement | null {
   return container.querySelector(`.storylines-hero-image--${modifier}`);
 }
@@ -119,10 +119,18 @@ describe("storylines hero artwork", () => {
     );
 
     await waitFor(() =>
+      expect(heroImage(view.container, "preload")?.getAttribute("src")).toBe(
+        firstCard.thumbnail?.cardUrl,
+      ),
+    );
+    fireEvent.load(heroImage(view.container, "preload")!);
+
+    await waitFor(() =>
       expect(heroImage(view.container, "incoming")?.getAttribute("src")).toBe(
         firstCard.thumbnail?.cardUrl,
       ),
     );
+    const storylineGrid = view.getByRole("region", { name: "Storylines" });
 
     view.rerender(
       <QueryClientProvider client={client}>
@@ -133,6 +141,43 @@ describe("storylines hero artwork", () => {
     );
 
     await waitFor(() => {
+      expect(heroImage(view.container, "preload")?.getAttribute("src")).toBe(
+        secondCard.thumbnail?.cardUrl,
+      );
+      expect(heroImage(view.container, "incoming")?.getAttribute("src")).toBe(
+        firstCard.thumbnail?.cardUrl,
+      );
+    });
+
+    view.rerender(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <StorylinesPage asOf="2026-07-10" />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    await waitFor(() =>
+      expect(heroImage(view.container, "preload")).toBeNull(),
+    );
+    expect(heroImage(view.container, "incoming")?.getAttribute("src")).toBe(
+      firstCard.thumbnail?.cardUrl,
+    );
+
+    view.rerender(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <StorylinesPage asOf="2026-07-12" />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    await waitFor(() =>
+      expect(heroImage(view.container, "preload")?.getAttribute("src")).toBe(
+        secondCard.thumbnail?.cardUrl,
+      ),
+    );
+    fireEvent.load(heroImage(view.container, "preload")!);
+
+    await waitFor(() => {
       expect(heroImage(view.container, "incoming")?.getAttribute("src")).toBe(
         secondCard.thumbnail?.cardUrl,
       );
@@ -140,6 +185,9 @@ describe("storylines hero artwork", () => {
         firstCard.thumbnail?.cardUrl,
       );
     });
+    expect(view.getByRole("region", { name: "Storylines" })).toBe(
+      storylineGrid,
+    );
 
     const outgoing = heroImage(view.container, "outgoing");
     if (outgoing !== null) fireEvent.animationEnd(outgoing);

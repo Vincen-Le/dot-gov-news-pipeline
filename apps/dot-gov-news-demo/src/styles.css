@@ -300,6 +300,10 @@ main {
   animation: storylines-hero-fade-out 420ms ease-in both;
 }
 
+.storylines-hero-image--preload {
+  opacity: 0;
+}
+
 @keyframes storylines-hero-fade-in {
   from {
     opacity: 0;
@@ -925,6 +929,15 @@ select {
   height: 100%;
   display: block;
   object-fit: cover;
+}
+
+.event-image > .storyline-image {
+  opacity: 0;
+  transition: opacity 260ms ease-out;
+}
+
+.event-image > .storyline-image.is-loaded {
+  opacity: 1;
 }
 
 .image-credit {
