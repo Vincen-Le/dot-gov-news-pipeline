@@ -8,12 +8,15 @@ import pytest
 from pipeline.config import Config
 from pipeline.db import Db
 from pipeline.golden import (
+    GoldenValidationError,
     _one_parent_errors,
     _required_label_errors,
+    _resolve_source_run_id,
     apply_reviewed,
     approve_batch,
     export_jsonl,
     initialize,
+    promote_clustered,
     run_batch,
     status,
     validate,
@@ -78,6 +81,30 @@ def test_validation_rejects_an_uninitialized_anchor(monkeypatch):
     assert result["valid"] is False
     assert result["complete"] is False
     assert result["errors"] == ["golden dataset has not been initialized"]
+
+
+class _SourceRunDb:
+    def __init__(self, rows):
+        self.rows = rows
+        self.params = None
+
+    def all(self, _sql, params):
+        self.params = params
+        return self.rows
+
+
+def test_source_run_is_inferred_only_when_unique():
+    db = _SourceRunDb([{"source_run_id": "run-1"}])
+
+    assert _resolve_source_run_id(db) == "run-1"
+    assert db.params == {"requested": None}
+
+
+def test_requested_source_run_must_match_current_cards():
+    db = _SourceRunDb([])
+
+    with pytest.raises(GoldenValidationError, match="does not exactly match"):
+        _resolve_source_run_id(db, "00000000-0000-4000-8000-000000000001")
 
 
 @pytest.mark.integration
@@ -175,3 +202,121 @@ def test_golden_batches_rebuild_reviewed_state_and_restore_dedupe_window(tmp_pat
         exported = export_jsonl(db, str(tmp_path / "golden.jsonl"))
         assert exported["exported"] == 3
         assert len((tmp_path / "golden.jsonl").read_text().splitlines()) == 3
+
+
+@pytest.mark.integration
+def test_promote_refreshes_derived_labels_of_reviewed_rows(monkeypatch):
+    """A storyline evolves across slices: its overview headline changes and a
+    theme is minted after slice 1 was reviewed. Promote must refresh the
+    derived fields of reviewed rows from the live surface instead of failing
+    one-parent validation against the stale labels."""
+    import pipeline.golden as golden_mod
+
+    db = Db(os.environ["DATABASE_URL"])
+    run_id = uuid.uuid4()
+    monkeypatch.setattr(golden_mod, "_resolve_source_run_id",
+                        lambda db, requested=None: run_id)
+
+    source_id = uuid.uuid4()
+    storyline_id = uuid.uuid4()
+    theme_id = uuid.uuid4()
+    episode_ids = [uuid.uuid4(), uuid.uuid4()]
+    entry_ids = [uuid.uuid4(), uuid.uuid4()]
+    content_hash = hashlib.sha256(b"promote-refresh").hexdigest()
+    start = datetime(2030, 2, 1, tzinfo=timezone.utc)
+
+    with db.conn.transaction(force_rollback=True):
+        db.conn.execute("delete from public.golden_news_entries")
+        category_id = db.conn.execute(
+            "select id from public.topic_categories where origin='seed' limit 1"
+        ).fetchone()["id"]
+        db.conn.execute(
+            "insert into public.simple_v1_experiment_runs (id, name, started_at, "
+            "finished_at, config, cluster_report, summary) "
+            "values (%(id)s, 'promote-refresh-fixture', now(), now(), '{}', '{}', '{}')",
+            {"id": run_id})
+        db.conn.execute(
+            "insert into public.news_sources (id, canonical_url, source_type, title) "
+            "values (%(id)s, %(url)s, 'rss', 'Golden fixture')",
+            {"id": source_id, "url": f"https://golden-{source_id}.gov/feed"})
+        db.conn.execute(
+            "insert into public.news_source_publishers (news_source_id, publisher_key) "
+            "values (%(id)s, 'golden-fixture')", {"id": source_id})
+        db.conn.execute(
+            "insert into public.topic_themes (id, display_name, inclusion_criterion, category_id) "
+            "values (%(id)s, 'Fixture Theme', 'fixture', %(cat)s)",
+            {"id": theme_id, "cat": category_id})
+        db.conn.execute(
+            "insert into public.storylines (id, entry_count, episode_count, "
+            "first_entry_at, newest_entry_at, theme_id, category_id, category_method) "
+            "values (%(id)s, 2, 2, %(t)s, %(t)s, %(theme)s, %(cat)s, 'classified')",
+            {"id": storyline_id, "t": start, "theme": theme_id, "cat": category_id})
+        for index, (episode_id, entry_id) in enumerate(zip(episode_ids, entry_ids)):
+            db.conn.execute(
+                "insert into public.episodes (id, storyline_id, status, entry_count, "
+                "first_entry_at, newest_entry_at, attach_method) "
+                "values (%(id)s, %(sl)s, 'dormant', 1, %(t)s, %(t)s, 'new_storyline')",
+                {"id": episode_id, "sl": storyline_id,
+                 "t": start + timedelta(hours=index)})
+            db.conn.execute(
+                """
+                insert into public.news_entries (
+                    id, news_source_id, url, url_canonical, title, summary,
+                    published_at, content_hash, embedding, embedding_model,
+                    entity_set, event_keys, extractor_version, episode_id
+                ) values (
+                    %(id)s, %(source)s, %(url)s, %(url)s, %(title)s, %(title)s,
+                    %(published)s, %(hash)s, %(embedding)s, 'stub-bow-256',
+                    '{}', '{}', 1, %(episode)s
+                )
+                """,
+                {"id": entry_id, "source": source_id,
+                 "url": f"https://golden-{source_id}.gov/{index}",
+                 "title": f"Fixture entry {index}",
+                 "published": start + timedelta(hours=index),
+                 "hash": content_hash, "embedding": b"vector",
+                 "episode": episode_id})
+        db.conn.execute(
+            "insert into public.event_cards (id, storyline_id, kind, version, "
+            "headline, summary, newest_entry_at, rank_key) "
+            "values (%(id)s, %(sl)s, 'overview', 2, 'New overview headline', "
+            "'sum', %(t)s, 0)",
+            {"id": uuid.uuid4(), "sl": storyline_id, "t": start})
+        # slice-1 row: reviewed with the stale label and no theme yet
+        db.conn.execute(
+            """
+            insert into public.golden_news_entries (
+                news_entry_id, content_hash_at_review, ordinal, batch_number,
+                review_status, gold_episode_id, gold_episode_label,
+                gold_storyline_id, gold_storyline_label, gold_category_id,
+                reviewed_at
+            ) values (
+                %(entry)s, %(hash)s, 1, 1, 'reviewed', %(episode)s,
+                'Fixture entry 0', %(sl)s, 'Stale overview headline',
+                %(cat)s, now()
+            )
+            """,
+            {"entry": entry_ids[0], "hash": content_hash,
+             "episode": episode_ids[0], "sl": storyline_id, "cat": category_id})
+        # slice-2 row: pending review
+        db.conn.execute(
+            "insert into public.golden_news_entries (news_entry_id, "
+            "content_hash_at_review, ordinal, batch_number, review_status) "
+            "values (%(entry)s, %(hash)s, 2, 1, 'pending')",
+            {"entry": entry_ids[1], "hash": content_hash})
+
+        out = promote_clustered(db)
+
+        assert out["promoted"] >= 1
+        rows = db.all(
+            "select news_entry_id, review_status, gold_storyline_label, "
+            "gold_theme_id, gold_theme_name from public.golden_news_entries "
+            "where news_entry_id = any(%(ids)s) order by ordinal",
+            {"ids": entry_ids})
+        reviewed, promoted = rows
+        assert reviewed["review_status"] == "reviewed"
+        assert reviewed["gold_storyline_label"] == "New overview headline"
+        assert reviewed["gold_theme_id"] == theme_id
+        assert reviewed["gold_theme_name"] == "Fixture Theme"
+        assert promoted["review_status"] == "reviewed"
+        assert promoted["gold_storyline_label"] == "New overview headline"

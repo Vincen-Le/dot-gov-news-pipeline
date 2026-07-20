@@ -424,7 +424,59 @@ def capture_batch(db, batch_number: int) -> dict:
     }
 
 
-def promote_clustered(db) -> dict:
+def _resolve_source_run_id(db, requested: str | None = None):
+    """Return the one simple_v1 run whose global cards equal live state."""
+    rows = db.all(
+        """
+        with live_cards as (
+            select s.latest_card_id as card_id
+            from public.storylines s
+            where s.merged_into is null and s.latest_card_id is not null
+        )
+        select r.id as source_run_id
+        from public.simple_v1_experiment_runs r
+        where (%(requested)s::uuid is null or r.id = %(requested)s::uuid)
+          and exists (select 1 from live_cards)
+          and not exists (
+              select 1 from live_cards live
+              where not exists (
+                  select 1 from public.simple_v1_rank_snapshots snapshot
+                  where snapshot.run_id = r.id
+                    and snapshot.facet_type = 'global'
+                    and snapshot.facet_key = ''
+                    and snapshot.card_id = live.card_id
+              )
+          )
+          and not exists (
+              select 1 from public.simple_v1_rank_snapshots snapshot
+              where snapshot.run_id = r.id
+                and snapshot.facet_type = 'global'
+                and snapshot.facet_key = ''
+                and not exists (
+                    select 1 from live_cards live
+                    where live.card_id = snapshot.card_id
+                )
+          )
+        order by r.created_at desc, r.id
+        """,
+        {"requested": requested},
+    )
+    if len(rows) == 1:
+        return rows[0]["source_run_id"]
+    if requested is not None:
+        raise GoldenValidationError(
+            f"simple_v1 run {requested} does not exactly match the current "
+            "global ranked card set")
+    if not rows:
+        raise GoldenValidationError(
+            "no simple_v1 run exactly matches the current global ranked card "
+            "set; snapshot the run before golden promotion")
+    raise GoldenValidationError(
+        "multiple simple_v1 runs exactly match the current global ranked card "
+        "set; pass --source-run explicitly")
+
+
+def promote_clustered(db, source_run_id: str | None = None) -> dict:
     """Slice-based promotion: freeze the current QAed cluster image as gold.
 
     Batches (fixed 50-entry windows) do not align with replay slices, so this
@@ -435,9 +487,11 @@ def promote_clustered(db) -> dict:
     cluster tables.
     """
     _require_local(db)
+    source_run_id = _resolve_source_run_id(db, source_run_id)
     proposals = db.all(
         """
-        select g.news_entry_id, ne.episode_id as gold_episode_id,
+        select g.news_entry_id, g.review_status,
+               ne.episode_id as gold_episode_id,
                ep.storyline_id as gold_storyline_id,
                s.theme_id as gold_theme_id,
                tt.display_name as gold_theme_name,
@@ -462,15 +516,15 @@ def promote_clustered(db) -> dict:
         left join public.topic_categories tc on tc.id = s.category_id
         left join public.episode_entries ee
           on ee.episode_id = ne.episode_id and ee.entry_id = ne.id
-        where g.review_status <> 'reviewed'
         order by g.ordinal
         """)
     if not proposals:
-        # labels already current — still refresh the render mirror
+        # nothing clustered yet — still refresh the render mirror
         with db.conn.transaction():
-            mirrored = _mirror_render_tables(db)
+            mirrored = _mirror_render_tables(db, source_run_id)
         return {"promoted": 0, "mirrored": mirrored,
-                "remaining_unreviewed": status(db)["pending"]}
+                "remaining_unreviewed": status(db)["pending"],
+                "source_run_id": str(source_run_id)}
     unseeded = [str(row["news_entry_id"]) for row in proposals
                 if row["gold_category_id"] is None]
     if unseeded:
@@ -478,12 +532,16 @@ def promote_clustered(db) -> dict:
             "storyline category missing or not a seeded category for entries: "
             + ", ".join(unseeded[:5]))
 
+    promoted = [row for row in proposals if row["review_status"] != "reviewed"]
     with db.conn.transaction():
         for row in proposals:
+            # already-reviewed rows only refresh their derived fields — the
+            # live surface is the post-QA source of truth and storylines keep
+            # evolving across slices (labels, themes); review timestamps stay.
+            newly_reviewed = row["review_status"] != "reviewed"
             db.conn.execute(
-                """
+                f"""
                 update public.golden_news_entries set
-                    review_status = 'reviewed',
                     gold_episode_id = %(gold_episode_id)s,
                     gold_episode_label = %(gold_episode_label)s,
                     gold_storyline_id = %(gold_storyline_id)s,
@@ -492,7 +550,9 @@ def promote_clustered(db) -> dict:
                     gold_theme_name = %(gold_theme_name)s,
                     gold_category_id = %(gold_category_id)s,
                     is_syndicated = %(is_syndicated)s,
-                    proposed_at = now(), reviewed_at = now(), updated_at = now()
+                    updated_at = now()
+                    {", review_status = 'reviewed', proposed_at = now(), "
+                     "reviewed_at = now()" if newly_reviewed else ""}
                 where news_entry_id = %(news_entry_id)s
                 """,
                 row,
@@ -502,18 +562,20 @@ def promote_clustered(db) -> dict:
         errors = _required_label_errors(all_rows) + _one_parent_errors(all_rows)
         if errors:
             raise GoldenValidationError("; ".join(errors[:20]))
-        mirrored = _mirror_render_tables(db)
-    return {"promoted": len(proposals),
+        mirrored = _mirror_render_tables(db, source_run_id)
+    return {"promoted": len(promoted),
+            "refreshed": len(proposals) - len(promoted),
             "themes_labeled": sum(r["gold_theme_id"] is not None for r in proposals),
             "remaining_unreviewed": status(db)["total"] - status(db)["reviewed"],
-            "mirrored": mirrored}
+            "mirrored": mirrored,
+            "source_run_id": str(source_run_id)}
 
 
 _MIRRORED_TABLES = ("topic_categories", "topic_themes", "storylines",
                     "episodes", "event_cards")
 
 
-def _mirror_render_tables(db) -> dict:
+def _mirror_render_tables(db, source_run_id) -> dict:
     """Copy the live render surface into its golden_* twins (full rewrite).
 
     Golden mirrors are a perfect rendition of the QAed production tables —
@@ -535,8 +597,30 @@ def _mirror_render_tables(db) -> dict:
     counts = {}
     for table in _MIRRORED_TABLES:
         db.conn.execute(f"delete from public.golden_{table}")
-        cursor = db.conn.execute(
-            f"insert into public.golden_{table} select * from public.{table}")
+        columns = db.all(
+            """
+            select live.column_name
+            from information_schema.columns live
+            join information_schema.columns golden
+              on golden.table_schema = 'public'
+             and golden.table_name = %(golden_table)s
+             and golden.column_name = live.column_name
+            where live.table_schema = 'public' and live.table_name = %(table)s
+            order by live.ordinal_position
+            """,
+            {"table": table, "golden_table": f"golden_{table}"},
+        )
+        names = ", ".join(f'"{row["column_name"]}"' for row in columns)
+        if table == "event_cards":
+            cursor = db.conn.execute(
+                f"insert into public.golden_{table} ({names}, source_run_id) "
+                f"select {names}, %(source_run_id)s from public.{table}",
+                {"source_run_id": source_run_id},
+            )
+        else:
+            cursor = db.conn.execute(
+                f"insert into public.golden_{table} ({names}) "
+                f"select {names} from public.{table}")
         counts[table] = cursor.rowcount
     return counts
 

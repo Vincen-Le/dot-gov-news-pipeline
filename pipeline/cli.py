@@ -122,6 +122,8 @@ def main() -> None:
     p.add_argument("--path", default="docs/eval/golden-news-entries.jsonl")
     p.add_argument("--complete", action="store_true",
                    help="validation requires every anchor row reviewed")
+    p.add_argument("--source-run", dest="source_run",
+                   help="canonical simple_v1 run for golden promote; inferred when unique")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
 
@@ -161,8 +163,8 @@ def main() -> None:
         from pipeline.extraction import EXTRACTOR_VERSION, extract
         rows = store.entries_needing_reextraction(EXTRACTOR_VERSION, limit=args.limit)
         for row in rows:
-            entities, keys = extract(row["title"],
-                                     row.get("body_text") or row.get("summary"))
+            entities, keys = extract(row["title"], row.get("summary"),
+                                     row.get("body_text"))
             store.update_entry_features(
                 row["id"], None, None, None, None,
                 entity_set=entities, event_keys=keys,
@@ -226,7 +228,7 @@ def main() -> None:
         elif args.action == "approve":
             out = golden.approve_batch(db, args.batch)
         elif args.action == "promote":
-            out = golden.promote_clustered(db)
+            out = golden.promote_clustered(db, args.source_run)
         elif args.action == "apply":
             out = golden.apply_reviewed(db, cfg)
         elif args.action == "preview":

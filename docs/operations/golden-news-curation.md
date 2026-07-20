@@ -96,6 +96,19 @@ LLM-created rather than seeded category, has stale content, or creates an
 episode/storyline/theme with inconsistent parents or labels. Earlier batches
 must be reviewed before a later batch can run.
 
+When promoting a QAed experiment image into the full golden render mirror,
+record the rank snapshot that produced it:
+
+```bash
+uv run python -m pipeline.cli golden promote --source-run <simple_v1-run-uuid>
+```
+
+The run must have a global rank snapshot whose card set exactly matches the
+live storyline card set. `--source-run` may be omitted when exactly one run
+matches. The UUID is stored on `golden_event_cards`, allowing the Ranking tab
+to join the durable cards to one canonical `simple_v1_rank_snapshots` run
+without exposing experiment selection to the reader.
+
 Useful receipts:
 
 ```bash
