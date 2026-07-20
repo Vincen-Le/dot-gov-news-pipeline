@@ -140,9 +140,28 @@ class WorkersAI:
         return next(block.text for block in response.content
                     if block.type == "text")
 
+    # Workers AI rejects large embedding payloads with a bare 400 (observed:
+    # 60 texts / 131KB). Split requests by cumulative size; item order is
+    # preserved across chunks.
+    _EMBED_CHAR_BUDGET = 30_000
+
     def embed(self, texts: list[str]) -> list[np.ndarray]:
-        result = self._run(self.cfg.embedding_model, {"text": texts})
-        return [np.asarray(v, dtype=np.float32) for v in result["data"]]
+        vectors: list[np.ndarray] = []
+        chunk: list[str] = []
+        chunk_chars = 0
+        for text in texts:
+            if chunk and chunk_chars + len(text) > self._EMBED_CHAR_BUDGET:
+                result = self._run(self.cfg.embedding_model, {"text": chunk})
+                vectors.extend(np.asarray(v, dtype=np.float32)
+                               for v in result["data"])
+                chunk, chunk_chars = [], 0
+            chunk.append(text)
+            chunk_chars += len(text)
+        if chunk:
+            result = self._run(self.cfg.embedding_model, {"text": chunk})
+            vectors.extend(np.asarray(v, dtype=np.float32)
+                           for v in result["data"])
+        return vectors
 
     def enrich(self, title: str, summary: str | None) -> str:
         system, user = build_enricher_prompt(title, summary)
