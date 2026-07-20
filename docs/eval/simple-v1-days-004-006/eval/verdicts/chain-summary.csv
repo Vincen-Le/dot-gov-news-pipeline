@@ -1,0 +1,7 @@
+storyline_id,endpoints_related,chain_verdict,reason
+2d7c9bf9-79cc-4c8a-9af4-542499961e8e,1,coherent,Both episodes track the same Tennessee storm FEMA assistance thread.
+30ced07a-21c9-4753-bbcb-b895a9213040,0,should_split,Program-based join with different subjects rather than one event thread.
+3d36f83b-4624-412f-b3ba-f95564f2d8e1,1,coherent,Both cover the same ongoing Kilauea summit eruption.
+40f3c0e5-e3b4-494f-8f33-478988bd4198,1,coherent,All three episodes cover the same Marcos Washington visit meetings.
+7af8300d-35c0-44f5-9083-46bf23d02e09,1,coherent,Both cover the same USPS 250th anniversary celebration.
+ae6f94d1-b42d-4580-9ed1-8ac6009da3b9,0,should_split,Distinct Haiti crackdown events with different subjects and agencies.

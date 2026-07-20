@@ -1,0 +1,1276 @@
+{
+  "top_entity_stats": [
+    {
+      "entity": "park",
+      "total_count": 22,
+      "daily_ema": 19.8682,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 04:00:00+00:00"
+    },
+    {
+      "entity": "rubio",
+      "total_count": 17,
+      "daily_ema": 13.0469,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-27 04:00:00+00:00"
+    },
+    {
+      "entity": "sentenced",
+      "total_count": 17,
+      "daily_ema": 15.2388,
+      "first_seen_at": "2025-07-18 17:32:18+00:00",
+      "last_seen_at": "2025-07-24 20:22:36+00:00"
+    },
+    {
+      "entity": "veterans",
+      "total_count": 17,
+      "daily_ema": 15.2331,
+      "first_seen_at": "2025-07-18 14:30:00+00:00",
+      "last_seen_at": "2025-07-23 18:30:00+00:00"
+    },
+    {
+      "entity": "justice",
+      "total_count": 14,
+      "daily_ema": 12.6918,
+      "first_seen_at": "2025-07-18 12:00:00+00:00",
+      "last_seen_at": "2025-07-23 21:17:18+00:00"
+    },
+    {
+      "entity": "washington",
+      "total_count": 13,
+      "daily_ema": 12.6109,
+      "first_seen_at": "2025-07-21 00:00:00+00:00",
+      "last_seen_at": "2025-07-23 00:00:00+00:00"
+    },
+    {
+      "entity": "home",
+      "total_count": 11,
+      "daily_ema": 9.94637,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 14:30:00+00:00"
+    },
+    {
+      "entity": "marco",
+      "total_count": 11,
+      "daily_ema": 9.8303,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-22 04:00:00+00:00"
+    },
+    {
+      "entity": "schedule",
+      "total_count": 11,
+      "daily_ema": 8.68169,
+      "first_seen_at": "2025-07-20 04:00:00+00:00",
+      "last_seen_at": "2025-07-28 04:00:00+00:00"
+    },
+    {
+      "entity": "tammy",
+      "total_count": 11,
+      "daily_ema": 7.83308,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-28 04:00:00+00:00"
+    },
+    {
+      "entity": "trump",
+      "total_count": 11,
+      "daily_ema": 7.90942,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-25 19:36:55+00:00"
+    },
+    {
+      "entity": "president",
+      "total_count": 10,
+      "daily_ema": 7.57268,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 00:00:00+00:00"
+    },
+    {
+      "entity": "guilty",
+      "total_count": 9,
+      "daily_ema": 8.17011,
+      "first_seen_at": "2025-07-21 19:28:57+00:00",
+      "last_seen_at": "2025-07-24 21:34:59+00:00"
+    },
+    {
+      "entity": "scheme",
+      "total_count": 9,
+      "daily_ema": 8.44121,
+      "first_seen_at": "2025-07-21 21:31:49+00:00",
+      "last_seen_at": "2025-07-24 20:22:36+00:00"
+    },
+    {
+      "entity": "america",
+      "total_count": 8,
+      "daily_ema": 6.99212,
+      "first_seen_at": "2025-07-20 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 22:33:43+00:00"
+    },
+    {
+      "entity": "assistance",
+      "total_count": 8,
+      "daily_ema": 7.21666,
+      "first_seen_at": "2025-07-18 13:52:19+00:00",
+      "last_seen_at": "2025-07-23 12:41:16+00:00"
+    },
+    {
+      "entity": "bruce",
+      "total_count": 8,
+      "daily_ema": 7.25162,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-22 04:00:00+00:00"
+    },
+    {
+      "entity": "civil",
+      "total_count": 8,
+      "daily_ema": 7.15657,
+      "first_seen_at": "2025-07-21 18:18:54+00:00",
+      "last_seen_at": "2025-07-25 17:28:26+00:00"
+    },
+    {
+      "entity": "exchange",
+      "total_count": 8,
+      "daily_ema": 7.52254,
+      "first_seen_at": "2025-07-21 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 04:00:00+00:00"
+    },
+    {
+      "entity": "investigation",
+      "total_count": 8,
+      "daily_ema": 7.58186,
+      "first_seen_at": "2025-07-21 15:26:39+00:00",
+      "last_seen_at": "2025-07-23 18:29:22+00:00"
+    },
+    {
+      "entity": "launch",
+      "total_count": 8,
+      "daily_ema": 6.79416,
+      "first_seen_at": "2025-07-18 22:18:57+00:00",
+      "last_seen_at": "2025-07-25 16:41:41+00:00"
+    },
+    {
+      "entity": "market",
+      "total_count": 8,
+      "daily_ema": 7.73053,
+      "first_seen_at": "2025-07-21 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 00:00:00+00:00"
+    },
+    {
+      "entity": "prime",
+      "total_count": 8,
+      "daily_ema": 6.47533,
+      "first_seen_at": "2025-07-22 04:00:00+00:00",
+      "last_seen_at": "2025-07-28 04:00:00+00:00"
+    },
+    {
+      "entity": "rights",
+      "total_count": 8,
+      "daily_ema": 7.09496,
+      "first_seen_at": "2025-07-21 18:18:54+00:00",
+      "last_seen_at": "2025-07-25 17:28:26+00:00"
+    },
+    {
+      "entity": "site",
+      "total_count": 8,
+      "daily_ema": 6.93878,
+      "first_seen_at": "2025-07-18 15:10:17+00:00",
+      "last_seen_at": "2025-07-23 16:50:38+00:00"
+    },
+    {
+      "entity": "spokesperson",
+      "total_count": 8,
+      "daily_ema": 7.25162,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-22 04:00:00+00:00"
+    },
+    {
+      "entity": "tests",
+      "total_count": 8,
+      "daily_ema": 7.1051,
+      "first_seen_at": "2025-07-18 19:10:50+00:00",
+      "last_seen_at": "2025-07-23 18:28:34+00:00"
+    },
+    {
+      "entity": "trade",
+      "total_count": 8,
+      "daily_ema": 7.53469,
+      "first_seen_at": "2025-07-21 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 17:58:30+00:00"
+    },
+    {
+      "entity": "california",
+      "total_count": 7,
+      "daily_ema": 6.60233,
+      "first_seen_at": "2025-07-18 22:18:57+00:00",
+      "last_seen_at": "2025-07-22 16:16:42+00:00"
+    },
+    {
+      "entity": "foreign",
+      "total_count": 7,
+      "daily_ema": 6.27941,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 04:00:00+00:00"
+    },
+    {
+      "entity": "minister",
+      "total_count": 7,
+      "daily_ema": 6.42095,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 04:00:00+00:00"
+    },
+    {
+      "entity": "network",
+      "total_count": 7,
+      "daily_ema": 6.48012,
+      "first_seen_at": "2025-07-22 04:00:00+00:00",
+      "last_seen_at": "2025-07-24 19:00:00+00:00"
+    },
+    {
+      "entity": "organization",
+      "total_count": 7,
+      "daily_ema": 6.54412,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-22 04:00:00+00:00"
+    },
+    {
+      "entity": "pleads",
+      "total_count": 7,
+      "daily_ema": 6.37752,
+      "first_seen_at": "2025-07-21 19:28:57+00:00",
+      "last_seen_at": "2025-07-24 21:34:59+00:00"
+    },
+    {
+      "entity": "sanctions",
+      "total_count": 7,
+      "daily_ema": 5.68841,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-26 01:23:00+00:00"
+    },
+    {
+      "entity": "space",
+      "total_count": 7,
+      "daily_ema": 5.48708,
+      "first_seen_at": "2025-07-18 14:02:33+00:00",
+      "last_seen_at": "2025-07-25 16:41:41+00:00"
+    },
+    {
+      "entity": "area",
+      "total_count": 6,
+      "daily_ema": 5.25592,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 04:00:00+00:00"
+    },
+    {
+      "entity": "county",
+      "total_count": 6,
+      "daily_ema": 5.42295,
+      "first_seen_at": "2025-07-21 21:20:17+00:00",
+      "last_seen_at": "2025-07-25 17:28:26+00:00"
+    },
+    {
+      "entity": "exploration",
+      "total_count": 6,
+      "daily_ema": 5.85249,
+      "first_seen_at": "2025-07-22 12:03:08+00:00",
+      "last_seen_at": "2025-07-23 19:50:13+00:00"
+    },
+    {
+      "entity": "farmers",
+      "total_count": 6,
+      "daily_ema": 4.71901,
+      "first_seen_at": "2025-07-21 00:00:00+00:00",
+      "last_seen_at": "2025-07-28 00:00:00+00:00"
+    },
+    {
+      "entity": "george",
+      "total_count": 6,
+      "daily_ema": 5.86246,
+      "first_seen_at": "2025-07-21 04:00:00+00:00",
+      "last_seen_at": "2025-07-21 21:16:06+00:00"
+    },
+    {
+      "entity": "revenue",
+      "total_count": 6,
+      "daily_ema": 5.50085,
+      "first_seen_at": "2025-07-22 15:16:38+00:00",
+      "last_seen_at": "2025-07-25 15:18:07+00:00"
+    },
+    {
+      "entity": "river",
+      "total_count": 6,
+      "daily_ema": 5.16941,
+      "first_seen_at": "2025-07-18 15:52:32+00:00",
+      "last_seen_at": "2025-07-23 04:00:00+00:00"
+    },
+    {
+      "entity": "rollins",
+      "total_count": 6,
+      "daily_ema": 4.71901,
+      "first_seen_at": "2025-07-21 00:00:00+00:00",
+      "last_seen_at": "2025-07-28 00:00:00+00:00"
+    },
+    {
+      "entity": "through",
+      "total_count": 6,
+      "daily_ema": 5.58883,
+      "first_seen_at": "2025-07-21 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 14:24:44+00:00"
+    },
+    {
+      "entity": "years",
+      "total_count": 6,
+      "daily_ema": 5.81523,
+      "first_seen_at": "2025-07-21 14:30:12+00:00",
+      "last_seen_at": "2025-07-23 16:00:25+00:00"
+    },
+    {
+      "entity": "address",
+      "total_count": 5,
+      "daily_ema": 4.59314,
+      "first_seen_at": "2025-07-18 04:00:00+00:00",
+      "last_seen_at": "2025-07-23 04:00:00+00:00"
+    },
+    {
+      "entity": "apply",
+      "total_count": 5,
+      "daily_ema": 4.43816,
+      "first_seen_at": "2025-07-18 13:52:19+00:00",
+      "last_seen_at": "2025-07-23 12:41:16+00:00"
+    },
+    {
+      "entity": "director",
+      "total_count": 5,
+      "daily_ema": 4.61814,
+      "first_seen_at": "2025-07-18 17:48:42+00:00",
+      "last_seen_at": "2025-07-22 04:00:00+00:00"
+    },
+    {
+      "entity": "disaster",
+      "total_count": 5,
+      "daily_ema": 4.94629,
+      "first_seen_at": "2025-07-21 00:00:00+00:00",
+      "last_seen_at": "2025-07-21 13:22:54+00:00"
+    }
+  ],
+  "sampled_entries": [
+    {
+      "entry_id": "0468e481-250a-4597-923b-409481fa27d0",
+      "agency": "search.cdc.gov",
+      "title": "Statement from the U.S. Department of Health and Human Services",
+      "summary": "HHS Secretary Robert F. Kennedy, Jr. visited CDC headquarters in response to tragic gunfire attack",
+      "published_at": "2025-08-11 20:55:41+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "05552cdd-e85b-4d6b-9887-83587840c722",
+      "agency": "www.fema.gov",
+      "title": "FEMA to Evaluate Readiness of the Commonwealth of Pennsylvania and the State of West Virginia",
+      "summary": "FEMA to Evaluate Readiness of the Commonwealth of Pennsylvania and the State of West Virginia PHILADELPHIA \u2013 The Department of Homeland Security, Federal Emergency Management Agency (FEMA) will evaluate a Biennial Radiological Emergency Preparedness Exercise at the Beaver Valley Power Station. The exercise will occur during the week of June 8, 2026, to assess and improve the ability of the Commonwealth of Pennsylvania and the State of West Virginia to respond to an emergency at the nuclear facility. The exercise will include an evaluation of the updated Alert and Notification System (ANS).\u201cThese drills are held every other year to evaluate government\u2019s ability to protect public health and safety,\u201d said Andre C. McCoy, Regional Administrator for FEMA Region 3. \u201cWe will assess state and local government emergency response capabilities within the 10-mile Emergency Planning Zone within the Commonwealth of Pennsylvania and the State of West Virginia.\u201d Within 90 days, FEMA will send its evaluation to the Nuclear Regulatory Commission for use in licensing decisions. The final report will be available to the public approximately 120 days after the exercise. FEMA will present preliminary findings of the exercise, including the ANS demonstration, during a public meeting at 5:30 pm on June 12, 2026. Planned speakers include representatives from FEMA and the Nuclear Regulatory Commission. The meeting will take place in-person at:Shippingport Community Building163 PA-3016Shippingport, PA 15077At the public meeting, FEMA may request that questions or comments be submitted in writing for ",
+      "published_at": "2026-05-29 16:14:06+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "088fe3a5-6066-43ed-8a22-6fc0d631d9d3",
+      "agency": "www.state.gov",
+      "title": "On Fighting on the Cambodia-Thailand Border - United States Department of State",
+      "summary": "The United States is concerned by continued fighting and casualties in multiple locations along the Cambodia-Thailand border. We strongly urge the immediate cessation of hostilities, the protection of civilians, and for both sides to return to the de-escalatory measures outlined in the October 26 Kuala Lumpur Peace Accords signed by the Prime Ministers of Cambodia [\u2026]",
+      "published_at": "2025-12-09 05:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "0b4a9de5-efcf-4184-9b09-ed3b63eeac51",
+      "agency": "www.osha.gov",
+      "title": "Federal investigators cite waste management company for failure to implement confined space entry requirements resulting in worker fatality",
+      "summary": "",
+      "published_at": "2025-07-21 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "0fe6116a-482c-4c8b-a15b-236c87597230",
+      "agency": "search.cdc.gov",
+      "title": "Update on Ebola Outbreak in the Democratic Republic of the Congo and Uganda, 5/29/2026",
+      "summary": "Update on Ebola Outbreak in the Democratic Republic of the Congo and Uganda, 5.29.2026",
+      "published_at": "2026-05-29 18:15:08+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "1026a52f-577a-45d9-b184-53c7203479a9",
+      "agency": "www.usgs.gov",
+      "title": "Volcano Watch \u2014 Think Hawaii has many volcanoes? Think again, says El Salvador",
+      "summary": "This past March, a team of U.S. Geological Survey (USGS) scientists\u2014two of whom travelled from Hawaii\u2014visited El Salvador in Central America for volcanological field studies and a workshop on lava flow hazards. Exchanges like this help to improve awareness of volcanic hazards in other countries, and they enable the USGS to better understand volcanoes in our own backyard.",
+      "published_at": "2026-05-08 00:03:07+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "12031650-7b83-4655-a2d3-047fd94ae7db",
+      "agency": "www.cftc.gov",
+      "title": "CFTC Sues Wisconsin to Reaffirm its Exclusive Jurisdiction Over Prediction Markets",
+      "summary": "The Commodity Futures Trading Commission filed a lawsuit against Wisconsin in response to the state\u2019s lawsuits against Kalshi, Polymarket, Crypto.com, Robinhood, and Coinbase, five CFTC-regulated prediction markets.",
+      "published_at": "2026-04-28 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "12160cc1-b74d-4225-9429-053b28f61de7",
+      "agency": "www.ftc.gov",
+      "title": "Federal Trade Commission and Department of Justice Seek Public Comment on the Premerger Notification and Report Form",
+      "summary": "Today, the Federal Trade Commission (Commission) and the Department of Justice\u2019s Antitrust Division (DOJ) (together, the Agencies) launched a joint public inquiry regarding the effectiveness of the",
+      "published_at": "2026-03-25 14:59:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "13a747c3-8464-46c1-9ff1-c58ac980d277",
+      "agency": "gov.texas.gov",
+      "title": "Governor Abbott Signs Major Disaster Declaration After Severe Weather and Flooding",
+      "summary": "Governor Abbott Signs Major Disaster Declaration After Severe Weather and FloodingGovernor Greg Abbott today requested a Presidential Disaster Declaration to support Texas\u2019 ongoing response and recovery efforts following severe weather and flooding impacting communities across the state. Governor Abbott also visited Uvalde County to receive updates on flood conditions, survey damage, and meet with state and local officials coordinating the local response. \u201cThe Uvalde Community was hit very hard, but its residents are strong and resilient,\u201d said Governor Abbott. \u201cI am requesting a major disaster declaration for 28 counties to provide federal relief and help in the rebuilding process of this region. More counties can be added as needed. I am incredibly thankful to all the first responders for their swift and effective response to save lives.\u201d Governor Abbott visited the SSGT Willie de Leon Civic Center, where he received a briefing on current flood conditions, response operations, and recovery efforts. The Governor also met with first responders and emergency personnel and thanked them for their continued work to protect Texans and assist impacted communities. As of today, more than 2,700 personnel and 1,500 vehicles, aircraft, and other assets and resources have been deployed to help communities across the state. Texas has rescued more than 270 people since response efforts began. Governor Abbott warned that severe weather, as well as additional flooding, may continue to impact the state and urged Texans in Uvalde, Zavala, Dimmit, Sutton, and Crockett counties to remain weat",
+      "published_at": "2026-07-17 21:55:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "176e6b5c-3722-4006-bdd1-67c14f725a2b",
+      "agency": "www.ntsb.gov",
+      "title": "NTSB Issues Urgent Recommendations in Response to Texas School Bus Crash",
+      "summary": "",
+      "published_at": "2025-10-28 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "198284a2-6cc7-439f-b04b-3e0ac69df30d",
+      "agency": "news.va.gov",
+      "title": "Provider Connect brings specialists into Primary Care visits",
+      "summary": "With Provider Connect, Veterans could receive specialist guidance during primary care appointments, eliminating lengthy wait times and unnecessary travel.",
+      "published_at": "2026-06-28 20:30:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "1e0f7c08-d4a8-4ae9-a9d9-567127e91f75",
+      "agency": "www.usgs.gov",
+      "title": "Volcano Watch \u2014 Cracks in the 2018 K\u012blauea lava delta: what do they mean?",
+      "summary": "K\u012blauea\u2019s 2018 eruption transformed the lower Puna District of the Island of Hawai\u02bbi, including its coastline, where 875 acres of new land were added in a large lava delta. The area is still subject to sudden, dynamic changes, as evidenced by recent observations of new ground cracks in the lava delta near Pohoiki.",
+      "published_at": "2025-08-28 22:52:10+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "1e344c37-4ac8-4a59-93be-1d081d303388",
+      "agency": "www.fda.gov",
+      "title": "FDA Releases Draft Guidance on Reducing Testing on Non-Human Primates for Monoclonal Antibodies",
+      "summary": "Today, the U.S. Food and Drug Administration (FDA) issued draft guidance outlining specific product types for which the FDA believes six-month non-human primate toxicity testing can be eliminated or reduced.",
+      "published_at": "2025-12-02 14:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "22519bb4-3db5-4639-9df1-4947df4136f8",
+      "agency": "www.state.gov",
+      "title": "Presidential Determination on Major Drug Transit or Major Illicit Drug Producing Countries for Fiscal Year 2026 - United States Department of State",
+      "summary": "The following is a Presidential Determination submitted to Congress today: By the authority vested in me as President by the Constitution and the laws of the United States; including section 706(1) of the Foreign Relations Authorization Act, Fiscal Year 2003 (Public Law 107-228) (FRAA), I hereby identify the following countries as major drug transit or [\u2026]",
+      "published_at": "2025-09-15 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "2361e877-48e7-469f-929b-c48a2903548d",
+      "agency": "www.cftc.gov",
+      "title": "CFTC Secures Court Order Requiring Florida Resident to Pay Over $1.3 Million in Disgorgement and Imposes Trading Ban for Commodity Pool Fraud",
+      "summary": "The CFTC today announced the U.S. District Court for the Southern District of Florida entered a consent order against John Fortini for retail fraud, fraud as an associated person of a commodity pool operator, and related regulatory violations.",
+      "published_at": "2026-04-15 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "24254e18-0ad2-4a4b-bce3-e2a3eecbacf5",
+      "agency": "www.fda.gov",
+      "title": "FDA Approves First Treatment for Chronic Hepatitis Delta Virus (HDV) Infection",
+      "summary": "Today, the U.S. Food and Drug Administration approved Hepcludex (bulevirtide-gmod) injection to treat chronic hepatitis delta virus (HDV) infection in adults without cirrhosis (advanced liver scarring) or with compensated cirrhosis.",
+      "published_at": "2026-05-22 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "2532b4ec-0673-46de-8d4b-1f3103f4f500",
+      "agency": "www.cdc.gov",
+      "title": "Shredded iceberg lettuce served at Taco Bell locations is source of cyclosporiasis infections in five states",
+      "summary": "CDC: Avoid Taco Bell shredded lettuce in 5 states after Cyclospora outbreak; 1,644 sick",
+      "published_at": "2026-07-17 10:25:23+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "28be5d30-3663-484e-b812-b3c07f98fce9",
+      "agency": "www.nasa.gov",
+      "title": "Transformational Tools and Technologies Resources",
+      "summary": "Vision Studies, Analysis of Alternatives (AoA) Studies, and White Papers",
+      "published_at": "2026-03-22 18:59:32+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "2b87f9d0-d5e6-4f2e-80f6-0cf349385d26",
+      "agency": "news.va.gov",
+      "title": "Vigilant VA valet team saves Veteran in distress",
+      "summary": "VA Fayetteville Coastal valet team\u2019s quick actions and vigilance helped save a Veteran\u2019s life, showing the power of compassion and teamwork.",
+      "published_at": "2025-09-07 18:30:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "3242c1f8-f98a-40c5-94af-d97cabc951f0",
+      "agency": "www.noaa.gov",
+      "title": "NOAA satellites helped rescue 300 people in 2025",
+      "summary": "From an injured skier in the Rockies to a disabled catamaran in the Atlantic Ocean, NOAA\u2019s satellites were pivotal in helping rescue 300 people from life-threatening situations in the U.S. and its surrounding waters in 2025. Of the rescues last year, 183 people were pulled from the water, 47 were saved from aviation incidents",
+      "published_at": "2026-03-03 12:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "32822c35-84ae-47b3-8720-923258695797",
+      "agency": "www.osha.gov",
+      "title": "US Department of Labor investigation finds Alabama construction company exposed workers to trenching hazards following fatal incident",
+      "summary": "",
+      "published_at": "2026-04-16 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "3429aa94-0acf-4a3e-92cd-f74111ff25c5",
+      "agency": "ncbiinsights.ncbi.nlm.nih.gov",
+      "title": "BankIt Submitters: Upcoming Changes to How You Submit to GenBank",
+      "summary": "Are you a GenBank submitter? Do you use BankIt or the GenBank app in the NCBI Submission Portal to submit your sequences? Or do you split your data between the two systems? Starting this spring, you will be able to complete all GenBank submissions in the portal! The Submission Portal GenBank will support data types that you currently submit through BankIt. You will no \u2026 Continue reading BankIt Submitters: Upcoming Changes to How You Submit to GenBank \u2192",
+      "published_at": "2026-01-27 15:58:33+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "36e5051a-08da-4def-bd06-d20892038bf9",
+      "agency": "www.nps.gov",
+      "title": "Small Fire In Lumpy Ridge Area of Rocky Mountain National Park - Rocky Mountain National Park (U.S. National Park Service)",
+      "summary": "Small Fire In Lumpy Ridge Area of Rocky Mountain National Park",
+      "published_at": "2025-08-17 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "38ec735f-5df7-460d-aba2-9c922f96e09f",
+      "agency": "gov.texas.gov",
+      "title": "Governor Abbott Provides Update On State Response To Severe Flooding",
+      "summary": "Governor Abbott Provides Update On State Response To Severe FloodingGovernor Greg Abbott today held a severe weather briefing and press conference at the State Operations Center in Austin to provide an update on the state's ongoing response to flooding across Texas. \u201cProtecting life remains our top priority as we work through extraordinarily record-breaking-rain,\u201d said Governor Abbott. \u201cLife-threatening catastrophic flooding remains our main risk tonight. We have deployed over 2,350 state emergency responders, along with more than 1,400 vehicles, and we will continue deploying every resource necessary to assist local communities. Texans must be diligent to avoid rising water on roadways.\u201d During the briefing, Governor Abbott received updates on the current flood impact and the states' ongoing response efforts. The Governor urged Texans to heed safety warnings from state and local officials, never drive through flooded roadways, and reminded Texans to \"Turn Around, Don't Drown.\" The Governor also directed state agencies to remain fully engaged and ensure all necessary resources are in place to support affected communities as dangerous flooding continues across parts of the Texas Hill Country, Central and South Texas. Additionally, Texans in the Permian Basin, the Concho Valley, the Edwards Plateau, and the Trans Pecos must remain weather aware overnight. The Governor was joined at the briefing and press conference by Texas Division of Emergency Management Chief Nim Kidd, Texas Military Department Adjutant General Thomas Suelzer, Texas Department of Transportation Executive D",
+      "published_at": "2026-07-16 22:47:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "3bfbf1ef-ae4c-4789-819d-1c477c7ab23f",
+      "agency": "ncbiinsights.ncbi.nlm.nih.gov",
+      "title": "MANE v1.5 Released!",
+      "summary": "A new version (v1.5) of Matched Annotation from NCBI and EMBL-EBI (MANE) is now available. This dataset, produced in collaboration between NCBI and the European Molecular Biology Laboratory\u2019s European Bioinformatics Institute (EMBL-EBI), includes a total of 19,437 MANE Select transcripts for 19,367 protein-coding and 70 non-coding genes. There are also MANE Plus Clinical transcripts for 73 genes. What\u2019s new? In response to requests from clinical expert groups, we \u2026 Continue reading MANE v1.5 Released! \u2192",
+      "published_at": "2026-03-10 16:39:34+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "3f51e221-c12f-47df-931f-841d8898333c",
+      "agency": "www.nasa.gov",
+      "title": "Keeping NASA Flying: Ground Crews Ensure Aircraft Readiness",
+      "summary": "From high\u2011speed research flights to high\u2011altitude science campaigns, NASA depends on aircraft that perform at their best and the ground crews who keep them mission ready. At NASA\u2019s Armstrong Flight Research Center in Edwards, California, specially trained maintenance crews are essential to keeping the agency\u2019s aircraft flying safely and reliably. This year, NASA added two [\u2026]",
+      "published_at": "2026-05-22 15:45:38+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "401d4591-9eaf-4c1b-95d9-a1a6c5e09950",
+      "agency": "www.ftc.gov",
+      "title": "FTC and Illinois Take Action to Stop Deceptive Conduct by Company that Created Thousands of Business Listings of Fake Local Home Repair Businesses",
+      "summary": "The U.S.",
+      "published_at": "2026-05-11 21:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "4145d16b-f9db-4679-a8e0-1a697123ff90",
+      "agency": "www.epa.gov",
+      "title": "EPA Highlights New Mortgage Forbearance Extension Secured as LA Wildfire Survivors Rebuild | US EPA",
+      "summary": "U.S. Environmental Protection Agency (EPA) today highlighted a new private-sector commitment that has been secured to help Los Angeles wildfire survivors rebuild.",
+      "published_at": "2026-06-03 19:16:38+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "42365564-8749-47df-8bcb-6e88a5352c4c",
+      "agency": "www.nasa.gov",
+      "title": "NASA Wins Second Emmy Award for 2024 Total Solar Eclipse Broadcast",
+      "summary": "NASA\u2019s broadcast of the April 8, 2024, total solar eclipse has won an Emmy Award for Excellence in Production Technology. At the 76th Technology & Engineering Emmy Awards on Dec. 4, in New York City, the Academy of Television Arts & Sciences announced the win. Walt Lindblom and Sami Aziz accepted the award on behalf [\u2026]",
+      "published_at": "2025-12-05 19:56:31+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "42690ad4-53bf-469b-b34f-02dd02432d6d",
+      "agency": "www.csb.gov",
+      "title": "U.S. Chemical Safety Board Opens Investigation Into Fatal Chemical Tank Implosion at Nippon Dynawave Paper Mill in Washington",
+      "summary": "",
+      "published_at": "2026-05-27 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "43f9112f-4fa2-4c3f-b128-3be820aae42d",
+      "agency": "news.va.gov",
+      "title": "100 pounds and counting! One Veteran\u2019s story of weight loss",
+      "summary": "Army and Marine Veteran Robert Kaczor shares how VA\u2019s MOVE! Program helped him lose 100 pounds and gain a healthier, more active lifestyle.",
+      "published_at": "2025-08-29 18:30:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "463ce20b-17fe-4e0c-888f-2ef6065d72b2",
+      "agency": "www.fema.gov",
+      "title": "FEMA Approves $308 Million to Support Recovery in New England",
+      "summary": "FEMA Approves $308 Million to Support Recovery in New England BOSTON \u2014 FEMA recently approved $308 million in funding to support recovery in New England. This includes $280 million to reimburse for costs related to the COVID-19 pandemic, and $28 million for recovery work related to past natural disasters. This funding is part of the Department of Homeland Security announcement of $5.6 billion of federal assistance to states, Tribal Nations and territories. FEMA conducts a review process for all recovery grants that includes verifying compliance with program eligibility rules, ensuring proper documentation of expenses and confirming that claimed activities are consistent with program eligibility criteria to ensure taxpayer dollars are used appropriately. In alignment with President Trump\u2019s executive order establishing the Task Force to Eliminate Fraud, FEMA conducted thorough reviews of claimed costs to identify duplication of benefits, specifically with patient care revenue. These actions help ensure that the COVID-19 Public Assistance funds being obligated are consistent with the executive order\u2019s focus on preventing fraud, waste and abuse. Based on these reviews, FEMA is confident that the costs being reimbursed are eligible and not fraudulent.FEMA Public Assistance grants recently approved to New England states and communities include: $30,645,270 to the Connecticut Department of Corrections for COVID testing for staff and inmates.$5,731,705 to the Town of York for repairs to the Long Sands Beach seawall, which was damaged during the severe storms and flooding that occur",
+      "published_at": "2026-05-14 18:47:39+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27",
+      "agency": "inciweb.wildfire.gov",
+      "title": "News Emergency Closure BWCAW & Quetico Provincial Park Press Release 07-11-2026 | InciWeb",
+      "summary": "Emergency Closure BWCAW & Quetico Provincial Park Press Release 07-11-2026 News for the InciWeb.",
+      "published_at": "2026-07-11 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "63429f2c-b9ec-4a7a-95c6-8371d57f4d1c",
+      "agency": "www.justice.gov",
+      "title": "Executive of North Carolina Construction Company Pleads Guilty to Multi-Million Dollar Bid-Rigging Conspiracy",
+      "summary": "The president of a North Carolina construction company pleaded guilty to conspiring to rig bids for maintenance, repair, and operations procurements for military installations in the United States.",
+      "published_at": "2025-12-17 21:36:12+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "655768e5-e87b-44c1-930a-5f60c990716f",
+      "agency": "www.weather.gov",
+      "title": "Strike a pose with #SafePlaceSelfie on April 8!",
+      "summary": "",
+      "published_at": "2026-03-31 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "65592242-2a3c-4a7a-b4e9-3f4d5e297c12",
+      "agency": "about.usps.com",
+      "title": "U.S. Postal Service Reports Third Quarter Fiscal Year 2025 Results",
+      "summary": "WASHINGTON \u2014 The U.S. Postal Service today announced its financial results for the third quarter of fiscal year 2025 (Apr. 1, 2025 - Jun. 30, 2025).",
+      "published_at": "2025-08-07 19:47:05+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "65b0ce41-c38e-43ea-b901-c5da7b251cfd",
+      "agency": "www.weather.gov",
+      "title": "SPC\u2019s Conditional Intensity shines a light on the most violent weather",
+      "summary": "",
+      "published_at": "2026-02-24 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "6a2c1a00-5067-4d1a-9543-dba06b8a17c6",
+      "agency": "www.usgs.gov",
+      "title": "USGS Director Ned Mamula and Team Visit Flagstaff Science Campus, June 1\u20133: An Astrogeology Account",
+      "summary": "USGS Flagstaff Science Campus (FSC) employees welcomed USGS Director Ned Mamula and members of the USGS Leadership Team\u2019s visit to the FSC campus June 1\u2013June 3 for a series of briefings, tours, and conversations on the role of FSC in supporting USGS\u2019s mission. Following their visit, they journeyed on to visit the USGS Albuquerque Seismological Laboratory and the New Mexico Water Science Center.",
+      "published_at": "2026-06-23 22:29:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "6c128e77-9228-46ae-8d67-9e710a65f1e2",
+      "agency": "www.sec.gov",
+      "title": "SEC Appoints Kathleen Hutchinson as Director of Office of International Affairs",
+      "summary": "The Securities and Exchange Commission has appointed Kathleen M. Hutchinson as Director of the agency\u2019s Office of International Affairs (OIA). OIA advises the Commission on international policy matters, coordinates with foreign authorities across the\u2026",
+      "published_at": "2026-06-24 18:32:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "75a88b6f-1019-4253-9ac9-2bad3a65e524",
+      "agency": "home.treasury.gov",
+      "title": "Treasury Sanctions Cambodian Senator Kok An and Scam Center Network Defrauding Americans",
+      "summary": "WASHINGTON\u2014Today, the Department of the Treasury\u2019s Office of Foreign Assets Control (OFAC) designated Kok An\u2014a Cambodian senator who controls scam compounds throughout the country\u2014as well as 28 individuals and entities in his network. Southeast Asian scam operators within this network have stolen millions of dollars from U.S. victims while operating under the protection of Kok An and his political connections. Using the lure of friendship or romantic relationships, these fraudsters coax vulnerable Americans into transferring their savings in the form of digital assets by promising investment opportunities and high returns, only to steal the funds outright. In some cases, individuals perpetrating these scams are themselves victims of human trafficking and are forced to commit unlawful acts under threat of violence. Kok An and his affiliates\u2019 network of scam centers, operating out of casinos and office parks retrofitted for fraudulent activity, launder victims\u2019 funds and provide a base to target U.S. citizens and commit human rights abuses with impunity. \u201cEliminating fraud is a top priority for the Trump Administration,\u201d said Secretary of the Treasury Scott Bessent. \u201cTreasury will continue to target fraudsters and scam centers that steal billions of dollars from hardworking Americans, no matter where they operate or how well-connected they are.\u201dThis action is being taken in coordination with the Scam Center Strike Force, an initiative by the U.S. Attorney\u2019s Office for the District of Columbia, the Department of Justice\u2019s Criminal Division, the Federal Bureau of Investigation ",
+      "published_at": "2026-04-23 15:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "7a81843f-93ab-41f3-86bd-71794bb4117f",
+      "agency": "www.csb.gov",
+      "title": "U.S. Chemical Safety Board Releases Update on its Investigation of Fatal Explosion at U.S. Steel Clairton Coke Works",
+      "summary": "",
+      "published_at": "2025-09-29 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "7aafc9c6-76ca-48da-908e-75896c1accfe",
+      "agency": "web.archive.org",
+      "title": "USDA Encourages Ag Producers, Residents to Prepare for Winter Storm Fern",
+      "summary": "",
+      "published_at": "2026-01-23 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19",
+      "agency": "fsapartners.ed.gov",
+      "title": "(GENERAL-26-02) Title IV Aid Disbursement Reporting, Excess Cash, and Reconciliation Requirements",
+      "summary": "",
+      "published_at": "2026-01-08 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "7eebdafb-2cfe-4d03-9b60-b75c018074d6",
+      "agency": "www.uscis.gov",
+      "title": "Homeland Security Terminates Somalia\u2019s Temporary Protected Status Designation",
+      "summary": "Today, the United States Secretary of Homeland Security Kristi Noem announced the termination of Somalia\u2019s designation for Temporary Protected Status (TPS). The termination will be effective on March 17, 2026.",
+      "published_at": "2026-01-13 17:48:42+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42",
+      "agency": "www.nps.gov",
+      "title": "Southern Idaho Parks See More Than 430,000 Visits in 2025 - Hagerman Fossil Beds National Monument (U.S. National Park Service)",
+      "summary": "News Release of the Southern Idaho Parks See More Than 430,000 Visits in 2025",
+      "published_at": "2026-05-21 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "8163f47d-c3c4-435b-bb04-abfae824812e",
+      "agency": "web.archive.org",
+      "title": "Duckling survival is higher if nests are closer to wetland habitats flooded during the summer",
+      "summary": "A recent USGS study, in collaboration with the California Department of Fish and Wildlife at the Grizzly Island Wildlife Area, investigates what type of predators are eating ducklings.",
+      "published_at": "2025-12-29 18:53:33+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "81fc8863-e03d-4dc3-bdde-9932929d92fc",
+      "agency": "home.treasury.gov",
+      "title": "Under Secretary for Terrorism and Financial Intelligence John K. Hurley to Travel to Israel, UAE, T\u00fcrkiye, and Lebanon",
+      "summary": "WASHINGTON \u2014 Today, Treasury Under Secretary for Terrorism and Financial Intelligence John K. Hurley will travel to Europe and Middle East. Under Secretary Hurley\u2019s trip is focused on working with a number of key partners to implement President Trump\u2019s maximum pressure campaign against Iran and increase safeguards to further restrict terrorist groups from gaining access to the global financial system. Under Secretary Hurley will work with partners to effectively implement and enforce United Nations sanctions and measures that were reimposed as a result of Iran\u2019s failure to meet its international obligations. \u201cPresident Trump has made clear that Iran\u2019s destabilizing and terrorist activities must be met with sustained and coordinated pressure,\u201d said Under Secretary for Terrorism and Financial Intelligence John K. Hurley. \u201cI look forward to meeting with our partners to coordinate our efforts to deny Tehran and its proxies the financial access they rely on to evade international sanctions, fund violence, and undermine stability in the region.\"Under Secretary Hurley has engagements planned in Israel, the United Arab Emirates (UAE), T\u00fcrkiye, and Lebanon.In Israel, Under Secretary Hurley will discuss ways in which both countries can work together to further President Trump\u2019s maximum pressure campaign on Iran, particularly against Iran\u2019s regional proxies.In the UAE, Under Secretary Hurley will emphasize the importance of a strong U.S.-UAE partnership to further President Trump\u2019s maximum pressure campaign on Iran. and to combat money laundering and the financing of terrorism. Under ",
+      "published_at": "2025-10-31 19:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "86937097-95b8-45f1-ba5a-b07e2d6a8498",
+      "agency": "inciweb.wildfire.gov",
+      "title": "News Daily Update, Monday, 06-29-2026 | InciWeb",
+      "summary": "Daily Update, Monday, 06-29-2026 News for the InciWeb.",
+      "published_at": "2026-06-29 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "8d487898-4847-41fc-8aed-53f312aeeceb",
+      "agency": "www.ntsb.gov",
+      "title": "North Dakota Derailment and Hazardous Materials Release Prompts Renewed Call to Accelerate Phase Out of DOT-111 Tank Cars and Raises Concerns About Retrofitted DOT-117R Tank Cars",
+      "summary": "",
+      "published_at": "2026-06-11 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "91150100-71fb-4646-95f4-6757996aef39",
+      "agency": "www.nasa.gov",
+      "title": "NASA\u2019s Deep Space Communications Demo Exceeds Project Expectations",
+      "summary": "The project has exceeded all of its technical goals after two years, setting up the foundations of high-speed communications for NASA\u2019s future human missions to Mars. NASA\u2019s Deep Space Optical Communications technology successfully showed that data encoded in lasers could be reliably transmitted, received, and decoded after traveling millions of miles from Earth at distances [\u2026]",
+      "published_at": "2025-09-18 19:43:38+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "9239e7fe-93c1-46cf-819f-4c85c2e84bcd",
+      "agency": "www.noaa.gov",
+      "title": "Administration revises Endangered Species Act regulations to strengthen certainty, reduce burdens and uphold law",
+      "summary": "NOAA\u2019s National Marine Fisheries Service and the Department of the Interior\u2019s U.S. Fish and Wildlife Service today announced four proposed rules to restore Endangered Species Act regulations to their proven 2019 and 2020 framework. The actions advance President Donald J. Trump\u2019s directives to strengthen American energy independence",
+      "published_at": "2025-11-19 12:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "93885693-8aa8-46b5-8a5f-bbc158b3d7d4",
+      "agency": "inciweb.wildfire.gov",
+      "title": "Announcement Air Resource Advisor Smoke Outlook 06-27-2026 | InciWeb",
+      "summary": "Air Resource Advisor Smoke Outlook 06-27-2026 Announcement for the InciWeb.",
+      "published_at": "2026-06-27 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "96466cdf-faa4-43dd-a290-f3a83e6ecce5",
+      "agency": "www.noaa.gov",
+      "title": "NOAA\u2019s SWFO-L1 observatory heads to orbit for groundbreaking mission",
+      "summary": "New satellite will advance space weather forecasting",
+      "published_at": "2025-09-24 12:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "97ed1535-1493-42c0-873f-9ea236167db6",
+      "agency": "www.irs.gov",
+      "title": "Treasury, IRS provide penalty relief for remittance transfer providers who fail to deposit excise tax under the One, Big, Beautiful Bill",
+      "summary": "IR-2025-102, Oct. 7, 2025 \u2014 The Department of the Treasury and the Internal Revenue Service today issued guidance providing deposit penalty relief for the first three quarters of 2026 to remittance transfer providers. Notice 2025-55 provides relief in connection with the new excise tax imposed on certain remittance transfers under the One, Big, Beautiful Bill.",
+      "published_at": "2025-10-07 13:45:01+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "9947f606-9fe9-4f46-afd0-980a48672f6d",
+      "agency": "www.bls.gov",
+      "title": "Major Economic Indicators Latest Numbers",
+      "summary": "Consumer Price Index (CPI): -0.4% in Jun 2026 News Release Historical Data Unemployment Rate: 4.2% in Jun 2026 News Release Historical Data Payroll Employment: +57,000(p) in Jun 2026 News Release Historical Data Average Hourly Earnings: +$0.13(p) in Jun 2026 News Release Historical Data Producer Price Index - Final Demand: -0.3%(p) in Jun 2026 News Release Historical Data Employment Cost Index (ECI): +0.9% in 1st Qtr of 2026 News Release Historical Data Productivity: +0.3%(r) in 1st Qtr of 2026 News Release Historical Data U.S. Import Price Index: +0.3% in Jun 2026 News Release Historical Data U.S. Export Price Index: -0.6% in Jun 2026 News Release Historical Data p- preliminary",
+      "published_at": "2026-07-17 12:30:20+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "9bca90bc-7840-4e91-97d5-8362bc4341ff",
+      "agency": "ncbiinsights.ncbi.nlm.nih.gov",
+      "title": "Strengthening Fungal Genomics: Using Average Nucleotide Identity (ANI) to Verify Yeast Species Identity",
+      "summary": "Average Nucleotide Identity (ANI) analysis is a useful tool to verify taxonomic accuracy. It compares submitted genome assemblies against reference data generated from \u201ctype material,\u201d the official specimen or culture designated when a new species is formally characterized. We previously applied this approach to prokaryotic genome validation, with comparisons running every day to provide up-to-date \u2026 Continue reading Strengthening Fungal Genomics: Using Average Nucleotide Identity (ANI) to Verify Yeast Species Identity \u2192",
+      "published_at": "2026-04-20 14:48:46+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "9d41e9c7-31bd-49fc-a3e6-432770c84f3b",
+      "agency": "www.justice.gov",
+      "title": "Justice Department Sues Governor Gavin Newsom for California\u2019s Race-Based Redistricting Plan",
+      "summary": "WASHINGTON \u2013 The Justice Department announced today that it filed legal action against Governor Gavin Newsom and Secretary of State Shirley Weber for the State of California\u2019s newly adopted redistricting plan enacted with the passage of Proposition 50. The suit alleges that the plan mandates racially gerrymandered congressional districts in violation of the Equal Protection",
+      "published_at": "2025-11-13 19:50:09+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "9fcd0eb5-8ace-4e46-a6f9-42b5f7ef6680",
+      "agency": "fsapartners.ed.gov",
+      "title": "(APP-26-06) Launch of Real-Time FAFSA Results",
+      "summary": "",
+      "published_at": "2026-06-01 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "a09924c0-a8be-41cd-90a4-31b780938794",
+      "agency": "www.uscis.gov",
+      "title": "DHS Ends Automatic Extension of Employment Authorization",
+      "summary": "The Department of Homeland Security has announced an interim final rule ending the practice of automatically extending employment authorization documents for aliens filing renewal applications in certain employment authorization categories.",
+      "published_at": "2025-10-29 13:08:42+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "a272bac4-793b-49b1-8a71-c51043637238",
+      "agency": "www.ftc.gov",
+      "title": "At FTC\u2019s Request, Court Halts Operations of Deceptive Health Care Telemarketers",
+      "summary": "At the Federal Trade Commission\u2019s request, a U.S.",
+      "published_at": "2026-01-23 16:37:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "a545565e-2200-4dfd-a99f-04d84d00d8d6",
+      "agency": "about.usps.com",
+      "title": "USPS issues new stamp celebrating 150 years of Colorado statehood",
+      "summary": "WASHINGTON \u2014 Today, the United States Postal Service (USPS) released Colorado Statehood, a new stamp commemorating the state\u2019s 150th anniversary with a photograph called \u201cFoggy Jagged Mountain, Weminuche Wilderness\u201d by nature photographer John Fielder. The first-day-of-issue event was held at the History Colorado Center in Denver in conjunction with the opening of the \u201cMountains Majesty: On the Summit with John Fielder\u201d exhibition.",
+      "published_at": "2026-01-24 14:11:15+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "a5571abd-578d-4c84-bc42-712864916694",
+      "agency": "search.cdc.gov",
+      "title": "CDC Adopts Individual-Based Decision-Making for Hepatitis B Immunization for Infants Born to Women Who Test Negative for Hepatitis B Virus",
+      "summary": "The CDC today adopted individual-based decision-making for hepatitis B immunization",
+      "published_at": "2025-12-16 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "a8f8ca36-c317-475b-80cb-97da57d2629a",
+      "agency": "www.epa.gov",
+      "title": "EPA, HHS Announce Historic Actions to Protect Americans from Microplastics and Safeguard Drinking Water | US EPA",
+      "summary": "EPA Administrator Lee Zeldin and HHS Secretary Robert F. Kennedy Jr. today announced landmark, coordinated actions to address microplastics contamination, one of the most urgent and growing public health challenges facing Americans.",
+      "published_at": "2026-04-02 18:16:37+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "a9e1e195-9b59-4f7a-9442-1a1f8f07e7ae",
+      "agency": "www.noaa.gov",
+      "title": "NOAA rescinds regulation prohibiting commercial fishing in Atlantic monument area",
+      "summary": "NOAA\u2019s National Marine Fisheries Service today rescinded a regulation that prohibited commercial fishing within the Northeast Canyons and Seamounts Marine National Monument boundaries. This action was necessary to align fishing regulations with President Trump\u2019s Executive Proclamation Unleashing American Commercial Fishing in th",
+      "published_at": "2026-04-03 12:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "afcdb90c-7544-4835-8423-ef9206a0ef9a",
+      "agency": "home.treasury.gov",
+      "title": "Treasury Announces the United States\u2019 Immediate Withdrawal from the Green Climate Fund",
+      "summary": "WASHINGTON \u2013 In alignment with the Trump Administration\u2019s decision to withdraw from the UN Framework Convention on Climate Change (UNFCCC), the U.S. Department of the Treasury has notified the Green Climate Fund (GCF) that the United States is withdrawing from the Fund and stepping down from its seat on the GCF Board, effective immediately.\u201cOur nation will no longer fund radical organizations like the GCF whose goals run contrary to the fact that affordable, reliable energy is fundamental to economic growth and poverty reduction,\u201d said U.S. Secretary of the Treasury Scott Bessent.The Trump Administration is committed to advancing all affordable and reliable sources of energy, which are fundamental to economic growth and poverty reduction. The GCF was established to supplement the objectives of the UNFCCC, and continued participation in the GCF has been determined to no longer be consistent with the Trump Administration\u2019s priorities and goals.###",
+      "published_at": "2026-01-08 14:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b169157f-8a57-405d-9643-884dd40b1def",
+      "agency": "www.irs.gov",
+      "title": "A recap of the 2025 Summer Security Summit series",
+      "summary": "Tax Tip 2025-63, Sept. 18, 2025 \u2014 Summer and the Protect Your Clients; Protect Yourself campaign may have come to an end, but that doesn\u2019t mean scams and schemes take a break.",
+      "published_at": "2025-09-16 21:31:08+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b321a38f-0b7b-4fb4-8a6a-039c1f841096",
+      "agency": "www.ntsb.gov",
+      "title": "NTSB Issues Urgent Recommendation on Learjet Landing Gear",
+      "summary": "",
+      "published_at": "2025-10-29 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b3f4a409-4aa1-4e90-bddf-e33585e84f39",
+      "agency": "www.sec.gov",
+      "title": "SEC Announces Four New Members of Investor Advisory Committee",
+      "summary": "The Securities and Exchange Commission today announced four new members to fill vacancies on its Investor Advisory Committee. Three of the four new members will serve four-year terms, while the fourth new member will serve as the\u2026",
+      "published_at": "2026-06-01 16:39:44+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b4ae30b1-56a6-49d6-9316-9de3be33209b",
+      "agency": "fsapartners.ed.gov",
+      "title": "(GENERAL-26-24) Volume 2 Now Available [2025\u201326 Federal Student Aid Handbook]",
+      "summary": "",
+      "published_at": "2026-04-10 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b5f6ebfb-baea-4a1b-ba01-fc577439e1bb",
+      "agency": "search.cdc.gov",
+      "title": "CDC warns of Listeria outbreak linked to reques\u00f3n/soft ricotta cheese",
+      "summary": "CDC public health news, press releases, government public health news, medical and disease news, story ideas, photos.",
+      "published_at": "2026-06-05 18:49:31+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b7d49522-96f8-401b-ad5b-2c39ddddd506",
+      "agency": "www.epa.gov",
+      "title": "EPA Announces $2.4 Million in Grants to Assess and Cleanup Communities in North Carolina | US EPA",
+      "summary": "Washington \u2013 Today, U.S. Environmental Protection Agency (EPA) announced the awarding of $2.4 million in Brownfields Multipurpose, Assessment and Cleanup (MAC) grants to accelerate the cleanup of polluted sites across North Carolina.",
+      "published_at": "2026-06-24 18:19:25+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b82d9326-7837-4cc5-8e93-7435b5d39c24",
+      "agency": "www.sec.gov",
+      "title": "SEC Establishes Joint Data Standards as Required Under the Financial Data Transparency Act of 2022",
+      "summary": "The U.S. Securities and Exchange Commission established joint data standards under the Financial Data Transparency Act of 2022. The final rule establishes technical standards for data submitted to certain financial regulatory agencies. Eight additional\u2026",
+      "published_at": "2026-06-08 14:36:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917",
+      "agency": "www.ftc.gov",
+      "title": "FTC Sends More Than $10.9 Million to Consumers Harmed by Credit Repair Pyramid Scheme",
+      "summary": "The Federal Trade Commission is sending more than $10.9 million to consumers harmed by a credit repair operation known by multiple names including Financial Education Services (FES), United Wealth",
+      "published_at": "2026-03-17 14:58:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "ba874312-6404-435c-befb-8bed1048db85",
+      "agency": "www.fda.gov",
+      "title": "FDA Issues Guidance to Improve Collection of Pregnancy Safety Data for Drugs and Biologics",
+      "summary": "The U.S. Food and Drug Administration today issued a final guidance for industry, Postapproval Pregnancy Safety Studies, with recommendations on different methodologies that can be used in the postapproval setting to study the safety of drugs and biological products when used during pregnancy.",
+      "published_at": "2026-05-08 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "bc30930d-2fa1-4fae-b9b6-26689c924a85",
+      "agency": "www.state.gov",
+      "title": "Congratulating Costa Rica\u2019s President-Elect Laura Fern\u00e1ndez Delgado\u2019s Electoral Victory - United States Department of State",
+      "summary": "The United States congratulates President-Elect Laura Fern\u00e1ndez Delgado of Costa Rica on her clear electoral victory. Under her leadership, we are confident Costa Rica will continue to advance shared priorities to include combatting narco-trafficking, ending illegal immigration to the United States, promoting cybersecurity and secure telecommunications, and strengthening economic ties. The United States looks forward [\u2026]",
+      "published_at": "2026-02-02 05:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "c38cb894-9280-4276-a27e-a1244f2ec437",
+      "agency": "www.cftc.gov",
+      "title": "Commission Staff Confirms the Categorization of Certain Crypto Asset Perpetuals as Foreign Futures and Issues No-Action Letter Regarding FCM Transfers of Customer Crypto Assets to Foreign Brokers as Margin",
+      "summary": "The Market Participants Division of the Commodity Futures Trading Commission today announced it has issued an interpretation and a no-action position in response to a request from Coinbase Financial Markets, Inc., a registered futures commission merchant.",
+      "published_at": "2026-05-29 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "c4b414da-0d36-4873-8a84-b0fbcb085f52",
+      "agency": "news.va.gov",
+      "title": "Revolutionizing cancer treatment for Veterans",
+      "summary": "Veterans battle liver cancer with groundbreaking histotripsy at Houston VA, offering non-invasive, hope-filled cancer treatment.",
+      "published_at": "2026-01-16 15:30:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "c584a9fb-5d60-4cf6-8e97-26e4de5a370d",
+      "agency": "www.cftc.gov",
+      "title": "CFTC Sues Kentucky to Prevent Violation of CFTC\u2019s Exclusive Jurisdiction",
+      "summary": "The Commodity Futures Trading Commission today filed a lawsuit against Kentucky to block the state\u2019s efforts to shut down CFTC-registered contract markets using state laws.",
+      "published_at": "2026-06-23 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "c662c7c4-8c23-41fb-8321-04641850aed2",
+      "agency": "ncbiinsights.ncbi.nlm.nih.gov",
+      "title": "NCBI Will Retire rsync Support for FTP Downloads on June 1, 2026",
+      "summary": "To ensure the security and long-term stability of our data delivery infrastructure, NCBI will discontinue support for the rsync protocol on June 1, 2026. After June 1, attempts to connect to ftp.ncbi.nlm.nih.gov using rsync will fail. What do you need to do? Please review your automated scripts and pipelines for any rsync calls and replace them with alternative tools. FTP and HTTPS access will remain available, but if you\u2019re using rsync you \u2026 Continue reading NCBI Will Retire rsync Support for FTP Downloads on June 1, 2026 \u2192",
+      "published_at": "2026-03-25 15:04:57+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "c7de6a33-19c8-4cf6-a490-dd227e9ddad7",
+      "agency": "home.treasury.gov",
+      "title": "Secretary Bessent Delivers Remarks Before the Ministerial on the Resurgence of Political Terrorism",
+      "summary": "As prepared for delivery.Good morning. Thank you, Secretary Rubio, for convening this ministerial and for the invitation to be here.We are here together because the resurgence of political terrorism, transnational in design and far-left in doctrine, is no longer the concern of any one nation. It demands a response that draws upon the distinct and combined strengths of every government represented here today.Ours begins where every campaign of terror does: its financial lifeblood. And at President Trump\u2019s direction, the United States Treasury is bringing the full weight of our authorities to defend the integrity of the U.S. and global financial systems.More than twenty years ago, in the wake of 9/11, Treasury became the first finance ministry in the world to establish an office dedicated to disrupting the funding networks of terrorist organizations. Treasury\u2019s Office of Terrorism and Financial Intelligence, referred to as TFI, was created in recognition of the reality that America\u2019s financial system is essential to its national security. TFI\u2019s mandate to identify, disrupt, and disable illicit foreign funds that threaten our homeland has become one of the Treasury\u2019s defining responsibilities. And today, we are extending that abiding mission to meet an evolving threat.The resurgence of organized political terrorism has long occupied a blind spot. The international community has struggled to identify this danger, much less to defeat it. But as the threat of terrorism evolves, the institutions and tools that defend against it must adapt.We once understood terrorism principally a",
+      "published_at": "2026-07-16 13:35:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "ca92e9f0-8341-4818-9f0d-389a33f435b1",
+      "agency": "www.nps.gov",
+      "title": "Tourism to Cape Cod National Seashore contributes $754 million to local economy - Cape Cod National Seashore (U.S. National Park Service)",
+      "summary": "",
+      "published_at": "2025-09-26 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "d04f952f-174d-4880-a6ef-4bd1e426cb0c",
+      "agency": "fsapartners.ed.gov",
+      "title": "(ANN-26-03) Live Internet Webinars \u2013 One Big Beautiful Bill Act Webinar Series Begins April 2026",
+      "summary": "",
+      "published_at": "2026-04-01 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "d1b54efb-334d-4389-b9ac-7a75cd545ae9",
+      "agency": "www.csb.gov",
+      "title": "U.S. Chemical Safety Board Issues Investigation Update on Fatal October 2025 Explosions at Accurate Energetic Systems in McEwen, Tennessee",
+      "summary": "",
+      "published_at": "2026-03-16 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "d254af57-c8e2-456e-b69c-10034f4a8c62",
+      "agency": "www.fema.gov",
+      "title": "FEMA Approves More than $11.1 Million to Support Community Resilience and Recovery in Arizona, Guam and Hawai'i",
+      "summary": "FEMA Approves More than $11.1 Million to Support Community Resilience and Recovery in Arizona, Guam and Hawai'i Oakland, Calif.\u2014 Today, FEMA announced more than $11.1 million to help Arizona, Guam and Hawai'i strengthen community resilience, restore critical infrastructure and invest in mitigation measures to reduce future disaster damage. This funding is part of the $584 million approved nationwide through FEMA\u2019s Building Resilient Infrastructure and Communities, Public Assistance and Hazard Mitigation Grant Programs. These programs help states, local communities, tribes and territories to rebuild safer communities and protect infrastructure from future events. The funding supports President Donald J. Trump\u2019s commitment to improving federal disaster assistance and investing in projects that protect Americans. FEMA is awarding $9.6 million in Building Resilient Infrastructure and Communities funding for eligible pre-disaster and hazard mitigation activities to promote resilience and reduce future disaster costs. Examples of Building Resilient Infrastructure and Communities projects include: Nearly $8.3 million to Hawai'i for the purchase of a generator to power essential community facilities in the Ko\u2018olaupoko region during long outages. $600,000 to Guam to fund planning-related activities to reduce the risk of flooding in Tamuning. Nearly $402,000 to Arizona to evaluate facilities to identify mitigation actions to reduce the risk of flooding in Prescott. More than $300,000 to the Havasupai Tribe to fund warning systems to reduce the risk of flooding in Supai and save lives",
+      "published_at": "2026-07-09 16:00:58+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "d390909a-ef00-450b-b7fd-794c058bf1c0",
+      "agency": "www.epa.gov",
+      "title": "EPA Seeks Public Comment on Draft Guidance for Reducing Risk from PFOA and PFOS in Biosolids to Make America Healthy Again | US EPA",
+      "summary": "The U.S. Environmental Protection Agency (EPA) is releasing draft guidance to help wastewater utilities, landowners, and the public reduce risk from PFOA and PFOS in biosolids.",
+      "published_at": "2026-07-01 16:16:54+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "d3b3b489-6d32-4bdf-9078-d8fefb95d359",
+      "agency": "www.justice.gov",
+      "title": "Coordinated Law Enforcement Actions Results in Arrests of Seven Men in Connection with Fraudulent COVID-19 Relief Loan Applications",
+      "summary": "As a result of coordinated law enforcement actions in three states, seven men have been arrested and indicted in connection with submitting fraudulent COVID-19 relief loan applications administered by the U.S. Small Business Administration (SBA) Paycheck Protection Program (PPP) and Economic Injury Disaster Loan (EIDL) program, totaling $205,639 in fraudulent loan proceeds. The",
+      "published_at": "2026-06-12 15:46:13+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "dc15779e-e52e-4c0e-a8fa-08732443e683",
+      "agency": "www.csb.gov",
+      "title": "U.S. Chemical Safety Board Releases Final Report on Fatal 2024 Explosion at Givaudan Facility in Louisville, Kentucky",
+      "summary": "",
+      "published_at": "2026-05-27 04:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "ddd61e79-8b31-49e2-9307-728e1a31d152",
+      "agency": "www.irs.gov",
+      "title": "2025 Adoption Tax Credit - YouTube video text script",
+      "summary": "2025 Adoption Tax Credit - YouTube video text script",
+      "published_at": "2026-02-06 20:52:08+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358",
+      "agency": "www.weather.gov",
+      "title": "AI in Hurricane Forecasting at the National Hurricane Center: A Q&A with NHC Science Operation Officer Wallace Hogsett",
+      "summary": "",
+      "published_at": "2026-02-12 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "e1f30c9d-5b14-43f9-9332-9eeeefdd1681",
+      "agency": "web.archive.org",
+      "title": "Employment Situation News Release",
+      "summary": "",
+      "published_at": "2026-06-05 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "e719f990-19f6-45c3-9e01-e8ebf7488ba8",
+      "agency": "www.uscis.gov",
+      "title": "USCIS Report Uncovers Significant Abuses in the Special Immigrant Juvenile Program",
+      "summary": "Today U.S. Citizenship and Immigration Services published a report identifying significant national security and integrity vulnerabilities in the Special Immigrant Juvenile program.",
+      "published_at": "2025-07-24 20:19:09+00:00",
+      "entities": [
+        "abuses",
+        "immigrant",
+        "juvenile",
+        "significant",
+        "special",
+        "uncovers"
+      ],
+      "event_keys": []
+    },
+    {
+      "entry_id": "e7f7dbc6-2a87-4968-82dd-895f4f786b7f",
+      "agency": "inciweb.wildfire.gov",
+      "title": "News Willow Fire Daily Update 07-14-2026 | InciWeb",
+      "summary": "Willow Fire Daily Update 07-14-2026 News for the InciWeb.",
+      "published_at": "2026-07-14 00:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "e8f64cbe-5189-49cd-b160-e81315970aa0",
+      "agency": "www.justice.gov",
+      "title": "Justice Department Supports Seattle\u2019s Motion to Terminate Police Department Consent Decree",
+      "summary": "The Justice Department\u2019s Civil Rights Division today announced that it has filed a response in support of the City of Seattle\u2019s Motion to Terminate the Consent Decree in United States v. City of Seattle. The decree required reforms in the Seattle Police Department\u2019s practices regarding use of force, crisis intervention, stops and detentions, supervision and accountability. With",
+      "published_at": "2025-07-23 20:12:24+00:00",
+      "entities": [
+        "city",
+        "civil",
+        "consent",
+        "decree",
+        "division",
+        "justice",
+        "motion",
+        "police",
+        "rights",
+        "seattle",
+        "supports",
+        "terminate"
+      ],
+      "event_keys": []
+    },
+    {
+      "entry_id": "eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee",
+      "agency": "about.usps.com",
+      "title": "New Member Appointed to Citizens\u2019 Stamp Advisory Committee",
+      "summary": "WASHINGTON \u2014 The U.S. Postal Service today announced the appointment of Susana Rodriguez de Tembleque, a technology executive and creative director, to the Citizens\u2019 Stamp Advisory Committee, or CSAC.",
+      "published_at": "2026-01-23 19:12:04+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "ef7b0d31-745a-48c0-8514-608f3f8bfd57",
+      "agency": "www.osha.gov",
+      "title": "US Department of Labor proposes more than $1M fine following worker fatality at New Jersey vegetable processing facility",
+      "summary": "",
+      "published_at": "2025-11-24 05:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "f0d6b457-fd6b-4ab9-889c-6c8b03beff28",
+      "agency": "www.irs.gov",
+      "title": "Treasury, IRS issue FAQs to address the new deduction for qualified overtime compensation under the One, Big, Beautiful Bill",
+      "summary": "IR-2026-10, Jan. 23, 2026 \u2014 The Department of the Treasury and the Internal Revenue Service today issued frequently asked questions in Fact Sheet 2026-01 related to the new deduction for qualified overtime compensation under the One, Big, Beautiful Bill.",
+      "published_at": "2026-01-23 13:30:59+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "f179ec2e-2d4d-4e5a-896b-e0ac74a80b25",
+      "agency": "www.fda.gov",
+      "title": "FDA Approves Labeling Changes to Menopausal Hormone Therapy Products",
+      "summary": "The U.S. Food and Drug Administration has approved drug labeling changes to six menopausal hormone therapy products, also known as hormone replacement therapy (HRT), to clarify risk considerations for these drugs.",
+      "published_at": "2026-02-12 05:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "f78b1d87-a697-4c82-8725-9bcd8bf41930",
+      "agency": "www.fema.gov",
+      "title": "FEMA Authorizes Funds to Fight Colorado\u2019s Willow Fire",
+      "summary": "FEMA Authorizes Funds to Fight Colorado\u2019s Willow Fire This afternoon, FEMA authorized the use of federal funds to help with firefighting costs for the Willow Fire burning in Lake County, Colorado about 5 miles west of Leadville. FEMA Region 8 approved the state\u2019s request for a federal Fire Management Assistance Grant (FMAG) after receiving the request earlier today and determining that the fire threatened such destruction that it would constitute a major disaster.At the time of the request, the Willow Fire was threatening more than 840 homes with more than 400 people under evacuation orders. The Willow Fire started on June 28, 2026 and has burned nearly 4000 acres. The fire is 1-percent contained and is one of four major wildfires currently burning in Colorado.The authorization makes FEMA funding available to pay 75 percent of the state\u2019s eligible firefighting costs under an approved grant for managing, mitigating and controlling designated fires. These grants do not provide assistance to individual home or business owners and do not cover other infrastructure damage caused by the fire.Fire Management Assistance Grants are provided through the President's Disaster Relief Fund and are made available by FEMA to assist in fighting fires that threaten to cause a major disaster. Eligible items can include expenses for field camps; equipment use, repair and replacement; mobilization and demobilization activities; and tools, materials and supplies. For more information on FMAGs, visit https://www.fema.gov/fire-management-assistance-grants-program-details. morgan.dzakowic Sun, 07/0",
+      "published_at": "2026-07-05 20:12:37+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "f94a3c2f-0ff3-4a03-9553-55d1e88431b8",
+      "agency": "web.archive.org",
+      "title": "Closing the National Center for Disaster Fraud",
+      "summary": "Today, the Justice Department announced the closure of the National Center for Disaster Fraud (NCDF), effective March 31, 2026.",
+      "published_at": "2026-03-31 12:00:00+00:00",
+      "entities": [],
+      "event_keys": []
+    },
+    {
+      "entry_id": "fea40eef-f553-416f-9ea2-5d9bde234731",
+      "agency": "about.usps.com",
+      "title": "USPS announces additional stamps and release locations for 2026",
+      "summary": "WASHINGTON \u2014 The U.S. Postal Service today announced several new stamp issues to be released later in this year, along with dates and locations for many of the announced stamps. These designs are preliminary and may change.",
+      "published_at": "2026-06-29 12:51:47+00:00",
+      "entities": [],
+      "event_keys": []
+    }
+  ]
+}

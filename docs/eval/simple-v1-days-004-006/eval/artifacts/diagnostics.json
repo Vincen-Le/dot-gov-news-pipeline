@@ -1,0 +1,57 @@
+{
+  "chains": {
+    "2d7c9bf9-79cc-4c8a-9af4-542499961e8e": {
+      "consecutive_cosine": [
+        0.8818
+      ],
+      "entity_overlap": [
+        4
+      ]
+    },
+    "30ced07a-21c9-4753-bbcb-b895a9213040": {
+      "consecutive_cosine": [
+        0.7488
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "3d36f83b-4624-412f-b3ba-f95564f2d8e1": {
+      "consecutive_cosine": [
+        0.6737
+      ],
+      "entity_overlap": [
+        0
+      ]
+    },
+    "40f3c0e5-e3b4-494f-8f33-478988bd4198": {
+      "consecutive_cosine": [
+        0.7761,
+        0.7975
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "7af8300d-35c0-44f5-9083-46bf23d02e09": {
+      "consecutive_cosine": [
+        0.7844
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "ae6f94d1-b42d-4580-9ed1-8ac6009da3b9": {
+      "consecutive_cosine": [
+        0.6429
+      ],
+      "entity_overlap": [
+        1
+      ]
+    }
+  },
+  "theme_cohesion": {
+    "f13a8946-2865-4321-b526-8660094adbc0": 0.8302483061949412
+  }
+}

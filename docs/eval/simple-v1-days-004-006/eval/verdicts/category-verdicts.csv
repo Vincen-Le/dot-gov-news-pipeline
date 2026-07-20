@@ -1,0 +1,151 @@
+storyline_id,theme_id,filed_category,verdict,suggested_category,reason
+03d4c63f-b7e2-4d2a-b16b-ccbb1e3191f2,,Public Lands & Natural Resources,correct,,Amphibian conservation and habitat management fits natural resources.
+06218f7f-8cf6-4d1c-8132-3c81cdad5a19,,Financial Regulation,correct,,SEC market structure rulemaking is core financial regulation.
+064070aa-56b3-4f7b-9c05-ff4cb168d9e9,,Financial Regulation,correct,,Stablecoin regulatory statute fits financial regulation.
+06e3dd81-277a-48bc-b1af-09270dc3f02e,,Public Lands & Natural Resources,ambiguous,Justice & Law Enforcement,Wildlife Lacey Act plus federal guilty plea are both defensible.
+0703aa86-e150-4438-ab02-c4f6077bc5d1,,Veterans Affairs,correct,,Veteran job listings fit veterans affairs.
+09926b22-8867-41c8-aedf-a4692885c9a5,,Veterans Affairs,correct,,VA research office findings fit veterans affairs.
+0b380d8d-d3bd-4a55-9b57-c34a1672ef97,,Public Lands & Natural Resources,correct,,Mineral recovery from mine waste fits natural resources.
+0bb6fc42-03c5-4399-b516-9f67940f7abf,,Energy & Environment,correct,,EPA brownfields remediation grants fit environment.
+0be7a9c8-814e-4338-9623-b164304fe67c,,Energy & Environment,correct,,EPA brownfields cleanup funding fits environment.
+10a5879a-b278-4d40-9b47-799456eb4be2,,Justice & Law Enforcement,correct,,Criminal sentencing for sanctions violation fits law enforcement.
+11ae6748-ab78-428a-966a-2c285ecc08db,,Food & Drug Safety,correct,,Ultra-processed food health risk effort fits food safety.
+12217909-4764-4310-b395-a7b74377d38c,,Transportation & Infrastructure,correct,,Air taxi aviation communications fit transportation.
+12a28a96-fccb-49c0-b861-b44b73c02264,,Economy & Labor,correct,,BLS earnings statistics fit economy and labor.
+12b08d4e-5007-4b5a-9a78-b7d9acec0358,,Disaster Response & Emergency,correct,,Fire response and visitor caution fit emergency response.
+13a11020-9d66-403d-9614-d46facd8bf16,,Energy & Environment,correct,,EPA environmental programs policy fits environment.
+13acfb3e-f7ab-4e24-a746-fde4b6586c39,,Foreign Affairs & Trade,correct,,State Department sanctions on foreign network fit foreign affairs.
+1497df54-9a20-40a9-a9e3-bcb1a3f7a4e6,,Social Security & Benefits,correct,,SSA service delivery fits social security.
+16fbc60a-f842-4643-9e34-3076b668c716,,Science & Space,correct,,Satellite Earth observation anniversary fits science and space.
+180dcffa-71b8-473a-bb90-6bc7872d051f,,Education,correct,,Federal student loan provisions fit education.
+1accb395-d6e6-408a-a3e3-a4059dddbf13,,Science & Space,correct,,Landsat satellite archive milestone fits science and space.
+1be46a24-60ce-433d-8366-2cb35559f105,,Energy & Environment,correct,,River flow and aquatic ecosystem study fits environment.
+1caf2c91-dc89-445e-a386-1206aa37d8d2,,Science & Space,correct,,NASA Artemis staff profile fits science and space.
+1e12aedf-c375-46ee-97f8-5178ff6506d1,,Public Lands & Natural Resources,correct,,NPS trail activity booklet fits public lands.
+2052edab-f13e-41c4-8f32-291555d1589e,,Food & Drug Safety,correct,,FDA food dye removal fits food safety.
+23570b58-7db7-48f2-8b66-ecc9f4c79478,,Foreign Affairs & Trade,correct,,US withdrawal from UNESCO fits foreign affairs.
+23a229eb-ba81-43cf-aea6-6a8663c6124d,,Public Lands & Natural Resources,correct,,Exhibit at a national historical park fits public lands.
+27774b33-19b1-4908-a79f-b090ea47fecb,,Foreign Affairs & Trade,correct,,Release of detained Americans abroad fits foreign affairs.
+27beaab2-1a94-4f68-a18a-7c5338443a18,,Foreign Affairs & Trade,correct,,Diplomatic congratulatory message fits foreign affairs.
+2c2979a2-7eff-48ef-b6a7-109bbe2ee622,,Economy & Labor,better_option_exists,Elections & Government Operations,Postal Service product is a government operation not economy.
+2ca400d4-25ad-4c67-b397-691cb9b296c5,,Science & Space,correct,,NASA-derived textile spinoff fits science and space.
+2d7c9bf9-79cc-4c8a-9af4-542499961e8e,,Disaster Response & Emergency,correct,,FEMA storm recovery assistance fits emergency response.
+3096d7d1-1dac-4f0d-a3f6-2e67c8ea5d1f,,Civil Rights & Liberties,correct,,Title VI discrimination probe fits civil rights.
+30ced07a-21c9-4753-bbcb-b895a9213040,,Veterans Affairs,correct,,VA transition program fits veterans affairs.
+314246bf-3c06-4ad3-afe3-15bf3bb834c5,,Veterans Affairs,correct,,VA veteran wellness episode fits veterans affairs.
+333b4dfc-538a-4f0b-9afb-e5551c468495,,Financial Regulation,correct,,FinCEN AML rule delay fits financial regulation.
+334f332d-74d5-4da7-b6cf-22d7f84ee0f1,,Financial Regulation,correct,,SEC audit regulator appointment fits financial regulation.
+35e0c1fe-e71f-4436-860f-85fb10b107dc,,Financial Regulation,correct,,Bank capital rule reform fits financial regulation.
+36c8cb75-65bc-43df-b61c-1f0e151c0586,,Science & Space,correct,,NASA student spacesuit challenge fits science and space.
+36d6f9a1-62f3-4dd1-bb19-82194928538b,,Taxes & Revenue,ambiguous,Justice & Law Enforcement,Tax shelter crime fits both taxes and law enforcement.
+3963a1e1-9930-4cb7-808b-c47bf5ddac67,,Veterans Affairs,correct,,VA travel reimbursement fits veterans affairs.
+3b39d67f-4a91-492c-855e-bd9977c032b8,,Public Lands & Natural Resources,correct,,Grounding at a national seashore fits public lands.
+3d36f83b-4624-412f-b3ba-f95564f2d8e1,,Energy & Environment,ambiguous,Science & Space,Volcano observatory monitoring fits both environment and science.
+40d08579-f093-44e6-82ff-028e98ce6cb7,,Civil Rights & Liberties,correct,,Civil rights division lawsuit dismissal fits civil rights.
+40f3c0e5-e3b4-494f-8f33-478988bd4198,f13a8946-2865-4321-b526-8660094adbc0,Foreign Affairs & Trade,correct,,Rubio bilateral meeting fits foreign affairs.
+43244048-cd39-4bdc-9bb3-2421c75c0530,,Public Lands & Natural Resources,correct,,NPS park repairs fit public lands.
+44391e2b-12b4-4262-ae48-7c04c4577595,,Agriculture,correct,,USDA farmer disaster aid fits agriculture.
+48abbc3b-a639-4ca6-ad92-b0da6ca2fbc3,,Justice & Law Enforcement,correct,,Guilty plea for threatening communication fits law enforcement.
+499ae611-eb4f-41cc-891b-0683dfa75d94,,Justice & Law Enforcement,ambiguous,Elections & Government Operations,Confirmation of a financial-intelligence official fits both.
+4a1ee998-f2a6-4152-95f6-72a1492d22a2,f13a8946-2865-4321-b526-8660094adbc0,Foreign Affairs & Trade,correct,,Rubio partnership call fits foreign affairs.
+4a24e587-9e7f-4a7c-9061-828595180b42,,Food & Drug Safety,correct,,FDA gene therapy safety hold fits drug safety.
+4a87f301-3a48-4c3b-9758-b25b08a37c2b,,Science & Space,correct,,Astronomy discovery fits science and space.
+5138722f-1c94-497c-b43b-f4270a5a5c41,,Foreign Affairs & Trade,correct,,Beef export market access is a trade outcome.
+5184a6b9-16e4-4f5b-9631-0018bf7a9cfd,,Veterans Affairs,correct,,National veterans games fit veterans affairs.
+52ce780b-51f1-4617-aca5-d61c57e0b532,,Energy & Environment,ambiguous,Science & Space,USGS coastal science briefs fit both environment and science.
+57d85726-be23-4d3d-8c96-26a89004dcd3,,Food & Drug Safety,correct,,FDA drug center director appointment fits drug safety.
+584872ed-3e8d-4dbf-b683-dbf7271a6fa8,f13a8946-2865-4321-b526-8660094adbc0,Foreign Affairs & Trade,correct,,Rubio call on infrastructure attacks fits foreign affairs.
+5b6eca2c-7820-42c4-becc-6b93ee5ee6a7,,Foreign Affairs & Trade,correct,,Diplomatic national day message fits foreign affairs.
+5bfceb17-7238-4d93-b342-c1c374d189ca,,Taxes & Revenue,correct,,IRS business account reminder fits taxes.
+5c5eb34b-8a4a-4b8c-9bc0-61241711d1ba,,Education,correct,,Student loan default report fits education.
+5db4d7d2-fa8e-49a0-baa6-e281ea1ca99a,,Science & Space,correct,,NASA-ISRO satellite launch fits science and space.
+61588017-9505-4c8b-ac31-0b518430e1bc,,Science & Space,correct,,NASA lunar communications solicitation fits science and space.
+6381235d-fdb2-4f51-b827-1cb8e3e13505,,Immigration & Border,correct,,H-1B visa cap fits immigration.
+6597c815-f131-46c7-a641-9b2542833051,,Science & Space,correct,,NASA visualization lab feature fits science and space.
+6663388e-46e6-4933-a2d0-1c83a3e0c932,,Justice & Law Enforcement,correct,,Child exploitation guilty plea fits law enforcement.
+69cbb205-d96c-4064-b8de-524e7a6f0653,,Agriculture,correct,,USDA farmers market celebration fits agriculture.
+6d852af9-b40e-4083-a917-8da404c2508c,,Public Lands & Natural Resources,correct,,NPS visitor center reopening fits public lands.
+713bcad3-f64d-4fc0-a492-10ca608bdeb2,,Public Lands & Natural Resources,correct,,NPS lake level forecast fits public lands.
+71ce17c0-7e63-4d0b-ae55-db8e3cb19f33,,Science & Space,correct,,Lunar mineral map for NASA fits science and space.
+723500cd-a8d3-4f77-88a9-29449d32b67d,,Justice & Law Enforcement,correct,,FTC scam refund enforcement fits law enforcement.
+72a27148-8d66-49b1-8449-9cec4e7e636a,,Science & Space,correct,,NASA virtual reality lab fits science and space.
+739822df-795f-4145-a88e-f6295aecb4b8,,Public Lands & Natural Resources,correct,,Reservoir water resource challenge fits natural resources.
+749336ec-f7c3-4ed2-8cdb-1d63e922fe32,,Energy & Environment,correct,,EPA Superfund cleanup fits environment.
+75bdeb54-7554-4465-9800-78ea2eb6754e,,Education,correct,,University program eligibility probe fits education.
+7610d044-c460-4809-9ddc-712c53f6c030,,Financial Regulation,correct,,CFTC no-action letter fits financial regulation.
+7617cf5a-77b3-41b5-a3c4-f5a63ca08318,,Foreign Affairs & Trade,correct,,State Department maritime security conference fits foreign affairs.
+7674de13-bd5e-49f3-9611-65cb259af781,,Energy & Environment,correct,,EPA areas of concern summit fits environment.
+775073fd-ca2b-4264-b65a-17fa41c4212f,,Justice & Law Enforcement,ambiguous,Taxes & Revenue,IRS fraud sentencing fits both law enforcement and taxes.
+79829058-ad49-4fb2-82e1-903fd1e2733d,,Science & Space,correct,,NASA deep space fuel test fits science and space.
+7ad47d1a-4cf7-4fef-8f29-d7c3b9336dd1,,Civil Rights & Liberties,ambiguous,Justice & Law Enforcement,DOJ release of MLK files fits both civil rights and justice.
+7ae2b9d1-26f3-49c9-87c2-65bfb7ac4cc6,,Science & Space,correct,,AI seismic detection research fits science and space.
+7af8300d-35c0-44f5-9083-46bf23d02e09,,Elections & Government Operations,correct,,Postal Service anniversary fits government operations.
+7b1d713a-199b-4ab1-b3da-7a3eb6bb2a0f,,Public Lands & Natural Resources,correct,,Geologic mapping for minerals fits natural resources.
+7c7681e0-c53a-493b-887b-3e118218cadb,,Science & Space,correct,,NASA spacecraft camera repair fits science and space.
+7e0d574b-8526-40fe-ae7c-a671d85ee511,,Economy & Labor,correct,,State employment data fits economy and labor.
+8152dc45-8b6e-4aa2-a214-112cdf6a2e97,,Public Lands & Natural Resources,correct,,National park events fit public lands.
+8248dd9b-4c9a-4f38-9810-a3adabefff92,,Foreign Affairs & Trade,correct,,Secretary schedule with foreign minister fits foreign affairs.
+8249d526-0fdf-4edf-bd46-f5a96c9ab47b,,Public Lands & Natural Resources,correct,,NPS parkway reopening fits public lands.
+825e60a2-1157-47b3-8590-4374adfe68ac,,Science & Space,correct,,Scientific database tool upgrade fits science.
+83c994c6-049a-4ca4-ade4-07d293442c4e,,Justice & Law Enforcement,correct,,Gang racketeering indictment fits law enforcement.
+868eacb0-2b40-4dc1-9944-ae3831e6e878,,Veterans Affairs,correct,,VA health screening tool fits veterans affairs.
+89fa691a-5cad-41dc-b2b2-b973f39eb655,,Justice & Law Enforcement,correct,,Police consent decree matter fits law enforcement.
+91f89fba-3147-4b9b-8c90-27aaaf2b897f,,Public Lands & Natural Resources,ambiguous,Courts & Legal Rulings,Court water contract ruling fits both natural resources and courts.
+92f3638c-8b79-439e-83ad-dc73a965b548,,Immigration & Border,correct,,USCIS director appointment fits immigration.
+95b9073c-bdbb-4767-90bf-6beddb2f164b,,Justice & Law Enforcement,correct,,COVID relief fraud sentencing fits law enforcement.
+9c056b74-160e-4a63-b0b6-8c39d147e315,,Economy & Labor,correct,,JOLTS labor data fits economy and labor.
+9cb7e86b-eb94-4db0-87ab-29994999bb6f,,Justice & Law Enforcement,correct,,FTC debt-relief shutdown fits law enforcement.
+9cc18c85-257b-4ec7-b677-aeac74e22f75,,Science & Space,correct,,NASA cryogenic fuel test fits science and space.
+9edc4a89-6dcd-4f06-a95c-ff40caecb374,f13a8946-2865-4321-b526-8660094adbc0,Foreign Affairs & Trade,correct,,Rubio State Department interview fits foreign affairs.
+a1f7e7d3-2499-4352-afd9-77b0992afa0e,,Foreign Affairs & Trade,correct,,State Department schedule fits foreign affairs.
+a27e5f9e-45ae-4af6-83af-ab0853369ec2,,Justice & Law Enforcement,correct,,Theft ring guilty plea fits law enforcement.
+a67a2118-f213-41af-803d-49a81f4be393,,Education,correct,,Federal student aid reporting bulletin fits education.
+a891c37b-c119-43fe-a6f9-e10f040c446e,,Public Lands & Natural Resources,correct,,USGS elevation data fact sheet fits natural resources.
+aad3c1e1-9bbc-4eb2-97dd-a103fa0ce3c2,,Energy & Environment,ambiguous,Elections & Government Operations,EPA reorganization fits both environment agency and government operations.
+abd74d1d-f545-4da6-864d-d8f4f4a4706a,,Immigration & Border,correct,,USCIS fee update fits immigration.
+ae6f94d1-b42d-4580-9ed1-8ac6009da3b9,,Immigration & Border,correct,,Deportation of gang-linked residents fits immigration.
+afdf6645-b9eb-40a3-9c78-87ca2dc185ef,,Energy & Environment,correct,,Battery fire site cleanup fits environment.
+b127fefd-64d7-4c5b-9877-3e71d251b99c,,Science & Space,correct,,NASA flight simulator research fits science and space.
+b5c9883e-ba40-49e4-8e13-3a2fdbad68ca,,Justice & Law Enforcement,correct,,Sex trafficking indictment fits law enforcement.
+b954c5a8-eda7-4da9-afa6-fc104a5385df,f13a8946-2865-4321-b526-8660094adbc0,Foreign Affairs & Trade,correct,,Rubio diplomatic call fits foreign affairs.
+bb906d3b-6ff4-4065-a88d-ed4ebc583e3e,,Justice & Law Enforcement,correct,,DOJ records release fits law enforcement.
+bc1b61e6-ab85-4f4b-b0e6-a98d60502089,,Justice & Law Enforcement,correct,,Crypto forfeiture action fits law enforcement.
+bc703ca4-cf0e-4f9e-8940-f339ddfcf04f,,Science & Space,correct,,Volcanology reexamination fits science.
+bc7983a0-1045-41bf-a3d3-00d8f1e061ad,,Public Health,correct,,Addiction recovery story fits public health.
+c1f3ce2f-217a-45d6-a186-2eb470a31d38,,Foreign Affairs & Trade,correct,,Diplomatic national day statement fits foreign affairs.
+c2a63ec8-6b42-4bd8-bead-80d1d8a11b76,,Veterans Affairs,correct,,Veteran honor ceremony fits veterans affairs.
+c397e2d6-806f-4dc4-bb56-91eaea19bb9d,,Veterans Affairs,correct,,Veteran spotlight fits veterans affairs.
+c69e5a98-c79a-4e2e-b968-db268d123d36,,Economy & Labor,correct,,Labor department safety settlement fits economy and labor.
+c792e59a-9b46-490e-ae78-714a59adcc28,,Financial Regulation,correct,,CFTC no-action extension fits financial regulation.
+c7e69ba8-ab29-4cd0-a717-088b7eaa3f44,,Veterans Affairs,correct,,VA healthcare expansion fits veterans affairs.
+c868a9cf-09f3-40cb-84f7-90034709d850,,Justice & Law Enforcement,correct,,False Claims Act settlement fits law enforcement.
+c8775d7d-57fe-48cb-bfcb-3b52dfca77c2,,Public Lands & Natural Resources,correct,,NPS shoreline plan comment fits public lands.
+cce87ba3-277a-4d29-b302-ad4064dff3f0,,Taxes & Revenue,correct,,IRS filing assistance fits taxes.
+ceb809ed-ca43-483d-8d18-3b0437004f84,,Public Health,ambiguous,Foreign Affairs & Trade,IHR amendment rejection fits both public health and foreign affairs.
+d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e,,Science & Space,correct,,NASA crewed mission fits science and space.
+d29b6057-85b8-4e36-9af9-3eb751be7d6a,,Justice & Law Enforcement,correct,,Illegal streaming sentencing fits law enforcement.
+d315553c-4d46-4df8-978b-829a73b98805,,Public Lands & Natural Resources,correct,,Wildlife conservation award fits natural resources.
+d34ea3bc-7d71-4b94-95dc-a740c6130b19,,Energy & Environment,correct,,EPA Superfund presentation fits environment.
+d3c3f2e1-6e35-48db-9529-2ab40e53d8fc,,Economy & Labor,correct,,Workplace safety citation fits economy and labor.
+d57078c7-0a0b-462a-90c9-bc0c0e098127,,Public Lands & Natural Resources,correct,,Geologic imaging flights fit natural resources.
+d992b1ba-5726-491c-b97a-732f15467c28,,Foreign Affairs & Trade,correct,,Visa restrictions on foreign officials fit foreign affairs.
+d9b87b83-0fdb-4dd1-bb03-9e2294fe470e,,Justice & Law Enforcement,correct,,Trade secret theft prosecution fits law enforcement.
+dabf64dd-802e-4bdb-9328-055945969283,,Justice & Law Enforcement,ambiguous,Public Health,Antitrust drug price session fits both law enforcement and public health.
+dd6f246a-665d-4397-8e45-4cbf5c9b6e40,,Public Lands & Natural Resources,correct,,NPS battlefield event schedule fits public lands.
+df8de77c-84c0-4971-93ec-ea0ce99d0949,,Justice & Law Enforcement,correct,,Dark web CSAM sentencing fits law enforcement.
+e068a938-3b9b-4b76-8e6d-13cdfb8ba601,,Veterans Affairs,correct,,VA rural careers feature fits veterans affairs.
+e731241f-cb91-4f50-9797-3e4f5cc002a6,,Veterans Affairs,correct,,VA homeownership benefit piece fits veterans affairs.
+e9dbbe7e-bba3-4d90-aa25-6350a6cfaf0c,,Justice & Law Enforcement,ambiguous,Civil Rights & Liberties,Second Amendment rights rule fits both justice and civil rights.
+ec9d27d2-67c7-4a79-9c05-b4fcb59f36ab,,Foreign Affairs & Trade,correct,,Welcoming a peace declaration fits foreign affairs.
+ecf2fc42-be1d-4ad0-a853-480d12e86c96,,Science & Space,correct,,NASA satellite tech test fits science and space.
+edde8d88-6f99-4503-99c0-0400a027be2c,,Justice & Law Enforcement,ambiguous,Technology & Cybersecurity,Stalkerware app order fits both law enforcement and technology.
+efba6bd9-4bf3-46d1-9993-bca7fdfd034e,,Veterans Affairs,correct,,VA women veterans health support fits veterans affairs.
+f1c1e584-ce25-4229-b462-6a0cf6535c51,,Justice & Law Enforcement,correct,,MS-13 racketeering sentencing fits law enforcement.
+f1d6c031-dbdf-494a-9e41-8da6534bad55,,Justice & Law Enforcement,correct,,DOJ strike force review fits law enforcement.
+f661f897-1012-4bf2-80f4-6569719c632d,,Justice & Law Enforcement,correct,,Money laundering sentencing fits law enforcement.
+f8795edd-53fd-464a-a8ad-165ac216a4a4,f13a8946-2865-4321-b526-8660094adbc0,Foreign Affairs & Trade,correct,,Rubio partnership call fits foreign affairs.
+f958030f-388a-4e4c-a215-893df712d864,,Public Lands & Natural Resources,correct,,NPS historic site feature fits public lands.
+fa5d966f-5922-4e01-9189-6d44262bda10,,Science & Space,correct,,NASA relay satellite feature fits science and space.
+fd4f6bf0-cbe0-4b06-9ef9-beae525f8c0b,,Taxes & Revenue,ambiguous,Justice & Law Enforcement,Tax evasion sentencing fits both taxes and law enforcement.
+ad457488-f158-44e1-bbe0-d82362c26183,,Energy & Environment,correct,,EPA environmental soil review fits the environment category well.
+c3591b86-fdc5-43ae-a866-d5285bc8c9dd,,Foreign Affairs & Trade,correct,,Trilateral diplomatic partnership squarely belongs in foreign affairs.

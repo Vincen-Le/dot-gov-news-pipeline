@@ -1,0 +1,12 @@
+theme_id,storyline_id,fits,reason
+f13a8946-2865-4321-b526-8660094adbc0,a1f7e7d3-2499-4352-afd9-77b0992afa0e,0,"Routine daily schedule release; headline and entities do not name Rubio, failing the entity gate."
+f13a8946-2865-4321-b526-8660094adbc0,4a1ee998-f2a6-4152-95f6-72a1492d22a2,1,"Rubio conducts bilateral diplomacy with Suriname's president."
+f13a8946-2865-4321-b526-8660094adbc0,c3591b86-fdc5-43ae-a866-d5285bc8c9dd,0,"Deputy Secretary Landau, not Rubio, leads this trilateral meeting, failing the entity gate."
+f13a8946-2865-4321-b526-8660094adbc0,8248dd9b-4c9a-4f38-9810-a3adabefff92,1,"Rubio's schedule documents a diplomatic meeting with the Jordanian foreign minister."
+f13a8946-2865-4321-b526-8660094adbc0,0b380d8d-d3bd-4a55-9b57-c34a1672ef97,0,"Interior Department minerals initiative has no Rubio or diplomacy content."
+f13a8946-2865-4321-b526-8660094adbc0,40f3c0e5-e3b4-494f-8f33-478988bd4198,1,"Rubio meets the Philippine president on the US-Philippines alliance."
+f13a8946-2865-4321-b526-8660094adbc0,f8795edd-53fd-464a-a8ad-165ac216a4a4,1,"Rubio discusses the US-Djibouti strategic partnership with its president."
+f13a8946-2865-4321-b526-8660094adbc0,584872ed-3e8d-4dbf-b683-dbf7271a6fa8,1,"Rubio engages the Iraqi PM on energy infrastructure attacks."
+f13a8946-2865-4321-b526-8660094adbc0,7ad47d1a-4cf7-4fef-8f29-d7c3b9336dd1,0,"DOJ MLK file release has no Rubio or diplomacy content."
+f13a8946-2865-4321-b526-8660094adbc0,9edc4a89-6dcd-4f06-a95c-ff40caecb374,0,"Names Rubio but concerns internal State Department restructuring, not diplomatic engagement."
+f13a8946-2865-4321-b526-8660094adbc0,b954c5a8-eda7-4da9-afa6-fc104a5385df,1,"Rubio conducts bilateral diplomacy with the Ethiopian PM."
