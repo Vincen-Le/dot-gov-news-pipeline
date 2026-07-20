@@ -1,0 +1,19 @@
+entry_id,kind,token,valid,reason
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,abuses,0,generic noun not story-specific
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,immigrant,0,generic term in immigration corpus
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,juvenile,1,distinctive part of Special Immigrant Juvenile program
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,significant,0,generic adjective
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,special,0,generic adjective
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,uncovers,0,generic verb
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,city,0,generic noun
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,civil,0,generic term shared widely
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,consent,0,generic term alone
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,decree,1,consent decree is a distinctive identifier for this story
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,division,0,generic org term
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,justice,0,generic agency word
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,motion,0,generic legal term
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,police,0,generic term
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,rights,0,generic term shared widely
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,seattle,1,specific city is a salient discriminator
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,supports,0,generic verb
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,terminate,0,generic verb

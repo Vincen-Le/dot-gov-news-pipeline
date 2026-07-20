@@ -1,0 +1,51 @@
+entity,valid,reason
+park,0,generic geography noun shared across corpus
+sentenced,0,generic legal term shared across many crime stories
+rubio,1,named person is a salient discriminator
+veterans,0,generic term common across VA corpus
+guilty,0,generic legal term not story-specific
+justice,0,generic agency word shared widely
+schedule,0,generic noun
+tammy,1,named person Tammy Bruce is salient
+trump,0,name appears across half the corpus
+home,0,generic noun
+washington,0,bare geography shared widely
+rights,0,generic term shared widely
+scheme,0,generic term common in fraud stories
+marco,1,named person Marco Rubio is salient
+civil,0,generic term shared widely
+pleads,0,generic legal verb
+president,0,generic title
+prime,0,generic word from prime minister
+revenue,0,generic noun
+agreement,0,generic noun
+bruce,1,surname of named person is salient
+county,0,bare geography shared widely
+research,0,generic noun
+river,0,generic geography noun
+spokesperson,0,generic role noun
+valley,0,generic geography noun
+years,0,generic noun
+assistance,0,generic noun
+division,0,generic org term
+foreign,0,generic adjective
+launch,0,generic verb
+minister,0,generic title
+sanctions,0,generic recurring policy term
+site,0,generic noun
+administrator,0,generic title
+america,0,bare geography shared widely
+area,0,generic noun
+exchange,0,generic noun
+false,0,generic adjective
+internal,0,generic adjective
+investigation,0,generic term shared widely
+lake,0,generic geography noun
+market,0,generic noun
+money,0,generic noun
+network,0,generic noun
+republic,0,generic word from country names
+rollins,1,surname of named person is salient
+space,0,generic noun
+tests,0,generic noun
+trade,0,generic noun

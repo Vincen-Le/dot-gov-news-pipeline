@@ -1,0 +1,201 @@
+{
+  "chains": {
+    "0703aa86-e150-4438-ab02-c4f6077bc5d1": {
+      "consecutive_cosine": [
+        0.7933
+      ],
+      "entity_overlap": [
+        0
+      ]
+    },
+    "0bb6fc42-03c5-4399-b516-9f67940f7abf": {
+      "consecutive_cosine": [
+        0.9107
+      ],
+      "entity_overlap": [
+        4
+      ]
+    },
+    "2d7c9bf9-79cc-4c8a-9af4-542499961e8e": {
+      "consecutive_cosine": [
+        0.9362,
+        0.7234,
+        0.7392,
+        0.7815,
+        0.9755
+      ],
+      "entity_overlap": [
+        3,
+        0,
+        0,
+        0,
+        5
+      ]
+    },
+    "30ced07a-21c9-4753-bbcb-b895a9213040": {
+      "consecutive_cosine": [
+        0.7488
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "3d36f83b-4624-412f-b3ba-f95564f2d8e1": {
+      "consecutive_cosine": [
+        0.6737,
+        0.7364
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "40f3c0e5-e3b4-494f-8f33-478988bd4198": {
+      "consecutive_cosine": [
+        0.7761,
+        0.7975
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "48bdd9ce-e36d-4944-8293-6a64cb43a8b0": {
+      "consecutive_cosine": [
+        0.6502,
+        0.6167
+      ],
+      "entity_overlap": [
+        0,
+        1
+      ]
+    },
+    "4a24e587-9e7f-4a7c-9061-828595180b42": {
+      "consecutive_cosine": [
+        0.7257,
+        0.651
+      ],
+      "entity_overlap": [
+        1,
+        1
+      ]
+    },
+    "5184a6b9-16e4-4f5b-9631-0018bf7a9cfd": {
+      "consecutive_cosine": [
+        0.6869
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "775073fd-ca2b-4264-b65a-17fa41c4212f": {
+      "consecutive_cosine": [
+        0.7356
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "7af8300d-35c0-44f5-9083-46bf23d02e09": {
+      "consecutive_cosine": [
+        0.7844
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "818cc9cc-c4ae-4fd9-82e3-5d9be268b8b1": {
+      "consecutive_cosine": [
+        0.8091
+      ],
+      "entity_overlap": [
+        8
+      ]
+    },
+    "87fb2eaa-b38c-4fca-94fe-503038fe2c97": {
+      "consecutive_cosine": [
+        0.6831,
+        0.7131,
+        0.7535
+      ],
+      "entity_overlap": [
+        0,
+        2,
+        2
+      ]
+    },
+    "9c056b74-160e-4a63-b0b6-8c39d147e315": {
+      "consecutive_cosine": [
+        0.7594
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "a1f7e7d3-2499-4352-afd9-77b0992afa0e": {
+      "consecutive_cosine": [
+        0.7376,
+        0.61,
+        0.8675,
+        0.7306,
+        0.7205,
+        0.6101,
+        0.7473
+      ],
+      "entity_overlap": [
+        7,
+        2,
+        1,
+        0,
+        7,
+        0,
+        0
+      ]
+    },
+    "a891c37b-c119-43fe-a6f9-e10f040c446e": {
+      "consecutive_cosine": [
+        0.8866
+      ],
+      "entity_overlap": [
+        3
+      ]
+    },
+    "ae6f94d1-b42d-4580-9ed1-8ac6009da3b9": {
+      "consecutive_cosine": [
+        0.6429
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "cf4d18e2-6cf4-46ca-91f9-e29d5c544dfc": {
+      "consecutive_cosine": [
+        0.6763,
+        0.7252
+      ],
+      "entity_overlap": [
+        1,
+        1
+      ]
+    },
+    "d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e": {
+      "consecutive_cosine": [
+        0.7771
+      ],
+      "entity_overlap": [
+        4
+      ]
+    }
+  },
+  "theme_cohesion": {
+    "37ff3e77-f783-4048-8359-f9b95048f5e4": 0.8409366309642792,
+    "3b0ab9c9-2f08-4abf-817c-574c5176ba69": 0.9394547343254089,
+    "4fabbf0e-9852-40a5-a971-638157aa6a1d": 0.8355193649019513,
+    "788bd142-c1ec-4248-8b48-97bff36a4746": 0.8344371914863586,
+    "7ca10d73-ff72-4f17-9541-7df96ad509b8": 0.858761265873909,
+    "8c75056e-9552-4f7e-a68a-39e8e6768f87": 0.823694497346878,
+    "ca994ea9-32e4-4276-99a6-3e8b2dd6146c": 0.8375435620546341,
+    "dde99ef4-5947-413d-bf8e-976bf4f9d177": 0.8361109972000123,
+    "f13a8946-2865-4321-b526-8660094adbc0": 0.8081352114677429
+  }
+}

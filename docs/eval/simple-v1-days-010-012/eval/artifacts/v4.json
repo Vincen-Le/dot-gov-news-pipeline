@@ -1,0 +1,24 @@
+{
+  "merge_candidates": [],
+  "structural_stats": {
+    "theme_count": 9,
+    "singleton_theme_rate": 0.0,
+    "members_per_theme_histogram": {
+      "2": 1,
+      "4": 3,
+      "5": 1,
+      "6": 2,
+      "7": 1,
+      "14": 1
+    },
+    "themes_per_category": {
+      "(uncategorized)": 8,
+      "Veterans Affairs": 1
+    },
+    "pair_cosine_histogram": {
+      "0.5": 11,
+      "0.6": 23,
+      "0.7": 2
+    }
+  }
+}

@@ -1,0 +1,87 @@
+theme_id,storyline_id,fits,reason
+37ff3e77-f783-4048-8359-f9b95048f5e4,afdf6645-b9eb-40a3-9c78-87ca2dc185ef,0,Moss Landing battery fire cleanup is not a Superfund site
+37ff3e77-f783-4048-8359-f9b95048f5e4,749336ec-f7c3-4ed2-8cdb-1d63e922fe32,1,EPA cleanup plan at a Superfund groundwater site
+37ff3e77-f783-4048-8359-f9b95048f5e4,aad3c1e1-9bbc-4eb2-97dd-a103fa0ce3c2,0,EPA reorganization is not a Superfund cleanup
+37ff3e77-f783-4048-8359-f9b95048f5e4,5f3904ec-314f-4cba-902a-c6da5831e792,0,Brownfields grant is not a Superfund cleanup plan
+37ff3e77-f783-4048-8359-f9b95048f5e4,d66616c2-2c68-43eb-85a9-4af21f15e4c6,0,NASA event calendar unrelated to EPA Superfund
+37ff3e77-f783-4048-8359-f9b95048f5e4,0448e069-4732-49a3-864c-16734e8bfbbe,1,EPA highlighting cleanup progress at Superfund site
+37ff3e77-f783-4048-8359-f9b95048f5e4,fbbc3221-0136-415d-8058-b43d682cc915,1,EPA public meeting on Superfund cleanup plan
+37ff3e77-f783-4048-8359-f9b95048f5e4,d34ea3bc-7d71-4b94-95dc-a740c6130b19,1,EPA presentation on Superfund site cleanup
+37ff3e77-f783-4048-8359-f9b95048f5e4,7f48cb18-c375-4a31-b633-89af69345c4e,0,VA home loan unrelated to EPA Superfund
+37ff3e77-f783-4048-8359-f9b95048f5e4,f4e0a3e0-1b5e-462c-a1f3-3f86fd522cef,1,EPA proposed groundwater cleanup at Superfund site
+37ff3e77-f783-4048-8359-f9b95048f5e4,fa92af0b-281d-42b5-8ac7-30bdb6e2bb07,1,EPA proposed plan for Superfund site risk reduction
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,b81a8877-66a9-4ab1-bb55-cb09deb700b0,1,Weekly VA research wrap-up of study findings
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,eca9aba3-3020-4db2-b4ed-bc239aa0aede,0,Travel health guidance is not a research brief
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,7f48cb18-c375-4a31-b633-89af69345c4e,0,Home loan benefit is not a research brief
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,09926b22-8867-41c8-aedf-a4692885c9a5,1,Weekly VA research wrap-up of study findings
+4fabbf0e-9852-40a5-a971-638157aa6a1d,c1f3ce2f-217a-45d6-a186-2eb470a31d38,1,US greeting on Belgium national day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,27beaab2-1a94-4f68-a18a-7c5338443a18,1,US greeting on Colombia independence day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,7af8300d-35c0-44f5-9083-46bf23d02e09,0,USPS anniversary is not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,00a53ac2-b185-4755-bd80-7527107cdf69,1,US greeting on Peru national day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,5888e045-11b9-40cd-96ec-6f93d3db4979,1,US greeting on Maldives independence day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,8f9c3c3d-b580-41d9-9bcc-7f80fc7839e4,1,US greeting on Vanuatu national day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,a1f7e7d3-2499-4352-afd9-77b0992afa0e,0,Rubio diplomatic meetings not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,ee713186-d9b4-4e82-b8cd-1f3fb3b5e305,0,NPS demolition unrelated to national day greetings
+4fabbf0e-9852-40a5-a971-638157aa6a1d,db53a455-ea00-4c23-b751-8dd75305683c,1,US greeting on Liberia independence day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,c929bdb8-392f-4fba-aff5-b8014319ef8e,0,DOJ reform agreement unrelated to greetings
+4fabbf0e-9852-40a5-a971-638157aa6a1d,5b6eca2c-7820-42c4-becc-6b93ee5ee6a7,1,US greeting on Egypt national day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,27774b33-19b1-4908-a79f-b090ea47fecb,0,Prisoner release not a national day greeting
+788bd142-c1ec-4248-8b48-97bff36a4746,40d08579-f093-44e6-82ff-028e98ce6cb7,0,Lawsuit dismissal is not a consent decree action
+788bd142-c1ec-4248-8b48-97bff36a4746,c929bdb8-392f-4fba-aff5-b8014319ef8e,1,DOJ completing a reform agreement
+788bd142-c1ec-4248-8b48-97bff36a4746,7b1d713a-199b-4ab1-b3da-7a3eb6bb2a0f,0,USGS mapping unrelated to consent decrees
+788bd142-c1ec-4248-8b48-97bff36a4746,e9dbbe7e-bba3-4d90-aa25-6350a6cfaf0c,0,Firearms rule is not a consent decree action
+788bd142-c1ec-4248-8b48-97bff36a4746,0c1561f5-6278-4eb8-b7fe-b435fef712bd,0,Prize competition is not a consent decree action
+788bd142-c1ec-4248-8b48-97bff36a4746,c7e69ba8-ab29-4cd0-a717-088b7eaa3f44,0,VA healthcare unrelated to consent decrees
+788bd142-c1ec-4248-8b48-97bff36a4746,4327adad-0321-4c6f-bf76-b78103232ede,1,DOJ moving to end a consent decree
+788bd142-c1ec-4248-8b48-97bff36a4746,89fa691a-5cad-41dc-b2b2-b973f39eb655,1,DOJ supporting termination of a police consent decree
+7ca10d73-ff72-4f17-9541-7df96ad509b8,69cbb205-d96c-4064-b8de-524e7a6f0653,1,USDA Rollins farmers market initiative
+7ca10d73-ff72-4f17-9541-7df96ad509b8,a3a002c1-5859-4f59-bc2d-4d6039726ea9,0,State Dept reward unrelated to USDA
+7ca10d73-ff72-4f17-9541-7df96ad509b8,44391e2b-12b4-4262-ae48-7c04c4577595,1,USDA Rollins disaster aid announcement
+7ca10d73-ff72-4f17-9541-7df96ad509b8,aad3c1e1-9bbc-4eb2-97dd-a103fa0ce3c2,0,EPA reorganization is not a USDA action
+7ca10d73-ff72-4f17-9541-7df96ad509b8,d0d0be22-e811-4342-a44e-901bee4310a4,1,Rollins USDA disaster assistance announcement
+7ca10d73-ff72-4f17-9541-7df96ad509b8,32e16b54-2d1e-4db4-8887-dea17265eca7,1,USDA reorganization under Rollins
+7ca10d73-ff72-4f17-9541-7df96ad509b8,bff41193-d0c5-4000-a421-60631ca1024f,0,EPA settlement is not a USDA action
+7ca10d73-ff72-4f17-9541-7df96ad509b8,a1f7e7d3-2499-4352-afd9-77b0992afa0e,0,Rubio diplomacy is not a USDA action
+8c75056e-9552-4f7e-a68a-39e8e6768f87,9e129fb8-dd05-49c7-80f8-3d26061acd89,0,Whistleblower recognition not taxpayer guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,be9f9957-ce59-4bb2-b6ab-3b20807bb2fa,1,IRS reminder on data security plan mandate
+8c75056e-9552-4f7e-a68a-39e8e6768f87,8152dc45-8b6e-4aa2-a214-112cdf6a2e97,0,National park events unrelated to IRS
+8c75056e-9552-4f7e-a68a-39e8e6768f87,a67a2118-f213-41af-803d-49a81f4be393,0,Education Dept reporting not IRS guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,5bfceb17-7238-4d93-b342-c1c374d189ca,1,IRS revalidation deadline reminder
+8c75056e-9552-4f7e-a68a-39e8e6768f87,1497df54-9a20-40a9-a9e3-bcb1a3f7a4e6,0,Social Security service not IRS guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,cce87ba3-277a-4d29-b302-ad4064dff3f0,1,IRS reminder for late filers
+8c75056e-9552-4f7e-a68a-39e8e6768f87,0950f235-0016-4c66-b072-f933c5dc8845,1,IRS tax tip on verified sources
+8c75056e-9552-4f7e-a68a-39e8e6768f87,54ae0b71-79d7-4bbc-86ba-48e1ef69b1bd,1,IRS tax tip on marital status
+8c75056e-9552-4f7e-a68a-39e8e6768f87,729c897b-c2f9-4bbe-8fee-67f5180325b6,1,IRS interim guidance on examinations
+8c75056e-9552-4f7e-a68a-39e8e6768f87,7d4842bb-10b9-4655-b348-c2bc7b5b55a2,0,CFTC fraud case unrelated to IRS
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,9c056b74-160e-4a63-b0b6-8c39d147e315,1,BLS JOLTS labor data release
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,12a28a96-fccb-49c0-b861-b44b73c02264,1,BLS weekly earnings labor data release
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,9347ee5b-d830-4975-aea1-631a1d4de0a2,0,Treasury borrowing estimate not labor data
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,df8de77c-84c0-4971-93ec-ea0ce99d0949,0,DOJ sentencing unrelated to labor data
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,4e298912-73ad-42f5-a549-4a179537ff3d,1,Treasury statement on jobs and unemployment data
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,7e0d574b-8526-40fe-ae7c-a671d85ee511,1,Government employment data release
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,52ce780b-51f1-4617-aca5-d61c57e0b532,0,USGS science briefs unrelated to labor data
+ca994ea9-32e4-4276-99a6-3e8b2dd6146c,06e3dd81-277a-48bc-b1af-09270dc3f02e,0,Hunting guide case unrelated to labor data
+dde99ef4-5947-413d-bf8e-976bf4f9d177,868eacb0-2b40-4dc1-9944-ae3831e6e878,0,EHR screening tool not a benefits update
+dde99ef4-5947-413d-bf8e-976bf4f9d177,3963a1e1-9930-4cb7-808b-c47bf5ddac67,1,VA travel reimbursement benefit
+dde99ef4-5947-413d-bf8e-976bf4f9d177,efba6bd9-4bf3-46d1-9993-bca7fdfd034e,1,VA expanding menopause support benefit
+dde99ef4-5947-413d-bf8e-976bf4f9d177,f1d6c031-dbdf-494a-9e41-8da6534bad55,0,DOJ strike force unrelated to VA benefits
+dde99ef4-5947-413d-bf8e-976bf4f9d177,c7e69ba8-ab29-4cd0-a717-088b7eaa3f44,1,VA expanding healthcare access for veterans
+dde99ef4-5947-413d-bf8e-976bf4f9d177,3fef3c91-9e6a-425d-813a-a8710cd1fb4e,0,Ambulance rescue story not a benefits update
+dde99ef4-5947-413d-bf8e-976bf4f9d177,7f48cb18-c375-4a31-b633-89af69345c4e,1,VA clarifying home loan benefits
+dde99ef4-5947-413d-bf8e-976bf4f9d177,eca9aba3-3020-4db2-b4ed-bc239aa0aede,1,VA travel health benefit guidance
+dde99ef4-5947-413d-bf8e-976bf4f9d177,e731241f-cb91-4f50-9797-3e4f5cc002a6,1,VA highlighting homeownership benefits
+dde99ef4-5947-413d-bf8e-976bf4f9d177,aad3c1e1-9bbc-4eb2-97dd-a103fa0ce3c2,0,EPA reorganization unrelated to VA benefits
+f13a8946-2865-4321-b526-8660094adbc0,00a53ac2-b185-4755-bd80-7527107cdf69,0,National day greeting not a Rubio engagement
+f13a8946-2865-4321-b526-8660094adbc0,a1f7e7d3-2499-4352-afd9-77b0992afa0e,1,Rubio series of bilateral diplomatic meetings
+f13a8946-2865-4321-b526-8660094adbc0,f8795edd-53fd-464a-a8ad-165ac216a4a4,1,Rubio call on US-Djibouti partnership
+f13a8946-2865-4321-b526-8660094adbc0,cf583756-238a-4317-b067-6b077c0ae965,0,Landau engagement does not mention Rubio
+f13a8946-2865-4321-b526-8660094adbc0,4a1ee998-f2a6-4152-95f6-72a1492d22a2,1,Rubio call on US-Suriname partnership
+f13a8946-2865-4321-b526-8660094adbc0,4fab41cc-4fa5-4651-b470-dc833134bf71,0,Rigas travel does not mention Rubio
+f13a8946-2865-4321-b526-8660094adbc0,87fb2eaa-b38c-4fca-94fe-503038fe2c97,1,Rubio diplomacy on Thailand-Cambodia ceasefire
+f13a8946-2865-4321-b526-8660094adbc0,cf4d18e2-6cf4-46ca-91f9-e29d5c544dfc,1,Schedules of Rubio meetings with foreign officials
+f13a8946-2865-4321-b526-8660094adbc0,c3591b86-fdc5-43ae-a866-d5285bc8c9dd,0,Landau trilateral meeting does not mention Rubio
+f13a8946-2865-4321-b526-8660094adbc0,7617cf5a-77b3-41b5-a3c4-f5a63ca08318,0,Maritime conference does not mention Rubio
+f13a8946-2865-4321-b526-8660094adbc0,9edc4a89-6dcd-4f06-a95c-ff40caecb374,0,Fox News interview not a diplomatic engagement
+f13a8946-2865-4321-b526-8660094adbc0,40f3c0e5-e3b4-494f-8f33-478988bd4198,1,Rubio meeting with Philippine president
+f13a8946-2865-4321-b526-8660094adbc0,6d852af9-b40e-4083-a917-8da404c2508c,0,Park visitor center unrelated to Rubio
+f13a8946-2865-4321-b526-8660094adbc0,e9d8c76c-c84d-42f5-a9b4-ca4dc52c8c0c,0,DOJ ransomware action unrelated to Rubio
