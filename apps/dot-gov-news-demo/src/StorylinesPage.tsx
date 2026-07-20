@@ -235,14 +235,16 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   );
 
   const filtered = useMemo(() => {
+    const hasNoSelections =
+      agencies.size === 0 && categories.size === 0 && themes.size === 0;
     const items = available.filter(
       (item) =>
-        (agencies.size === 0 ||
-          item.agencies.some((key) => agencies.has(key))) &&
-        (categories.size === 0 ||
-          (item.categoryName !== null && categories.has(item.categoryName))) &&
-        (themes.size === 0 ||
-          (item.themeId !== null && themes.has(item.themeId))),
+        hasNoSelections ||
+        (agencies.size > 0 && item.agencies.some((key) => agencies.has(key))) ||
+        (categories.size > 0 &&
+          item.categoryName !== null &&
+          categories.has(item.categoryName)) ||
+        (themes.size > 0 && item.themeId !== null && themes.has(item.themeId)),
     );
     return [...items].sort((left, right) => {
       if (sort === "episodes") {

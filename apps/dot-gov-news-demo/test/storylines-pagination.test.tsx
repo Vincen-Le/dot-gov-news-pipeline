@@ -1,5 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
@@ -67,6 +74,54 @@ function detail(item: StorylineListItem): StorylineDetail {
   };
 }
 
+function renderFilterFixture() {
+  const items = [
+    {
+      ...storyline(1),
+      agencies: ["bls"],
+      categoryName: "Economy & Labor",
+      headline: "Labor storyline",
+    },
+    {
+      ...storyline(2),
+      agencies: ["dod"],
+      categoryName: "Defense & Military",
+      headline: "Defense storyline",
+    },
+    {
+      ...storyline(3),
+      agencies: ["epa"],
+      categoryName: "Energy & Environment",
+      headline: "Environment storyline",
+    },
+  ];
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+  });
+  client.setQueryData(["bootstrap"], {
+    agencies: [
+      { displayName: "Bureau of Labor Statistics", key: "bls" },
+      { displayName: "Department of Defense", key: "dod" },
+      { displayName: "Environmental Protection Agency", key: "epa" },
+    ],
+    categories: [],
+    previews: items.map(preview),
+    storylines: { hasMore: false, items },
+    themes: [],
+  });
+  for (const item of items) {
+    client.setQueryData(["storyline", item.id], detail(item));
+  }
+
+  render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter>
+        <StorylinesPage asOf="2026-07-20" />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
@@ -75,6 +130,31 @@ afterEach(() => {
 });
 
 describe("storyline rendering window", () => {
+  it("filters storylines by a single selected facet", () => {
+    renderFilterFixture();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Bureau of Labor Statistics" }),
+    );
+
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(screen.getByText("Labor storyline")).toBeTruthy();
+  });
+
+  it("shows storylines matching any selected facet across filter groups", () => {
+    renderFilterFixture();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Bureau of Labor Statistics" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Defense & Military" }));
+
+    expect(screen.getAllByRole("article")).toHaveLength(2);
+    expect(screen.getByText("Labor storyline")).toBeTruthy();
+    expect(screen.getByText("Defense storyline")).toBeTruthy();
+    expect(screen.queryByText("Environment storyline")).toBeNull();
+  });
+
   it("fades a theme in when it reaches its storyline threshold", () => {
     vi.useFakeTimers();
     const items = [20, 21, 22, 23].map((day, index) => ({

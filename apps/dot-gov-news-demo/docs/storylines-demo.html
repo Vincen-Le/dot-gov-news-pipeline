@@ -2732,18 +2732,22 @@
         }
 
         function matchesFilters(story) {
+          var hasNoSelections =
+            state.filters.agency.size === 0 &&
+            state.filters.category.size === 0 &&
+            state.filters.theme.size === 0;
           var agencyMatch =
-            state.filters.agency.size === 0 ||
+            state.filters.agency.size > 0 &&
             story.agencies.some(function (agency) {
               return state.filters.agency.has(agency);
             });
           var categoryMatch =
-            state.filters.category.size === 0 ||
+            state.filters.category.size > 0 &&
             state.filters.category.has(story.category);
           var themeMatch =
-            state.filters.theme.size === 0 ||
+            state.filters.theme.size > 0 &&
             state.filters.theme.has(story.theme);
-          return agencyMatch && categoryMatch && themeMatch;
+          return hasNoSelections || agencyMatch || categoryMatch || themeMatch;
         }
 
         function getVisibleStories() {
@@ -3490,7 +3494,7 @@
       2. rank_key comes from the selected event-card version; no new storyline column is required.
       3. For an as-of date, choose the newest event card newest_entry_at <= as-of.
       4. Do not reveal episodes, articles, summaries, or images whose source timestamp is after as-of.
-      5. Multi-select behavior is OR within a facet and AND across agency, category, and theme.
+      5. Multi-select behavior is OR across every selected agency, category, and theme.
       6. Agency labels use the full agency name; stable acronym keys remain internal filter values.
       7. A theme becomes available only when its first reviewed storyline exists at or before as-of.
       8. Image records should retain asset URL, source URL, alt text, captured_at, dimensions,
