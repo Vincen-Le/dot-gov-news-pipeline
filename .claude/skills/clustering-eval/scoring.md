@@ -57,7 +57,14 @@ scores at the storyline grain. (Themes legitimately span categories —
 theme_scoring.md; the category is a filing convenience, not a fence.)
 
 Per pair: is the inherited category the **best available option** in the set
-for THIS storyline? `correct | better_option_exists (name it) | ambiguous`
+for THIS storyline? Best is judged by reader impact, not taxonomy fit alone —
+ask: **"if I were a user clicking on a competing category, would I have cared
+more to see this storyline there?"** A storyline can be defensible where it
+is filed yet land harder for the audience of another category; that is
+`better_option_exists`. Prefer the category of the affected domain over a
+generalist category describing the government mechanism (an antitrust session
+on drug prices belongs to Public Health, not Justice & Law Enforcement).
+`correct | better_option_exists (name it) | ambiguous`
 (two genuinely defensible). CSV: `category-verdicts.csv`
 (`storyline_id,theme_id,filed_category,verdict,suggested_category,reason`;
 `theme_id` is blank for an unthemed storyline).

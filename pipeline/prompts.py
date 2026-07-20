@@ -187,6 +187,13 @@ THEME_SCOPE_GUIDANCE = (
 CATEGORY_ASSIGNMENT_GUIDANCE = (
     "For categories, choose by subject matter, not the publishing agency. Keep the "
     "same durable program or recurring subject in one category across storylines. "
+    "Apply the reader test: if someone browsing a different category would have "
+    "wanted this event there, file it there. Prefer the category of the affected "
+    "domain over a generalist category describing the government mechanism — an "
+    "antitrust session on drug prices belongs to Public Health, not Justice & Law "
+    "Enforcement; an enforcement action about a student-loan scam belongs to "
+    "Education. Use a generalist category only when no domain category's readers "
+    "would claim the event. "
 )
 
 CATEGORY_DESCRIPTIONS = {
