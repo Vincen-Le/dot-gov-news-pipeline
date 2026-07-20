@@ -82,6 +82,8 @@ mise exec -- pnpm supabase db push
 
 The CLI prompts for the database password when it needs a direct connection. Do not pass it on the command line. Confirm that the hosted migration catalog is current with a second `db push --dry-run`; it should report `Remote database is up to date`.
 
+`20260719120000_grant_corpus_read.sql` was added after migrations timestamped through `20260720040000` already shipped, so its filename sorts out of order relative to hosted's applied history. Push it with `mise exec -- pnpm supabase db push --include-all` so the CLI applies this and any other unapplied-but-out-of-order migration instead of refusing on ordering alone.
+
 Before a destructive migration or once hosted data becomes valuable, take a manual dump and store it outside the repository:
 
 ```sh
