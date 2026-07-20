@@ -436,6 +436,11 @@ p {
   gap: 0.4rem;
 }
 
+.date-slider {
+  position: relative;
+  min-width: 0;
+}
+
 .date-range {
   height: 24px;
   width: 100%;
@@ -444,6 +449,30 @@ p {
   background: transparent;
   cursor: ew-resize;
   touch-action: pan-y;
+}
+
+.date-drag-value {
+  position: absolute;
+  top: calc(100% - 3px);
+  left: clamp(42px, var(--date-progress), calc(100% - 42px));
+  padding: 0.12rem 0.28rem;
+  background: var(--surface);
+  color: var(--text);
+  font: 600 0.61rem var(--mono);
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -3px);
+  transition:
+    opacity 100ms ease,
+    transform 140ms ease;
+  white-space: nowrap;
+}
+
+.date-range:active + .date-drag-value,
+.date-range:focus-visible + .date-drag-value {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .date-range::-webkit-slider-runnable-track {
@@ -465,9 +494,9 @@ p {
 }
 
 .date-range::-webkit-slider-thumb {
-  width: 17px;
-  height: 17px;
-  margin-top: -7px;
+  width: 19px;
+  height: 19px;
+  margin-top: -8px;
   appearance: none;
   background: var(--text);
   border: 2px solid var(--surface);
@@ -476,8 +505,8 @@ p {
 }
 
 .date-range::-moz-range-thumb {
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
   background: var(--text);
   border: 2px solid var(--surface);
   border-radius: 50%;

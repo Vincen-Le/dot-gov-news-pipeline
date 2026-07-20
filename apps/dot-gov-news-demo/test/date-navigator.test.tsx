@@ -53,10 +53,9 @@ describe("date navigator", () => {
     expect(track?.contains(nextButton)).toBe(false);
   });
 
-  it("moves continuously, ticks at crossed dates, and settles smoothly", () => {
-    const clock = installAnimationClock();
+  it("snaps to whole dates while the thumb is being dragged", () => {
     const onChange = vi.fn();
-    render(
+    const view = render(
       <DateNavigator
         asOf="2025-07-18"
         maximum="2025-07-29"
@@ -65,25 +64,23 @@ describe("date navigator", () => {
       />,
     );
     const slider = screen.getByRole("slider") as HTMLInputElement;
+    const dragValue = view.container.querySelector(".date-drag-value");
 
-    expect(slider.step).toBe("any");
+    expect(slider.step).toBe("1");
     fireEvent.pointerDown(slider);
     fireEvent.change(slider, { target: { value: "2.1" } });
     fireEvent.change(slider, { target: { value: "2.4" } });
 
-    expect(slider.value).toBe("2.4");
+    expect(slider.value).toBe("2");
     expect(onChange).toHaveBeenCalledOnce();
     expect(onChange).toHaveBeenCalledWith("2025-07-20");
+    expect(dragValue?.textContent).toContain("Jul 20, 2025");
 
-    fireEvent.pointerUp(slider);
-    expect(slider.value).toBe("2.4");
-    clock.advance(0);
-    clock.advance(0);
-    clock.advance(110);
-    expect(Number(slider.value)).toBeGreaterThan(2);
-    expect(Number(slider.value)).toBeLessThan(2.4);
-    clock.advance(220);
-    expect(slider.value).toBe("2");
+    fireEvent.change(slider, { target: { value: "2.6" } });
+
+    expect(slider.value).toBe("3");
+    expect(onChange).toHaveBeenLastCalledWith("2025-07-21");
+    expect(dragValue?.textContent).toContain("Jul 21, 2025");
   });
 
   it("replaces the advance action with arrows that glide to each date", () => {

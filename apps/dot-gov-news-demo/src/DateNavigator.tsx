@@ -108,17 +108,9 @@ export function DateNavigator({
   }
 
   function moveThumb(value: number): void {
-    const previous = visualPosition.current;
-    const next = Math.max(0, Math.min(span, value));
+    const next = Math.round(Math.max(0, Math.min(span, value)));
     updateVisualPosition(next);
-
-    const crossedDay =
-      next > previous
-        ? Math.floor(next + Number.EPSILON)
-        : next < previous
-          ? Math.ceil(next - Number.EPSILON)
-          : emittedPosition.current;
-    emitDay(crossedDay);
+    emitDay(next);
   }
 
   function cancelAnimation(): void {
@@ -182,6 +174,7 @@ export function DateNavigator({
   }
 
   const progress = span === 0 ? 0 : (dragPosition / span) * 100;
+  const dragDay = offsetDay(minimum, Math.round(dragPosition));
   const rangeStyle = {
     "--date-progress": `${progress}%`,
   } as CSSProperties;
@@ -202,47 +195,60 @@ export function DateNavigator({
         </header>
         <div className="date-control-row">
           <div className="date-track">
-            <input
-              aria-label="Simulated publication date"
-              aria-valuetext={displayDate(
-                offsetDay(minimum, Math.round(dragPosition)),
-              )}
-              max={span}
-              min="0"
-              className={`date-range${isTicking ? " is-ticking" : ""}`}
-              onBlur={(event) => finishDrag(Number(event.currentTarget.value))}
-              onChange={(event) => moveThumb(Number(event.currentTarget.value))}
-              onKeyDown={(event) => {
-                if (
-                  [
-                    "ArrowDown",
-                    "ArrowLeft",
-                    "ArrowRight",
-                    "ArrowUp",
-                    "End",
-                    "Home",
-                    "PageDown",
-                    "PageUp",
-                  ].includes(event.key)
-                )
+            <div className="date-slider">
+              <input
+                aria-label="Simulated publication date"
+                aria-valuetext={displayDate(dragDay)}
+                max={span}
+                min="0"
+                className={`date-range${isTicking ? " is-ticking" : ""}`}
+                onBlur={(event) =>
+                  finishDrag(Number(event.currentTarget.value))
+                }
+                onChange={(event) =>
+                  moveThumb(Number(event.currentTarget.value))
+                }
+                onKeyDown={(event) => {
+                  if (
+                    [
+                      "ArrowDown",
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "ArrowUp",
+                      "End",
+                      "Home",
+                      "PageDown",
+                      "PageUp",
+                    ].includes(event.key)
+                  )
+                    dragging.current = true;
+                }}
+                onKeyUp={(event) =>
+                  finishDrag(Number(event.currentTarget.value))
+                }
+                onPointerCancel={(event) =>
+                  finishDrag(Number(event.currentTarget.value))
+                }
+                onPointerDown={() => {
+                  cancelAnimation();
                   dragging.current = true;
-              }}
-              onKeyUp={(event) => finishDrag(Number(event.currentTarget.value))}
-              onPointerCancel={(event) =>
-                finishDrag(Number(event.currentTarget.value))
-              }
-              onPointerDown={() => {
-                cancelAnimation();
-                dragging.current = true;
-              }}
-              onPointerUp={(event) =>
-                finishDrag(Number(event.currentTarget.value))
-              }
-              step="any"
-              style={rangeStyle}
-              type="range"
-              value={dragPosition}
-            />
+                }}
+                onPointerUp={(event) =>
+                  finishDrag(Number(event.currentTarget.value))
+                }
+                step="1"
+                style={rangeStyle}
+                type="range"
+                value={dragPosition}
+              />
+              <output
+                aria-hidden="true"
+                className="date-drag-value"
+                style={rangeStyle}
+              >
+                {displayDate(dragDay)}
+              </output>
+            </div>
             <div className="date-ticks" aria-hidden="true">
               <span>{displayDate(minimum)}</span>
               {span > 1 ? <span>{displayDate(midpoint)}</span> : null}
