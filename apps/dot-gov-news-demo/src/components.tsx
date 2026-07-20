@@ -4,6 +4,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -59,6 +60,7 @@ export interface FilterOption {
 }
 
 export function FilterGroup({
+  animateLayout = false,
   exitingOptions,
   label,
   onToggle,
@@ -66,6 +68,7 @@ export function FilterGroup({
   options,
   selected,
 }: {
+  animateLayout?: boolean;
   exitingOptions?: ReadonlySet<string>;
   label: string;
   onToggle: (value: string) => void;
@@ -73,6 +76,56 @@ export function FilterGroup({
   options: FilterOption[];
   selected: Set<string>;
 }) {
+  const rail = useRef<HTMLDivElement>(null);
+  const previousPositions = useRef(new Map<string, number>());
+
+  useLayoutEffect(() => {
+    const buttons = rail.current?.querySelectorAll<HTMLButtonElement>(
+      "[data-filter-option]",
+    );
+    const currentPositions = new Map<string, number>();
+    for (const button of buttons ?? []) {
+      const value = button.dataset.filterOption;
+      if (value !== undefined) {
+        currentPositions.set(value, button.getBoundingClientRect().left);
+      }
+    }
+
+    const optionsWereRemoved =
+      currentPositions.size < previousPositions.current.size;
+    const reduceMotion =
+      typeof globalThis.matchMedia === "function" &&
+      globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (animateLayout && optionsWereRemoved && !reduceMotion) {
+      for (const button of buttons ?? []) {
+        const value = button.dataset.filterOption;
+        const previousLeft =
+          value === undefined
+            ? undefined
+            : previousPositions.current.get(value);
+        if (
+          previousLeft === undefined ||
+          typeof button.animate !== "function"
+        ) {
+          continue;
+        }
+        const delta = previousLeft - button.getBoundingClientRect().left;
+        if (delta === 0) continue;
+        button.animate(
+          [
+            { transform: `translateX(${delta}px)` },
+            { transform: "translateX(0)" },
+          ],
+          {
+            duration: 280,
+            easing: "cubic-bezier(0.2, 0.75, 0.2, 1)",
+          },
+        );
+      }
+    }
+    previousPositions.current = currentPositions;
+  }, [animateLayout, options]);
+
   if (options.length === 0) return null;
   return (
     <div className="facet-row">
@@ -82,6 +135,7 @@ export function FilterGroup({
       <div
         aria-labelledby={`filter-${label.toLowerCase()}`}
         className="pill-rail"
+        ref={rail}
       >
         {options.map((option) => {
           const pressed = selected.has(option.value);
@@ -90,6 +144,7 @@ export function FilterGroup({
             <button
               aria-pressed={pressed}
               className={`pill${optionClassName === undefined ? "" : ` ${optionClassName}`}${exiting ? " is-exiting" : ""}`}
+              data-filter-option={option.value}
               disabled={exiting}
               key={option.value}
               onClick={() => onToggle(option.value)}

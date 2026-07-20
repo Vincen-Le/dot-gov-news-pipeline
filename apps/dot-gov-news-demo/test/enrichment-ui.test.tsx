@@ -8,6 +8,7 @@ import type {
   StorylineListItem,
 } from "../src/api/contracts";
 import {
+  FilterGroup,
   StorylineCard,
   StorylineDialog,
   StorylineTableRow,
@@ -394,5 +395,75 @@ describe("generated event-card content", () => {
     expect(view.container.firstChild).toBeNull();
     expect(screen.queryByText("Storyline overview pending")).toBeNull();
     expect(screen.queryByText("Current affairs")).toBeNull();
+  });
+});
+
+describe("filter option layout", () => {
+  it("animates surviving options into alignment after an option disappears", () => {
+    const animate = vi.fn();
+    const originalAnimate = HTMLElement.prototype.animate;
+    Object.defineProperty(HTMLElement.prototype, "animate", {
+      configurable: true,
+      value: animate,
+    });
+    const bounds = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        const isSecondOption = this.dataset.filterOption === "theme-2";
+        const firstOptionExists = document.querySelector(
+          '[data-filter-option="theme-1"]',
+        );
+        const left = isSecondOption && firstOptionExists !== null ? 100 : 0;
+        return {
+          bottom: 0,
+          height: 0,
+          left,
+          right: left,
+          toJSON: () => ({}),
+          top: 0,
+          width: 0,
+          x: left,
+          y: 0,
+        };
+      });
+
+    try {
+      const props = {
+        animateLayout: true,
+        label: "Theme",
+        onToggle: vi.fn(),
+        selected: new Set<string>(),
+      };
+      const view = render(
+        <FilterGroup
+          {...props}
+          options={[
+            { label: "Food safety", value: "theme-1" },
+            { label: "Wildfire response", value: "theme-2" },
+          ]}
+        />,
+      );
+
+      view.rerender(
+        <FilterGroup
+          {...props}
+          options={[{ label: "Wildfire response", value: "theme-2" }]}
+        />,
+      );
+
+      expect(animate).toHaveBeenCalledWith(
+        [{ transform: "translateX(100px)" }, { transform: "translateX(0)" }],
+        {
+          duration: 280,
+          easing: "cubic-bezier(0.2, 0.75, 0.2, 1)",
+        },
+      );
+    } finally {
+      bounds.mockRestore();
+      Object.defineProperty(HTMLElement.prototype, "animate", {
+        configurable: true,
+        value: originalAnimate,
+      });
+    }
   });
 });

@@ -1130,12 +1130,13 @@ select {
   content: "·";
 }
 
+.filter-option-transition,
 .theme-emergence {
   display: inline-block;
-  animation: theme-emergence 420ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
+  animation: filter-option-emergence 420ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
 }
 
-@keyframes theme-emergence {
+@keyframes filter-option-emergence {
   from {
     opacity: 0;
     transform: translateY(0.3rem);
@@ -1147,14 +1148,15 @@ select {
   }
 }
 
+.filter-option-transition.is-exiting,
 .theme-emergence.is-exiting {
   pointer-events: none;
-  animation-name: theme-exit;
+  animation-name: filter-option-exit;
   animation-duration: 320ms;
   animation-timing-function: ease-in;
 }
 
-@keyframes theme-exit {
+@keyframes filter-option-exit {
   from {
     opacity: 1;
     transform: translateY(0);

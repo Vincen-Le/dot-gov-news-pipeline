@@ -28,7 +28,7 @@ import { StorylinesHero } from "./StorylinesHero";
 
 const RENDER_BATCH_SIZE = 18;
 const LOAD_AHEAD_ROOT_MARGIN = "1200px 0px";
-const THEME_EXIT_DURATION_MS = 320;
+const FILTER_EXIT_DURATION_MS = 320;
 
 type SortOrder = "episodes" | "newest" | "rank";
 type ViewMode = "product" | "table";
@@ -53,7 +53,7 @@ function retainAvailable(
   return next.size === current.size ? current : next;
 }
 
-function useThemePresence(options: FilterOption[]): {
+function useFilterPresence(options: FilterOption[]): {
   exitingIds: ReadonlySet<string>;
   options: FilterOption[];
 } {
@@ -95,7 +95,7 @@ function useThemePresence(options: FilterOption[]): {
           next.delete(option.value);
           return next;
         });
-      }, THEME_EXIT_DURATION_MS);
+      }, FILTER_EXIT_DURATION_MS);
       exitTimers.current.set(option.value, timer);
     }
   }, [options]);
@@ -213,7 +213,9 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       .map((theme) => ({ label: theme.displayName, value: theme.id }))
       .sort(optionSort);
   }, [asOf, available, bootstrap.data]);
-  const displayedThemes = useThemePresence(themeOptions);
+  const displayedAgencies = useFilterPresence(agencyOptions);
+  const displayedCategories = useFilterPresence(categoryOptions);
+  const displayedThemes = useFilterPresence(themeOptions);
   const surfacedThemeIds = useMemo(
     () => new Set(displayedThemes.options.map((theme) => theme.value)),
     [displayedThemes.options],
@@ -367,28 +369,35 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
         </header>
         <div className="filter-deck" aria-label="Storyline filters">
           <FilterGroup
+            animateLayout
+            exitingOptions={displayedAgencies.exitingIds}
             label="Agency"
             onToggle={(value) =>
               setAgencies((current) => toggled(current, value))
             }
-            options={agencyOptions}
+            optionClassName="filter-option-transition"
+            options={displayedAgencies.options}
             selected={agencies}
           />
           <FilterGroup
+            animateLayout
+            exitingOptions={displayedCategories.exitingIds}
             label="Category"
             onToggle={(value) =>
               setCategories((current) => toggled(current, value))
             }
-            options={categoryOptions}
+            optionClassName="filter-option-transition"
+            options={displayedCategories.options}
             selected={categories}
           />
           <FilterGroup
+            animateLayout
             exitingOptions={displayedThemes.exitingIds}
             label="Theme"
             onToggle={(value) =>
               setThemes((current) => toggled(current, value))
             }
-            optionClassName="theme-emergence"
+            optionClassName="filter-option-transition"
             options={displayedThemes.options}
             selected={themes}
           />

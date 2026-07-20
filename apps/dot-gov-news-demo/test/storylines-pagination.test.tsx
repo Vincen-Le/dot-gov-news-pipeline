@@ -124,7 +124,19 @@ describe("storyline rendering window", () => {
     view.rerender(page("2026-07-23"));
 
     const themeFilter = screen.getByRole("button", { name: "Food safety" });
-    expect(themeFilter.classList.contains("theme-emergence")).toBe(true);
+    expect(themeFilter.classList.contains("filter-option-transition")).toBe(
+      true,
+    );
+    expect(
+      screen
+        .getByRole("button", { name: "fda" })
+        .classList.contains("filter-option-transition"),
+    ).toBe(true);
+    expect(
+      screen
+        .getByRole("button", { name: "Public Health" })
+        .classList.contains("filter-option-transition"),
+    ).toBe(true);
     expect(
       view.container.querySelectorAll(".taxonomy .theme-emergence"),
     ).toHaveLength(4);
