@@ -280,6 +280,11 @@ main {
   font-weight: 600;
 }
 
+.page-intro .eyebrow {
+  letter-spacing: 0.055em;
+  word-spacing: -0.12em;
+}
+
 h1,
 h2,
 h3,

@@ -237,12 +237,12 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       <section className="page-intro">
         <div className="intro-content">
           <div>
-            <p className="eyebrow">Public information, connected over time</p>
+            <p className="eyebrow">The public record, made clear</p>
             <h1>Storylines</h1>
             <p className="intro-description">
-              Follow related government updates as one evolving event. This
-              briefing contains reviewed source material and shows it as it
-              would have appeared on the selected date.
+              See how government actions unfold over time. Each storyline brings
+              reviewed sources together and shows the public record as it stood
+              on the date you select.
             </p>
           </div>
         </div>
