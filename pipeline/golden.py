@@ -715,10 +715,12 @@ def apply_reviewed(db, cfg: Config, *, reset: bool = True,
                 """
                 insert into public.storylines (
                     id, topic, cluster_topic, first_entry_at, newest_entry_at,
-                    episode_count, theme_id, theme_attach_method, theme_reason
+                    episode_count, theme_id, theme_attach_method, theme_reason,
+                    category_id, category_method, category_reason
                 ) values (
                     %(id)s, %(topic)s, %(label)s, %(first_at)s, %(newest_at)s,
-                    %(episodes)s, %(theme)s, 'new_theme', 'golden reviewed seed'
+                    %(episodes)s, %(theme)s, 'new_theme', 'golden reviewed seed',
+                    %(category)s, 'manual', 'golden reviewed seed'
                 )
                 on conflict (id) do nothing
                 """,
@@ -726,7 +728,8 @@ def apply_reviewed(db, cfg: Config, *, reset: bool = True,
                  "label": first["gold_storyline_label"],
                  "first_at": min(timestamps), "newest_at": max(timestamps),
                  "episodes": episode_count_by_storyline[storyline_id],
-                 "theme": first["gold_theme_id"]},
+                 "theme": first["gold_theme_id"],
+                 "category": first["gold_category_id"]},
             )
 
         episodes_by_storyline: dict[object, list[tuple[object, list[dict]]]] = defaultdict(list)

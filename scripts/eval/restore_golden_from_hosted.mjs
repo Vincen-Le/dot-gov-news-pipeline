@@ -39,8 +39,21 @@ async function fetchAll(table) {
   }
 }
 
-// bytea columns arrive as "\\x<hex>" strings — postgres.js sends them as
-// text and postgres casts to bytea on insert, so no conversion needed.
+// bytea columns arrive from REST as "\\x<hex>" strings; postgres.js would
+// send them as text bytes (double-encoding), so convert to Buffers.
+const BYTEA_COLUMNS = new Set(["centroid", "embedding"]);
+
+function wire(row) {
+  const out = {};
+  for (const [key, value] of Object.entries(row)) {
+    out[key] =
+      BYTEA_COLUMNS.has(key) && typeof value === "string" && value.startsWith("\\x")
+        ? Buffer.from(value.slice(2), "hex")
+        : value;
+  }
+  return out;
+}
+
 const TABLES = [
   "golden_topic_categories",
   "golden_topic_themes",
@@ -61,7 +74,7 @@ for (const table of TABLES) {
   }
   const columns = Object.keys(rows[0]);
   for (let start = 0; start < rows.length; start += 500) {
-    const batch = rows.slice(start, start + 500);
+    const batch = rows.slice(start, start + 500).map(wire);
     await sql`insert into ${sql(table)} ${sql(batch, columns)} on conflict do nothing`;
   }
   const [{ count }] = await sql`select count(*)::int as count from ${sql(table)}`;
