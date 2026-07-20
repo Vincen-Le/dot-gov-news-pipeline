@@ -1,9 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { type CSSProperties, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import { dotGovApi } from "./api/client";
-import { displayDate, StatePanel } from "./components";
+import {
+  agencyNames,
+  displayDate,
+  StatePanel,
+  StorylineDialog,
+} from "./components";
 import {
   endOfDay,
   isAvailableAsOf,
@@ -48,6 +53,7 @@ function termLabel(terms: {
 }
 
 export function RankingPage({ asOf }: { asOf: string }) {
+  const [params, setParams] = useSearchParams();
   const [agency, setAgency] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
@@ -96,6 +102,19 @@ export function RankingPage({ asOf }: { asOf: string }) {
       ),
     [asOf, bootstrap.data],
   );
+  const selectedStoryline = useMemo(() => {
+    const selectedId = params.get("storyline");
+    if (selectedId === null) return null;
+    return (
+      (bootstrap.data?.storylines.items ?? []).find(
+        (item) => item.id === selectedId && isAvailableAsOf(item, asOf),
+      ) ?? null
+    );
+  }, [asOf, bootstrap.data, params]);
+  const agencyMap = useMemo(
+    () => agencyNames(bootstrap.data?.agencies ?? []),
+    [bootstrap.data],
+  );
   const visibleRows = useMemo(
     () =>
       (rows.data?.rows ?? [])
@@ -115,6 +134,16 @@ export function RankingPage({ asOf }: { asOf: string }) {
   const currentPage = Math.min(page, pageCount);
   const pageStart = (currentPage - 1) * RANKING_PAGE_SIZE;
   const pageRows = visibleRows.slice(pageStart, pageStart + RANKING_PAGE_SIZE);
+  const openStoryline = (storylineId: string) => {
+    const next = new URLSearchParams(params);
+    next.set("storyline", storylineId);
+    setParams(next, { replace: true });
+  };
+  const closeStoryline = () => {
+    const next = new URLSearchParams(params);
+    next.delete("storyline");
+    setParams(next, { replace: true });
+  };
 
   useEffect(() => {
     if (theme !== "" && !themes.some((item) => item.id === theme)) setTheme("");
@@ -298,16 +327,18 @@ export function RankingPage({ asOf }: { asOf: string }) {
               </thead>
               <tbody>
                 {pageRows.map((row) => (
-                  <tr key={row.storylineId}>
+                  <tr
+                    className="rank-row"
+                    key={row.storylineId}
+                    onClick={() => openStoryline(row.storylineId)}
+                  >
                     <td className="rank-position">
                       {String(row.position).padStart(2, "0")}
                     </td>
                     <th className="rank-headline" scope="row">
-                      <Link
-                        to={`/?storyline=${encodeURIComponent(row.storylineId)}`}
-                      >
+                      <button className="rank-headline-button" type="button">
                         {row.headline ?? "Developing storyline"}
-                      </Link>
+                      </button>
                       <small>
                         {row.summary ?? "Editorial summary is queued."}
                       </small>
@@ -387,6 +418,14 @@ export function RankingPage({ asOf }: { asOf: string }) {
             </button>
           </nav>
         </>
+      )}
+      {selectedStoryline === null ? null : (
+        <StorylineDialog
+          agencyMap={agencyMap}
+          asOf={asOf}
+          close={closeStoryline}
+          item={selectedStoryline}
+        />
       )}
     </div>
   );

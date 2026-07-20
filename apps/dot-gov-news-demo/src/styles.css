@@ -1936,6 +1936,10 @@ td.wrap {
   background: color-mix(in srgb, var(--raised) 72%, transparent);
 }
 
+.rank-row {
+  cursor: pointer;
+}
+
 .rank-position,
 .rank-key-value,
 .rank-count {
@@ -1965,16 +1969,23 @@ td.wrap {
   white-space: normal;
 }
 
-.rank-headline a {
+.rank-headline-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--text);
+  cursor: pointer;
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 650;
   line-height: 1.3;
+  text-align: left;
+  text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--live) 72%, transparent);
   text-underline-offset: 0.2rem;
 }
 
-.rank-headline a:hover {
+.rank-headline-button:hover {
   color: var(--live);
 }
 

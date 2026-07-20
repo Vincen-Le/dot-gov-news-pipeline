@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { afterEach, describe, expect, it } from "vitest";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { RankingPage } from "../src/RankingPage";
 
@@ -32,7 +32,80 @@ function storyline(
   };
 }
 
+function CurrentLocation() {
+  const location = useLocation();
+  return <output data-testid="location">{location.pathname}</output>;
+}
+
 describe("ranking score makeup", () => {
+  it("opens a ranked storyline on the ranking view when its row is clicked", () => {
+    HTMLDialogElement.prototype.showModal = vi.fn(function (
+      this: HTMLDialogElement,
+    ) {
+      this.setAttribute("open", "");
+    });
+    HTMLDialogElement.prototype.close = vi.fn();
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    const storylineId = "00000000-0000-4000-8000-000000000011";
+    queryClient.setQueryData(["rank-overview"], {
+      dataset: {
+        approvedAt: "2026-07-20T12:00:00.000Z",
+        approvedEntries: 1,
+        sourceRunName: "canonical-golden",
+        storylines: 1,
+      },
+      filters: { agencies: [], categories: [], themes: [] },
+    });
+    queryClient.setQueryData(["rank-rows", "2026-07-20", "", "", ""], {
+      rows: [
+        {
+          agencies: 1,
+          entryCount: 1,
+          feeds: 1,
+          headline: "Ranked story opens here",
+          interestReason: null,
+          newestEntryAt: "2026-07-20T12:00:00.000Z",
+          position: 1,
+          rankKey: 10,
+          sourceKey: "fda",
+          sourceName: "Food and Drug Administration",
+          storylineId,
+          summary: "A reviewed summary.",
+          terms: null,
+        },
+      ],
+    });
+    queryClient.setQueryData(["bootstrap"], {
+      agencies: [
+        { displayName: "Food and Drug Administration", key: "fda" },
+      ],
+      categories: [],
+      previews: [],
+      storylines: {
+        hasMore: false,
+        items: [storyline(storylineId, "2026-07-20T12:00:00.000Z")],
+      },
+      themes: [],
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={["/ranking"]}>
+          <RankingPage asOf="2026-07-20" />
+          <CurrentLocation />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(screen.getByText("Ranked story opens here").closest("tr")!);
+
+    expect(screen.getByRole("button", { name: "Close storyline" })).toBeTruthy();
+    expect(screen.getByTestId("location").textContent).toBe("/ranking");
+  });
+
   it("paginates the complete ranked set without dropping later stories", () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
