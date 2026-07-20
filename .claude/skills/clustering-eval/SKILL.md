@@ -43,11 +43,19 @@ never in `.env`.
    generates V2 probe labels at export time via the judge client. Also
    writes `diagnostics.json` (chain embedding trends, theme cohesion — the
    no-judge router inputs).
-3. **Judge.** Seven blinded judges (V1–V7) in parallel:
+3. **Judge.** Seven blinded judges (V1–V7) in parallel. v4/v5 via the batch
+   harness; v1/v2/v3/v6/v7 via the lenient driver (trailing-comma rejoin +
+   same-rubric top-up — the batch harness aborts whole-process on one
+   malformed CSV row; note any top-up in the report caveats):
    ```bash
-   uv run python scripts/eval/run_judges.py \
+   uv run python scripts/eval/run_judges.py --vectors v4,v5 \
        --artifacts docs/eval/<run>/eval/artifacts \
        --verdicts docs/eval/<run>/eval/verdicts
+   for v in v1 v2 v3 v6 v7; do
+     uv run python scripts/eval/judge_lenient.py $v \
+         --artifacts docs/eval/<run>/eval/artifacts \
+         --verdicts docs/eval/<run>/eval/verdicts &
+   done; wait
    ```
    Protocol in `scoring.md`; judge = Anthropic API (`pipeline/shared/judge.py`,
    default `claude-opus-4-8`, override `EVAL_JUDGE_MODEL`) — always a model

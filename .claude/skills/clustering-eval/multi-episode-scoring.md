@@ -45,6 +45,19 @@ walking build order. Criteria:
   continuity → related.
 - Uncertain after entity check → `0` (split bias — a false join shows the
   reader two unrelated events as one story, worse than showing two stories).
+- **Declared roll-up cadence (editorial policy, 2026-07-20).** Recurring
+  agency series chain one cadence step up before splitting: a daily series
+  chains ~a week of instances per storyline; a weekly series ~a month; a
+  monthly data release chains month-to-month, one storyline per release
+  series. A join between instances of the same recurring series inside its
+  cadence window is `related`; past the window it should have split → `0`.
+  Cadence covers the SAME series only — joining different series of one
+  program (national Employment Situation + a state employment release) is
+  still `0`. Ruled editorial roll-ups (same-actor diplomacy burst, one
+  disaster's multi-state deadline chain) are `related` within their ruled
+  scope. This prices the curation policy the golden set is built under;
+  before 2026-07-20 these joins scored −2, so V1 is not comparable across
+  that boundary.
 
 **Drift check (chains ≥ 3 episodes).** Pairwise verdicts pass on chains
 that drift link-by-link (A→B fine, B→C fine, A→C unrelated). Two extra
@@ -77,6 +90,14 @@ Criteria mirror V1 but at event grain, entity-first:
 - Same *kind* of event, different discriminating entities → `0`.
 - Follow-up coverage of a developing event within the episode window → `1`;
   a NEW development that should have opened a new episode in the chain → `0`.
+- **Same-subject advisory bundle (editorial leniency, 2026-07-20).**
+  Distinct documents serving one reader moment on one subject — a
+  facility's visiting-info + calendar pages, one disaster's cluster of
+  survivor advisories, one diplomatic action's call readout + talks
+  statement — are `1` even though the documents differ. Distinct policies
+  aimed at distinct populations, or genuinely separate declarations, stay
+  `0`. Prices the curation policy; V6 not comparable across the 2026-07-20
+  boundary.
 
 **Score:** `V6 = (Σ same − 2·Σ different) / Σ judged`. Target ≥ 0.70.
 CSV: `episode-verdicts.csv` (`episode_id,entry_id,same_event,reason`).

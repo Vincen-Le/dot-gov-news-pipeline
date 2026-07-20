@@ -65,7 +65,15 @@ always `*_method='manual'` + dated reason).
 DATABASE_URL=<dsn> LAB_ENGINE=spine uv run python -m pipeline.cli golden promote
 npx supabase db push        # only if new migrations this slice
 node scripts/eval/mirror_golden_hosted.mjs
+node scripts/eval/mirror_corpus_features_hosted.mjs  # embeddings/enrichment/extraction
 ```
+
+**Local DB is disposable — mirror after every milestone.** Two local resets
+(jul19, 2026-07-20) have destroyed everything not on hosted or in git.
+After any `prepare`/`reextract`, run the corpus-features mirror; hosted +
+git must always suffice to rebuild (`pnpm ops setup` →
+`scripts/create-pipeline-db.sh simple_v1` → restore golden from hosted →
+`golden apply`). Never leave a promoted slice unmirrored.
 
 Promote failure playbook:
 - **"no run matches ranked card set"** — surgery changed the card set:

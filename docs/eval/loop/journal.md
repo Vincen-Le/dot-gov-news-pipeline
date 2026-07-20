@@ -274,3 +274,28 @@ sweeps will use only keys verified in the live `load_config()` implementation.
   snapshot was lost during a local reset, so its score is stored only as
   historical metadata and is not attributed to this fresh run.
 - Status: paused after successful capture; no further experiment launched.
+
+## 2026-07-20 — Rubric revision + eval-ops hardening (between-loops, human-directed)
+
+- **Rubric revision (Vincent-directed):** `multi-episode-scoring.md` gains
+  two curation-policy concepts — V1 "declared roll-up cadence" (recurring
+  series chain one cadence step up: daily→week, weekly→month, monthly
+  data releases per-series month-to-month; ruled editorial roll-ups related
+  within scope) and V6 "same-subject advisory bundle" leniency. These price
+  the policies the golden set is curated under; previously such joins scored
+  −2 (6 of 27 slice-5 chains were policy-priced). **V1/V6 and therefore
+  R_v2 are not comparable across this boundary** — slices 1-5 scored under
+  the old rubric.
+- **Dispatch hardening:** `scripts/eval/judge_lenient.py` is now the
+  standard dispatch for v1/v2/v3/v6/v7 (mechanical trailing-comma rejoin +
+  same-rubric top-up; frozen validation unchanged). Batch run_judges.py
+  aborted whole-process on single malformed rows in 3 of 4 dispatches on
+  2026-07-20.
+- **Restore-source hardening** after the second local-reset data loss (see
+  jul19 checkpoint note for the first): snapshot capture RPC now stores
+  centroids + full card columns (migration 20260720060000) so any judged
+  state restores exactly; new `scripts/eval/mirror_corpus_features_hosted.mjs`
+  mirrors locally computed embeddings/enrichment/extraction to hosted after
+  prepare/reextract milestones. Losses accepted from the 2026-07-20 wipes:
+  complex_v1 experiment DB ledger (scores survive in scorecard.csv),
+  entity_stats EMA history, local embeddings/enrichment (recomputed).
