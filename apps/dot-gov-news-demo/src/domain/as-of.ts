@@ -22,7 +22,8 @@ export function isAvailableAsOf(
 ): boolean {
   return (
     storyline.unreviewedEntryCount === 0 &&
-    Date.parse(storyline.firstEntryAt) <= endOfDay(day)
+    storyline.firstOverviewAt !== null &&
+    Date.parse(storyline.firstOverviewAt) <= endOfDay(day)
   );
 }
 

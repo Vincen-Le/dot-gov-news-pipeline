@@ -15,6 +15,7 @@ export const StorylineListItemSchema = z.object({
   episodeCount: z.number(),
   eventKeys: z.array(z.string()),
   firstEntryAt: z.string(),
+  firstOverviewAt: z.string().nullable(),
   headline: z.string().nullable(),
   id: z.string(),
   newestEntryAt: z.string(),

@@ -7,7 +7,11 @@ import type {
   StorylineDetail,
   StorylineListItem,
 } from "../src/api/contracts";
-import { StorylineCard, StorylineDialog } from "../src/components";
+import {
+  StorylineCard,
+  StorylineDialog,
+  StorylineTableRow,
+} from "../src/components";
 
 const storylineId = "00000000-0000-4000-8000-000000000021";
 const sourceEntryId = "00000000-0000-4000-8000-000000000011";
@@ -21,6 +25,7 @@ const item: StorylineListItem = {
   episodeCount: 1,
   eventKeys: [],
   firstEntryAt: "2026-07-10T12:00:00.000Z",
+  firstOverviewAt: "2026-07-10T18:00:00.000Z",
   headline: "FDA issues a reviewed update",
   id: storylineId,
   newestEntryAt: "2026-07-12T12:00:00.000Z",
@@ -159,6 +164,8 @@ describe("generated event-card content", () => {
     expect((firstImage as HTMLImageElement).style.objectPosition).toBe(
       "25% 75%",
     );
+    expect(screen.getByText("Jul 10, 2026")).toBeTruthy();
+    expect(screen.queryByText("Jul 12, 2026")).toBeNull();
 
     view.rerender(
       <QueryClientProvider client={client}>
@@ -210,6 +217,29 @@ describe("generated event-card content", () => {
     ).toBeTruthy();
   });
 
+  it("renders table rows from the selected historical snapshot", () => {
+    const client = queryClient();
+    render(
+      <QueryClientProvider client={client}>
+        <table>
+          <tbody>
+            <StorylineTableRow
+              agencyMap={new Map([["fda", "Food and Drug Administration"]])}
+              asOf="2026-07-11"
+              item={item}
+              onOpen={vi.fn()}
+            />
+          </tbody>
+        </table>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByText("Card version 1")).toBeTruthy();
+    expect(screen.getByText("2026-07-10")).toBeTruthy();
+    expect(screen.queryByText("FDA issues a reviewed update")).toBeNull();
+    expect(screen.queryByText("2026-07-12")).toBeNull();
+  });
+
   it("renders explicit placeholders while image and synthesis enrichment are pending", () => {
     const client = queryClient();
     const pendingCard: Card = {
@@ -249,14 +279,14 @@ describe("generated event-card content", () => {
     ).toBeTruthy();
   });
 
-  it("renders an overview placeholder before an event-card version exists", () => {
+  it("does not render a storyline before an event-card version exists", () => {
     const client = queryClient();
     client.setQueryData(["storyline", storylineId], {
       ...detail,
       overviewCards: [],
     });
 
-    render(
+    const view = render(
       <QueryClientProvider client={client}>
         <StorylineCard
           agencyMap={new Map([["fda", "Food and Drug Administration"]])}
@@ -267,7 +297,8 @@ describe("generated event-card content", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByText("Storyline overview pending")).toBeTruthy();
+    expect(view.container.firstChild).toBeNull();
+    expect(screen.queryByText("Storyline overview pending")).toBeNull();
     expect(screen.queryByText("Current affairs")).toBeNull();
   });
 });

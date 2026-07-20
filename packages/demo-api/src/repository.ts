@@ -240,6 +240,7 @@ export interface DemoStorylineListItem {
   episodeCount: number;
   eventKeys: string[];
   firstEntryAt: string;
+  firstOverviewAt: string | null;
   headline: string | null;
   id: string;
   newestEntryAt: string;
@@ -616,6 +617,17 @@ class SupabaseDemoRepository implements DemoRepository {
       ),
     );
     const cardById = new Map(cards.map((row) => [row.id, row]));
+    const firstOverviewAtByStoryline = new Map<string, string>();
+    for (const cardRow of cards) {
+      if (cardRow.kind !== "overview") continue;
+      const current = firstOverviewAtByStoryline.get(cardRow.storyline_id);
+      if (current === undefined || cardRow.newest_entry_at < current) {
+        firstOverviewAtByStoryline.set(
+          cardRow.storyline_id,
+          cardRow.newest_entry_at,
+        );
+      }
+    }
     const categoryById = new Map(categories.map((row) => [row.id, row]));
     const themeById = new Map(themes.map((row) => [row.id, row]));
     const reviewedByStoryline = countBy(
@@ -640,6 +652,7 @@ class SupabaseDemoRepository implements DemoRepository {
         episodeCount: row.episode_count,
         eventKeys: row.event_keys,
         firstEntryAt: row.first_entry_at,
+        firstOverviewAt: firstOverviewAtByStoryline.get(row.id) ?? null,
         headline: latest?.headline ?? null,
         id: row.id,
         newestEntryAt: row.newest_entry_at,
@@ -882,6 +895,7 @@ class SupabaseDemoRepository implements DemoRepository {
       })),
       eventKeys: storyline.event_keys,
       firstEntryAt: storyline.first_entry_at,
+      firstOverviewAt: overviewCards.at(-1)?.newestEntryAt ?? null,
       headline: latest?.headline ?? null,
       id: storyline.id,
       newestEntryAt: storyline.newest_entry_at,

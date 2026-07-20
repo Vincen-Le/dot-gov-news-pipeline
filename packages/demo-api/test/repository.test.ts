@@ -261,6 +261,7 @@ describe("demo repository", () => {
     const storylines = await repository.listStorylines(18);
     expect(storylines.items[0]).toMatchObject({
       categoryName: "Public Health",
+      firstOverviewAt: "2025-07-20T12:00:00.000Z",
       headline: "FDA issues a reviewed public-health update",
       themeName: "Food safety",
       unreviewedEntryCount: 0,

@@ -16,6 +16,7 @@ const storyline = {
   episodeCount: 1,
   eventKeys: [],
   firstEntryAt: "2026-07-18T12:00:00.000Z",
+  firstOverviewAt: "2026-07-18T12:00:00.000Z",
   headline: "Reviewed update",
   id: "storyline-1",
   newestEntryAt: "2026-07-18T12:00:00.000Z",

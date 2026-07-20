@@ -22,6 +22,7 @@ const storyline: StorylineListItem = {
   episodeCount: 1,
   eventKeys: [],
   firstEntryAt: "2026-07-10T12:00:00.000Z",
+  firstOverviewAt: "2026-07-11T12:00:00.000Z",
   headline: "Test storyline",
   id: "storyline-1",
   newestEntryAt: "2026-07-10T12:00:00.000Z",
@@ -63,11 +64,12 @@ const cards: Card[] = [
 ];
 
 describe("as-of selection", () => {
-  it("excludes storylines before emergence and with unreviewed entries", () => {
+  it("excludes storylines until their first event card exists", () => {
     expect(isAvailableAsOf(storyline, "2026-07-09")).toBe(false);
-    expect(isAvailableAsOf(storyline, "2026-07-10")).toBe(true);
+    expect(isAvailableAsOf(storyline, "2026-07-10")).toBe(false);
+    expect(isAvailableAsOf(storyline, "2026-07-11")).toBe(true);
     expect(
-      isAvailableAsOf({ ...storyline, unreviewedEntryCount: 1 }, "2026-07-10"),
+      isAvailableAsOf({ ...storyline, unreviewedEntryCount: 1 }, "2026-07-11"),
     ).toBe(false);
   });
 
@@ -85,6 +87,7 @@ describe("as-of selection", () => {
     const storylines = [20, 21, 22, 23].map((day, index) => ({
       ...storyline,
       firstEntryAt: `2025-07-${day}T14:00:00.000Z`,
+      firstOverviewAt: `2025-07-${day}T14:00:00.000Z`,
       id: `storyline-${index + 1}`,
     }));
 
@@ -106,6 +109,7 @@ describe("as-of selection", () => {
     const firstStoryline = {
       ...storyline,
       firstEntryAt: "2025-07-20T14:00:00.000Z",
+      firstOverviewAt: "2025-07-20T14:00:00.000Z",
     };
 
     expect(isThemeAvailableAsOf(theme, [firstStoryline], "2025-07-19")).toBe(

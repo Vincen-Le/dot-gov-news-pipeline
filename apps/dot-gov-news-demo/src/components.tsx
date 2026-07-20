@@ -9,7 +9,7 @@ import {
 
 import { type AgencyOption, type StorylineListItem } from "./api/contracts";
 import { dotGovApi } from "./api/client";
-import { cardAsOf, detailAsOf } from "./domain/as-of";
+import { detailAsOf } from "./domain/as-of";
 
 export function displayDate(value: string | null | undefined): string {
   if (value === null || value === undefined) return "Date unavailable";
@@ -107,19 +107,31 @@ export function StorylineCard({
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
   });
-  const overview = useMemo(
+  const asOfDetail = useMemo(
     () =>
       detail.data === undefined || detail.data.unreviewedEntryCount !== 0
         ? null
-        : cardAsOf(detail.data.overviewCards, asOf),
+        : detailAsOf(detail.data, asOf),
     [asOf, detail.data],
   );
+  const overview = asOfDetail?.overview ?? null;
+  const visibleEntries =
+    asOfDetail?.episodes.flatMap((episode) => episode.entries) ?? [];
+  const agencies = [
+    ...new Set(
+      visibleEntries.map(
+        (entry) => agencyMap.get(entry.agency) ?? entry.agency,
+      ),
+    ),
+  ].slice(0, 2);
   const headline =
-    overview?.headline ?? item.headline ?? "Developing storyline";
-  const rankKey = overview?.rankKey ?? item.rankKey;
-  const agencies = item.agencies
-    .map((agency) => agencyMap.get(agency) ?? agency)
-    .slice(0, 2);
+    overview?.headline ??
+    (detail.isLoading ? "Loading storyline" : "Storyline unavailable");
+  const rankKey = overview?.rankKey ?? null;
+
+  if (detail.data !== undefined && !detail.isLoading && overview === null) {
+    return null;
+  }
 
   return (
     <article
@@ -164,9 +176,13 @@ export function StorylineCard({
             <span className="rank-key">
               rank_key {rankKey === null ? "—" : rankKey.toFixed(3)}
             </span>
-            <time dateTime={item.newestEntryAt}>
-              {displayDate(item.newestEntryAt)}
-            </time>
+            {overview === null ? (
+              <span>Snapshot loading</span>
+            ) : (
+              <time dateTime={overview.newestEntryAt}>
+                {displayDate(overview.newestEntryAt)}
+              </time>
+            )}
           </div>
           <h2>{headline}</h2>
           {overview === null ? (
@@ -190,14 +206,71 @@ export function StorylineCard({
           <footer>
             <span className="card-volume">
               {agencies.join(" · ") || "Agency source pending"} ·{" "}
-              {item.episodeCount} episode{item.episodeCount === 1 ? "" : "s"} ·{" "}
-              {item.entryCount} source{item.entryCount === 1 ? "" : "s"}
+              {asOfDetail?.episodes.length ?? 0} episode
+              {asOfDetail?.episodes.length === 1 ? "" : "s"} ·{" "}
+              {visibleEntries.length} source
+              {visibleEntries.length === 1 ? "" : "s"}
             </span>
             <span className="open-cue">Open storyline</span>
           </footer>
         </div>
       </button>
     </article>
+  );
+}
+
+export function StorylineTableRow({
+  agencyMap,
+  asOf,
+  item,
+  onOpen,
+}: {
+  agencyMap: Map<string, string>;
+  asOf: string;
+  item: StorylineListItem;
+  onOpen: () => void;
+}) {
+  const detail = useQuery({
+    queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
+    queryKey: ["storyline", item.id],
+  });
+  const snapshot = useMemo(
+    () =>
+      detail.data === undefined || detail.data.unreviewedEntryCount !== 0
+        ? null
+        : detailAsOf(detail.data, asOf),
+    [asOf, detail.data],
+  );
+  const overview = snapshot?.overview ?? null;
+  const entries =
+    snapshot?.episodes.flatMap((episode) => episode.entries) ?? [];
+  const agencies = [
+    ...new Set(
+      entries.map((entry) => agencyMap.get(entry.agency) ?? entry.agency),
+    ),
+  ];
+
+  if (detail.data !== undefined && overview === null) return null;
+
+  return (
+    <tr>
+      <td>{overview?.rankKey.toFixed(3) ?? "—"}</td>
+      <th scope="row">
+        <button className="table-open" onClick={onOpen} type="button">
+          {overview?.headline ?? "Loading historical snapshot"}
+        </button>
+      </th>
+      <td className="wrap">{agencies.join(" · ") || "—"}</td>
+      <td className="wrap">
+        {[item.categoryName, item.themeName].filter(Boolean).join(" · ") || "—"}
+      </td>
+      <td>{snapshot?.episodes.length ?? "—"}</td>
+      <td>{snapshot === null ? "—" : entries.length}</td>
+      <td>{overview?.newestEntryAt.slice(0, 10) ?? "—"}</td>
+      <td>
+        <span className="reviewed-mark">Reviewed</span>
+      </td>
+    </tr>
   );
 }
 
@@ -232,13 +305,16 @@ export function StorylineDialog({
     return () => current.close();
   }, []);
 
-  const headline =
-    asOfDetail?.overview?.headline ?? item.headline ?? "Developing storyline";
-  const namedAgencies = item.agencies.map(
-    (agency) => agencyMap.get(agency) ?? agency,
-  );
+  const headline = asOfDetail?.overview?.headline ?? "Loading storyline";
   const visibleEntries =
     asOfDetail?.episodes.flatMap((episode) => episode.entries) ?? [];
+  const namedAgencies = [
+    ...new Set(
+      visibleEntries.map(
+        (entry) => agencyMap.get(entry.agency) ?? entry.agency,
+      ),
+    ),
+  ];
   const synthesisCutoff = asOfDetail?.overview?.newestEntryAt ?? null;
 
   return (

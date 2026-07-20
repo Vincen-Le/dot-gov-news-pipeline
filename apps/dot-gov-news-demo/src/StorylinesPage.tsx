@@ -10,6 +10,7 @@ import {
   StatePanel,
   StorylineCard,
   StorylineDialog,
+  StorylineTableRow,
   type FilterOption,
 } from "./components";
 import { isAvailableAsOf, isThemeAvailableAsOf } from "./domain/as-of";
@@ -361,34 +362,13 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               </thead>
               <tbody>
                 {visibleItems.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.rankKey?.toFixed(3) ?? "—"}</td>
-                    <th scope="row">
-                      <button
-                        className="table-open"
-                        onClick={() => open(item)}
-                        type="button"
-                      >
-                        {item.headline ?? "Developing storyline"}
-                      </button>
-                    </th>
-                    <td className="wrap">
-                      {item.agencies
-                        .map((key) => agencyMap.get(key) ?? key)
-                        .join(" · ") || "—"}
-                    </td>
-                    <td className="wrap">
-                      {[item.categoryName, item.themeName]
-                        .filter(Boolean)
-                        .join(" · ") || "—"}
-                    </td>
-                    <td>{item.episodeCount}</td>
-                    <td>{item.entryCount}</td>
-                    <td>{item.newestEntryAt.slice(0, 10)}</td>
-                    <td>
-                      <span className="reviewed-mark">Reviewed</span>
-                    </td>
-                  </tr>
+                  <StorylineTableRow
+                    agencyMap={agencyMap}
+                    asOf={asOf}
+                    item={item}
+                    key={item.id}
+                    onOpen={() => open(item)}
+                  />
                 ))}
               </tbody>
             </table>
