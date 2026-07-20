@@ -13,8 +13,11 @@ class Config:
     cf_api_token: str
     embedding_model: str = "@cf/baai/bge-m3"
     enricher_model: str = "@cf/meta/llama-3.1-8b-instruct-fast"
-    adjudicator_model: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
-    judge_model: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+    # chat-judge calls route to Anthropic (claude-* ids dispatch there in
+    # pipeline/ai.py); Workers AI llama proved flaky for constrained JSON.
+    # Embeddings + enricher stay on Workers AI.
+    adjudicator_model: str = "claude-sonnet-5"
+    judge_model: str = "claude-sonnet-5"
     near_dup_threshold: float = 0.90        # calibrate on real corpus (design amendment 5)
     cluster_join_threshold: float = 0.78    # ditto
     storyline_sim_floor: float = 0.60
@@ -36,7 +39,7 @@ class Config:
     theme_demotion_cohesion_floor: float = 0.40
     theme_sweep_interval_hours: float = 24.0
     publisher_weight_version: int = 1
-    audit_model: str = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+    audit_model: str = "claude-sonnet-5"
     rank_audit_top_k: int = 30
     rank_audit_window: int = 3
     rank_audit_facets: str = "global,category"

@@ -28,10 +28,37 @@ from pipeline.prompts import (
 )
 
 _TRANSPORT_ATTEMPTS = 3
+# Anthropic-routed chat calls (judges/compressor/classifier): thinking is
+# adaptive by default on Sonnet 5; low effort keeps per-call latency small
+# for verdict-sized outputs. 8192 leaves headroom for thinking + the
+# compressor's timeline.
+_ANTHROPIC_EFFORT = "low"
+_ANTHROPIC_MAX_TOKENS = 8192
 
 
 def _json_mode(schema: dict) -> dict:
     return {"type": "json_schema", "json_schema": schema}
+
+
+def _anthropic_schema(schema: dict) -> dict:
+    """Anthropic structured outputs require additionalProperties: false on
+    every object; Workers AI schemas omit it. Returns an adapted copy."""
+    import copy
+
+    adapted = copy.deepcopy(schema)
+
+    def close_objects(node) -> None:
+        if isinstance(node, dict):
+            if node.get("type") == "object":
+                node.setdefault("additionalProperties", False)
+            for value in node.values():
+                close_objects(value)
+        elif isinstance(node, list):
+            for item in node:
+                close_objects(item)
+
+    close_objects(adapted)
+    return adapted
 
 
 def _extract_json(text: str | dict) -> dict:
@@ -75,6 +102,11 @@ class WorkersAI:
 
     def _chat(self, model: str, system: str, user: str,
               response_format: dict | None = None) -> str:
+        # route by model id: claude-* → Anthropic Messages API (reliable
+        # structured outputs; Workers AI proved flaky — 403s/stragglers),
+        # everything else → Workers AI (embeddings, enricher)
+        if model.startswith("claude-"):
+            return self._chat_anthropic(model, system, user, response_format)
         payload = {
             "messages": [
                 {"role": "system", "content": system},
@@ -86,6 +118,27 @@ class WorkersAI:
             payload["response_format"] = response_format
         result = self._run(model, payload)
         return result["response"]
+
+    def _anthropic_client(self):
+        if not hasattr(self, "_anthropic"):
+            import anthropic
+            self._anthropic = anthropic.Anthropic()  # ANTHROPIC_API_KEY from env
+        return self._anthropic
+
+    def _chat_anthropic(self, model: str, system: str, user: str,
+                        response_format: dict | None) -> str:
+        kwargs = {"output_config": {"effort": _ANTHROPIC_EFFORT}}
+        if response_format is not None:
+            kwargs["output_config"]["format"] = {
+                "type": "json_schema",
+                "schema": _anthropic_schema(response_format["json_schema"]),
+            }
+        response = self._anthropic_client().messages.create(
+            model=model, max_tokens=_ANTHROPIC_MAX_TOKENS,
+            system=system, messages=[{"role": "user", "content": user}],
+            **kwargs)
+        return next(block.text for block in response.content
+                    if block.type == "text")
 
     def embed(self, texts: list[str]) -> list[np.ndarray]:
         result = self._run(self.cfg.embedding_model, {"text": texts})

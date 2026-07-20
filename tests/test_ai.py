@@ -8,8 +8,15 @@ from pipeline.ai import WorkersAI
 from pipeline.config import Config
 
 
+_CF_LLAMA = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+
 def _cfg() -> Config:
-    return Config(database_url="x", cf_account_id="acct", cf_api_token="tok")
+    # pin the Workers AI chat model: these tests exercise the CF transport
+    # path via httpx MockTransport (defaults route claude-* to Anthropic)
+    return Config(database_url="x", cf_account_id="acct", cf_api_token="tok",
+                  adjudicator_model=_CF_LLAMA, judge_model=_CF_LLAMA,
+                  audit_model=_CF_LLAMA)
 
 
 def _transport(handler):
@@ -295,3 +302,40 @@ def test_json_parsing_calls_send_json_schema_response_format():
 
     ai.enrich("Title", "Summary")
     assert seen["response_format"] is None
+
+
+def test_claude_models_route_to_anthropic_with_low_effort_and_schema():
+    class FakeBlock:
+        type = "text"
+        text = json.dumps({"match": 0, "same_development": True, "reason": "same event"})
+
+    class FakeResponse:
+        content = [FakeBlock()]
+
+    class FakeAnthropic:
+        def __init__(self):
+            self.calls = []
+            self.messages = self
+
+        def create(self, **kwargs):
+            self.calls.append(kwargs)
+            return FakeResponse()
+
+    cfg = Config(database_url="x", cf_account_id="acct", cf_api_token="tok")
+    assert cfg.adjudicator_model.startswith("claude-")
+    ai = WorkersAI(cfg, transport=_transport(lambda request: None))
+    ai._anthropic = FakeAnthropic()
+
+    out = ai.link_storyline(
+        {"title": "A", "enriched_text": "", "published_at": "2025-07-18",
+         "entity_set": [], "content_hash": "0" * 64},
+        [{"headline": "B", "summary": "", "newest_entry_at": "2025-07-18",
+          "gap_hours": 1.0, "shared_entities": [], "episode_count": 1}])
+    assert out == {"match": 0, "same_development": True, "reason": "same event"}
+
+    call = ai._anthropic.calls[0]
+    assert call["model"] == cfg.adjudicator_model
+    assert call["output_config"]["effort"] == "low"
+    schema = call["output_config"]["format"]["schema"]
+    assert schema["additionalProperties"] is False
+    assert "match" in schema["required"]
