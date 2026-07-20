@@ -134,7 +134,7 @@ describe("image-only publishing", () => {
     const rpc = vi.fn(async () => {
       events.push("publish");
     });
-    const select = vi.fn(async (table: string) => {
+    const select = vi.fn(async (table: string, _columns: string) => {
       if (table === "golden_storyline_thumbnails") {
         return [{ image_id: IMAGE_ID, storyline_id: STORYLINE_ID }];
       }
@@ -156,6 +156,13 @@ describe("image-only publishing", () => {
     });
     expect(result.thumbnailRows).toBe(1);
     expect(select).toHaveBeenCalledTimes(2);
+    const imageSelect = select.mock.calls.find(([table]) => table === "images");
+    expect(imageSelect).toBeDefined();
+    const selectedColumns = imageSelect![1].split(",");
+    expect(selectedColumns).not.toContain("event_card_id");
+    expect(selectedColumns).toEqual(
+      expect.arrayContaining(["id", ...Object.keys(prepared[0]!.record)]),
+    );
   });
 
   it("fails if an ignored duplicate insert does not match the selected image", async () => {

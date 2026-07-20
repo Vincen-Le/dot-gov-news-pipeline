@@ -30,7 +30,6 @@ const THUMBNAIL_COLUMNS = [
   "card_sha256",
   "card_width",
   "enrichment_version",
-  "event_card_id",
   "focal_x",
   "focal_y",
   "generated_at",

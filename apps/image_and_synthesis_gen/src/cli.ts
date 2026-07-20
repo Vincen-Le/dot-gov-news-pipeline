@@ -14,6 +14,7 @@ import {
 import { validateArtifacts } from "./legacy/validation.js";
 import { hostedDatabase } from "./shared/database.js";
 import { exportTrustedManifests } from "./shared/exporter.js";
+import { type SynthesisCardKind } from "./shared/types.js";
 import {
   assertImageRowsCompatible,
   prepareImageArtifacts,
@@ -31,8 +32,10 @@ function resolveFromRepository(value: string | undefined): string {
 }
 
 interface ExportCliOptions {
+  cardKinds: SynthesisCardKind[];
   dryRun: boolean;
   limit?: number;
+  missingArticleOverviewsOnly: boolean;
   outputDirectory: string;
   partitionCount: number;
 }
@@ -54,7 +57,9 @@ function positiveInteger(value: string | undefined, flag: string): number {
 
 function parseExportOptions(arguments_: string[]): ExportCliOptions {
   const options: ExportCliOptions = {
+    cardKinds: ["overview"],
     dryRun: false,
+    missingArticleOverviewsOnly: false,
     outputDirectory: path.resolve(
       import.meta.dirname,
       "../../../.data/golden-enrichment/export",
@@ -64,7 +69,19 @@ function parseExportOptions(arguments_: string[]): ExportCliOptions {
   for (let index = 0; index < arguments_.length; index += 1) {
     const argument = arguments_[index];
     if (argument === "--dry-run") options.dryRun = true;
-    else if (argument === "--limit") {
+    else if (argument === "--card-kinds") {
+      const raw = arguments_[++index] ?? "";
+      const values = [...new Set(raw.split(","))];
+      if (
+        values.length === 0 ||
+        values.some((value) => value !== "overview" && value !== "episode")
+      ) {
+        throw new Error("--card-kinds must be overview, episode, or both");
+      }
+      options.cardKinds = values as SynthesisCardKind[];
+    } else if (argument === "--missing-overviews") {
+      options.missingArticleOverviewsOnly = true;
+    } else if (argument === "--limit") {
       options.limit = positiveInteger(arguments_[++index], "--limit");
     } else if (argument === "--output-dir") {
       options.outputDirectory = resolveFromRepository(arguments_[++index]);
@@ -204,6 +221,7 @@ async function main(): Promise<void> {
     }
     const database = hostedDatabase();
     await exportTrustedManifests(database, {
+      cardKinds: ["overview", "episode"],
       dryRun: true,
       expectedTasks: validated.map(({ task }) => task),
       outputDirectory: options.manifestDirectory,

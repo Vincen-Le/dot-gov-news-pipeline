@@ -2,10 +2,10 @@
 
 This package owns the tools used to generate and publish a storyline's
 thumbnail and each event card's article synthesis. Those assets are not
-conceptually limited to golden data. The current export coordinator is
-deliberately narrower: it exports reviewed golden overview cards because those
-are the only cards with the complete, hash-locked trust boundary required for
-safe backfill publication today.
+conceptually limited to golden data. The current export coordinator supports
+reviewed golden overview and episode cards through the same complete,
+hash-locked historical trust boundary. Its default remains overview-only for
+storyline image workflows; article backfills explicitly select both kinds.
 
 Article synthesis and thumbnails are independent lanes. An editorial revision
 does not require regenerating an approved thumbnail, and an image retry cannot
@@ -64,6 +64,7 @@ Use $golden-enrichment-backfill to audit hosted coverage before generating more.
 
 ```bash
 pnpm card:generate export --partitions 16
+pnpm card:generate export --card-kinds overview,episode --missing-overviews --partitions 24
 pnpm card:generate validate --input .data/golden-enrichment/generated
 pnpm card:generate publish --dry-run --input .data/golden-enrichment/generated
 pnpm card:generate publish --input .data/golden-enrichment/generated
@@ -76,8 +77,13 @@ pnpm card:generate publish-overviews --input .data/golden-enrichment/generated-o
 ```
 
 Every command accepts `--limit`. `export` additionally accepts `--dry-run`,
-`--partitions`, and `--output-dir`; validation and publishing accept repeated
-`--input` flags and `--manifest-dir`.
+`--partitions`, `--output-dir`, `--card-kinds`, and `--missing-overviews`;
+validation and publishing accept repeated `--input` flags and
+`--manifest-dir`. `--card-kinds overview,episode` covers every eligible
+historical event-card snapshot. `--missing-overviews` excludes exact hosted v2
+rows plus stale immutable v2 rows that require a separately versioned refresh;
+the export result reports both counts so the missing-card batch cannot silently
+overwrite either class.
 
 ### Storyline thumbnail identity and reconciliation
 
@@ -116,9 +122,11 @@ event card; readers resolve every card in the chain through its existing
 Golden construction and enrichment use separate lanes:
 
 1. Keep building and reviewing the hosted golden mirror as usual.
-2. Periodically run `export` into a versioned output directory. It snapshots
-   only overview-card versions whose complete source set at the card cutoff is
-   reviewed and hash-matching. Keep that snapshot until its workers finish.
+2. Periodically run `export` into a versioned output directory. For article
+   synthesis, select `--card-kinds overview,episode`; it snapshots every card
+   version whose complete source set at the card cutoff is reviewed and
+   hash-matching. Keep that snapshot until its workers finish. Image work keeps
+   the default overview-only scope and selects at most one card per storyline.
 3. Distribute the content-addressed partition files to parallel generation
    workers. Overview workers follow
    `docs/article_synthesis/article-overview-v2.md` and write
@@ -197,10 +205,10 @@ Raw source text is available to the overview writer inside the trusted task.
 Image generation must use only `imagePromptInput`, which is limited to reviewed
 card text, category, theme, agency labels, entities, and event keys.
 
-Supporting another card type should add an eligibility/export adapter in
-`shared/`; it should not duplicate the thumbnail or article-synthesis lanes.
-The adapter must define its trusted source set, cutoff, and input hash before
-publication is enabled.
+Overview and episode cards share the same eligibility adapter, trusted source
+set, historical cutoff, and input hash. Supporting another card type must
+extend that adapter in `shared/`; it must not duplicate the thumbnail or
+article-synthesis lanes.
 
 The overview-v2 validator accepts 25–160 summary words and two to five cited
 key points of 12–80 words and one or two sentences each. It requires all exact

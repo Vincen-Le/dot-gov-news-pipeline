@@ -1,9 +1,11 @@
 # Article overview v2 writer contract
 
-Write a plain-language synthesis of one historical storyline card for an
-average U.S. resident. The reader chose a category and then clicked this
-storyline; make the practical reason for that choice clear without inventing
-stakes that the supplied sources do not support.
+Write a plain-language synthesis of one historical event-card snapshot for an
+average U.S. resident. The snapshot may be an overview or an episode; in both
+cases, describe the storyline only as it was knowable at that card's cutoff.
+The reader chose a category and then clicked this storyline; make the practical
+reason for that choice clear without inventing stakes that the supplied
+sources do not support.
 
 ## Time boundary
 

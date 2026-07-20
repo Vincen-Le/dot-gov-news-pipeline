@@ -8,6 +8,9 @@ const Sha256Schema = z.string().regex(SHA256_PATTERN);
 const UuidSchema = z.string().regex(UUID_PATTERN);
 const IsoDateTimeSchema = z.iso.datetime({ offset: true });
 
+export const SynthesisCardKindSchema = z.enum(["overview", "episode"]);
+export type SynthesisCardKind = z.infer<typeof SynthesisCardKindSchema>;
+
 const TimelineItemSchema = z
   .object({
     date: z.string(),
@@ -75,6 +78,7 @@ export const OverviewInputBasisSchema = z
 
 export const OverviewTaskSchema = z
   .object({
+    cardKind: SynthesisCardKindSchema.optional(),
     eventCardId: UuidSchema,
     inputBasis: OverviewInputBasisSchema,
     inputHash: Sha256Schema,
@@ -164,6 +168,7 @@ export type OverviewTask = z.infer<typeof OverviewTaskSchema>;
 
 export interface ExportIndex {
   cardCount: number;
+  cardKinds?: SynthesisCardKind[];
   exportedAt: string;
   partitionCount: number;
   schemaVersion: "golden-enrichment-export.v1";

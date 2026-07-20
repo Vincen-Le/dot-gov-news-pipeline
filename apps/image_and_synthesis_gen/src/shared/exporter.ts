@@ -14,6 +14,8 @@ import {
   type ExportIndex,
   type OverviewInputBasis,
   type OverviewTask,
+  SynthesisCardKindSchema,
+  type SynthesisCardKind,
 } from "./types.js";
 
 const UuidSchema = z.string().uuid();
@@ -43,7 +45,7 @@ const CardRowSchema = z.object({
   headline: z.string(),
   id: UuidSchema,
   interest_reason: z.string().nullable(),
-  kind: z.literal("overview"),
+  kind: SynthesisCardKindSchema,
   newest_entry_at: z.string(),
   storyline_id: UuidSchema,
   summary: z.string(),
@@ -91,9 +93,11 @@ interface EnrichedGoldenRow {
 }
 
 export interface ExportOptions {
+  cardKinds?: readonly SynthesisCardKind[];
   dryRun: boolean;
   expectedTasks?: readonly TaskIdentity[];
   limit?: number;
+  missingArticleOverviewsOnly?: boolean;
   outputDirectory: string;
   partitionCount: number;
 }
@@ -104,8 +108,26 @@ export interface TaskIdentity {
 }
 
 export interface ExportResult extends ExportIndex {
+  eligibleCardCount: number;
+  excludedCurrentArticleOverviewCount: number;
+  excludedExistingArticleOverviewCount: number;
   outputDirectory: string;
+  staleCurrentArticleOverviewCount: number;
 }
+
+export interface ArticleOverviewIdentityRow {
+  enrichment_version: number;
+  event_card_id: string;
+  input_hash: string;
+  prompt_version: number;
+}
+
+const ArticleOverviewIdentityRowSchema = z.object({
+  enrichment_version: z.number().int(),
+  event_card_id: UuidSchema,
+  input_hash: z.string(),
+  prompt_version: z.number().int(),
+});
 
 export function assertExpectedTasksStillCurrent(
   currentTasks: readonly TaskIdentity[],
@@ -131,6 +153,57 @@ export function assertExpectedTasksStillCurrent(
 
 function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values)].sort((left, right) => left.localeCompare(right));
+}
+
+function normalizedCardKinds(
+  values: readonly SynthesisCardKind[] | undefined,
+): SynthesisCardKind[] {
+  const parsed = z
+    .array(SynthesisCardKindSchema)
+    .min(1)
+    .parse(values ?? ["overview"]);
+  return [...new Set(parsed)].sort((left, right) => left.localeCompare(right));
+}
+
+export function synthesisCardKindFilter(
+  values: readonly SynthesisCardKind[] | undefined,
+): { cardKinds: SynthesisCardKind[]; filter: string } {
+  const cardKinds = normalizedCardKinds(values);
+  return {
+    cardKinds,
+    filter:
+      cardKinds.length === 1
+        ? `eq.${cardKinds[0]}`
+        : `in.(${cardKinds.join(",")})`,
+  };
+}
+
+export function articleOverviewCoverage(
+  tasks: readonly OverviewTask[],
+  rows: readonly ArticleOverviewIdentityRow[],
+): {
+  currentCardIds: Set<string>;
+  staleCurrentCardIds: Set<string>;
+} {
+  const taskByCard = new Map(tasks.map((task) => [task.eventCardId, task]));
+  const currentCardIds = new Set<string>();
+  const staleCurrentCardIds = new Set<string>();
+  for (const row of rows) {
+    const task = taskByCard.get(row.event_card_id);
+    if (
+      task === undefined ||
+      row.enrichment_version !== 2 ||
+      row.prompt_version !== 2
+    ) {
+      continue;
+    }
+    if (row.input_hash === task.inputHash) {
+      currentCardIds.add(row.event_card_id);
+    } else {
+      staleCurrentCardIds.add(row.event_card_id);
+    }
+  }
+  return { currentCardIds, staleCurrentCardIds };
 }
 
 function chunks<T>(values: readonly T[], size: number): T[][] {
@@ -208,6 +281,9 @@ export async function exportTrustedManifests(
   database: SupabaseRestClient,
   options: ExportOptions,
 ): Promise<ExportResult> {
+  const { cardKinds, filter: cardKindFilter } = synthesisCardKindFilter(
+    options.cardKinds,
+  );
   const [rawGoldenRows, rawCards, rawStorylines, rawCategories, rawThemes] =
     await Promise.all([
       database.select(
@@ -219,7 +295,7 @@ export async function exportTrustedManifests(
         "golden_event_cards",
         "id,storyline_id,kind,version,headline,summary,timeline,interest_reason,newest_entry_at,generated_at",
         {
-          filters: { kind: "eq.overview" },
+          filters: { kind: cardKindFilter },
           order: "storyline_id.asc,version.asc",
         },
       ),
@@ -370,6 +446,7 @@ export async function exportTrustedManifests(
       const inputHash = fingerprint(inputBasis);
       return [
         {
+          cardKind: card.kind,
           eventCardId: card.id,
           inputBasis,
           inputHash,
@@ -379,12 +456,38 @@ export async function exportTrustedManifests(
       ];
     })
     .sort((left, right) => left.taskKey.localeCompare(right.taskKey));
-  const tasks = allTasks.slice(0, options.limit);
   if (options.expectedTasks !== undefined) {
     assertExpectedTasksStillCurrent(allTasks, options.expectedTasks);
   }
+  let excludedCurrentArticleOverviewCount = 0;
+  let excludedExistingArticleOverviewCount = 0;
+  let staleCurrentArticleOverviewCount = 0;
+  let exportableTasks = allTasks;
+  if (options.missingArticleOverviewsOnly === true) {
+    const rawRows = await database.select(
+      "golden_event_card_article_overviews",
+      "event_card_id,input_hash,enrichment_version,prompt_version",
+    );
+    const rows = z.array(ArticleOverviewIdentityRowSchema).parse(rawRows);
+    const { currentCardIds, staleCurrentCardIds } = articleOverviewCoverage(
+      allTasks,
+      rows,
+    );
+    excludedCurrentArticleOverviewCount = currentCardIds.size;
+    staleCurrentArticleOverviewCount = staleCurrentCardIds.size;
+    const existingCardIds = new Set([
+      ...currentCardIds,
+      ...staleCurrentCardIds,
+    ]);
+    excludedExistingArticleOverviewCount = existingCardIds.size;
+    exportableTasks = allTasks.filter(
+      (task) => !existingCardIds.has(task.eventCardId),
+    );
+  }
+  const tasks = exportableTasks.slice(0, options.limit);
   const index: ExportIndex = {
     cardCount: tasks.length,
+    cardKinds,
     exportedAt: new Date().toISOString(),
     partitionCount: options.partitionCount,
     schemaVersion: "golden-enrichment-export.v1",
@@ -392,5 +495,12 @@ export async function exportTrustedManifests(
   if (!options.dryRun) {
     await writeManifest(options.outputDirectory, tasks, index);
   }
-  return { ...index, outputDirectory: options.outputDirectory };
+  return {
+    ...index,
+    eligibleCardCount: allTasks.length,
+    excludedCurrentArticleOverviewCount,
+    excludedExistingArticleOverviewCount,
+    outputDirectory: options.outputDirectory,
+    staleCurrentArticleOverviewCount,
+  };
 }
