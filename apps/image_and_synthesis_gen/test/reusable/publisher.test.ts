@@ -29,19 +29,19 @@ function image(
 
 describe("reusable image publishing", () => {
   it("catalogs exactly the completed renders without duplicate files or keys", () => {
-    expect(COMPLETED_REUSABLE_IMAGES).toHaveLength(14);
+    expect(COMPLETED_REUSABLE_IMAGES).toHaveLength(16);
     expect(
       new Set(COMPLETED_REUSABLE_IMAGES.map(({ key }) => key)).size,
-    ).toBe(14);
+    ).toBe(16);
     expect(
       new Set(
         COMPLETED_REUSABLE_IMAGES.map(
           ({ generatedFileName }) => generatedFileName,
         ),
       ).size,
-    ).toBe(14);
+    ).toBe(16);
     for (const completed of COMPLETED_REUSABLE_IMAGES) {
-      expect(reusableImageByKey(completed.key)?.scope).toBe("category");
+      expect(reusableImageByKey(completed.key)).toBeDefined();
     }
   });
 

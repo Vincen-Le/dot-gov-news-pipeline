@@ -63,4 +63,12 @@ export const COMPLETED_REUSABLE_IMAGES: readonly CompletedReusableImage[] = [
     generatedFileName: "exec-a415cbd2-2591-4b21-bf86-f75703089511.png",
     key: "social-security-and-benefits",
   },
+  {
+    generatedFileName: "exec-e6a23e6c-2695-4d80-b622-f0aab616540e.png",
+    key: "science-and-space",
+  },
+  {
+    generatedFileName: "exec-e8b67b97-2e72-41fd-b032-240d60a9cbe9.png",
+    key: "technology-and-cybersecurity",
+  },
 ];
