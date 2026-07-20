@@ -146,11 +146,9 @@ def run(store, models, cfg, limit=None, since=None, until=None,
         _close(replay, card_engine, index, story)
         closed_count += 1
 
-    # Categories assign in one concurrent end-of-run batch: linking never
-    # depends on them, and pulling the LLM call out of the per-entry loop
-    # roughly halves replay wall-clock. A second serial pass retries
-    # transient failures (mirrors pipeline.runner.cluster()).
-    category_engine.classify_many(replay.uncategorized_storyline_ids())
+    # Retry categories deferred by transient model failures (mirrors
+    # pipeline.runner.cluster()'s end-of-run retry loop), so uncategorized
+    # counts stay comparable across engines.
     for storyline_id in replay.uncategorized_storyline_ids():
         category_engine.classify(storyline_id, method="retry")
 
