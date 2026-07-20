@@ -38,7 +38,7 @@ describe("deployment password middleware", () => {
   });
 
   it("sets an HttpOnly cookie and returns to the requested page", async () => {
-    const response = await middleware(loginRequest("nds-news"));
+    const response = await middleware(loginRequest("govnews"));
 
     expect(response?.status).toBe(303);
     expect(response?.headers.get("location")).toBe("/storylines/example");
@@ -46,7 +46,7 @@ describe("deployment password middleware", () => {
   });
 
   it("allows requests carrying the valid access cookie", async () => {
-    const loginResponse = await middleware(loginRequest("nds-news"));
+    const loginResponse = await middleware(loginRequest("govnews"));
     const cookie = loginResponse?.headers.get("set-cookie")?.split(";", 1)[0];
     const response = await middleware(
       new Request("https://news.example/api/lab/storylines", {
@@ -58,7 +58,7 @@ describe("deployment password middleware", () => {
   });
 
   it("does not allow external redirect targets", async () => {
-    const response = await middleware(loginRequest("nds-news", "//evil.test"));
+    const response = await middleware(loginRequest("govnews", "//evil.test"));
 
     expect(response?.headers.get("location")).toBe("/");
   });
