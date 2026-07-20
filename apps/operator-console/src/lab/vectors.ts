@@ -6,7 +6,6 @@
  * default, so live numbers agree with any Python-side analysis.
  */
 
-
 function halfToNumber(half: number): number {
   const sign = half & 0x8000 ? -1 : 1;
   const exponent = (half >> 10) & 0x1f;

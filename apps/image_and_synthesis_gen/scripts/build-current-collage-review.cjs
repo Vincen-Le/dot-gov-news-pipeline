@@ -46,7 +46,11 @@ for (const eventCardId of fs.readdirSync(run).sort()) {
     directory,
     metadata.masterPath || "storyline-master.png",
   );
-  if (task && metadata.inputHash === task.inputHash && fs.existsSync(masterPath)) {
+  if (
+    task &&
+    metadata.inputHash === task.inputHash &&
+    fs.existsSync(masterPath)
+  ) {
     selections.push({ eventCardId, masterPath, metadataName });
   }
 }
@@ -107,7 +111,9 @@ async function main() {
       .toFile(path.join(output, name));
     process.stdout.write(`${path.join(output, name)}\n`);
   }
-  process.stdout.write(`${JSON.stringify({ selections: selections.length })}\n`);
+  process.stdout.write(
+    `${JSON.stringify({ selections: selections.length })}\n`,
+  );
 }
 
 main().catch((error) => {

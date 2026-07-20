@@ -134,7 +134,8 @@ describe("image-only publishing", () => {
     const rpc = vi.fn(async () => {
       events.push("publish");
     });
-    const select = vi.fn(async (table: string, _columns: string) => {
+    const select = vi.fn(async (table: string, columns: string) => {
+      expect(columns).not.toBe("");
       if (table === "golden_storyline_thumbnails") {
         return [{ image_id: IMAGE_ID, storyline_id: STORYLINE_ID }];
       }

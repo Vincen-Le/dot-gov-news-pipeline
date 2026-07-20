@@ -20,8 +20,10 @@ select ok(
 select ok(
     not has_table_privilege('anon', 'public.simple_v1_experiment_runs', 'select')
     and has_table_privilege('service_role', 'public.simple_v1_experiment_runs', 'select')
-    and not has_table_privilege('service_role', 'public.simple_v1_experiment_runs', 'insert'),
-    'grants: service_role read-only, anon nothing'
+    and has_table_privilege('service_role', 'public.simple_v1_experiment_runs', 'insert')
+    and has_table_privilege('service_role', 'public.simple_v1_experiment_runs', 'update')
+    and has_table_privilege('service_role', 'public.simple_v1_experiment_runs', 'delete'),
+    'grants: service_role mirror writes, anon nothing'
 );
 
 select throws_ok(

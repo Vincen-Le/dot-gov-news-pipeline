@@ -154,7 +154,9 @@ describe("LabPage", () => {
       </QueryClientProvider>,
     );
     expect((await screen.findAllByText("13")).length).toBeGreaterThan(0);
-    expect((await screen.findAllByText(/needs prepare/i)).length).toBeGreaterThan(0);
+    expect(
+      (await screen.findAllByText(/needs prepare/i)).length,
+    ).toBeGreaterThan(0);
     expect(await screen.findByText("near-dup-0.87")).toBeInTheDocument();
     expect(await screen.findByText("baseline")).toBeInTheDocument();
     expect(
@@ -162,9 +164,7 @@ describe("LabPage", () => {
     ).toBeInTheDocument();
     expect(await screen.findByText(/0\.922/)).toBeInTheDocument();
     // every override parameter explains what it tunes
-    expect(
-      screen.getByText(/syndicated near-duplicate/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/syndicated near-duplicate/)).toBeInTheDocument();
     expect(screen.getByText(/hours without a new entry/)).toBeInTheDocument();
     expect(screen.getByText(/never justify a join/)).toBeInTheDocument();
   });

@@ -43,10 +43,7 @@ describe("snapshotLabMetrics", () => {
     expect(metrics.singletonEpisodeRate).toBeCloseTo(0.4, 5);
     expect(metrics.entriesPerEpisode).toContainEqual({ bucket: 10, count: 1 });
     // p5 of [0.94..0.99] sorted = 0.942 -> minus 0.02 -> 0.922
-    expect(metrics.calibration.suggestedNearDupThreshold).toBeCloseTo(
-      0.922,
-      3,
-    );
+    expect(metrics.calibration.suggestedNearDupThreshold).toBeCloseTo(0.922, 3);
     expect(metrics.calibration.pairCount).toBe(5);
     expect(metrics.similarity[0]!.percentiles.p50).toBe(0.92);
   });

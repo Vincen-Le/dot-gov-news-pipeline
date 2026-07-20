@@ -8,6 +8,7 @@ export default tseslint.config(
       ".claude/",
       ".venv/",
       ".wrangler/",
+      "**/.vercel/",
       "apps/operator-api/worker-configuration.d.ts",
       "apps/pipeline-worker/worker-configuration.d.ts",
       "coverage/",
@@ -20,9 +21,12 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["scripts/**/*.mjs"],
+    files: ["**/*.mjs", "**/*.cjs"],
     languageOptions: {
       globals: globals.node,
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
   {

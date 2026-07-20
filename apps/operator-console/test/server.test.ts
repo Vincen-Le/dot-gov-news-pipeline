@@ -1,13 +1,7 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  afterEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildLabConnection,
@@ -78,12 +72,14 @@ describe("pipeline registry connection selection", () => {
         noOpen: true,
         pipelines: [
           {
-            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:1/pipeline_a_db",
+            databaseUrl:
+              "postgresql://postgres:postgres@127.0.0.1:1/pipeline_a_db",
             engine: "classic",
             name: "pipeline-a",
           },
           {
-            databaseUrl: "postgresql://postgres:postgres@127.0.0.1:1/pipeline_b_db",
+            databaseUrl:
+              "postgresql://postgres:postgres@127.0.0.1:1/pipeline_b_db",
             engine: "spine",
             name: "pipeline-b",
           },

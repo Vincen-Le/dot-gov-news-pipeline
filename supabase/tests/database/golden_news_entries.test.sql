@@ -21,9 +21,11 @@ select ok(
 
 select ok(
     has_table_privilege('service_role', 'public.golden_news_entries', 'select')
-    and not has_table_privilege('service_role', 'public.golden_news_entries', 'insert')
+    and has_table_privilege('service_role', 'public.golden_news_entries', 'insert')
+    and has_table_privilege('service_role', 'public.golden_news_entries', 'update')
+    and has_table_privilege('service_role', 'public.golden_news_entries', 'delete')
     and not has_table_privilege('anon', 'public.golden_news_entries', 'select'),
-    'golden labels are service-readable and not client-writable'
+    'golden labels are service-writable and unavailable to clients'
 );
 
 insert into public.news_sources (id, canonical_url, source_type)

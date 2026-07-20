@@ -7,6 +7,7 @@ config/news-backfill/top-20-diversity-v*.json
 coverage/
 dist/
 docs/archive/
+docs/eval/
 node_modules/
 pnpm-lock.yaml
 supabase/.temp/

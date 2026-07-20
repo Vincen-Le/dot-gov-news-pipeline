@@ -21,8 +21,10 @@ const env = Object.fromEntries(
   readFileSync(`${repo}.env`, "utf8")
     .split("\n")
     .filter((line) => line.includes("=") && !line.startsWith("#"))
-    .map((line) => [line.slice(0, line.indexOf("=")).trim(),
-                    line.slice(line.indexOf("=") + 1).trim()]),
+    .map((line) => [
+      line.slice(0, line.indexOf("=")).trim(),
+      line.slice(line.indexOf("=") + 1).trim(),
+    ]),
 );
 const base = env.SUPABASE_URL.replace(/\/$/, "");
 const headers = {
@@ -34,9 +36,15 @@ const headers = {
 const LOCAL_DSN =
   process.env.GOLDEN_SOURCE_DSN ??
   "postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db";
-const FEATURES = ["embedding", "embedding_model", "enriched_text",
-                  "enricher_version", "entity_set", "event_keys",
-                  "extractor_version"];
+const FEATURES = [
+  "embedding",
+  "embedding_model",
+  "enriched_text",
+  "enricher_version",
+  "entity_set",
+  "event_keys",
+  "extractor_version",
+];
 
 const sql = postgres(LOCAL_DSN, { max: 1, prepare: false });
 const rows = await sql`
@@ -52,13 +60,15 @@ for (const row of rows) {
     const value = row[key];
     body[key] = Buffer.isBuffer(value) ? `\\x${value.toString("hex")}` : value;
   }
-  const response = await fetch(
-    `${base}/rest/v1/news_entries?id=eq.${row.id}`,
-    { method: "PATCH", headers: { ...headers, prefer: "return=minimal" },
-      body: JSON.stringify(body) },
-  );
+  const response = await fetch(`${base}/rest/v1/news_entries?id=eq.${row.id}`, {
+    method: "PATCH",
+    headers: { ...headers, prefer: "return=minimal" },
+    body: JSON.stringify(body),
+  });
   if (!response.ok) {
-    throw new Error(`patch ${row.id}: ${response.status} ${await response.text()}`);
+    throw new Error(
+      `patch ${row.id}: ${response.status} ${await response.text()}`,
+    );
   }
   patched += 1;
   if (patched % 500 === 0) console.log(`patched ${patched}/${rows.length}`);

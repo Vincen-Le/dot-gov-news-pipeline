@@ -24,10 +24,10 @@ admin dashboard, government form, or consumer-news feed.
 
 ### Typography
 
-| Role             | Typeface                                      | Use                                                    |
-| ---------------- | --------------------------------------------- | ------------------------------------------------------ |
-| Interface        | Instrument Sans, Helvetica Neue, Arial        | Navigation, controls, headlines, summaries, modal copy |
-| Metadata and data| ui-monospace, SFMono-Regular, Menlo, monospace| Eyebrows, dates, ranks, counts, and operational labels |
+| Role              | Typeface                                       | Use                                                    |
+| ----------------- | ---------------------------------------------- | ------------------------------------------------------ |
+| Interface         | Instrument Sans, Helvetica Neue, Arial         | Navigation, controls, headlines, summaries, modal copy |
+| Metadata and data | ui-monospace, SFMono-Regular, Menlo, monospace | Eyebrows, dates, ranks, counts, and operational labels |
 
 Rules:
 
@@ -45,11 +45,11 @@ Dark mode is the default:
 | ------------ | --------- | --------- | ---------------------------------------- |
 | Canvas       | `#000000` | `#f2f0e9` | Browser and outer application background |
 | Surface      | `#080808` | `#fbfaf6` | Primary application surface              |
-| Raised       | `#141414` | `#ffffff` | Lifted cards and modal areas              |
-| Text         | `#f4f3ee` | `#111111` | Primary text                              |
-| Muted        | `#9b9b94` | `#5f5d57` | Secondary text and metadata               |
-| Rule         | `#343434` | `#cfcbc0` | Dividers and boundaries                   |
-| Focus/action | `#8db4ff` | `#174ea6` | Links, focus, and active controls         |
+| Raised       | `#141414` | `#ffffff` | Lifted cards and modal areas             |
+| Text         | `#f4f3ee` | `#111111` | Primary text                             |
+| Muted        | `#9b9b94` | `#5f5d57` | Secondary text and metadata              |
+| Rule         | `#343434` | `#cfcbc0` | Dividers and boundaries                  |
+| Focus/action | `#8db4ff` | `#174ea6` | Links, focus, and active controls        |
 
 Status colors communicate health, attention, and failure. Ranking dimensions
 have stable rubric, agency, feed, source, and freshness colors. Do not add
@@ -326,7 +326,7 @@ version; it does not mutate an output that may be used by historical replay.
 
 | Date       | Decision                                             | Rationale                                                                    |
 | ---------- | ---------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 2026-07-19 | National Design Studio DOT GOV demo language          | Makes the approved interactive mockup the visual source of truth              |
+| 2026-07-19 | National Design Studio DOT GOV demo language         | Makes the approved interactive mockup the visual source of truth             |
 | 2026-07-19 | Editorial illustration over generated photography    | Avoids presenting synthetic scenes as evidence                               |
 | 2026-07-19 | Enrichment keyed to immutable overview-card versions | Makes date replay accurate without generating duplicate daily assets         |
 | 2026-07-19 | Article analysis separated from card synthesis       | Lets analyses be reused while each card version remains historically correct |

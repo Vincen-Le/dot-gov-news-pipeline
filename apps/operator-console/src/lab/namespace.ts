@@ -34,6 +34,8 @@ export function namespaceTables(namespace: PipelineNamespace): NamespaceTables {
     experimentRuns: `${namespace}_experiment_runs`,
     experimentClusterSnapshots: `${namespace}_experiment_cluster_snapshots`,
     rankSnapshots:
-      namespace === "complex_v1" ? "rank_snapshots" : `${namespace}_rank_snapshots`,
+      namespace === "complex_v1"
+        ? "rank_snapshots"
+        : `${namespace}_rank_snapshots`,
   };
 }

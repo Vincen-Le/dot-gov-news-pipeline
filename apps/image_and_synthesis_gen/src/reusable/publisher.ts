@@ -116,9 +116,7 @@ export async function prepareCompletedReusableImages(
       metadata.width !== 1536 ||
       metadata.height !== 1024
     ) {
-      throw new Error(
-        `${completed.generatedFileName} must be a 1536x1024 PNG`,
-      );
+      throw new Error(`${completed.generatedFileName} must be a 1536x1024 PNG`);
     }
     const images = await prepareImages({
       focalX: 0.5,
@@ -177,11 +175,7 @@ export async function publishReusableImages(
     const persistedById = new Map(persisted.map((row) => [row.id, row]));
     for (const artifact of prepared) {
       const row = persistedById.get(artifact.definition.imageId);
-      for (const field of [
-        "master_sha256",
-        "card_sha256",
-        "social_sha256",
-      ]) {
+      for (const field of ["master_sha256", "card_sha256", "social_sha256"]) {
         if (row?.[field] !== artifact.record[field]) {
           throw new Error(
             `persisted reusable image ${artifact.definition.key} has different ${field}`,

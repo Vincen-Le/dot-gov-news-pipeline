@@ -52,15 +52,15 @@ The read-only commands are:
 
 The write commands have materially different costs:
 
-| Operation                       | What it changes                                                                                                 | Model/API work                                      |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| `pipeline.cli sync`             | Upserts the hosted raw corpus into local tables; invalidates features only when an entry's content hash changed | None                                                |
-| `pipeline.cli prepare`          | Adds enrichment, embeddings, entities, and event keys to currently unembedded entries                           | Potentially expensive                               |
-| `pipeline.cli reextract`        | Refreshes deterministic entity/event-key extraction                                                             | No LLM or embedding calls                           |
+| Operation                       | What it changes                                                                                                           | Model/API work                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `pipeline.cli sync`             | Upserts the hosted raw corpus into local tables; invalidates features only when an entry's content hash changed           | None                                                |
+| `pipeline.cli prepare`          | Adds enrichment, embeddings, entities, and event keys to currently unembedded entries                                     | Potentially expensive                               |
+| `pipeline.cli reextract`        | Refreshes deterministic entity/event-key extraction                                                                       | No LLM or embedding calls                           |
 | `pipeline.cli experiment`       | Clears derived aggregation state, replays prepared entries, writes a report/run row/rank snapshot/cluster replay snapshot | May call adjudicator, card, topic, and judge models |
-| `pipeline.cli reset --clusters` | Clears current derived aggregation state                                                                        | None                                                |
-| `pipeline.cli reset --features` | Clears derived state and all per-entry prepared features                                                        | Makes a later prepare expensive                     |
-| topology-label publisher        | Writes only versioned topology sidecar labels                                                                   | No enrichment, embedding, or aggregation            |
+| `pipeline.cli reset --clusters` | Clears current derived aggregation state                                                                                  | None                                                |
+| `pipeline.cli reset --features` | Clears derived state and all per-entry prepared features                                                                  | Makes a later prepare expensive                     |
+| topology-label publisher        | Writes only versioned topology sidecar labels                                                                             | No enrichment, embedding, or aggregation            |
 
 > **Cost warning:** `pnpm ops lab run` and the dashboard automatically run an
 > unbounded `prepare` stage when even one published entry lacks an embedding.
@@ -96,18 +96,18 @@ local news_entries -- prepare once --> cached entry features
 
 The important storage boundaries are:
 
-| State                    | Location                                                                                                 | Survives `reset --clusters`? | Meaning                                                            |
-| ------------------------ | -------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------ |
-| Raw corpus               | `news_sources`, `news_source_publishers`, `news_entries` raw fields                                      | Yes                          | Input documents and publisher attribution                          |
-| Prepared features        | Embedding/enrichment/extraction fields on `news_entries`                                                 | Yes                          | Reusable experiment input                                          |
-| Expected topology labels | `topology_label_sets`, `news_entry_topology_labels`                                                      | Yes                          | Versioned bootstrap labels used for input selection                |
-| Current aggregation      | `episode_entries`, `episodes`, `storylines`, `event_cards`, `topic_themes`, LLM-created topic categories | No                           | Only the latest completed or interrupted replay state              |
-| Completed run summary    | `complex_v1_experiment_runs`                                                                             | Yes                          | Resolved config, summary, cluster report, timing, cache counts     |
-| Clustering replay state  | `complex_v1_experiment_cluster_snapshots`                                                                 | Yes                          | Immutable run-scoped storylines, episodes, memberships, cards, themes, and entry evidence; mutable note/reward/best metadata |
-| Ranking evidence         | `rank_snapshots`, `rank_audit_pairs`, `rank_audit_runs`                                                  | Yes                          | Run-scoped ranking state and audit results                         |
-| Model-decision cache     | `.cache/decisions.sqlite`                                                                                | Yes                          | Content-keyed adjudication/theme/rank decisions                    |
-| Markdown report          | `docs/eval/<name>/report.md`                                                                             | Yes                          | Human-readable lab notebook for one run                            |
-| Human pair labels        | `docs/eval/labels.csv`, `docs/eval/rank-labels.csv`                                                      | Yes                          | Review annotations; only rank labels currently have a CLI consumer |
+| State                    | Location                                                                                                 | Survives `reset --clusters`? | Meaning                                                                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Raw corpus               | `news_sources`, `news_source_publishers`, `news_entries` raw fields                                      | Yes                          | Input documents and publisher attribution                                                                                    |
+| Prepared features        | Embedding/enrichment/extraction fields on `news_entries`                                                 | Yes                          | Reusable experiment input                                                                                                    |
+| Expected topology labels | `topology_label_sets`, `news_entry_topology_labels`                                                      | Yes                          | Versioned bootstrap labels used for input selection                                                                          |
+| Current aggregation      | `episode_entries`, `episodes`, `storylines`, `event_cards`, `topic_themes`, LLM-created topic categories | No                           | Only the latest completed or interrupted replay state                                                                        |
+| Completed run summary    | `complex_v1_experiment_runs`                                                                             | Yes                          | Resolved config, summary, cluster report, timing, cache counts                                                               |
+| Clustering replay state  | `complex_v1_experiment_cluster_snapshots`                                                                | Yes                          | Immutable run-scoped storylines, episodes, memberships, cards, themes, and entry evidence; mutable note/reward/best metadata |
+| Ranking evidence         | `rank_snapshots`, `rank_audit_pairs`, `rank_audit_runs`                                                  | Yes                          | Run-scoped ranking state and audit results                                                                                   |
+| Model-decision cache     | `.cache/decisions.sqlite`                                                                                | Yes                          | Content-keyed adjudication/theme/rank decisions                                                                              |
+| Markdown report          | `docs/eval/<name>/report.md`                                                                             | Yes                          | Human-readable lab notebook for one run                                                                                      |
+| Human pair labels        | `docs/eval/labels.csv`, `docs/eval/rank-labels.csv`                                                      | Yes                          | Review annotations; only rank labels currently have a CLI consumer                                                           |
 
 > **Table namespacing convention:** Experiment tables are prefixed by pipeline engine
 > (e.g., `complex_v1_experiment_runs` for the classic pipeline, `simple_v1_experiment_runs` for

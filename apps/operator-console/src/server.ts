@@ -216,10 +216,14 @@ export function buildLabConnection(
   engine?: string,
   primaryReadOnly = false,
 ): LabConnection {
-  const { experimentRuns, rankSnapshots } = namespaceTables(namespaceForEngine(engine));
+  const { experimentRuns, rankSnapshots } = namespaceTables(
+    namespaceForEngine(engine),
+  );
   const labDb = databaseUrl === undefined ? null : createLabDb(databaseUrl);
-  const queries = labDb === null ? null : new LabQueries(labDb.read, experimentRuns);
-  const rankQueries = labDb === null ? null : new RankQueries(labDb.read, rankSnapshots);
+  const queries =
+    labDb === null ? null : new LabQueries(labDb.read, experimentRuns);
+  const rankQueries =
+    labDb === null ? null : new RankQueries(labDb.read, rankSnapshots);
   const harness =
     queries !== null &&
     databaseUrl !== undefined &&
@@ -235,7 +239,8 @@ export function buildLabConnection(
         })
       : null;
   return {
-    capability: () => labCapability(labDb, databaseUrl, engine, primaryReadOnly),
+    capability: () =>
+      labCapability(labDb, databaseUrl, engine, primaryReadOnly),
     close: async () => {
       await labDb?.close();
     },
@@ -334,11 +339,14 @@ export async function startDashboard(
   // connection, mounted under its own (more specific) path before the
   // default `/api/lab` mount below so the single dashboard can switch
   // between them. Absent file → no extra mounts, no behavior change.
-  const registryPipelines =
-    options.pipelines ?? safeLoadRegistryPipelines();
+  const registryPipelines = options.pipelines ?? safeLoadRegistryPipelines();
   const pipelineConnections = new Map<string, LabConnection>();
   for (const entry of registryPipelines) {
-    const connection = buildLabConnection(entry.databaseUrl, entry.engine, true);
+    const connection = buildLabConnection(
+      entry.databaseUrl,
+      entry.engine,
+      true,
+    );
     pipelineConnections.set(entry.name, connection);
     app.use(
       `/api/lab/p/${entry.name}`,

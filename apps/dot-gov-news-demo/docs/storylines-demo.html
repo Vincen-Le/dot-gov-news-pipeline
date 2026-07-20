@@ -577,7 +577,8 @@
       .event-card:focus-within {
         z-index: 2;
         background: var(--raised);
-        box-shadow: 0 18px 0 -10px color-mix(in srgb, var(--live) 28%, transparent);
+        box-shadow: 0 18px 0 -10px
+          color-mix(in srgb, var(--live) 28%, transparent);
         transform: translateY(-6px);
       }
 
@@ -1478,7 +1479,6 @@
         .rank-controls {
           grid-template-columns: 1fr 1fr;
         }
-
       }
 
       @media (max-width: 900px) {
@@ -1645,7 +1645,6 @@
         .rank-controls {
           grid-template-columns: 1fr;
         }
-
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -1665,14 +1664,22 @@
     <div class="app-shell">
       <header class="app-header">
         <a class="brand" href="#top" aria-label="Dot Gov News storylines demo">
-          <span aria-hidden="true" class="brand-mark"><i></i><i></i><i></i></span>
+          <span aria-hidden="true" class="brand-mark"
+            ><i></i><i></i><i></i
+          ></span>
           <span>Dot Gov News <b id="brandSection">/ Storylines</b></span>
         </a>
         <nav aria-label="Primary navigation">
           <a href="#top">Overview</a>
           <a href="#top">Inventory</a>
           <a href="#ranking" data-page="ranking">Ranking</a>
-          <a class="active" href="#storyline-results" data-page="storylines" aria-current="page">Storylines</a>
+          <a
+            class="active"
+            href="#storyline-results"
+            data-page="storylines"
+            aria-current="page"
+            >Storylines</a
+          >
         </nav>
         <div class="header-actions">
           <button
@@ -1690,133 +1697,176 @@
       <main id="top">
         <div id="storylinesPage" data-page-panel="storylines">
           <section class="page-intro" aria-labelledby="pageTitle">
-          <span class="section-index">04 / Reviewed output</span>
-          <div class="intro-content">
-            <div class="intro-copy">
-              <p class="eyebrow">Public information, connected over time</p>
-              <h1 id="pageTitle">Storylines</h1>
-              <p>
-                Follow related government updates as one evolving event. This demo
-                shows reviewed golden records only, presented as they would have
-                appeared on the selected date.
-              </p>
-            </div>
+            <span class="section-index">04 / Reviewed output</span>
+            <div class="intro-content">
+              <div class="intro-copy">
+                <p class="eyebrow">Public information, connected over time</p>
+                <h1 id="pageTitle">Storylines</h1>
+                <p>
+                  Follow related government updates as one evolving event. This
+                  demo shows reviewed golden records only, presented as they
+                  would have appeared on the selected date.
+                </p>
+              </div>
 
-            <section class="date-simulator" aria-labelledby="dateSimulatorLabel">
-              <header>
-                <span class="micro-label" id="dateSimulatorLabel">Simulated publication date</span>
-                <time class="as-of-value" id="asOfValue" datetime="2026-07-19">Jul 19, 2026</time>
-              </header>
-              <div class="date-control-row">
-                <input
-                  aria-label="Simulated publication date"
-                  id="dateRange"
-                  max="4"
-                  min="0"
-                  step="1"
-                  type="range"
-                  value="4"
-                />
-                <button class="primary-button" id="advanceDate" type="button">
-                  Advance date →
-                </button>
-              </div>
-              <div class="date-ticks" aria-hidden="true">
-                <span>Jul 15</span><span>Jul 16</span><span>Jul 17</span>
-                <span>Jul 18</span><span>Jul 19</span>
-              </div>
-            </section>
-          </div>
+              <section
+                class="date-simulator"
+                aria-labelledby="dateSimulatorLabel"
+              >
+                <header>
+                  <span class="micro-label" id="dateSimulatorLabel"
+                    >Simulated publication date</span
+                  >
+                  <time class="as-of-value" id="asOfValue" datetime="2026-07-19"
+                    >Jul 19, 2026</time
+                  >
+                </header>
+                <div class="date-control-row">
+                  <input
+                    aria-label="Simulated publication date"
+                    id="dateRange"
+                    max="4"
+                    min="0"
+                    step="1"
+                    type="range"
+                    value="4"
+                  />
+                  <button class="primary-button" id="advanceDate" type="button">
+                    Advance date →
+                  </button>
+                </div>
+                <div class="date-ticks" aria-hidden="true">
+                  <span>Jul 15</span><span>Jul 16</span><span>Jul 17</span>
+                  <span>Jul 18</span><span>Jul 19</span>
+                </div>
+              </section>
+            </div>
           </section>
 
-          <section class="workspace" id="storyline-results" aria-labelledby="resultsTitle">
-          <header class="section-heading">
-            <div>
-              <p class="eyebrow">Browse the current brief</p>
-              <h2 id="resultsTitle">Reviewed storylines</h2>
+          <section
+            class="workspace"
+            id="storyline-results"
+            aria-labelledby="resultsTitle"
+          >
+            <header class="section-heading">
+              <div>
+                <p class="eyebrow">Browse the current brief</p>
+                <h2 id="resultsTitle">Reviewed storylines</h2>
+              </div>
+              <div class="view-switcher" aria-label="Choose storylines view">
+                <button
+                  aria-pressed="true"
+                  class="view-button"
+                  data-view="product"
+                  type="button"
+                >
+                  Product view
+                </button>
+                <button
+                  aria-pressed="false"
+                  class="view-button"
+                  data-view="table"
+                  type="button"
+                >
+                  Table view
+                </button>
+              </div>
+            </header>
+
+            <div class="filter-deck" aria-label="Storyline filters">
+              <div class="facet-row">
+                <span class="facet-label" id="agencyLabel">Agency</span>
+                <div
+                  class="pill-rail"
+                  id="agencyFilters"
+                  aria-labelledby="agencyLabel"
+                ></div>
+              </div>
+              <div class="facet-row">
+                <span class="facet-label" id="categoryLabel">Category</span>
+                <div
+                  class="pill-rail"
+                  id="categoryFilters"
+                  aria-labelledby="categoryLabel"
+                ></div>
+              </div>
+              <div class="facet-row">
+                <span class="facet-label" id="themeLabel">Theme</span>
+                <div
+                  class="pill-rail"
+                  id="themeFilters"
+                  aria-labelledby="themeLabel"
+                ></div>
+              </div>
             </div>
-            <div class="view-switcher" aria-label="Choose storylines view">
+
+            <div class="toolbar">
+              <div
+                class="result-copy"
+                aria-live="polite"
+                id="resultCount"
+              ></div>
+              <div class="sort-field">
+                <label for="sortSelect">Sort by</label>
+                <select id="sortSelect">
+                  <option value="rank">Rank key</option>
+                  <option value="newest">Newest update</option>
+                  <option value="episodes">Episode count</option>
+                  <option value="title">Title A–Z</option>
+                </select>
+              </div>
               <button
-                aria-pressed="true"
-                class="view-button"
-                data-view="product"
+                class="clear-button"
+                id="clearFilters"
+                hidden
                 type="button"
               >
-                Product view
-              </button>
-              <button
-                aria-pressed="false"
-                class="view-button"
-                data-view="table"
-                type="button"
-              >
-                Table view
+                Clear selected filters
               </button>
             </div>
-          </header>
 
-          <div class="filter-deck" aria-label="Storyline filters">
-            <div class="facet-row">
-              <span class="facet-label" id="agencyLabel">Agency</span>
-              <div class="pill-rail" id="agencyFilters" aria-labelledby="agencyLabel"></div>
-            </div>
-            <div class="facet-row">
-              <span class="facet-label" id="categoryLabel">Category</span>
-              <div class="pill-rail" id="categoryFilters" aria-labelledby="categoryLabel"></div>
-            </div>
-            <div class="facet-row">
-              <span class="facet-label" id="themeLabel">Theme</span>
-              <div class="pill-rail" id="themeFilters" aria-labelledby="themeLabel"></div>
-            </div>
-          </div>
+            <div class="product-view" id="productView"></div>
 
-          <div class="toolbar">
-            <div class="result-copy" aria-live="polite" id="resultCount"></div>
-            <div class="sort-field">
-              <label for="sortSelect">Sort by</label>
-              <select id="sortSelect">
-                <option value="rank">Rank key</option>
-                <option value="newest">Newest update</option>
-                <option value="episodes">Episode count</option>
-                <option value="title">Title A–Z</option>
-              </select>
+            <div class="table-view" id="tableView" hidden>
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Rank key</th>
+                    <th scope="col">Storyline</th>
+                    <th scope="col">Agencies</th>
+                    <th scope="col">Category / Theme</th>
+                    <th scope="col">Episodes</th>
+                    <th scope="col">Articles</th>
+                    <th scope="col">Newest</th>
+                    <th scope="col">Review</th>
+                  </tr>
+                </thead>
+                <tbody id="storyTableBody"></tbody>
+              </table>
             </div>
-            <button class="clear-button" id="clearFilters" hidden type="button">
-              Clear selected filters
-            </button>
-          </div>
 
-          <div class="product-view" id="productView"></div>
-
-          <div class="table-view" id="tableView" hidden>
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">Rank key</th>
-                  <th scope="col">Storyline</th>
-                  <th scope="col">Agencies</th>
-                  <th scope="col">Category / Theme</th>
-                  <th scope="col">Episodes</th>
-                  <th scope="col">Articles</th>
-                  <th scope="col">Newest</th>
-                  <th scope="col">Review</th>
-                </tr>
-              </thead>
-              <tbody id="storyTableBody"></tbody>
-            </table>
-          </div>
-
-          <div class="empty-state" id="emptyState" hidden>
-            <div>
-              <strong>No reviewed storylines match this combination.</strong>
-              <span>Remove one or more filters to broaden the current brief.</span><br />
-              <button class="secondary-button" id="emptyClear" type="button">Clear filters</button>
+            <div class="empty-state" id="emptyState" hidden>
+              <div>
+                <strong>No reviewed storylines match this combination.</strong>
+                <span
+                  >Remove one or more filters to broaden the current
+                  brief.</span
+                ><br />
+                <button class="secondary-button" id="emptyClear" type="button">
+                  Clear filters
+                </button>
+              </div>
             </div>
-          </div>
           </section>
         </div>
 
-        <section class="rank-page" id="ranking" data-page-panel="ranking" hidden aria-labelledby="rankingTitle">
+        <section
+          class="rank-page"
+          id="ranking"
+          data-page-panel="ranking"
+          hidden
+          aria-labelledby="rankingTitle"
+        >
           <header class="rank-heading">
             <div class="rank-heading-title">
               <span class="section-index">R</span>
@@ -1825,20 +1875,35 @@
                   Ranking
                   <span class="rank-algorithm">
                     <span aria-hidden="true" class="rank-algorithm-dot">·</span>
-                    <span class="rank-algorithm-formula">rank_key = rubric_points + 0.5×ln(1+agencies) + 0.5×ln(1+feeds) + ln(max(source_weight, 0.001)) + epoch(newest_at) / τ</span>
-                    <span class="rank-algorithm-note">rubric_points = Σ enabled weights · unjudged prior = 0.5×Σ all weights · rubric v1 · τ=124,600s</span>
+                    <span class="rank-algorithm-formula"
+                      >rank_key = rubric_points + 0.5×ln(1+agencies) +
+                      0.5×ln(1+feeds) + ln(max(source_weight, 0.001)) +
+                      epoch(newest_at) / τ</span
+                    >
+                    <span class="rank-algorithm-note"
+                      >rubric_points = Σ enabled weights · unjudged prior =
+                      0.5×Σ all weights · rubric v1 · τ=124,600s</span
+                    >
                   </span>
                 </h2>
               </div>
             </div>
             <div class="rank-heading-meta">
-              <span class="rank-context-note" id="rankContextNote">Reviewed golden dataset · frozen canonical ranking</span>
+              <span class="rank-context-note" id="rankContextNote"
+                >Reviewed golden dataset · frozen canonical ranking</span
+              >
               <ul aria-label="Score composition color key" class="rank-legend">
                 <li><i class="term-rubric" aria-hidden="true"></i>Rubric</li>
                 <li><i class="term-agency" aria-hidden="true"></i>Agency</li>
-                <li><i class="term-feed" aria-hidden="true"></i>Feed diversity</li>
-                <li><i class="term-source" aria-hidden="true"></i>Source weight</li>
-                <li class="rank-legend-freshness"><i aria-hidden="true">+t</i>Freshness</li>
+                <li>
+                  <i class="term-feed" aria-hidden="true"></i>Feed diversity
+                </li>
+                <li>
+                  <i class="term-source" aria-hidden="true"></i>Source weight
+                </li>
+                <li class="rank-legend-freshness">
+                  <i aria-hidden="true">+t</i>Freshness
+                </li>
               </ul>
             </div>
           </header>
@@ -1853,13 +1918,19 @@
             </label>
             <label class="rank-dataset-field" id="rankDatasetField">
               <span>Dataset</span>
-              <output id="rankDatasetOutput">Reviewed golden · 12 storylines</output>
+              <output id="rankDatasetOutput"
+                >Reviewed golden · 12 storylines</output
+              >
             </label>
             <label id="rankRunField" hidden>
               <span>Run</span>
               <select id="rankRun" aria-label="Run">
-                <option value="current">demo-reviewed-golden · Jul 19, 2026 2:15 PM</option>
-                <option value="prior">demo-reviewed-golden · Jul 18, 2026 2:15 PM</option>
+                <option value="current">
+                  demo-reviewed-golden · Jul 19, 2026 2:15 PM
+                </option>
+                <option value="prior">
+                  demo-reviewed-golden · Jul 18, 2026 2:15 PM
+                </option>
               </select>
             </label>
             <label id="rankCompareField" hidden>
@@ -1884,12 +1955,15 @@
           </div>
 
           <p class="rank-audit-receipt" id="rankAuditReceipt">
-            canonical source: demo-reviewed-golden · golden-demo-2026-07-19 · reviewed Jul 19, 2026 2:15 PM · 12 ranked cards
+            canonical source: demo-reviewed-golden · golden-demo-2026-07-19 ·
+            reviewed Jul 19, 2026 2:15 PM · 12 ranked cards
           </p>
           <p class="rank-audit-receipt" id="rankRunAuditReceipt" hidden>
             audit: 36 pairs · agreement 89% · τ 0.84 · inconsistent 3%
           </p>
-          <p class="rank-empty" id="rankEmpty" hidden>No ranked storylines match these filters.</p>
+          <p class="rank-empty" id="rankEmpty" hidden>
+            No ranked storylines match these filters.
+          </p>
 
           <div class="rank-table-scroll" id="rankTableScroll">
             <table class="rank-table">
@@ -1927,17 +2001,26 @@
           <h2 id="dialogTitle"></h2>
           <div class="taxonomy" id="dialogTaxonomy"></div>
         </div>
-        <button class="dialog-close" id="dialogClose" type="button" aria-label="Close storyline preview">
+        <button
+          class="dialog-close"
+          id="dialogClose"
+          type="button"
+          aria-label="Close storyline preview"
+        >
           ×
         </button>
       </header>
       <div class="dialog-layout">
         <section class="chain-pane" aria-labelledby="chainHeading">
-          <div class="pane-heading" id="chainHeading">Overview + episode chain</div>
+          <div class="pane-heading" id="chainHeading">
+            Overview + episode chain
+          </div>
           <div id="chainContent"></div>
         </section>
         <aside class="synthesis-pane" aria-labelledby="synthesisHeading">
-          <div class="pane-heading" id="synthesisHeading">Article synthesis</div>
+          <div class="pane-heading" id="synthesisHeading">
+            Article synthesis
+          </div>
           <div id="synthesisContent"></div>
         </aside>
       </div>
@@ -1952,7 +2035,7 @@
           "2026-07-16",
           "2026-07-17",
           "2026-07-18",
-          "2026-07-19"
+          "2026-07-19",
         ];
 
         var storylines = [
@@ -1969,62 +2052,70 @@
               {
                 date: "2026-07-15",
                 title: "Notice of funding opportunity opens",
-                summary: "The department opened the next bridge investment grant round and published eligibility requirements for state, local, and tribal applicants.",
-                articles: 3
+                summary:
+                  "The department opened the next bridge investment grant round and published eligibility requirements for state, local, and tribal applicants.",
+                articles: 3,
               },
               {
                 date: "2026-07-18",
                 title: "Technical assistance calendar added",
-                summary: "New webinars and office hours explain benefit-cost analysis, resilience criteria, and the application schedule.",
-                articles: 2
-              }
+                summary:
+                  "New webinars and office hours explain benefit-cost analysis, resilience criteria, and the application schedule.",
+                articles: 2,
+              },
             ],
             articles: [
               {
                 title: "Bridge Investment Program grant applications open",
                 agency: "U.S. Department of Transportation",
                 date: "Jul 15",
-                url: "https://www.transportation.gov/briefing-room"
+                url: "https://www.transportation.gov/briefing-room",
               },
               {
                 title: "FHWA publishes applicant guide and scoring criteria",
                 agency: "Federal Highway Administration",
                 date: "Jul 16",
-                url: "https://highways.dot.gov/newsroom"
+                url: "https://highways.dot.gov/newsroom",
               },
               {
                 title: "Technical assistance sessions announced",
                 agency: "U.S. Department of Transportation",
                 date: "Jul 18",
-                url: "https://www.transportation.gov/briefing-room"
-              }
+                url: "https://www.transportation.gov/briefing-room",
+              },
             ],
             versions: [
               {
                 generatedAt: "2026-07-15",
                 rankKey: 0.914,
-                headline: "Federal bridge grant round opens for state and local projects",
-                overview: "Transportation agencies opened a new bridge investment round, giving public applicants a defined path to fund replacement, rehabilitation, and resilience work.",
-                synthesis: "The available notices establish who may apply, the project types in scope, and the first major deadlines. Later guidance adds hands-on support for applicants preparing technical and benefit-cost materials.",
+                headline:
+                  "Federal bridge grant round opens for state and local projects",
+                overview:
+                  "Transportation agencies opened a new bridge investment round, giving public applicants a defined path to fund replacement, rehabilitation, and resilience work.",
+                synthesis:
+                  "The available notices establish who may apply, the project types in scope, and the first major deadlines. Later guidance adds hands-on support for applicants preparing technical and benefit-cost materials.",
                 facts: [
                   "Eligible applicants include states, local governments, federal land agencies, and tribal governments.",
                   "Awards can support bridge replacement, rehabilitation, preservation, and planning.",
-                  "Initial application materials emphasize measurable safety, mobility, and resilience outcomes."
-                ]
+                  "Initial application materials emphasize measurable safety, mobility, and resilience outcomes.",
+                ],
               },
               {
                 generatedAt: "2026-07-18",
                 rankKey: 0.942,
-                headline: "Bridge grant round expands with application support and office hours",
-                overview: "A federal bridge funding round now pairs the core notice with a technical-assistance schedule, helping public agencies translate local bridge needs into competitive applications.",
-                synthesis: "Across the notices, the practical change is the addition of applicant support. The funding scope remains focused on bridge condition and resilience, while webinars and office hours clarify scoring, benefit-cost expectations, and timing.",
+                headline:
+                  "Bridge grant round expands with application support and office hours",
+                overview:
+                  "A federal bridge funding round now pairs the core notice with a technical-assistance schedule, helping public agencies translate local bridge needs into competitive applications.",
+                synthesis:
+                  "Across the notices, the practical change is the addition of applicant support. The funding scope remains focused on bridge condition and resilience, while webinars and office hours clarify scoring, benefit-cost expectations, and timing.",
                 facts: [
                   "The grant round remains open to state, local, tribal, and federal land-management applicants.",
                   "Technical sessions now cover benefit-cost analysis and resilience scoring.",
-                  "The application timeline includes staged deadlines for planning and construction proposals."
-                ]
-              }
-            ]
+                  "The application timeline includes staged deadlines for planning and construction proposals.",
+                ],
+              },
+            ],
           },
           {
             id: "hurricane-outlook",
@@ -2039,62 +2130,70 @@
               {
                 date: "2026-07-16",
                 title: "Seasonal preparedness bulletin issued",
-                summary: "Federal forecasters highlighted elevated coastal risk and urged households and local officials to review evacuation and communication plans.",
-                articles: 4
+                summary:
+                  "Federal forecasters highlighted elevated coastal risk and urged households and local officials to review evacuation and communication plans.",
+                articles: 4,
               },
               {
                 date: "2026-07-19",
                 title: "Coastal briefing adds local readiness actions",
-                summary: "An updated briefing connects the seasonal outlook with shelter, flood-map, and emergency-alert resources.",
-                articles: 3
-              }
+                summary:
+                  "An updated briefing connects the seasonal outlook with shelter, flood-map, and emergency-alert resources.",
+                articles: 3,
+              },
             ],
             articles: [
               {
                 title: "Updated Atlantic hurricane season outlook",
                 agency: "National Oceanic and Atmospheric Administration",
                 date: "Jul 16",
-                url: "https://www.noaa.gov/news"
+                url: "https://www.noaa.gov/news",
               },
               {
                 title: "Prepare now for coastal hazards",
                 agency: "Federal Emergency Management Agency",
                 date: "Jul 17",
-                url: "https://www.fema.gov/press-releases"
+                url: "https://www.fema.gov/press-releases",
               },
               {
                 title: "Local readiness actions for coastal communities",
                 agency: "National Oceanic and Atmospheric Administration",
                 date: "Jul 19",
-                url: "https://www.noaa.gov/news"
-              }
+                url: "https://www.noaa.gov/news",
+              },
             ],
             versions: [
               {
                 generatedAt: "2026-07-16",
                 rankKey: 0.872,
-                headline: "Federal agencies urge early preparation for elevated coastal storm risk",
-                overview: "A seasonal outlook and preparedness bulletin align federal forecasting with practical steps for households and coastal communities.",
-                synthesis: "The initial guidance combines NOAA risk framing with FEMA preparedness actions. It emphasizes that seasonal probability is not a local forecast and that readiness work should happen before a storm is named.",
+                headline:
+                  "Federal agencies urge early preparation for elevated coastal storm risk",
+                overview:
+                  "A seasonal outlook and preparedness bulletin align federal forecasting with practical steps for households and coastal communities.",
+                synthesis:
+                  "The initial guidance combines NOAA risk framing with FEMA preparedness actions. It emphasizes that seasonal probability is not a local forecast and that readiness work should happen before a storm is named.",
                 facts: [
                   "The outlook describes above-normal activity as a seasonal probability, not a landfall prediction.",
                   "Households are advised to review evacuation routes, insurance coverage, medications, and communication plans.",
-                  "Local officials are directed to current alerting, shelter, and flood-risk resources."
-                ]
+                  "Local officials are directed to current alerting, shelter, and flood-risk resources.",
+                ],
               },
               {
                 generatedAt: "2026-07-19",
                 rankKey: 0.901,
-                headline: "Coastal storm guidance shifts from seasonal outlook to local readiness",
-                overview: "Federal storm guidance now connects the broad seasonal outlook to concrete local actions, including alerts, evacuation planning, shelter information, and flood-risk checks.",
-                synthesis: "The newest materials make the storyline more actionable. NOAA continues to supply the risk context, while FEMA and coastal briefings translate it into decisions residents and local governments can make now.",
+                headline:
+                  "Coastal storm guidance shifts from seasonal outlook to local readiness",
+                overview:
+                  "Federal storm guidance now connects the broad seasonal outlook to concrete local actions, including alerts, evacuation planning, shelter information, and flood-risk checks.",
+                synthesis:
+                  "The newest materials make the storyline more actionable. NOAA continues to supply the risk context, while FEMA and coastal briefings translate it into decisions residents and local governments can make now.",
                 facts: [
                   "Residents should confirm how local emergency alerts are delivered before severe weather develops.",
                   "Evacuation and shelter information varies by locality and should be checked directly with local officials.",
-                  "Flood risk can extend beyond mapped coastal zones and should be considered separately from wind risk."
-                ]
-              }
-            ]
+                  "Flood risk can extend beyond mapped coastal zones and should be considered separately from wind risk.",
+                ],
+              },
+            ],
           },
           {
             id: "cisa-logging",
@@ -2109,38 +2208,43 @@
               {
                 date: "2026-07-17",
                 title: "Baseline logging guidance published",
-                summary: "The guidance prioritizes identity, administrative, cloud, and endpoint logs that help organizations reconstruct security events.",
-                articles: 3
-              }
+                summary:
+                  "The guidance prioritizes identity, administrative, cloud, and endpoint logs that help organizations reconstruct security events.",
+                articles: 3,
+              },
             ],
             articles: [
               {
                 title: "CISA publishes baseline event logging guidance",
                 agency: "Cybersecurity and Infrastructure Security Agency",
                 date: "Jul 17",
-                url: "https://www.cisa.gov/news-events"
+                url: "https://www.cisa.gov/news-events",
               },
               {
-                title: "Implementation companion for resource-constrained teams",
+                title:
+                  "Implementation companion for resource-constrained teams",
                 agency: "Cybersecurity and Infrastructure Security Agency",
                 date: "Jul 17",
-                url: "https://www.cisa.gov/resources-tools"
-              }
+                url: "https://www.cisa.gov/resources-tools",
+              },
             ],
             versions: [
               {
                 generatedAt: "2026-07-17",
                 rankKey: 0.887,
-                headline: "CISA sets a practical baseline for security event logging",
-                overview: "New guidance narrows a broad logging problem into a prioritized set of records that organizations can retain, protect, and use during incident response.",
-                synthesis: "The documents focus less on collecting every possible signal and more on retaining the records most likely to explain access, privilege changes, cloud activity, and endpoint behavior during an investigation.",
+                headline:
+                  "CISA sets a practical baseline for security event logging",
+                overview:
+                  "New guidance narrows a broad logging problem into a prioritized set of records that organizations can retain, protect, and use during incident response.",
+                synthesis:
+                  "The documents focus less on collecting every possible signal and more on retaining the records most likely to explain access, privilege changes, cloud activity, and endpoint behavior during an investigation.",
                 facts: [
                   "Identity and administrative activity are treated as high-value sources for incident reconstruction.",
                   "Organizations should protect logs from alteration and align retention with investigative needs.",
-                  "The companion guide offers a staged path for teams with limited staff or storage."
-                ]
-              }
-            ]
+                  "The companion guide offers a staged path for teams with limited staff or storage.",
+                ],
+              },
+            ],
           },
           {
             id: "respiratory-outlook",
@@ -2155,38 +2259,42 @@
               {
                 date: "2026-07-18",
                 title: "Seasonal respiratory outlook updated",
-                summary: "The outlook combines hospital, laboratory, and wastewater signals to describe several plausible paths for the coming respiratory season.",
-                articles: 4
-              }
+                summary:
+                  "The outlook combines hospital, laboratory, and wastewater signals to describe several plausible paths for the coming respiratory season.",
+                articles: 4,
+              },
             ],
             articles: [
               {
                 title: "Respiratory disease season outlook",
                 agency: "Centers for Disease Control and Prevention",
                 date: "Jul 18",
-                url: "https://www.cdc.gov/media"
+                url: "https://www.cdc.gov/media",
               },
               {
                 title: "How health systems can use scenario ranges",
                 agency: "U.S. Department of Health and Human Services",
                 date: "Jul 18",
-                url: "https://www.hhs.gov/about/news"
-              }
+                url: "https://www.hhs.gov/about/news",
+              },
             ],
             versions: [
               {
                 generatedAt: "2026-07-18",
                 rankKey: 0.851,
-                headline: "Federal outlook frames the next respiratory season as a range of scenarios",
-                overview: "Public-health agencies are presenting the coming respiratory season through scenarios rather than a single forecast, giving health systems a clearer way to plan for uncertainty.",
-                synthesis: "The outlook uses several surveillance streams to frame a plausible range of demand. Its main operational message is to prepare for more than one trajectory and update plans as hospital, lab, and wastewater signals change.",
+                headline:
+                  "Federal outlook frames the next respiratory season as a range of scenarios",
+                overview:
+                  "Public-health agencies are presenting the coming respiratory season through scenarios rather than a single forecast, giving health systems a clearer way to plan for uncertainty.",
+                synthesis:
+                  "The outlook uses several surveillance streams to frame a plausible range of demand. Its main operational message is to prepare for more than one trajectory and update plans as hospital, lab, and wastewater signals change.",
                 facts: [
                   "The outlook is scenario-based and should not be read as a precise national forecast.",
                   "Hospital, laboratory, and wastewater data provide complementary signals.",
-                  "Health systems are encouraged to plan staffing and capacity against a range of possible peaks."
-                ]
-              }
-            ]
+                  "Health systems are encouraged to plan staffing and capacity against a range of possible peaks.",
+                ],
+              },
+            ],
           },
           {
             id: "wildfire-assistance",
@@ -2195,45 +2303,51 @@
             category: "Public lands",
             theme: "Disaster recovery",
             art: "wildfire",
-            imageAlt: "Graphic study of wildfire recovery in a forest landscape",
+            imageAlt:
+              "Graphic study of wildfire recovery in a forest landscape",
             imageCredit: "Demo image · USDA",
             episodes: [
               {
                 date: "2026-07-19",
                 title: "Post-fire assistance portal consolidated",
-                summary: "A consolidated resource page directs landowners and rural communities to debris, watershed, livestock, and emergency conservation programs.",
-                articles: 5
-              }
+                summary:
+                  "A consolidated resource page directs landowners and rural communities to debris, watershed, livestock, and emergency conservation programs.",
+                articles: 5,
+              },
             ],
             articles: [
               {
-                title: "Post-fire assistance for rural communities and landowners",
+                title:
+                  "Post-fire assistance for rural communities and landowners",
                 agency: "U.S. Department of Agriculture",
                 date: "Jul 19",
-                url: "https://www.usda.gov/about-usda/news"
+                url: "https://www.usda.gov/about-usda/news",
               },
               {
                 title: "Federal disaster assistance and recovery resources",
                 agency: "Federal Emergency Management Agency",
                 date: "Jul 19",
-                url: "https://www.fema.gov/press-releases"
-              }
+                url: "https://www.fema.gov/press-releases",
+              },
             ],
             versions: [
               {
                 generatedAt: "2026-07-19",
                 rankKey: 0.826,
-                headline: "Federal wildfire recovery resources consolidate around land and water needs",
-                overview: "A new assistance package organizes post-fire help around immediate rural needs, from livestock and debris to watershed stabilization and longer-term land recovery.",
-                synthesis: "The materials bring several programs into one navigable storyline. USDA resources lead on agricultural and conservation needs, while FEMA material explains the broader disaster-assistance process and local coordination.",
+                headline:
+                  "Federal wildfire recovery resources consolidate around land and water needs",
+                overview:
+                  "A new assistance package organizes post-fire help around immediate rural needs, from livestock and debris to watershed stabilization and longer-term land recovery.",
+                synthesis:
+                  "The materials bring several programs into one navigable storyline. USDA resources lead on agricultural and conservation needs, while FEMA material explains the broader disaster-assistance process and local coordination.",
                 facts: [
                   "Available programs address livestock losses, damaged fencing, debris, watershed risk, and emergency conservation.",
                   "Eligibility, deadlines, and required documentation vary by program and declared area.",
-                  "Applicants are directed to preserve records and coordinate with local service centers early."
-                ]
-              }
-            ]
-          }
+                  "Applicants are directed to preserve records and coordinate with local service centers early.",
+                ],
+              },
+            ],
+          },
         ];
 
         var agencyNames = {
@@ -2253,7 +2367,7 @@
           SBA: "U.S. Small Business Administration",
           Treasury: "U.S. Department of the Treasury",
           USDA: "U.S. Department of Agriculture",
-          VA: "U.S. Department of Veterans Affairs"
+          VA: "U.S. Department of Veterans Affairs",
         };
 
         function agencyName(code) {
@@ -2276,22 +2390,22 @@
                 date: config.firstSeen,
                 title: config.episodeTitle,
                 summary: config.overview,
-                articles: 2
-              }
+                articles: 2,
+              },
             ],
             articles: [
               {
                 title: config.sourceTitle,
                 agency: agencyName(config.agencies[0]),
                 date: displayDate,
-                url: config.url
+                url: config.url,
               },
               {
                 title: config.companionTitle,
                 agency: agencyName(config.agencies[config.agencies.length - 1]),
                 date: displayDate,
-                url: config.url
-              }
+                url: config.url,
+              },
             ],
             versions: [
               {
@@ -2300,9 +2414,9 @@
                 headline: config.headline,
                 overview: config.overview,
                 synthesis: config.synthesis,
-                facts: config.facts
-              }
-            ]
+                facts: config.facts,
+              },
+            ],
           };
         }
 
@@ -2316,18 +2430,21 @@
             art: "health",
             imageAlt: "Graphic study of water infrastructure monitoring",
             rankKey: 0.809,
-            headline: "EPA directs new water infrastructure funds toward small and disadvantaged systems",
-            overview: "A new funding notice emphasizes drinking-water upgrades, lead service-line work, and technical help for systems with limited local capacity.",
+            headline:
+              "EPA directs new water infrastructure funds toward small and disadvantaged systems",
+            overview:
+              "A new funding notice emphasizes drinking-water upgrades, lead service-line work, and technical help for systems with limited local capacity.",
             episodeTitle: "Water infrastructure allocation published",
             sourceTitle: "Drinking water infrastructure funding allocation",
             companionTitle: "Technical assistance for small water systems",
             url: "https://www.epa.gov/newsreleases",
-            synthesis: "The paired notices connect capital funding with hands-on assistance so smaller systems can complete planning, compliance, and construction work.",
+            synthesis:
+              "The paired notices connect capital funding with hands-on assistance so smaller systems can complete planning, compliance, and construction work.",
             facts: [
               "Priority areas include lead service lines, contaminants, and aging treatment infrastructure.",
               "Small and disadvantaged systems can use technical-assistance providers during planning.",
-              "State-level program rules determine project sequencing and final awards."
-            ]
+              "State-level program rules determine project sequencing and final awards.",
+            ],
           }),
           makeDemoStory({
             id: "small-business-recovery",
@@ -2336,20 +2453,24 @@
             category: "Economy",
             theme: "Small business recovery",
             art: "bridge",
-            imageAlt: "Graphic study of storefront recovery and public assistance",
+            imageAlt:
+              "Graphic study of storefront recovery and public assistance",
             rankKey: 0.795,
-            headline: "Disaster loan guidance gives small businesses a clearer recovery sequence",
-            overview: "Updated federal guidance organizes the first recovery steps for affected businesses, including damage documentation, insurance coordination, and loan applications.",
+            headline:
+              "Disaster loan guidance gives small businesses a clearer recovery sequence",
+            overview:
+              "Updated federal guidance organizes the first recovery steps for affected businesses, including damage documentation, insurance coordination, and loan applications.",
             episodeTitle: "Small-business recovery checklist released",
             sourceTitle: "Disaster assistance for businesses and nonprofits",
             companionTitle: "Documenting losses after a declared disaster",
             url: "https://www.sba.gov/article",
-            synthesis: "The guidance presents federal disaster lending as one part of a broader recovery process and clarifies which records applicants should assemble early.",
+            synthesis:
+              "The guidance presents federal disaster lending as one part of a broader recovery process and clarifies which records applicants should assemble early.",
             facts: [
               "Businesses should preserve damage, insurance, payroll, and ownership records.",
               "Loan eligibility and deadlines depend on the disaster declaration.",
-              "Applicants may coordinate SBA lending with other eligible recovery assistance."
-            ]
+              "Applicants may coordinate SBA lending with other eligible recovery assistance.",
+            ],
           }),
           makeDemoStory({
             id: "grid-reliability",
@@ -2360,18 +2481,21 @@
             art: "network",
             imageAlt: "Graphic study of connected electric grid nodes",
             rankKey: 0.833,
-            headline: "Federal grid guidance focuses resilience planning on extreme-weather operations",
-            overview: "Energy agencies are aligning reliability planning around severe-weather scenarios, interregional coordination, and the performance of critical grid assets.",
+            headline:
+              "Federal grid guidance focuses resilience planning on extreme-weather operations",
+            overview:
+              "Energy agencies are aligning reliability planning around severe-weather scenarios, interregional coordination, and the performance of critical grid assets.",
             episodeTitle: "Extreme-weather grid guidance published",
             sourceTitle: "Planning considerations for grid resilience",
             companionTitle: "Reliability coordination during extreme weather",
             url: "https://www.energy.gov/articles",
-            synthesis: "The documents connect long-range resilience investment with operational coordination, emphasizing scenario planning and shared assumptions across regions.",
+            synthesis:
+              "The documents connect long-range resilience investment with operational coordination, emphasizing scenario planning and shared assumptions across regions.",
             facts: [
               "Planning scenarios should include compound and region-spanning weather events.",
               "Transmission and generation assumptions need consistent regional treatment.",
-              "Critical asset performance should be tested against realistic operating conditions."
-            ]
+              "Critical asset performance should be tested against realistic operating conditions.",
+            ],
           }),
           makeDemoStory({
             id: "veterans-benefits",
@@ -2380,20 +2504,24 @@
             category: "Veterans",
             theme: "Benefits access",
             art: "bridge",
-            imageAlt: "Graphic study of a pathway connecting veterans to benefits",
+            imageAlt:
+              "Graphic study of a pathway connecting veterans to benefits",
             rankKey: 0.784,
-            headline: "Veterans benefits update consolidates claims help and appointment access",
-            overview: "A revised service guide brings claims support, health enrollment, and appointment pathways into one clearer entry point for veterans and caregivers.",
+            headline:
+              "Veterans benefits update consolidates claims help and appointment access",
+            overview:
+              "A revised service guide brings claims support, health enrollment, and appointment pathways into one clearer entry point for veterans and caregivers.",
             episodeTitle: "Unified benefits access guide released",
             sourceTitle: "How to access VA benefits and health services",
             companionTitle: "Claims and appointment support options",
             url: "https://news.va.gov/",
-            synthesis: "The materials reduce navigation friction by grouping common tasks and identifying when online, phone, or in-person assistance is appropriate.",
+            synthesis:
+              "The materials reduce navigation friction by grouping common tasks and identifying when online, phone, or in-person assistance is appropriate.",
             facts: [
               "Veterans can begin several claims and enrollment tasks online.",
               "Accredited representatives remain available for claims assistance.",
-              "Urgent health needs follow a separate access path from routine appointments."
-            ]
+              "Urgent health needs follow a separate access path from routine appointments.",
+            ],
           }),
           makeDemoStory({
             id: "park-access",
@@ -2404,18 +2532,22 @@
             art: "wildfire",
             imageAlt: "Graphic study of trail and visitor access improvements",
             rankKey: 0.768,
-            headline: "National parks publish a coordinated set of summer access improvements",
-            overview: "Visitor updates connect shuttle changes, trail accessibility work, reservation guidance, and heat-safety information across several high-use parks.",
+            headline:
+              "National parks publish a coordinated set of summer access improvements",
+            overview:
+              "Visitor updates connect shuttle changes, trail accessibility work, reservation guidance, and heat-safety information across several high-use parks.",
             episodeTitle: "Summer visitor access bulletin published",
             sourceTitle: "Summer access and reservation updates",
-            companionTitle: "Accessible trails and shuttle service improvements",
+            companionTitle:
+              "Accessible trails and shuttle service improvements",
             url: "https://www.nps.gov/orgs/1207/news.htm",
-            synthesis: "The updates are most useful when read together: transportation, reservations, accessible routes, and weather safety all affect whether a visit is workable.",
+            synthesis:
+              "The updates are most useful when read together: transportation, reservations, accessible routes, and weather safety all affect whether a visit is workable.",
             facts: [
               "Shuttle and reservation rules vary by park and date.",
               "Accessibility updates identify both completed work and temporary constraints.",
-              "Visitors should check current heat, smoke, and trail conditions before arrival."
-            ]
+              "Visitors should check current heat, smoke, and trail conditions before arrival.",
+            ],
           }),
           makeDemoStory({
             id: "digital-filing",
@@ -2426,18 +2558,21 @@
             art: "network",
             imageAlt: "Graphic study of a secure digital filing network",
             rankKey: 0.812,
-            headline: "Federal tax filing updates expand digital account and correction tools",
-            overview: "New guidance groups several online account, document, and correction improvements into a clearer picture of how taxpayers can resolve common filing issues.",
+            headline:
+              "Federal tax filing updates expand digital account and correction tools",
+            overview:
+              "New guidance groups several online account, document, and correction improvements into a clearer picture of how taxpayers can resolve common filing issues.",
             episodeTitle: "Digital filing service update released",
             sourceTitle: "Online account and filing service improvements",
             companionTitle: "Guidance for correcting common filing issues",
             url: "https://www.irs.gov/newsroom",
-            synthesis: "The changes shift more routine follow-up work into authenticated online tools while preserving phone and in-person routes for cases that need staff review.",
+            synthesis:
+              "The changes shift more routine follow-up work into authenticated online tools while preserving phone and in-person routes for cases that need staff review.",
             facts: [
               "Authenticated accounts expose more notices and document history.",
               "Not every correction can be completed online.",
-              "Taxpayers should use official account links rather than email or text prompts."
-            ]
+              "Taxpayers should use official account links rather than email or text prompts.",
+            ],
           }),
           makeDemoStory({
             id: "student-safety",
@@ -2446,21 +2581,26 @@
             category: "Education",
             theme: "Student safety",
             art: "health",
-            imageAlt: "Graphic study of student health and school safety signals",
+            imageAlt:
+              "Graphic study of student health and school safety signals",
             rankKey: 0.758,
-            headline: "School safety resources connect emergency planning with student mental health",
-            overview: "A combined federal resource set frames school safety as both operational preparedness and sustained support for student well-being.",
+            headline:
+              "School safety resources connect emergency planning with student mental health",
+            overview:
+              "A combined federal resource set frames school safety as both operational preparedness and sustained support for student well-being.",
             episodeTitle: "School safety resource collection updated",
             sourceTitle: "Emergency planning resources for schools",
-            companionTitle: "Student mental-health supports and referral guidance",
+            companionTitle:
+              "Student mental-health supports and referral guidance",
             url: "https://www.ed.gov/about/news",
-            synthesis: "The guidance avoids treating physical security and student well-being as separate systems, instead connecting planning, communication, training, and referral pathways.",
+            synthesis:
+              "The guidance avoids treating physical security and student well-being as separate systems, instead connecting planning, communication, training, and referral pathways.",
             facts: [
               "Emergency plans should define communication and reunification responsibilities.",
               "Training should include staff roles, accessibility needs, and family communication.",
-              "Mental-health supports require clear referral and escalation pathways."
-            ]
-          })
+              "Mental-health supports require clear referral and escalation pathways.",
+            ],
+          }),
         ]);
 
         var state = {
@@ -2471,8 +2611,8 @@
           filters: {
             agency: new Set(),
             category: new Set(),
-            theme: new Set()
-          }
+            theme: new Set(),
+          },
         };
 
         var els = {
@@ -2514,7 +2654,7 @@
           rankRunAuditReceipt: document.getElementById("rankRunAuditReceipt"),
           rankEmpty: document.getElementById("rankEmpty"),
           rankTableScroll: document.getElementById("rankTableScroll"),
-          rankTableBody: document.getElementById("rankTableBody")
+          rankTableBody: document.getElementById("rankTableBody"),
         };
 
         function escapeHTML(value) {
@@ -2530,14 +2670,14 @@
           return new Intl.DateTimeFormat("en-US", {
             month: "short",
             day: "numeric",
-            year: "numeric"
+            year: "numeric",
           }).format(new Date(value + "T12:00:00"));
         }
 
         function shortDate(value) {
           return new Intl.DateTimeFormat("en-US", {
             month: "short",
-            day: "numeric"
+            day: "numeric",
           }).format(new Date(value + "T12:00:00"));
         }
 
@@ -2567,7 +2707,10 @@
             return episode.date <= asOf;
           });
           var articles = story.articles.filter(function (article) {
-            var articleDate = "2026-" + (article.date.indexOf("Jul") === 0 ? "07-" : "") + article.date.replace("Jul ", "").padStart(2, "0");
+            var articleDate =
+              "2026-" +
+              (article.date.indexOf("Jul") === 0 ? "07-" : "") +
+              article.date.replace("Jul ", "").padStart(2, "0");
             return articleDate <= asOf;
           });
           return {
@@ -2581,8 +2724,10 @@
             episodes: episodes,
             articles: articles,
             articleCount: articles.length,
-            newest: episodes.length ? episodes[episodes.length - 1].date : story.firstSeen,
-            version: version
+            newest: episodes.length
+              ? episodes[episodes.length - 1].date
+              : story.firstSeen,
+            version: version,
           };
         }
 
@@ -2611,9 +2756,12 @@
             .filter(matchesFilters);
 
           list.sort(function (a, b) {
-            if (state.sort === "newest") return b.newest.localeCompare(a.newest);
-            if (state.sort === "episodes") return b.episodes.length - a.episodes.length;
-            if (state.sort === "title") return a.version.headline.localeCompare(b.version.headline);
+            if (state.sort === "newest")
+              return b.newest.localeCompare(a.newest);
+            if (state.sort === "episodes")
+              return b.episodes.length - a.episodes.length;
+            if (state.sort === "title")
+              return a.version.headline.localeCompare(b.version.headline);
             return b.version.rankKey - a.version.rankKey;
           });
           return list;
@@ -2627,9 +2775,12 @@
             '<rect width="800" height="420" fill="var(--canvas)"/>' +
             '<g fill="none" stroke="var(--rule)" stroke-width="1">';
           var grid = "";
-          for (var x = 0; x <= 800; x += 80) grid += '<path d="M' + x + ' 0V420"/>';
-          for (var y = 20; y <= 420; y += 80) grid += '<path d="M0 ' + y + 'H800"/>';
-          common += grid + '</g><g fill="none" stroke="var(--text)" stroke-width="5">';
+          for (var x = 0; x <= 800; x += 80)
+            grid += '<path d="M' + x + ' 0V420"/>';
+          for (var y = 20; y <= 420; y += 80)
+            grid += '<path d="M0 ' + y + 'H800"/>';
+          common +=
+            grid + '</g><g fill="none" stroke="var(--text)" stroke-width="5">';
 
           var drawing = "";
           if (type === "bridge") {
@@ -2691,9 +2842,11 @@
 
         function taxonomyMarkup(story) {
           return (
-            story.agencies.map(function (agency) {
-              return "<span>" + escapeHTML(agencyName(agency)) + "</span>";
-            }).join("") +
+            story.agencies
+              .map(function (agency) {
+                return "<span>" + escapeHTML(agencyName(agency)) + "</span>";
+              })
+              .join("") +
             "<span>" +
             escapeHTML(story.category) +
             "</span><span>" +
@@ -2716,7 +2869,7 @@
             escapeHTML("Demo image · " + agencyName(story.agencies[0])) +
             "</span></div>" +
             '<div class="event-card-body"><div class="event-card-meta">' +
-            '<span>Updated ' +
+            "<span>Updated " +
             escapeHTML(shortDate(story.newest)) +
             " · v" +
             story.version.generatedAt.replace("2026-07-", "") +
@@ -2744,11 +2897,11 @@
 
         function tableRowMarkup(story) {
           return (
-            "<tr><td class=\"rank-key\">" +
+            '<tr><td class="rank-key">' +
             story.version.rankKey.toFixed(3) +
-            "</td><th scope=\"row\"><button class=\"table-open\" type=\"button\" data-open-id=\"" +
+            '</td><th scope="row"><button class="table-open" type="button" data-open-id="' +
             story.id +
-            "\">" +
+            '">' +
             escapeHTML(story.version.headline) +
             "</button></th><td>" +
             escapeHTML(story.agencies.map(agencyName).join(", ")) +
@@ -2777,7 +2930,7 @@
             "Public health": ["health_safety", "urgency", "national_scope"],
             "Public lands": ["mass_impact", "health_safety", "urgency"],
             Technology: ["national_scope", "urgency", "novelty"],
-            Veterans: ["rights_legal", "policy_change", "mass_impact"]
+            Veterans: ["rights_legal", "policy_change", "mass_impact"],
           };
           return byCategory[story.category] || ["mass_impact", "policy_change"];
         }
@@ -2789,15 +2942,34 @@
           var source = Math.max(8, 100 - rubric - agency - feed);
           var freshness = Math.max(1.2, 8.4 - index * 0.35);
           var label =
-            "rubric " + rubric + "% · agency " + agency + "% · feed " + feed + "% · source " + source + "% · freshness " + freshness.toFixed(1);
+            "rubric " +
+            rubric +
+            "% · agency " +
+            agency +
+            "% · feed " +
+            feed +
+            "% · source " +
+            source +
+            "% · freshness " +
+            freshness.toFixed(1);
           return (
             '<span class="rank-term-cell"><span class="rank-term-bar" role="img" aria-label="' +
             escapeHTML(label) +
-            '"><span class="term-rubric" style="width:' + rubric + '%"></span>' +
-            '<span class="term-agency" style="width:' + agency + '%"></span>' +
-            '<span class="term-feed" style="width:' + feed + '%"></span>' +
-            '<span class="term-source" style="width:' + source + '%"></span></span>' +
-            '<small>+' + freshness.toFixed(1) + 't</small></span>'
+            '"><span class="term-rubric" style="width:' +
+            rubric +
+            '%"></span>' +
+            '<span class="term-agency" style="width:' +
+            agency +
+            '%"></span>' +
+            '<span class="term-feed" style="width:' +
+            feed +
+            '%"></span>' +
+            '<span class="term-source" style="width:' +
+            source +
+            '%"></span></span>' +
+            "<small>+" +
+            freshness.toFixed(1) +
+            "t</small></span>"
           );
         }
 
@@ -2808,9 +2980,15 @@
             })
             .filter(Boolean)
             .filter(function (story) {
-              var agencyMatch = els.rankAgency.value === "" || story.agencies.indexOf(els.rankAgency.value) !== -1;
-              var categoryMatch = els.rankCategory.value === "" || story.category === els.rankCategory.value;
-              var themeMatch = els.rankTheme.value === "" || story.theme === els.rankTheme.value;
+              var agencyMatch =
+                els.rankAgency.value === "" ||
+                story.agencies.indexOf(els.rankAgency.value) !== -1;
+              var categoryMatch =
+                els.rankCategory.value === "" ||
+                story.category === els.rankCategory.value;
+              var themeMatch =
+                els.rankTheme.value === "" ||
+                story.theme === els.rankTheme.value;
               return agencyMatch && categoryMatch && themeMatch;
             })
             .sort(function (a, b) {
@@ -2846,7 +3024,10 @@
             story.agencies.forEach(function (agency) {
               if (agencyKeys.indexOf(agency) === -1) agencyKeys.push(agency);
             });
-            categoryCounts.set(story.category, (categoryCounts.get(story.category) || 0) + 1);
+            categoryCounts.set(
+              story.category,
+              (categoryCounts.get(story.category) || 0) + 1,
+            );
           });
           agencyKeys.sort(function (a, b) {
             return agencyName(a).localeCompare(agencyName(b));
@@ -2870,24 +3051,40 @@
                 return a[0].localeCompare(b[0]);
               })
               .map(function (entry) {
-                return optionMarkup(entry[0], entry[0] + " · " + entry[1], selectedCategory);
+                return optionMarkup(
+                  entry[0],
+                  entry[0] + " · " + entry[1],
+                  selectedCategory,
+                );
               })
               .join("");
 
           var themeCounts = new Map();
           available.forEach(function (story) {
-            if (selectedCategory !== "" && story.category !== selectedCategory) return;
-            themeCounts.set(story.theme, (themeCounts.get(story.theme) || 0) + 1);
+            if (selectedCategory !== "" && story.category !== selectedCategory)
+              return;
+            themeCounts.set(
+              story.theme,
+              (themeCounts.get(story.theme) || 0) + 1,
+            );
           });
           if (!themeCounts.has(selectedTheme)) selectedTheme = "";
           els.rankTheme.innerHTML =
-            optionMarkup("", themeCounts.size === 0 ? "No themes assigned" : "All themes", selectedTheme) +
+            optionMarkup(
+              "",
+              themeCounts.size === 0 ? "No themes assigned" : "All themes",
+              selectedTheme,
+            ) +
             Array.from(themeCounts.entries())
               .sort(function (a, b) {
                 return a[0].localeCompare(b[0]);
               })
               .map(function (entry) {
-                return optionMarkup(entry[0], entry[0] + " (" + entry[1] + ")", selectedTheme);
+                return optionMarkup(
+                  entry[0],
+                  entry[0] + " (" + entry[1] + ")",
+                  selectedTheme,
+                );
               })
               .join("");
           els.rankTheme.disabled = themeCounts.size === 0;
@@ -2895,7 +3092,10 @@
 
         function renderRanking() {
           var scope = els.rankScope.value;
-          var asOf = scope === "dataset" || els.rankRun.value === "current" ? "2026-07-19" : "2026-07-18";
+          var asOf =
+            scope === "dataset" || els.rankRun.value === "current"
+              ? "2026-07-19"
+              : "2026-07-18";
           var rankControls = els.rankScope.closest(".rank-controls");
 
           rankControls.className = "rank-controls rank-controls-" + scope;
@@ -2914,12 +3114,14 @@
           var priorPositions = new Map(
             priorRows.map(function (story, index) {
               return [story.id, index + 1];
-            })
+            }),
           );
 
-          document.querySelectorAll(".rank-delta-heading").forEach(function (heading) {
-            heading.hidden = !compareEnabled;
-          });
+          document
+            .querySelectorAll(".rank-delta-heading")
+            .forEach(function (heading) {
+              heading.hidden = !compareEnabled;
+            });
 
           var reviewedEntries = storylines
             .map(function (story) {
@@ -2930,17 +3132,21 @@
               return sum + story.articleCount;
             }, 0);
           els.rankDatasetOutput.textContent =
-            "Reviewed golden · " + storylines.length + " storylines · " + reviewedEntries + " entries";
+            "Reviewed golden · " +
+            storylines.length +
+            " storylines · " +
+            reviewedEntries +
+            " entries";
 
           if (scope === "dataset") {
             els.rankAuditReceipt.innerHTML =
-              'canonical source: <code>demo-reviewed-golden</code> · <code>golden-demo-2026-07-19</code> · reviewed Jul 19, 2026 2:15 PM · ' +
+              "canonical source: <code>demo-reviewed-golden</code> · <code>golden-demo-2026-07-19</code> · reviewed Jul 19, 2026 2:15 PM · " +
               storylines.length +
               " ranked cards";
             els.rankRunAuditReceipt.hidden = true;
           } else {
             els.rankAuditReceipt.innerHTML =
-              'run: <code>demo-reviewed-golden</code> · <code>run-demo-' +
+              "run: <code>demo-reviewed-golden</code> · <code>run-demo-" +
               asOf +
               "</code> · created " +
               formatDate(asOf) +
@@ -2958,20 +3164,29 @@
           els.rankTableBody.innerHTML = rows
             .map(function (story, index) {
               var prior = priorPositions.get(story.id);
-              var delta = prior === undefined ? "new" : prior === index + 1 ? "=" : prior > index + 1 ? "▲" + (prior - index - 1) : "▼" + (index + 1 - prior);
+              var delta =
+                prior === undefined
+                  ? "new"
+                  : prior === index + 1
+                    ? "="
+                    : prior > index + 1
+                      ? "▲" + (prior - index - 1)
+                      : "▼" + (index + 1 - prior);
               var judged = index % 4 !== 3;
               return (
                 '<tr><td class="rank-position">' +
                 (index + 1) +
                 "</td>" +
-                (compareEnabled ? '<td class="rank-delta">' + delta + "</td>" : "") +
+                (compareEnabled
+                  ? '<td class="rank-delta">' + delta + "</td>"
+                  : "") +
                 '<td class="rank-headline"><button type="button" data-open-id="' +
                 story.id +
                 '" data-open-asof="' +
                 asOf +
                 '">' +
                 escapeHTML(story.version.headline) +
-                '</button><small>' +
+                "</button><small>" +
                 escapeHTML(story.version.overview) +
                 '</small></td><td class="rank-key-value">' +
                 story.version.rankKey.toFixed(3) +
@@ -2979,7 +3194,7 @@
                 rankTermMarkup(story, index) +
                 '</td><td class="rank-source-value">' +
                 escapeHTML(agencyName(story.agencies[0])) +
-                ' <small>(1.' +
+                " <small>(1." +
                 ((index % 4) + 1) +
                 ')</small></td><td class="rank-count">' +
                 story.agencies.length +
@@ -2994,7 +3209,11 @@
                 '</span></td><td class="rank-rubric">' +
                 rubricCriteria(story)
                   .map(function (criterion) {
-                    return '<span class="rank-chip">' + escapeHTML(criterion.replace(/_/g, " ")) + "</span>";
+                    return (
+                      '<span class="rank-chip">' +
+                      escapeHTML(criterion.replace(/_/g, " ")) +
+                      "</span>"
+                    );
                   })
                   .join("") +
                 "</td></tr>"
@@ -3004,16 +3223,19 @@
         }
 
         function renderPage() {
-          document.querySelectorAll("[data-page-panel]").forEach(function (panel) {
-            panel.hidden = panel.dataset.pagePanel !== state.page;
-          });
+          document
+            .querySelectorAll("[data-page-panel]")
+            .forEach(function (panel) {
+              panel.hidden = panel.dataset.pagePanel !== state.page;
+            });
           document.querySelectorAll("nav [data-page]").forEach(function (link) {
             var active = link.dataset.page === state.page;
             link.classList.toggle("active", active);
             if (active) link.setAttribute("aria-current", "page");
             else link.removeAttribute("aria-current");
           });
-          els.brandSection.textContent = state.page === "ranking" ? "/ Ranking" : "/ Storylines";
+          els.brandSection.textContent =
+            state.page === "ranking" ? "/ Ranking" : "/ Storylines";
           if (state.page === "ranking") renderRanking();
         }
 
@@ -3037,14 +3259,19 @@
           els.asOfValue.dateTime = asOf;
           els.advanceDate.disabled = state.dateIndex === dates.length - 1;
           els.advanceDate.textContent =
-            state.dateIndex === dates.length - 1 ? "Latest date" : "Advance date →";
+            state.dateIndex === dates.length - 1
+              ? "Latest date"
+              : "Advance date →";
 
           renderPills("agency", els.agencyFilters, asOf);
           renderPills("category", els.categoryFilters, asOf);
           renderPills("theme", els.themeFilters, asOf);
 
           document.querySelectorAll("[data-view]").forEach(function (button) {
-            button.setAttribute("aria-pressed", button.dataset.view === state.view ? "true" : "false");
+            button.setAttribute(
+              "aria-pressed",
+              button.dataset.view === state.view ? "true" : "false",
+            );
           });
 
           els.resultCount.innerHTML =
@@ -3110,32 +3337,44 @@
             "</h3><p>" +
             escapeHTML(story.version.overview) +
             '</p></article><div class="episode-stack">' +
-            story.episodes.map(function (episode, index) {
-              return episodeMarkup(episode, index, story.art);
-            }).join("") +
+            story.episodes
+              .map(function (episode, index) {
+                return episodeMarkup(episode, index, story.art);
+              })
+              .join("") +
             "</div>";
 
           els.synthesisContent.innerHTML =
             "<h3>What the available articles say</h3><p>" +
             escapeHTML(story.version.synthesis) +
             '</p><ol class="key-facts">' +
-            story.version.facts.map(function (fact, index) {
-              return "<li><span>" + String(index + 1).padStart(2, "0") + "</span><span>" + escapeHTML(fact) + "</span></li>";
-            }).join("") +
+            story.version.facts
+              .map(function (fact, index) {
+                return (
+                  "<li><span>" +
+                  String(index + 1).padStart(2, "0") +
+                  "</span><span>" +
+                  escapeHTML(fact) +
+                  "</span></li>"
+                );
+              })
+              .join("") +
             '</ol><div class="pane-heading">Available source articles</div><div class="source-list">' +
-            story.articles.map(function (article) {
-              return (
-                '<article class="source-row"><div class="source-row-copy"><a href="' +
-                escapeHTML(article.url) +
-                '" target="_blank" rel="noreferrer">' +
-                escapeHTML(article.title) +
-                ' ↗</a><p>' +
-                escapeHTML(article.agency) +
-                "</p></div><span>" +
-                escapeHTML(article.date) +
-                "</span></article>"
-              );
-            }).join("") +
+            story.articles
+              .map(function (article) {
+                return (
+                  '<article class="source-row"><div class="source-row-copy"><a href="' +
+                  escapeHTML(article.url) +
+                  '" target="_blank" rel="noreferrer">' +
+                  escapeHTML(article.title) +
+                  " ↗</a><p>" +
+                  escapeHTML(article.agency) +
+                  "</p></div><span>" +
+                  escapeHTML(article.date) +
+                  "</span></article>"
+                );
+              })
+              .join("") +
             '</div><div class="status-line">Synthesis limited to articles available by ' +
             escapeHTML(shortDate(asOf)) +
             "</div>";
@@ -3161,7 +3400,8 @@
           if (filterButton) {
             var field = filterButton.dataset.filter;
             var value = filterButton.dataset.value;
-            if (state.filters[field].has(value)) state.filters[field].delete(value);
+            if (state.filters[field].has(value))
+              state.filters[field].delete(value);
             else state.filters[field].add(value);
             render();
             return;
@@ -3175,7 +3415,8 @@
           }
 
           var openButton = event.target.closest("[data-open-id]");
-          if (openButton) openStory(openButton.dataset.openId, openButton.dataset.openAsof);
+          if (openButton)
+            openStory(openButton.dataset.openId, openButton.dataset.openAsof);
         });
 
         els.dateRange.addEventListener("input", function () {
@@ -3232,7 +3473,10 @@
           var light = document.documentElement.dataset.theme === "light";
           document.documentElement.dataset.theme = light ? "dark" : "light";
           els.themeToggle.textContent = light ? "○" : "●";
-          els.themeToggle.setAttribute("aria-label", "Use " + (light ? "light" : "dark") + " theme");
+          els.themeToggle.setAttribute(
+            "aria-label",
+            "Use " + (light ? "light" : "dark") + " theme",
+          );
         });
 
         render();

@@ -15,7 +15,10 @@ const env = Object.fromEntries(
   readFileSync(`${repo}.env`, "utf8")
     .split("\n")
     .filter((l) => l.includes("=") && !l.startsWith("#"))
-    .map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim()]),
+    .map((l) => [
+      l.slice(0, l.indexOf("=")).trim(),
+      l.slice(l.indexOf("=") + 1).trim(),
+    ]),
 );
 const base = env.SUPABASE_URL.replace(/\/$/, "");
 const headers = {
@@ -23,15 +26,21 @@ const headers = {
   authorization: `Bearer ${env.SUPABASE_SECRET_KEY}`,
 };
 
-const sql = postgres("postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db", {
-  max: 1,
-  prepare: false,
-});
+const sql = postgres(
+  "postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db",
+  {
+    max: 1,
+    prepare: false,
+  },
+);
 
 async function fetchAll(table) {
   const rows = [];
   for (let offset = 0; ; offset += 1000) {
-    const r = await fetch(`${base}/rest/v1/${table}?select=*&limit=1000&offset=${offset}`, { headers });
+    const r = await fetch(
+      `${base}/rest/v1/${table}?select=*&limit=1000&offset=${offset}`,
+      { headers },
+    );
     if (!r.ok) throw new Error(`${table}: ${r.status} ${await r.text()}`);
     const page = await r.json();
     rows.push(...page);
@@ -47,7 +56,9 @@ function wire(row) {
   const out = {};
   for (const [key, value] of Object.entries(row)) {
     out[key] =
-      BYTEA_COLUMNS.has(key) && typeof value === "string" && value.startsWith("\\x")
+      BYTEA_COLUMNS.has(key) &&
+      typeof value === "string" &&
+      value.startsWith("\\x")
         ? Buffer.from(value.slice(2), "hex")
         : value;
   }
@@ -77,7 +88,8 @@ for (const table of TABLES) {
     const batch = rows.slice(start, start + 500).map(wire);
     await sql`insert into ${sql(table)} ${sql(batch, columns)} on conflict do nothing`;
   }
-  const [{ count }] = await sql`select count(*)::int as count from ${sql(table)}`;
+  const [{ count }] =
+    await sql`select count(*)::int as count from ${sql(table)}`;
   console.log(`${table}: inserted ${rows.length}, local now ${count}`);
 }
 

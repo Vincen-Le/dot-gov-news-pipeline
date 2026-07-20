@@ -18,16 +18,16 @@ This makes the corpus useful for both singleton retrieval and storyline experime
 
 ## Coverage and confidence
 
-| Measure | Result |
-| --- | ---: |
-| Entries audited | 9,657 |
-| Entries with body text | 9,433 (97.68%) |
-| Publishers | 29 |
-| Origin/news subtypes | 4 |
-| Seeded topic categories | 23 |
-| Category assignment: high confidence | 8,031 (83.16%) |
-| Category assignment: medium confidence | 823 (8.52%) |
-| Category assignment: low confidence | 803 (8.32%) |
+| Measure                                |         Result |
+| -------------------------------------- | -------------: |
+| Entries audited                        |          9,657 |
+| Entries with body text                 | 9,433 (97.68%) |
+| Publishers                             |             29 |
+| Origin/news subtypes                   |              4 |
+| Seeded topic categories                |             23 |
+| Category assignment: high confidence   | 8,031 (83.16%) |
+| Category assignment: medium confidence |    823 (8.52%) |
+| Category assignment: low confidence    |    803 (8.32%) |
 
 The table does not contain adjudicated storyline, episode, or entry-level topic labels, so these are estimates rather than ground truth. Two deterministic passes bracket the likely distribution:
 
@@ -38,32 +38,32 @@ Both passes use a four-hour episode dormancy threshold and a 72-hour near-duplic
 
 ## Estimated storyline topology
 
-| Topology | Strict storylines | Strict share | Balanced storylines | Balanced share | Entries, strict | Entries, balanced |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Multi-episode storyline | 347 | 4.03% | 427 | 5.09% | 1,340 (13.88%) | 1,636 (16.94%) |
-| Multi-entry, single-episode storyline | 40 | 0.46% | 36 | 0.43% | 84 (0.87%) | 91 (0.94%) |
-| Singleton episode/storyline | 8,233 | 95.51% | 7,930 | 94.48% | 8,233 (85.25%) | 7,930 (82.12%) |
-| **Total estimated storylines** | **8,620** | **100%** | **8,393** | **100%** | **9,657** | **9,657** |
+| Topology                              | Strict storylines | Strict share | Balanced storylines | Balanced share | Entries, strict | Entries, balanced |
+| ------------------------------------- | ----------------: | -----------: | ------------------: | -------------: | --------------: | ----------------: |
+| Multi-episode storyline               |               347 |        4.03% |                 427 |          5.09% |  1,340 (13.88%) |    1,636 (16.94%) |
+| Multi-entry, single-episode storyline |                40 |        0.46% |                  36 |          0.43% |      84 (0.87%) |        91 (0.94%) |
+| Singleton episode/storyline           |             8,233 |       95.51% |               7,930 |         94.48% |  8,233 (85.25%) |    7,930 (82.12%) |
+| **Total estimated storylines**        |         **8,620** |     **100%** |           **8,393** |       **100%** |       **9,657** |         **9,657** |
 
 ### Episode size
 
-| Episode measure | Strict | Balanced |
-| --- | ---: | ---: |
-| Estimated episodes | 9,557 | 9,481 |
-| Single-entry episodes | 9,488 | 9,395 |
-| Multi-entry episodes | 69 (0.72%) | 86 (0.91%) |
+| Episode measure                 |                Strict |              Balanced |
+| ------------------------------- | --------------------: | --------------------: |
+| Estimated episodes              |                 9,557 |                 9,481 |
+| Single-entry episodes           |                 9,488 |                 9,395 |
+| Multi-entry episodes            |            69 (0.72%) |            86 (0.91%) |
 | Entries in multi-entry episodes | 169 (1.75% of corpus) | 262 (2.71% of corpus) |
 
 The counts answer two different questions. A multi-episode storyline may contain several single-entry episodes, while a multi-entry episode may sit inside either a one-episode or continuing storyline.
 
 ## Distribution by origin/news subtype
 
-| Subtype | Entries | Corpus share | Estimated non-singleton storyline rate | Interpretation |
-| --- | ---: | ---: | ---: | --- |
-| `press_release` | 6,131 | 63.49% | 4.03–5.14% | Most corpus volume; modest chain yield overall |
-| `agency_news` | 2,803 | 29.03% | 2.83–3.57% | Mostly standalone agency reporting |
-| `advisory` | 501 | 5.19% | 42.28–47.06% | Highest chain yield, driven heavily by active incidents |
-| `release` | 222 | 2.30% | 17.43–20.59% | Strong recurring-policy and statistical-release yield |
+| Subtype         | Entries | Corpus share | Estimated non-singleton storyline rate | Interpretation                                          |
+| --------------- | ------: | -----------: | -------------------------------------: | ------------------------------------------------------- |
+| `press_release` |   6,131 |       63.49% |                             4.03–5.14% | Most corpus volume; modest chain yield overall          |
+| `agency_news`   |   2,803 |       29.03% |                             2.83–3.57% | Mostly standalone agency reporting                      |
+| `advisory`      |     501 |        5.19% |                           42.28–47.06% | Highest chain yield, driven heavily by active incidents |
+| `release`       |     222 |        2.30% |                           17.43–20.59% | Strong recurring-policy and statistical-release yield   |
 
 The small `advisory` slice is disproportionately valuable for storyline evaluation: it is only 5.19% of rows, yet roughly half of its estimated storylines are non-singletons.
 
@@ -71,32 +71,32 @@ The small `advisory` slice is disproportionately valuable for storyline evaluati
 
 “Non-singleton rate” includes both multi-episode storylines and multi-entry, same-episode storylines. The range is strict to balanced.
 
-| Seeded category | Entries | Corpus share | Estimated multi-episode storylines | Estimated non-singleton rate |
-| --- | ---: | ---: | ---: | ---: |
-| Foreign Affairs & Trade | 1,778 | 18.41% | 86 | 5.73% |
-| Public Lands & Natural Resources | 1,154 | 11.95% | 22–27 | 2.47–2.98% |
-| Justice & Law Enforcement | 1,055 | 10.92% | 21–38 | 2.14–3.99% |
-| Science & Space | 899 | 9.31% | 17–20 | 1.95–2.31% |
-| Energy & Environment | 866 | 8.97% | 22–38 | 4.43–6.84% |
-| Veterans Affairs | 856 | 8.86% | 4 | 0.47% |
-| Disaster Response & Emergency | 705 | 7.30% | 83–84 | 29.87–31.58% |
-| Financial Regulation | 428 | 4.43% | 27–33 | 7.55–9.60% |
-| Taxes & Revenue | 382 | 3.96% | 15–20 | 5.76–6.98% |
-| Agriculture | 332 | 3.44% | 11–20 | 3.79–6.98% |
-| Courts & Legal Rulings | 313 | 3.24% | 6–14 | 1.96–4.73% |
-| Economy & Labor | 192 | 1.99% | 16–17 | 20.24–22.78% |
-| Food & Drug Safety | 127 | 1.32% | 0–1 | 0–0.79% |
-| Elections & Government Operations | 113 | 1.17% | 2–7 | 1.83–6.86% |
-| Public Health | 110 | 1.14% | 9–10 | 11.49–12.79% |
-| Immigration & Border | 105 | 1.09% | 4 | 3.96–4.08% |
-| Education | 67 | 0.69% | 0 | 0% |
-| Defense & Military | 66 | 0.68% | 0 | 0% |
-| Social Security & Benefits | 39 | 0.40% | 1 | 2.63% |
-| Technology & Cybersecurity | 27 | 0.28% | 0–2 | 0–8.00% |
-| Civil Rights & Liberties | 21 | 0.22% | 1 | 5.00% |
-| Transportation & Infrastructure | 12 | 0.12% | 0 | 0% |
-| Housing & Urban Development | 10 | 0.10% | 0 | 0% |
-| **Total** | **9,657** | **100%** |  |  |
+| Seeded category                   |   Entries | Corpus share | Estimated multi-episode storylines | Estimated non-singleton rate |
+| --------------------------------- | --------: | -----------: | ---------------------------------: | ---------------------------: |
+| Foreign Affairs & Trade           |     1,778 |       18.41% |                                 86 |                        5.73% |
+| Public Lands & Natural Resources  |     1,154 |       11.95% |                              22–27 |                   2.47–2.98% |
+| Justice & Law Enforcement         |     1,055 |       10.92% |                              21–38 |                   2.14–3.99% |
+| Science & Space                   |       899 |        9.31% |                              17–20 |                   1.95–2.31% |
+| Energy & Environment              |       866 |        8.97% |                              22–38 |                   4.43–6.84% |
+| Veterans Affairs                  |       856 |        8.86% |                                  4 |                        0.47% |
+| Disaster Response & Emergency     |       705 |        7.30% |                              83–84 |                 29.87–31.58% |
+| Financial Regulation              |       428 |        4.43% |                              27–33 |                   7.55–9.60% |
+| Taxes & Revenue                   |       382 |        3.96% |                              15–20 |                   5.76–6.98% |
+| Agriculture                       |       332 |        3.44% |                              11–20 |                   3.79–6.98% |
+| Courts & Legal Rulings            |       313 |        3.24% |                               6–14 |                   1.96–4.73% |
+| Economy & Labor                   |       192 |        1.99% |                              16–17 |                 20.24–22.78% |
+| Food & Drug Safety                |       127 |        1.32% |                                0–1 |                      0–0.79% |
+| Elections & Government Operations |       113 |        1.17% |                                2–7 |                   1.83–6.86% |
+| Public Health                     |       110 |        1.14% |                               9–10 |                 11.49–12.79% |
+| Immigration & Border              |       105 |        1.09% |                                  4 |                   3.96–4.08% |
+| Education                         |        67 |        0.69% |                                  0 |                           0% |
+| Defense & Military                |        66 |        0.68% |                                  0 |                           0% |
+| Social Security & Benefits        |        39 |        0.40% |                                  1 |                        2.63% |
+| Technology & Cybersecurity        |        27 |        0.28% |                                0–2 |                      0–8.00% |
+| Civil Rights & Liberties          |        21 |        0.22% |                                  1 |                        5.00% |
+| Transportation & Infrastructure   |        12 |        0.12% |                                  0 |                           0% |
+| Housing & Urban Development       |        10 |        0.10% |                                  0 |                           0% |
+| **Total**                         | **9,657** |     **100%** |                                    |                              |
 
 The largest categories mostly reflect the current publisher mix. The best combination of meaningful volume and chain yield is Disaster Response & Emergency. Economy & Labor, Public Health, Financial Regulation, Taxes & Revenue, and Energy & Environment also have above-average chain yield, though some are small in absolute volume.
 

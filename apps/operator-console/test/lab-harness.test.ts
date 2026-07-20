@@ -25,7 +25,9 @@ function build(options: { exitCodes?: number[]; needsPrepare?: number } = {}) {
       await new Promise((resolve) => setTimeout(resolve, 5));
       if (args.includes("experiment")) {
         onLine("stage log line");
-        onLine('{"report": "docs/eval/baseline/report.md", "run_id": "run-123"}');
+        onLine(
+          '{"report": "docs/eval/baseline/report.md", "run_id": "run-123"}',
+        );
       } else {
         onLine(`${args.join(" ")}`);
       }
@@ -111,7 +113,10 @@ describe("ExperimentHarness", () => {
   it("auto-includes prepare when features are missing, and reset-features when asked", async () => {
     const withPrepare = build({ needsPrepare: 5 });
     let finished = waitForDone(withPrepare.harness);
-    const active = await withPrepare.harness.start({ name: "auto", stub: true });
+    const active = await withPrepare.harness.start({
+      name: "auto",
+      stub: true,
+    });
     expect(active.stages.map((stage) => stage.name)).toEqual([
       "prepare",
       "experiment",
@@ -200,9 +205,9 @@ describe("ExperimentHarness", () => {
 
   it("rejects bad names, unknown env keys, and concurrent runs", async () => {
     const { harness } = build();
-    await expect(
-      harness.start({ name: "../escape" }),
-    ).rejects.toBeInstanceOf(LabValidationError);
+    await expect(harness.start({ name: "../escape" })).rejects.toBeInstanceOf(
+      LabValidationError,
+    );
     await expect(
       harness.start({ env: { NOT_A_KEY: "1" }, name: "bad" }),
     ).rejects.toBeInstanceOf(LabValidationError);

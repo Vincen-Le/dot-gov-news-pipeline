@@ -63,7 +63,8 @@ describe("pipelineDbName / isManagedPipeline", () => {
     expect(
       isManagedPipeline(
         entry({
-          databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/other_db",
+          databaseUrl:
+            "postgresql://postgres:postgres@127.0.0.1:57422/other_db",
         }),
       ),
     ).toBe(false);
@@ -73,7 +74,8 @@ describe("pipelineDbName / isManagedPipeline", () => {
 describe("pipelineSkipReason", () => {
   it("refuses non-local DSNs", () => {
     const remote = entry({
-      databaseUrl: "postgresql://u:p@aws-1-us-east-2.pooler.supabase.com:5432/complex_db",
+      databaseUrl:
+        "postgresql://u:p@aws-1-us-east-2.pooler.supabase.com:5432/complex_db",
     });
     expect(pipelineSkipReason(remote)).toContain("non-local");
   });
@@ -150,7 +152,9 @@ describe("setupPipeline", () => {
     const connect = vi.fn();
     const provision = vi.fn();
     const result = await setupPipeline(
-      entry({ databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/postgres" }),
+      entry({
+        databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/postgres",
+      }),
       { connect, provision },
     );
     expect(result.status).toBe("unmanaged (primary)");
@@ -211,7 +215,8 @@ describe("setupPipeline", () => {
   it("never provisions a custom (non <name>_db) database, even when missing", async () => {
     const provision = vi.fn();
     const custom = entry({
-      databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/complex_custom",
+      databaseUrl:
+        "postgresql://postgres:postgres@127.0.0.1:57422/complex_custom",
     });
     const result = await setupPipeline(custom, {
       connect: fakeConnect([notExist]),
@@ -225,7 +230,8 @@ describe("setupPipeline", () => {
   it("verifies but never provisions an existing custom database", async () => {
     const provision = vi.fn();
     const custom = entry({
-      databaseUrl: "postgresql://postgres:postgres@127.0.0.1:57422/complex_custom",
+      databaseUrl:
+        "postgresql://postgres:postgres@127.0.0.1:57422/complex_custom",
     });
     const result = await setupPipeline(custom, {
       connect: fakeConnect([allTablesRow, [{ count: 5 }]]),

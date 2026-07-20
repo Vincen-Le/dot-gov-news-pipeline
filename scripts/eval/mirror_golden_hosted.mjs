@@ -18,8 +18,10 @@ const env = Object.fromEntries(
   readFileSync(`${repo}.env`, "utf8")
     .split("\n")
     .filter((line) => line.includes("=") && !line.startsWith("#"))
-    .map((line) => [line.slice(0, line.indexOf("=")).trim(),
-                    line.slice(line.indexOf("=") + 1).trim()]),
+    .map((line) => [
+      line.slice(0, line.indexOf("=")).trim(),
+      line.slice(line.indexOf("=") + 1).trim(),
+    ]),
 );
 const base = env.SUPABASE_URL.replace(/\/$/, "");
 const headers = {
@@ -54,12 +56,17 @@ async function upsert(table, rows, conflict = "id") {
       `${base}/rest/v1/${table}?on_conflict=${conflict}`,
       {
         method: "POST",
-        headers: { ...headers, prefer: "resolution=merge-duplicates,return=minimal" },
+        headers: {
+          ...headers,
+          prefer: "resolution=merge-duplicates,return=minimal",
+        },
         body: JSON.stringify(batch),
       },
     );
     if (!response.ok) {
-      throw new Error(`${table} upsert failed ${response.status}: ${await response.text()}`);
+      throw new Error(
+        `${table} upsert failed ${response.status}: ${await response.text()}`,
+      );
     }
   }
 }
@@ -69,9 +76,12 @@ async function deleteMissing(table, keepIds) {
   // so page explicitly — a capped fetch silently strands stale rows.
   const hosted = [];
   for (let offset = 0; ; offset += 1000) {
-    const page = await (await fetch(
-      `${base}/rest/v1/${table}?select=id&limit=1000&offset=${offset}`,
-      { headers })).json();
+    const page = await (
+      await fetch(
+        `${base}/rest/v1/${table}?select=id&limit=1000&offset=${offset}`,
+        { headers },
+      )
+    ).json();
     hosted.push(...page);
     if (page.length < 1000) break;
   }
@@ -97,7 +107,10 @@ const sql = postgres(LOCAL_DSN, { max: 1, prepare: false });
 for (const table of MIRRORS) {
   const rows = await sql`select * from ${sql(table)}`;
   await upsert(table, rows);
-  const removed = await deleteMissing(table, rows.map((r) => r.id));
+  const removed = await deleteMissing(
+    table,
+    rows.map((r) => r.id),
+  );
   console.log(`${table}: ${rows.length} upserted, ${removed} removed`);
 }
 
@@ -112,7 +125,8 @@ await upsert("golden_news_entries", anchor, "news_entry_id");
 console.log(`golden_news_entries: ${anchor.length} upserted`);
 await sql.end();
 
-const check = await fetch(
-  `${base}/rest/v1/golden_storylines?select=id`,
-  { method: "HEAD", headers: { ...headers, prefer: "count=exact" } });
+const check = await fetch(`${base}/rest/v1/golden_storylines?select=id`, {
+  method: "HEAD",
+  headers: { ...headers, prefer: "count=exact" },
+});
 console.log("hosted golden_storylines:", check.headers.get("content-range"));

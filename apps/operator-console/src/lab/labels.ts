@@ -36,9 +36,7 @@ export class RankLabelStore {
     const line = `${row.runId},${row.storylineA},${row.storylineB},${row.preferred}\n`;
     await appendFile(
       this.labelsPath,
-      needsHeader
-        ? `run_id,storyline_a,storyline_b,preferred\n${line}`
-        : line,
+      needsHeader ? `run_id,storyline_a,storyline_b,preferred\n${line}` : line,
     );
   }
 }

@@ -24,8 +24,10 @@ select ok(
 select ok(
     not has_table_privilege('anon', 'public.simple_v1_experiment_cluster_snapshots', 'select')
     and has_table_privilege('service_role', 'public.simple_v1_experiment_cluster_snapshots', 'select')
-    and not has_table_privilege('service_role', 'public.simple_v1_experiment_cluster_snapshots', 'insert'),
-    'grants: service_role read-only, anon nothing'
+    and has_table_privilege('service_role', 'public.simple_v1_experiment_cluster_snapshots', 'insert')
+    and has_table_privilege('service_role', 'public.simple_v1_experiment_cluster_snapshots', 'update')
+    and has_table_privilege('service_role', 'public.simple_v1_experiment_cluster_snapshots', 'delete'),
+    'grants: service_role mirror writes, anon nothing'
 );
 
 insert into public.simple_v1_experiment_runs (id, name, started_at, finished_at)

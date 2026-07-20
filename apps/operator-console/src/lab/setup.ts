@@ -8,7 +8,11 @@ import { namespaceForEngine, namespaceTables } from "./namespace";
  * create_episode_with_storyline RPC checked separately below. These keys
  * are stable, engine-independent labels — the real table name each one
  * resolves to for a given pipeline comes from requiredTableNames below. */
-const REQUIRED_TABLES = ["news_entries", "experiment_runs", "rank_snapshots"] as const;
+const REQUIRED_TABLES = [
+  "news_entries",
+  "experiment_runs",
+  "rank_snapshots",
+] as const;
 const REQUIRED_RPC = "create_episode_with_storyline";
 
 type RequiredTableNames = Record<(typeof REQUIRED_TABLES)[number], string>;
@@ -18,7 +22,9 @@ type RequiredTableNames = Record<(typeof REQUIRED_TABLES)[number], string>;
  * experiment_runs and rank_snapshots are namespaced per pipeline
  * (rank_snapshots stays bare for complex_v1 — it predates namespacing). */
 function requiredTableNamesFor(engine?: string): RequiredTableNames {
-  const { experimentRuns, rankSnapshots } = namespaceTables(namespaceForEngine(engine));
+  const { experimentRuns, rankSnapshots } = namespaceTables(
+    namespaceForEngine(engine),
+  );
   return {
     experiment_runs: experimentRuns,
     news_entries: "news_entries",
@@ -112,7 +118,8 @@ export async function probePipelineDatabase(
 
     let entries = 0;
     if (row?.news_entries === true) {
-      const countRows = await db.read`select count(*)::int as count from public.news_entries`;
+      const countRows =
+        await db.read`select count(*)::int as count from public.news_entries`;
       entries = (countRows[0] as { count: number } | undefined)?.count ?? 0;
     }
     return { entries, missing, status: "verified" };
@@ -138,7 +145,11 @@ export async function setupPipeline(
   entry: PipelineEntry,
   deps: PipelineSetupDeps,
 ): Promise<PipelineSetupResult> {
-  const base = { database: entry.databaseUrl, engine: entry.engine, name: entry.name };
+  const base = {
+    database: entry.databaseUrl,
+    engine: entry.engine,
+    name: entry.name,
+  };
 
   const skipReason = pipelineSkipReason(entry);
   if (skipReason !== null) {
@@ -156,7 +167,8 @@ export async function setupPipeline(
       return {
         ...base,
         entries: null,
-        status: "custom database (not managed) — missing; will not auto-create a non-standard database name",
+        status:
+          "custom database (not managed) — missing; will not auto-create a non-standard database name",
       };
     }
     return {
@@ -178,13 +190,21 @@ export async function setupPipeline(
       };
     }
     if (probe.missing.length > 0) {
-      return { ...base, entries: probe.entries, status: brokenStatus(probe.missing) };
+      return {
+        ...base,
+        entries: probe.entries,
+        status: brokenStatus(probe.missing),
+      };
     }
     return { ...base, entries: probe.entries, status: "created" };
   }
 
   if (probe.missing.length > 0) {
-    return { ...base, entries: probe.entries, status: brokenStatus(probe.missing) };
+    return {
+      ...base,
+      entries: probe.entries,
+      status: brokenStatus(probe.missing),
+    };
   }
   return { ...base, entries: probe.entries, status: "ok" };
 }

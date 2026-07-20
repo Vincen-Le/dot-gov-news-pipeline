@@ -632,9 +632,7 @@ Composition: 3:2 landscape. Keep the meaningful subject inside the central 65% s
 Palette: warm cream paper, charcoal and deep brown-black, cobalt blue focal forms, restrained signal-orange accent.
 Hard constraints: no text, letters, numbers, logos, seals, flags, identifiable people, faces, watermarks, photorealism, glossy 3D, gradients, stock-photo look, decorative borders, or tiny intricate details.`;
 
-export function generationPrompt(
-  definition: ReusableImageDefinition,
-): string {
+export function generationPrompt(definition: ReusableImageDefinition): string {
   return `${BASE_PROMPT}
 Primary request: Create the ${definition.scope} image for “${definition.displayName}.”
 Scene and subject: on a ${definition.background === "dark" ? "deep charcoal" : "warm cream"} field, ${definition.description.charAt(0).toLowerCase()}${definition.description.slice(1)}

@@ -30,9 +30,9 @@ function image(
 describe("reusable image publishing", () => {
   it("catalogs exactly the completed renders without duplicate files or keys", () => {
     expect(COMPLETED_REUSABLE_IMAGES).toHaveLength(54);
-    expect(
-      new Set(COMPLETED_REUSABLE_IMAGES.map(({ key }) => key)).size,
-    ).toBe(54);
+    expect(new Set(COMPLETED_REUSABLE_IMAGES.map(({ key }) => key)).size).toBe(
+      54,
+    );
     expect(
       new Set(
         COMPLETED_REUSABLE_IMAGES.map(
