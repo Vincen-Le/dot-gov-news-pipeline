@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 
 import {
@@ -113,3 +114,11 @@ export const dotGovApi = {
   themes: (signal?: AbortSignal) =>
     get("/topics/themes", z.object({ themes: ThemeSchema.array() }), signal),
 };
+
+export function storylineDetailQuery(id: string) {
+  return queryOptions({
+    queryFn: ({ signal }) => dotGovApi.storyline(id, signal),
+    queryKey: ["storyline", id] as const,
+    staleTime: Infinity,
+  });
+}

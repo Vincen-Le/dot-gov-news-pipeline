@@ -10,7 +10,7 @@ import {
 } from "react";
 
 import { type AgencyOption, type StorylineListItem } from "./api/contracts";
-import { dotGovApi } from "./api/client";
+import { storylineDetailQuery } from "./api/client";
 import { detailAsOf, isoDay } from "./domain/as-of";
 import type { StorylinePlacement } from "./domain/relative-rank";
 import { NewsMark } from "./NewsMark";
@@ -109,10 +109,7 @@ export function StorylineCard({
   placement: StorylinePlacement;
   revealIndex?: number;
 }) {
-  const detail = useQuery({
-    queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
-    queryKey: ["storyline", item.id],
-  });
+  const detail = useQuery(storylineDetailQuery(item.id));
   const asOfDetail = useMemo(
     () =>
       detail.data === undefined || detail.data.unreviewedEntryCount !== 0
@@ -241,10 +238,7 @@ export function StorylineTableRow({
   item: StorylineListItem;
   onOpen: () => void;
 }) {
-  const detail = useQuery({
-    queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
-    queryKey: ["storyline", item.id],
-  });
+  const detail = useQuery(storylineDetailQuery(item.id));
   const snapshot = useMemo(
     () =>
       detail.data === undefined || detail.data.unreviewedEntryCount !== 0
@@ -299,10 +293,7 @@ export function StorylineDialog({
   const dialog = useRef<HTMLDialogElement>(null);
   const closeFinished = useRef(false);
   const [closing, setClosing] = useState(false);
-  const detail = useQuery({
-    queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
-    queryKey: ["storyline", item.id],
-  });
+  const detail = useQuery(storylineDetailQuery(item.id));
   const asOfDetail = useMemo(
     () =>
       detail.data === undefined || detail.data.unreviewedEntryCount !== 0
