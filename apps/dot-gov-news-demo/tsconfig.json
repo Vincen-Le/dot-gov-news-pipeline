@@ -6,5 +6,12 @@
     "noEmit": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["api", "src", "test", "vite.config.ts", "vitest.config.ts"]
+  "include": [
+    "api",
+    "middleware.ts",
+    "src",
+    "test",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
 }
