@@ -2,8 +2,8 @@ from pipeline.extraction import EXTRACTOR_VERSION, extract
 
 
 def test_version_frozen():
-    # v3: recurrent judge-confirmed generic fragments filtered
-    assert EXTRACTOR_VERSION == 3
+    # v4: wire datelines no longer truncate the entity window
+    assert EXTRACTOR_VERSION == 4
 
 
 def test_drug_recall_headline():
@@ -102,3 +102,74 @@ def test_docket_case_numbers_still_extracted():
     _, keys = extract("Court ruling in visa case",
                       "The order in Case No. 23-104 was affirmed.")
     assert any("23-104" in k for k in keys)
+
+
+def test_wire_dateline_does_not_truncate_entity_window():
+    # news_entries cc4fd792: the feed summary repeats the title, then opens
+    # prose with a wire dateline "FRANKFORT, Ky. –". The abbreviation period
+    # ended first-sentence detection one word before "Kentucky".
+    title = "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding"
+    summary = (
+        "Less Than One Week Left to Apply for FEMA Assistance Following April "
+        "Flooding FRANKFORT, Ky. – Kentucky homeowners and renters who "
+        "experienced damage or loss caused by the April severe storms, "
+        "straight-line winds, flooding, landslides and mudslides have less than "
+        "one week left to apply for federal disaster assistance. The deadline "
+        "to apply is July 25."
+    )
+    entities, _ = extract(title, summary)
+    assert "kentucky" in entities
+
+
+def test_wire_dateline_city_captured():
+    # all-caps dateline cities were invisible to the [A-Z][a-z]+ cap-span net
+    title = "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding"
+    summary = (
+        "Less Than One Week Left to Apply for FEMA Assistance Following April "
+        "Flooding FRANKFORT, Ky. – Kentucky homeowners and renters have "
+        "less than one week left to apply for federal disaster assistance."
+    )
+    entities, _ = extract(title, summary)
+    assert "frankfort" in entities
+
+
+def test_stateless_wire_dateline():
+    entities, _ = extract(
+        "Agency Issues Guidance",
+        "BATON ROUGE – Valsatrex distribution resumes statewide this week.",
+    )
+    assert "valsatrex" in entities
+    assert "baton rouge" in entities or ("baton" in entities and "rouge" in entities)
+
+
+def test_body_fallback_when_summary_is_nav_blob():
+    nav = ("About Administrative Areas Bureaus Countries Directories Offices "
+           "Press Releases Travel Visas Business Education Culture " * 3)
+    entities, _ = extract(
+        "Secretary Meets With Foreign Minister",
+        nav,
+        body="WASHINGTON – Secretary announced sanctions on Volkov Industries today.",
+    )
+    assert "volkov" in entities
+
+
+def test_body_fallback_when_summary_missing():
+    entities, _ = extract(
+        "Agency Issues Guidance",
+        None,
+        body="FRANKFORT, Ky. – Kentucky homeowners can apply for Valsatrex relief.",
+    )
+    assert "kentucky" in entities
+    assert "frankfort" in entities
+
+
+def test_summary_prose_wins_over_body():
+    # determinism guard: when the summary yields a prose sentence, the body
+    # must contribute no entity candidates
+    entities, _ = extract(
+        "Agency Issues Guidance",
+        "Valsatrex distribution resumes statewide.",
+        body="Unrelated Kestrel Industries boilerplate follows the lede.",
+    )
+    assert "valsatrex" in entities
+    assert "kestrel" not in entities

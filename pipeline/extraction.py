@@ -1,12 +1,15 @@
 """Salient-discriminator extraction (entity guard) + hard event keys.
 
-Pure, versioned: same (title, summary, EXTRACTOR_VERSION) -> identical output
-on any instance, any replay. Runs on RAW title/summary only — never enriched
-text. Subtractive by design: the wide capitalization net is filtered by frozen
-lexicons; survivors are event-specific names (drugs, companies, IDs, amounts).
+Pure, versioned: same (title, summary, body, EXTRACTOR_VERSION) -> identical
+output on any instance, any replay. Runs on RAW feed text only — never
+enriched text. Subtractive by design: the wide capitalization net is filtered
+by frozen lexicons; survivors are event-specific names (drugs, companies,
+IDs, amounts).
 
-Scoping: entities come from title + first summary sentence (noise control);
-event keys scan the full title + summary (hard IDs are reliable anywhere).
+Scoping: entities come from title + the first prose sentence (noise control) —
+from the summary, falling back to the body when the summary yields none
+(nav-blob or missing); event keys scan the full title + summary-or-body
+(hard IDs are reliable anywhere).
 """
 
 from __future__ import annotations
@@ -14,7 +17,14 @@ from __future__ import annotations
 import re
 import unicodedata
 
-EXTRACTOR_VERSION = 3
+EXTRACTOR_VERSION = 4
+
+# v4: (a) wire datelines ("FRANKFORT, Ky. – ...") — the abbreviation period
+# ended first-sentence detection one word into the prose, and the ALL-CAPS
+# city was invisible to the cap-span net. The dateline marks where prose
+# actually starts: scope the entity sentence to the text after it and keep
+# the city as an entity candidate. (b) body fallback — a summary that yields
+# no prose sentence (nav-blob or missing) falls back to the body's lede.
 
 # v2: CFR citations dropped (legal-authority references shared by unrelated
 # notices — 36 CFR 261.50 appeared in 6 different park announcements) and bare
@@ -82,6 +92,15 @@ _MIN_LEN = 4
 
 _NAV_BLOB_HORIZON = 240
 
+# ALL-CAPS city (one or more words), optional ", St." abbreviation, then a
+# spaced dash. Only searched within the nav-blob horizon: a genuine wire
+# dateline sits at the head of the prose, not deep inside it.
+_DATELINE = re.compile(
+    r"\b([A-Z][A-Z'.-]+(?:\s+[A-Z][A-Z'.-]+)*)"
+    r"(?:,\s*[A-Z][A-Za-z]{0,5}\.?)?"
+    r"\s+[–—-]\s+"
+)
+
 
 def _first_sentence(text: str | None) -> str:
     """First sentence of the summary — or nothing if the text does not read
@@ -95,9 +114,30 @@ def _first_sentence(text: str | None) -> str:
     return text[: match.start() + 1]
 
 
-def extract(title: str | None, summary: str | None) -> tuple[list[str], list[str]]:
-    full_text = unicodedata.normalize("NFKC", (title or "") + ". " + (summary or ""))
-    entity_text = unicodedata.normalize("NFKC", (title or "") + ". " + _first_sentence(summary))
+_BODY_CAP = 4000  # the event is in the lede; the tail is page chrome
+
+
+def _prose_window(text: str | None) -> tuple[str, str]:
+    """(first prose sentence, dateline city) of a text, stepping over a
+    leading wire dateline."""
+    text = text or ""
+    dateline_city = ""
+    dateline = _DATELINE.search(text[:_NAV_BLOB_HORIZON])
+    if dateline:
+        dateline_city = dateline.group(1)
+        text = text[dateline.end():]
+    return _first_sentence(text), dateline_city
+
+
+def extract(title: str | None, summary: str | None,
+            body: str | None = None) -> tuple[list[str], list[str]]:
+    body = (body or "")[:_BODY_CAP]
+    full_text = unicodedata.normalize("NFKC", (title or "") + ". " + (summary or body))
+
+    sentence, dateline_city = _prose_window(summary)
+    if not sentence and not dateline_city:
+        sentence, dateline_city = _prose_window(body)
+    entity_text = unicodedata.normalize("NFKC", (title or "") + ". " + sentence)
 
     keys: set[str] = set()
     for pattern in _EVENT_KEY_PATTERNS:
@@ -108,13 +148,14 @@ def extract(title: str | None, summary: str | None) -> tuple[list[str], list[str
     for match in _DOLLAR.findall(entity_text):
         entities.add(re.sub(r"\s+", " ", match).strip().casefold())
 
-    for span in _CAP_SPAN.findall(entity_text):
-        for token in span.split():
-            word = token.strip(".,;:'\"()").casefold()
-            if len(word) < _MIN_LEN:
-                continue
-            if word in _AGENCY_LEXICON or word in _BOILERPLATE_LEXICON or word in _COMMON_ENGLISH:
-                continue
-            entities.add(word)
+    candidate_tokens = [token for span in _CAP_SPAN.findall(entity_text) for token in span.split()]
+    candidate_tokens += dateline_city.split()
+    for token in candidate_tokens:
+        word = token.strip(".,;:'\"()").casefold()
+        if len(word) < _MIN_LEN:
+            continue
+        if word in _AGENCY_LEXICON or word in _BOILERPLATE_LEXICON or word in _COMMON_ENGLISH:
+            continue
+        entities.add(word)
 
     return sorted(entities)[:64], sorted(keys)[:16]

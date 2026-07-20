@@ -106,7 +106,8 @@ def prepare(store, models, cfg: Config, limit: int | None = None,
             continue
         for (row, new_enrichment, _), vec in zip(chunk, vectors):
             needs_anchors = not row["entity_set"] and not row["event_keys"]
-            entities, keys = (extract(row["title"], _semantic_content(row))
+            entities, keys = (extract(row["title"], row.get("summary"),
+                                      row.get("body_text"))
                               if needs_anchors else (None, None))
             store.update_entry_features(
                 row["id"],
