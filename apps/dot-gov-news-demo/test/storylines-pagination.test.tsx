@@ -69,11 +69,79 @@ function detail(item: StorylineListItem): StorylineDetail {
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
 describe("storyline rendering window", () => {
+  it("fades a theme in when it reaches its storyline threshold", () => {
+    vi.useFakeTimers();
+    const items = [20, 21, 22, 23].map((day, index) => ({
+      ...storyline(index + 1),
+      firstEntryAt: `2026-07-${day}T12:00:00.000Z`,
+      firstOverviewAt: `2026-07-${day}T12:00:00.000Z`,
+      newestEntryAt: `2026-07-${day}T12:00:00.000Z`,
+      themeId: "theme-food-safety",
+      themeName: "Food safety",
+    }));
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    client.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: items.map(preview),
+      storylines: { hasMore: false, items },
+      themes: [
+        {
+          categoryId: null,
+          categoryName: null,
+          displayName: "Food safety",
+          firstStorylineAt: "2026-07-20T12:00:00.000Z",
+          id: "theme-food-safety",
+          manuallySet: false,
+          newestStorylineAt: "2026-07-23T12:00:00.000Z",
+          storylineCount: 4,
+        },
+      ],
+    });
+    for (const item of items) {
+      client.setQueryData(["storyline", item.id], detail(item));
+    }
+
+    const page = (asOf: string) => (
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <StorylinesPage asOf={asOf} />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+    const view = render(page("2026-07-22"));
+
+    expect(screen.queryByText("Food safety")).toBeNull();
+
+    view.rerender(page("2026-07-23"));
+
+    const themeFilter = screen.getByRole("button", { name: "Food safety" });
+    expect(themeFilter.classList.contains("theme-emergence")).toBe(true);
+    expect(
+      view.container.querySelectorAll(".taxonomy .theme-emergence"),
+    ).toHaveLength(4);
+
+    view.rerender(page("2026-07-26"));
+
+    expect(themeFilter.classList.contains("is-exiting")).toBe(true);
+    expect((themeFilter as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      view.container.querySelectorAll(".taxonomy .theme-emergence.is-exiting"),
+    ).toHaveLength(4);
+
+    act(() => vi.advanceTimersByTime(320));
+
+    expect(screen.queryByText("Food safety")).toBeNull();
+  });
+
   it("prefetches detail for only the storylines rendered into the DOM", async () => {
     const items = Array.from({ length: 20 }, (_, index) =>
       storyline(index + 1),

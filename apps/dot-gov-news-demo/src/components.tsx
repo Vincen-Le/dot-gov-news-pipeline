@@ -59,13 +59,17 @@ export interface FilterOption {
 }
 
 export function FilterGroup({
+  exitingOptions,
   label,
   onToggle,
+  optionClassName,
   options,
   selected,
 }: {
+  exitingOptions?: ReadonlySet<string>;
   label: string;
   onToggle: (value: string) => void;
+  optionClassName?: string;
   options: FilterOption[];
   selected: Set<string>;
 }) {
@@ -81,10 +85,12 @@ export function FilterGroup({
       >
         {options.map((option) => {
           const pressed = selected.has(option.value);
+          const exiting = exitingOptions?.has(option.value) ?? false;
           return (
             <button
               aria-pressed={pressed}
-              className="pill"
+              className={`pill${optionClassName === undefined ? "" : ` ${optionClassName}`}${exiting ? " is-exiting" : ""}`}
+              disabled={exiting}
               key={option.value}
               onClick={() => onToggle(option.value)}
               type="button"
@@ -106,6 +112,7 @@ export function StorylineCard({
   placement,
   preview,
   revealIndex = 0,
+  themeExiting = false,
 }: {
   agencyMap: Map<string, string>;
   asOf: string;
@@ -114,6 +121,7 @@ export function StorylineCard({
   placement: StorylinePlacement;
   preview?: StorylinePreview;
   revealIndex?: number;
+  themeExiting?: boolean;
 }) {
   const detail = useQuery({
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
@@ -242,7 +250,14 @@ export function StorylineCard({
           )}
           <div className="taxonomy">
             <span>{item.categoryName ?? "Government"}</span>
-            {item.themeName === null ? null : <span>{item.themeName}</span>}
+            {item.themeName === null ? null : (
+              <span
+                className={`theme-emergence${themeExiting ? " is-exiting" : ""}`}
+                key={item.themeId}
+              >
+                {item.themeName}
+              </span>
+            )}
           </div>
           <footer>
             <span className="card-volume">
@@ -265,12 +280,14 @@ export function StorylineTableRow({
   item,
   onOpen,
   preview,
+  themeExiting = false,
 }: {
   agencyMap: Map<string, string>;
   asOf: string;
   item: StorylineListItem;
   onOpen: () => void;
   preview?: StorylinePreview;
+  themeExiting?: boolean;
 }) {
   const detail = useQuery({
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
@@ -311,7 +328,16 @@ export function StorylineTableRow({
       </th>
       <td className="wrap">{agencies.join(" · ") || "—"}</td>
       <td className="wrap">
-        {[item.categoryName, item.themeName].filter(Boolean).join(" · ") || "—"}
+        {item.categoryName ?? (item.themeName === null ? "—" : null)}
+        {item.themeName === null ? null : (
+          <span
+            className={`theme-emergence${themeExiting ? " is-exiting" : ""}`}
+            key={item.themeId}
+          >
+            {item.categoryName === null ? "" : " · "}
+            {item.themeName}
+          </span>
+        )}
       </td>
       <td>
         {preview === undefined

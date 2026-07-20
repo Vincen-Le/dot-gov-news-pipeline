@@ -41,6 +41,7 @@ export function rankKeyAsOf(
 }
 
 export const THEME_SURFACE_THRESHOLD = 4;
+export const THEME_ACTIVE_WINDOW_DAYS = 2;
 
 export function isThemeAvailableAsOf(
   theme: Theme,
@@ -48,12 +49,27 @@ export function isThemeAvailableAsOf(
   day: string,
 ): boolean {
   const requiredStorylines = theme.manuallySet ? 1 : THEME_SURFACE_THRESHOLD;
-  return (
-    storylines.filter(
-      (storyline) =>
-        storyline.themeId === theme.id && isAvailableAsOf(storyline, day),
-    ).length >= requiredStorylines
+  const themedStorylines = storylines.filter(
+    (storyline) =>
+      storyline.themeId === theme.id && isAvailableAsOf(storyline, day),
   );
+  if (themedStorylines.length < requiredStorylines) return false;
+
+  const newestStorylineDay = themedStorylines
+    .flatMap((storyline) =>
+      storyline.firstOverviewAt === null
+        ? []
+        : [storyline.firstOverviewAt.slice(0, 10)],
+    )
+    .sort()
+    .at(-1);
+  if (newestStorylineDay === undefined) return false;
+
+  const oldestActiveDate = new Date(`${day}T12:00:00Z`);
+  oldestActiveDate.setUTCDate(
+    oldestActiveDate.getUTCDate() - THEME_ACTIVE_WINDOW_DAYS,
+  );
+  return newestStorylineDay >= oldestActiveDate.toISOString().slice(0, 10);
 }
 
 export function cardAsOf<T extends { newestEntryAt: string; version: number }>(

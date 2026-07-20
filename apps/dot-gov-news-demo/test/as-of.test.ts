@@ -94,6 +94,8 @@ describe("as-of selection", () => {
 
     expect(isThemeAvailableAsOf(theme, storylines, "2025-07-22")).toBe(false);
     expect(isThemeAvailableAsOf(theme, storylines, "2025-07-23")).toBe(true);
+    expect(isThemeAvailableAsOf(theme, storylines, "2025-07-25")).toBe(true);
+    expect(isThemeAvailableAsOf(theme, storylines, "2025-07-26")).toBe(false);
   });
 
   it("exposes a manually set theme with its first emerged storyline", () => {

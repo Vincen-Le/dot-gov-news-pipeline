@@ -28,6 +28,7 @@ import { StorylinesHero } from "./StorylinesHero";
 
 const RENDER_BATCH_SIZE = 18;
 const LOAD_AHEAD_ROOT_MARGIN = "1200px 0px";
+const THEME_EXIT_DURATION_MS = 320;
 
 type SortOrder = "episodes" | "newest" | "rank";
 type ViewMode = "product" | "table";
@@ -50,6 +51,65 @@ function retainAvailable(
   const available = new Set(options.map((option) => option.value));
   const next = new Set([...current].filter((value) => available.has(value)));
   return next.size === current.size ? current : next;
+}
+
+function useThemePresence(options: FilterOption[]): {
+  exitingIds: ReadonlySet<string>;
+  options: FilterOption[];
+} {
+  const [displayed, setDisplayed] = useState(options);
+  const [exitingIds, setExitingIds] = useState<ReadonlySet<string>>(new Set());
+  const displayedRef = useRef(displayed);
+  const exitTimers = useRef(
+    new Map<string, ReturnType<typeof globalThis.setTimeout>>(),
+  );
+
+  useEffect(() => {
+    const activeIds = new Set(options.map((option) => option.value));
+    for (const option of options) {
+      const timer = exitTimers.current.get(option.value);
+      if (timer !== undefined) globalThis.clearTimeout(timer);
+      exitTimers.current.delete(option.value);
+    }
+
+    const exiting = displayedRef.current.filter(
+      (option) => !activeIds.has(option.value),
+    );
+    const nextDisplayed = [...options, ...exiting].sort(optionSort);
+    const nextExitingIds = new Set(exiting.map((option) => option.value));
+    displayedRef.current = nextDisplayed;
+    setDisplayed(nextDisplayed);
+    setExitingIds(nextExitingIds);
+
+    for (const option of exiting) {
+      if (exitTimers.current.has(option.value)) continue;
+      const timer = globalThis.setTimeout(() => {
+        exitTimers.current.delete(option.value);
+        setDisplayed((current) => {
+          const next = current.filter((item) => item.value !== option.value);
+          displayedRef.current = next;
+          return next;
+        });
+        setExitingIds((current) => {
+          const next = new Set(current);
+          next.delete(option.value);
+          return next;
+        });
+      }, THEME_EXIT_DURATION_MS);
+      exitTimers.current.set(option.value, timer);
+    }
+  }, [options]);
+
+  useEffect(
+    () => () => {
+      for (const timer of exitTimers.current.values()) {
+        globalThis.clearTimeout(timer);
+      }
+    },
+    [],
+  );
+
+  return { exitingIds, options: displayed };
 }
 
 export function StorylinesPage({ asOf }: { asOf: string }) {
@@ -153,9 +213,10 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       .map((theme) => ({ label: theme.displayName, value: theme.id }))
       .sort(optionSort);
   }, [asOf, available, bootstrap.data]);
+  const displayedThemes = useThemePresence(themeOptions);
   const surfacedThemeIds = useMemo(
-    () => new Set(themeOptions.map((theme) => theme.value)),
-    [themeOptions],
+    () => new Set(displayedThemes.options.map((theme) => theme.value)),
+    [displayedThemes.options],
   );
 
   useEffect(
@@ -322,11 +383,13 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             selected={categories}
           />
           <FilterGroup
+            exitingOptions={displayedThemes.exitingIds}
             label="Theme"
             onToggle={(value) =>
               setThemes((current) => toggled(current, value))
             }
-            options={themeOptions}
+            optionClassName="theme-emergence"
+            options={displayedThemes.options}
             selected={themes}
           />
         </div>
@@ -392,6 +455,10 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
                 placement={placements.get(item.id)!}
                 preview={previewByStoryline.get(item.id)}
                 revealIndex={index}
+                themeExiting={
+                  item.themeId !== null &&
+                  displayedThemes.exitingIds.has(item.themeId)
+                }
               />
             ))}
           </section>
@@ -425,6 +492,10 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
                       key={item.id}
                       onOpen={() => open(item)}
                       preview={previewByStoryline.get(item.id)}
+                      themeExiting={
+                        item.themeId !== null &&
+                        displayedThemes.exitingIds.has(item.themeId)
+                      }
                     />
                   ))}
                 </tbody>
