@@ -104,7 +104,7 @@ file after setup, and atomically writes the Operator API URL and token to a
 mode-`0600` `.env` before enabling remote reads:
 
 ```sh
-pnpm ops:setup
+pnpm ops deploy
 ```
 
 The resulting ignored local configuration contains:
@@ -120,5 +120,46 @@ The bearer token protects a single-user read-only endpoint. Rotate it before
 sharing the environment or if it may have appeared in logs. The local browser
 receives neither this token nor the Supabase service key; it calls only the
 loopback proxy through a one-time local bootstrap URL and an HttpOnly session
-cookie. Run `pnpm ops:setup --rotate-token` to rotate the token without putting
+cookie. Run `pnpm ops deploy --rotate-token` to rotate the token without putting
 it in shell history.
+
+## Contributor corpus access
+
+Invited contributors read the hosted corpus without any credential handoff:
+the publishable key in `config/hosted.json` maps to the `anon` role, which
+has RLS `SELECT` policies on exactly `news_entries`, `news_sources`, and
+`news_source_publishers` (migration `20260719120000_grant_corpus_read.sql`).
+The publishable key is safe to commit; rotating it in the Supabase dashboard
+plus updating `config/hosted.json` revokes old clones' access.
+
+For live SQL, hand out the `corpus_reader` DSN individually (see below).
+Rotate its password when someone leaves:
+
+```sql
+alter role corpus_reader password '<new-password>';
+```
+
+## Hosted rollout
+
+One-time steps to activate contributor access (repo owner, requires the
+linked Supabase project):
+
+1. Push the migration: `mise exec -- pnpm supabase db push --include-all`
+2. Copy the publishable key (`sb_publishable_...`) from
+   **Supabase Dashboard → Project Settings → API Keys** into
+   `config/hosted.json`, replacing the `REPLACE_WITH_...` placeholder, and
+   commit.
+3. Enable login for the direct-read role (SQL editor, hosted):
+
+   ```sql
+   alter role corpus_reader login password '<generated-password>';
+   ```
+
+   Connection string to hand out (Supavisor session pooler):
+
+   ```
+   postgresql://corpus_reader.qdqmahimrnwhzdjlcont:<password>@aws-1-us-east-2.pooler.supabase.com:5432/postgres
+   ```
+
+4. Verify from a clean shell: `pnpm ops doctor` — the `hosted corpus read`
+   check must pass.

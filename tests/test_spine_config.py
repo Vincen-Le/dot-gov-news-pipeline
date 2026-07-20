@@ -17,7 +17,7 @@ def test_spine_defaults():
     assert cfg.spine_top_k == 3
     assert cfg.spine_episode_gap_hours == 48.0
     assert cfg.spine_embed_source == "enriched"
-    assert cfg.spine_theme_min_size == 5
+    assert cfg.spine_theme_min_size == 4
     assert cfg.spine_theme_link_sim == 0.55
     assert cfg.spine_theme_sweep_interval_hours == 168.0
     assert cfg.spine_theme_keep_overlap == 0.5

@@ -82,6 +82,8 @@ mise exec -- pnpm supabase db push
 
 The CLI prompts for the database password when it needs a direct connection. Do not pass it on the command line. Confirm that the hosted migration catalog is current with a second `db push --dry-run`; it should report `Remote database is up to date`.
 
+`20260719120000_grant_corpus_read.sql` was added after migrations timestamped through `20260720040000` already shipped, so its filename sorts out of order relative to hosted's applied history. Push it with `mise exec -- pnpm supabase db push --include-all` so the CLI applies this and any other unapplied-but-out-of-order migration instead of refusing on ordering alone.
+
 Before a destructive migration or once hosted data becomes valuable, take a manual dump and store it outside the repository:
 
 ```sh
@@ -395,8 +397,8 @@ changing the pipeline Worker, Cron, or Queue consumers. Add
 bootstrap:
 
 ```sh
-pnpm ops:setup --dry-run
-pnpm ops:setup
+pnpm ops deploy --dry-run
+pnpm ops deploy
 ```
 
 The command validates the bundle, checks Cloudflare authentication, deploys with
@@ -415,10 +417,10 @@ An unauthenticated request, wrong token, mutation method, and unknown route must
 all fail without provider details. Then verify individual queries as needed:
 
 ```sh
-pnpm ops health --deep
-pnpm ops queues --json
-pnpm ops inventory summary
-pnpm ops events list --since 30m
+pnpm ops remote health --deep
+pnpm ops remote queues --json
+pnpm ops remote inventory summary
+pnpm ops remote events list --since 30m
 ```
 
 Start the local dashboard with:

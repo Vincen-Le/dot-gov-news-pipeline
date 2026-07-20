@@ -4,7 +4,7 @@ Generated from `apps/operator-console/src/recipes.ts`. Do not edit by hand. All 
 
 ## One-time setup
 
-Add `SUPABASE_SECRET_KEY` to the ignored root `.env`, then run `pnpm ops:setup`. The setup command deploys the read-only Operator API, generates its token, and atomically writes its URL and token back to a mode-`0600` `.env` before enabling reads. Use `pnpm ops:setup --dry-run` to validate without changing Cloudflare or local configuration. Browser code never receives these values.
+Run `pnpm ops setup` to prepare local databases for every pipeline (stack, migrations, corpus, registry). To enable remote observability, add `SUPABASE_SECRET_KEY` to the ignored root `.env`, then run `pnpm ops deploy`. The deploy command deploys the read-only Operator API, generates its token, and atomically writes its URL and token back to a mode-`0600` `.env` before enabling reads. Use `pnpm ops deploy --dry-run` to validate without changing Cloudflare or local configuration. Browser code never receives these values.
 
 ## Everyday startup
 
@@ -19,7 +19,7 @@ Add `--json` to read commands for machine-readable output. Warnings go to stderr
 Verify Worker, Supabase, R2, and Queue dependencies.
 
 ```bash
-pnpm ops health --deep
+pnpm ops remote health --deep
 ```
 
 ### Inspect queue pressure
@@ -27,7 +27,7 @@ pnpm ops health --deep
 Read current main Queue and DLQ pressure.
 
 ```bash
-pnpm ops queues
+pnpm ops remote queues
 ```
 
 ### Verify inventory sync
@@ -35,7 +35,7 @@ pnpm ops queues
 Verify the latest GSA reconciliation receipt.
 
 ```bash
-pnpm ops inventory summary
+pnpm ops remote inventory summary
 ```
 
 ### List inventory runs
@@ -43,7 +43,7 @@ pnpm ops inventory summary
 List recent inventory attempts and outcomes.
 
 ```bash
-pnpm ops inventory runs --limit 10
+pnpm ops remote inventory runs --limit 10
 ```
 
 ### Look up a site
@@ -51,7 +51,7 @@ pnpm ops inventory runs --limit 10
 Find the durable inventory record for a hostname.
 
 ```bash
-pnpm ops inventory sites --hostname nasa.gov
+pnpm ops remote site inspect nasa.gov
 ```
 
 ### Read recent events
@@ -59,7 +59,7 @@ pnpm ops inventory sites --hostname nasa.gov
 Read recent durable pipeline events.
 
 ```bash
-pnpm ops events list --since 30m
+pnpm ops remote events list --since 30m
 ```
 
 ### Follow Worker activity
@@ -67,7 +67,7 @@ pnpm ops events list --since 30m
 Follow sampled structured Worker activity.
 
 ```bash
-pnpm ops worker tail --search worker_lifecycle
+pnpm ops remote worker tail --search worker_lifecycle
 ```
 
 ### Open local dashboard

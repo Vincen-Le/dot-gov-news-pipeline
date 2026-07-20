@@ -59,7 +59,7 @@ export async function labCapability(
     return {
       experimentsEnabled: false,
       reason:
-        "Set DATABASE_URL in the root .env (local default postgresql://postgres:postgres@127.0.0.1:54322/postgres) to enable the clustering lab.",
+        "Set DATABASE_URL in the root .env (local default postgresql://postgres:postgres@127.0.0.1:57422/postgres) to enable the clustering lab.",
       status: "not_enabled",
     };
   }
