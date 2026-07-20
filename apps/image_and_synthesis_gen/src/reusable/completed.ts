@@ -71,4 +71,64 @@ export const COMPLETED_REUSABLE_IMAGES: readonly CompletedReusableImage[] = [
     generatedFileName: "exec-e8b67b97-2e72-41fd-b032-240d60a9cbe9.png",
     key: "technology-and-cybersecurity",
   },
+  {
+    generatedFileName: "exec-5dc57e31-4d90-410b-8853-2b9b18779238.png",
+    key: "eeoc",
+  },
+  {
+    generatedFileName: "exec-eb242def-beae-4106-86be-8c889b005e10.png",
+    key: "epa",
+  },
+  {
+    generatedFileName: "exec-6345ae4b-136a-4d2a-8bff-83b2b0c63865.png",
+    key: "fda",
+  },
+  {
+    generatedFileName: "exec-68bd3301-fab8-46a3-a11c-583e1f274a80.png",
+    key: "nps",
+  },
+  {
+    generatedFileName: "exec-287f21f0-ad71-4956-9aad-5dbe914ad032.png",
+    key: "ntsb",
+  },
+  {
+    generatedFileName: "exec-ea7ae4ff-e294-4684-a563-8874367fe38f.png",
+    key: "nws",
+  },
+  {
+    generatedFileName: "exec-e5152807-f163-4fb0-a200-15d63e38dbae.png",
+    key: "elections-and-government-operations",
+  },
+  {
+    generatedFileName: "exec-d331362b-1dca-42b2-b600-4e0e47a429da.png",
+    key: "foreign-affairs-and-trade",
+  },
+  {
+    generatedFileName: "exec-59b8f0e8-7b0c-4729-8e6f-c1ef754c6eb2.png",
+    key: "disaster-response-and-emergency",
+  },
+  {
+    generatedFileName: "exec-29bd1418-677d-43b3-86f5-914064cca7d1.png",
+    key: "agriculture",
+  },
+  {
+    generatedFileName: "exec-e2548eed-06f7-4fea-8e44-0582dd7d1ca9.png",
+    key: "civil-rights-and-liberties",
+  },
+  {
+    generatedFileName: "exec-f5bf09f3-7726-43f4-b4fe-231db3bfbbd2.png",
+    key: "public-lands-and-natural-resources",
+  },
+  {
+    generatedFileName: "exec-d3b59e8a-931c-4fa0-8b6f-b6e56de9adb6.png",
+    key: "fema",
+  },
+  {
+    generatedFileName: "exec-4707b0d3-5027-4edc-864c-5e2b9b41bf6f.png",
+    key: "fsa",
+  },
+  {
+    generatedFileName: "exec-de7e0192-693f-4c8b-8456-a03be69588d3.png",
+    key: "ftc",
+  },
 ];

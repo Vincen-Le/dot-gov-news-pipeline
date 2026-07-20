@@ -29,17 +29,17 @@ function image(
 
 describe("reusable image publishing", () => {
   it("catalogs exactly the completed renders without duplicate files or keys", () => {
-    expect(COMPLETED_REUSABLE_IMAGES).toHaveLength(16);
+    expect(COMPLETED_REUSABLE_IMAGES).toHaveLength(31);
     expect(
       new Set(COMPLETED_REUSABLE_IMAGES.map(({ key }) => key)).size,
-    ).toBe(16);
+    ).toBe(31);
     expect(
       new Set(
         COMPLETED_REUSABLE_IMAGES.map(
           ({ generatedFileName }) => generatedFileName,
         ),
       ).size,
-    ).toBe(16);
+    ).toBe(31);
     for (const completed of COMPLETED_REUSABLE_IMAGES) {
       expect(reusableImageByKey(completed.key)).toBeDefined();
     }
