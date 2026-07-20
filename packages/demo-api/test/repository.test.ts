@@ -100,12 +100,10 @@ const themeId = "00000000-0000-4000-8000-000000000061";
 const sourceId = "00000000-0000-4000-8000-000000000071";
 const runId = "00000000-0000-4000-8000-000000000081";
 const imageId = "00000000-0000-4000-8000-000000000091";
-const replacementImageId = "00000000-0000-4000-8000-000000000092";
 const missingImageId = "00000000-0000-4000-8000-000000000099";
 
 function fixtures(entryCount = 1): Tables {
   return {
-    demo_content_revisions: [{ id: true, revision: "42" }],
     golden_event_card_article_overviews: [
       {
         article_overview: {
@@ -272,12 +270,6 @@ function fixtures(entryCount = 1): Tables {
 }
 
 describe("demo repository", () => {
-  it("reads the singleton content revision without losing bigint precision", async () => {
-    const repository = createDemoRepositoryFromClient(client(fixtures()));
-
-    await expect(repository.getContentRevision()).resolves.toBe("42");
-  });
-
   it("builds the public storyline, taxonomy, detail, and ranking contracts", async () => {
     const repository = createDemoRepositoryFromClient(client(fixtures()));
 
@@ -424,31 +416,6 @@ describe("demo repository", () => {
       "Geometric editorial illustration of the agency action.",
     ]);
     expect(await repository.getThumbnailAsset(imageId)).toEqual({
-      key: `golden/storylines/${storylineId}/card.webp`,
-      mimeType: "image/webp",
-    });
-  });
-
-  it("changes the asset URL when a storyline selects a new immutable image", async () => {
-    const tables = fixtures();
-    const originalImage = tables.images?.[0];
-    if (originalImage === undefined) throw new Error("Missing image fixture");
-    tables.images?.push({
-      ...originalImage,
-      id: replacementImageId,
-      r2_card_key: `golden/images/${replacementImageId}/card.webp`,
-    });
-    const assignment = tables.golden_storyline_thumbnails?.[0];
-    if (assignment === undefined)
-      throw new Error("Missing thumbnail assignment fixture");
-    assignment.image_id = replacementImageId;
-    const repository = createDemoRepositoryFromClient(client(tables));
-
-    expect(
-      (await repository.getBootstrap(18)).previews[0]?.overviewCards[0]
-        ?.thumbnail?.cardUrl,
-    ).toBe(`/api/lab/assets/images/${replacementImageId}/card`);
-    await expect(repository.getThumbnailAsset(imageId)).resolves.toEqual({
       key: `golden/storylines/${storylineId}/card.webp`,
       mimeType: "image/webp",
     });

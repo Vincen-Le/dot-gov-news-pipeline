@@ -64,36 +64,26 @@ The Vercel function and the operator Worker use the shared
 `@dot-gov-news/demo-api` package, so route validation, Supabase queries, and the
 reviewed-only boundary remain identical without a Worker-to-Worker proxy.
 
-The client first reads the uncached `/api/lab/revision` singleton, then includes
-that revision in every mutable JSON request. Successful revisioned responses
-have a one-year Vercel edge lifetime because a reviewed-data mutation advances
-the revision and therefore changes the request URL. The API checks the revision
-both before and after assembling a response, returning an uncached `409` when a
-publication races a read. Bootstrap data bundles the browse catalog, filters,
-and card-ready overview/thumbnail metadata so the initial grid does not fetch
-every storyline detail.
+Successful public API responses are cached at Vercel's edge for five minutes
+and may be served stale while they refresh in the background. Bootstrap data
+bundles the browse catalog, filters, and card-ready overview/thumbnail metadata
+so the initial grid does not fetch every storyline detail. Immutable thumbnail
+responses have a one-year browser and Vercel edge lifetime. Errors remain
+`no-store`.
 
-Thumbnail URLs contain an immutable `images.id`. Publishing or assigning a
-different image changes the URL, so thumbnail responses retain a one-year
-browser and Vercel edge lifetime. Existing image rows and R2 objects must never
-be overwritten in place. Errors and revision lookups remain `no-store`.
-
-No publication-time cache warming is required. To prime or inspect one Vercel
-region after a production deployment, resolve the current revision and fetch
-the bootstrap response plus the first 18 available thumbnails with:
+After a production deployment or reviewed-data publication, warm the bootstrap
+response and the first 18 available thumbnails from the deployment region:
 
 ```sh
 DOT_GOV_DEMO_URL=https://news.example.gov pnpm --filter dot-gov-news-demo warm-cache
 ```
 
-The command prints the resolved revision and Vercel's observed cache status for
-the bootstrap and each thumbnail. It is a diagnostic convenience, not a
-freshness mechanism or required post-deploy step.
+The command prints Vercel's observed cache status for the bootstrap and each
+thumbnail, making it suitable for a post-deploy CI step.
 
 ## Required read endpoints
 
 - `GET /api/lab/bootstrap`
-- `GET /api/lab/revision`
 - `GET /api/lab/storylines`
 - `GET /api/lab/storylines/:id`
 - `GET /api/lab/agencies`

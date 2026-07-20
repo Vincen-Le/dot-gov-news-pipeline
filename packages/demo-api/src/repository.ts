@@ -136,13 +136,6 @@ const GoldenStorylineThumbnailRowSchema = z.object({
   storyline_id: z.string(),
 });
 
-const DemoContentRevisionRowSchema = z.object({
-  id: z.literal(true),
-  revision: z
-    .union([z.string().regex(/^\d+$/u), z.number().int().nonnegative()])
-    .transform(String),
-});
-
 const GoldenMembershipRowSchema = z.object({
   gold_episode_id: z.string().nullable(),
   gold_storyline_id: z.string().nullable(),
@@ -403,7 +396,6 @@ export interface DemoRankOverview {
 
 export interface DemoRepository {
   getBootstrap(limit: number): Promise<DemoBootstrap>;
-  getContentRevision(): Promise<string>;
   getThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null>;
   getRankOverview(): Promise<DemoRankOverview | null>;
   getStoryline(id: string): Promise<DemoStorylineDetail | null>;
@@ -657,20 +649,6 @@ class SupabaseDemoRepository implements DemoRepository {
     return image === null
       ? null
       : { key: image.r2_card_key, mimeType: image.card_mime_type };
-  }
-
-  async getContentRevision(): Promise<string> {
-    const row = nullableRow(
-      "demo content revision",
-      await this.client
-        .from("demo_content_revisions")
-        .select("id,revision")
-        .eq("id", true)
-        .maybeSingle(),
-      DemoContentRevisionRowSchema,
-    );
-    if (row === null) throw new Error("Demo content revision is missing");
-    return row.revision;
   }
 
   private async categoriesRaw(): Promise<CategoryRow[]> {

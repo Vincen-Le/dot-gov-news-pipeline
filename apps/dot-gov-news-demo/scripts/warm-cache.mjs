@@ -11,23 +11,7 @@ if (configuredOrigin === "") {
 }
 
 const origin = new URL(configuredOrigin);
-const revisionUrl = new URL("/api/lab/revision", origin);
-const revisionResponse = await fetch(revisionUrl, {
-  cache: "no-store",
-  headers: { accept: "application/json" },
-});
-if (!revisionResponse.ok) {
-  throw new Error(
-    `Revision lookup failed (${revisionResponse.status} ${revisionResponse.statusText}).`,
-  );
-}
-const revisionEnvelope = await revisionResponse.json();
-const revision = revisionEnvelope?.data?.revision;
-if (typeof revision !== "string" || !/^\d+$/u.test(revision)) {
-  throw new Error("Revision lookup returned an invalid payload.");
-}
 const bootstrapUrl = new URL("/api/lab/bootstrap?limit=500&sort=rank", origin);
-bootstrapUrl.searchParams.set("revision", revision);
 const bootstrapResponse = await fetch(bootstrapUrl, {
   headers: { accept: "application/json" },
 });
@@ -84,7 +68,6 @@ process.stdout.write(
   `${JSON.stringify({
     bootstrapCache: bootstrapResponse.headers.get("x-vercel-cache"),
     bootstrapUrl: bootstrapUrl.toString(),
-    revision,
     thumbnails: imageResults,
   })}\n`,
 );
