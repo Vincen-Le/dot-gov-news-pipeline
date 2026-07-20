@@ -24,3 +24,17 @@
   mode (constrained decoding measured 2-3× slower per call; keep where
   parse failures hurt, e.g. compressor). Observed Workers AI p90 stragglers
   ~2min — 60s timeout + retry now in (`pipeline/ai.py`).
+
+- **Fanout-then-ordered-replay pipeline (Vincent's optimization strategy).**
+  Split the per-entry work into what needs order and what doesn't. Entries
+  enqueue with their `published_at`; a worker pool fans out the expensive
+  order-independent LLM calls in parallel — enrich, embed, category — and
+  feeds the finished entries into a priority queue keyed on `published_at`;
+  the replay/clustering stage then consumes the queue strictly in order.
+  Ordering stays deterministic while all prep runs at pool concurrency, and
+  the ordered stage is cheap — candidate retrieval is just matmul over
+  member embeddings. Remaining in-loop LLM cost: the link judge (only fires
+  when candidates clear the floor) and close-time card compression — both
+  candidates for the async-card / smaller-model levers above. Note: category
+  moves from per-storyline-at-birth to per-entry prep in this design — needs
+  a storyline-level reconcile rule (e.g. majority of member entries).
