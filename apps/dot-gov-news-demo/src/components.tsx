@@ -116,7 +116,6 @@ export function StorylineCard({
   revealIndex?: number;
 }) {
   const detail = useQuery({
-    enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
   });
@@ -274,7 +273,6 @@ export function StorylineTableRow({
   preview?: StorylinePreview;
 }) {
   const detail = useQuery({
-    enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
   });

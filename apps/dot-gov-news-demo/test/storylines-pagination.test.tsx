@@ -9,6 +9,7 @@ import type {
   StorylineListItem,
   StorylinePreview,
 } from "../src/api/contracts";
+import { dotGovApi } from "../src/api/client";
 import { StorylinesPage } from "../src/StorylinesPage";
 
 function storyline(index: number): StorylineListItem {
@@ -73,6 +74,45 @@ afterEach(() => {
 });
 
 describe("storyline rendering window", () => {
+  it("prefetches detail for only the storylines rendered into the DOM", async () => {
+    const items = Array.from({ length: 20 }, (_, index) =>
+      storyline(index + 1),
+    );
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    client.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: items.map(preview),
+      storylines: { hasMore: false, items },
+      themes: [],
+    });
+    const fetchDetail = vi
+      .spyOn(dotGovApi, "storyline")
+      .mockImplementation(async (id) =>
+        detail(items.find((item) => item.id === id)!),
+      );
+
+    render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <StorylinesPage asOf="2026-07-20" />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => expect(fetchDetail).toHaveBeenCalledTimes(18));
+    expect(fetchDetail).not.toHaveBeenCalledWith(
+      items[18]!.id,
+      expect.anything(),
+    );
+    expect(fetchDetail).not.toHaveBeenCalledWith(
+      items[19]!.id,
+      expect.anything(),
+    );
+  });
+
   it("renders the next 18 storylines before the current window is exhausted", async () => {
     let intersectionCallback: IntersectionObserverCallback | null = null;
     const observe = vi.fn();
