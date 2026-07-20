@@ -131,3 +131,34 @@ def test_sweep_creates_theme_of_min_size():
     assert result["storylines_assigned"] == 3
     for sid in ("s0", "s1", "s2"):
         assert store.storylines[sid]["theme_attach_method"] in THEME_ATTACH_METHODS
+
+
+def test_sweep_never_demotes_manual_theme():
+    """Human-curated themes (name_model='golden-human') sit outside the
+    sweep's confirm-or-demote cycle: a 2-member manual theme below
+    spine_theme_min_size must survive the sweep with members intact."""
+    cfg = Config(database_url="x", cf_account_id="a", cf_api_token="t",
+                 spine_theme_min_size=3)
+    store = FakeStore()
+    manual_vec, other_vec = _v(0, 1), _v(1, 0)
+    manual_id = store.create_theme(
+        "VA Weekly Research Briefs", pack_fp16(manual_vec), None,
+        "golden-human", None)
+    for i in range(2):
+        sid = f"m{i}"
+        store.storylines[sid] = {
+            "id": sid, "centroid": pack_fp16(manual_vec),
+            "theme_id": manual_id, "headline": f"VA research wrap up {i}",
+        }
+    for i in range(3):
+        sid = f"s{i}"
+        store.storylines[sid] = {
+            "id": sid, "centroid": pack_fp16(other_vec), "theme_id": None,
+            "headline": f"FTC enforcement action {i}",
+        }
+    result = sweep(store, StubModels(), cfg)
+    assert result["themes_created"] == 1          # the FTC cluster
+    assert result["themes_demoted"] == 0
+    assert store.themes[manual_id]["demoted_at"] is None
+    for sid in ("m0", "m1"):
+        assert store.storylines[sid]["theme_id"] == manual_id

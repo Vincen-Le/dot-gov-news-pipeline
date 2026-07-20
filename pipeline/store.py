@@ -482,6 +482,15 @@ class Store:
         return _require_publisher_attribution(rows)
 
     # -- topics (stage 4) ----------------------------------------------
+    def manual_theme_ids(self) -> set[str]:
+        """Human-curated themes (golden QA) — exempt from sweep demotion."""
+        rows = self.db.all(
+            """
+            select id from public.topic_themes
+            where merged_into is null and name_model = 'golden-human'
+            """)
+        return {str(row["id"]) for row in rows}
+
     def all_themes(self) -> list[dict]:
         rows = self.db.all(
             """

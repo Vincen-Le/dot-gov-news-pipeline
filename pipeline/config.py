@@ -48,7 +48,7 @@ class Config:
     spine_top_k: int = 3
     spine_episode_gap_hours: float = 48.0
     spine_embed_source: str = "enriched"
-    spine_theme_min_size: int = 5
+    spine_theme_min_size: int = 4
     spine_theme_link_sim: float = 0.55
     spine_theme_sweep_interval_hours: float = 168.0
     spine_theme_keep_overlap: float = 0.5

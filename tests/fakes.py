@@ -181,10 +181,15 @@ class FakeStore:
                                  "centroid": centroid, "category_id": category_id,
                                  "storyline_count": 0, "merged_into": None,
                                  "demoted_at": None,
+                                 "name_model": name_model,
                                  "inclusion_criterion": inclusion_criterion,
                                  "newest_storyline_at": None,
                                  "created_at": len(self.themes)}
         return theme_id
+
+    def manual_theme_ids(self):
+        return {t["id"] for t in self.themes.values()
+                if t.get("name_model") == "golden-human"}
 
     def assign_theme(self, storyline_id, theme_id, method, similarity, reason,
                      theme_centroid, theme_display_name):

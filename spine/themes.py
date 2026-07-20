@@ -134,6 +134,9 @@ def sweep(store, models, cfg) -> dict:
                     theme_centroid=None, theme_display_name=None)
                 result["storylines_assigned"] += 1
 
+    # human-curated themes sit outside the confirm-or-demote cycle: they can
+    # legitimately be smaller than spine_theme_min_size and must not churn
+    protected_theme_ids |= {str(t) for t in store.manual_theme_ids()}
     for theme_id in existing:
         if theme_id not in kept_ids and theme_id not in protected_theme_ids:
             store.demote_theme(theme_id)
