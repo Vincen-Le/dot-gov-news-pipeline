@@ -64,10 +64,47 @@ function assertNoPromptLeak(label: string, value: string): void {
   }
 }
 
+function isNonTerminalAbbreviationBoundary(
+  previous: string,
+  next: string,
+): boolean {
+  const left = previous.trimEnd();
+  const right = next.trimStart();
+  if (/\bNo\.$/iu.test(left) && /^\d/iu.test(right)) return true;
+  if (
+    /\b(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.$/iu.test(left) &&
+    /^\d{1,2}\b/iu.test(right)
+  ) {
+    return true;
+  }
+  if (
+    /\b(?:a|p)\.m\.$/iu.test(left) &&
+    /^(?:ET|CT|MT|PT|EDT|CDT|MDT|PDT)\b/u.test(right)
+  ) {
+    return true;
+  }
+  if (
+    /\b[A-Z]\.$/u.test(left) &&
+    /^(?:[A-Z]\.\s*)*[A-Z][\p{L}'’-]+\b/u.test(right)
+  ) {
+    return true;
+  }
+  return (
+    /\b(?:[A-Z]\.){2,}$/u.test(left) && /^\p{Lu}[\p{L}'’-]+\b/u.test(right)
+  );
+}
+
 function assertOneOrTwoSentences(label: string, value: string): void {
-  const count = [...sentenceSegmenter.segment(value)].filter(
+  const segments = [...sentenceSegmenter.segment(value)].filter(
     ({ segment }) => wordCount(segment) > 0,
-  ).length;
+  );
+  const count = segments.reduce((total, { segment }, index) => {
+    if (index === 0) return 1;
+    const previous = segments[index - 1]?.segment ?? "";
+    return (
+      total + (isNonTerminalAbbreviationBoundary(previous, segment) ? 0 : 1)
+    );
+  }, 0);
   if (count < 1 || count > 2) {
     throw new Error(`${label} must contain 1-2 sentences (received ${count})`);
   }

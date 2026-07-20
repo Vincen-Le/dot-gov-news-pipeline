@@ -186,6 +186,35 @@ describe("article overview v2 validation", () => {
     ).rejects.toThrow("1-2 sentences");
   });
 
+  it("does not count periods inside common civic abbreviations as sentences", async () => {
+    const value = await fixture();
+    value.artifact.articleOverview.keyPoints = [
+      {
+        sourceEntryIds: [ENTRY_A],
+        text: "The phaseout covers Blue No. 1, Blue No. 2, Green No. 3, Red No. 40, Yellow No. 5, and Yellow No. 6 by the end of 2027.",
+      },
+      {
+        sourceEntryIds: [ENTRY_B],
+        text: "StudentAid.gov will be unavailable from 5 p.m. ET on Aug. 2 until approximately noon ET on Aug. 3 for scheduled maintenance.",
+      },
+      {
+        sourceEntryIds: [ENTRY_A],
+        text: "Officials identified Ahmed M. M. Alaqad in the civil complaint while emphasizing that the filing contains allegations the government must prove.",
+      },
+      {
+        sourceEntryIds: [ENTRY_B],
+        text: "Recruiters plan to attend the U.S. Psych Congress from Sept. 17 through Sept. 21 to discuss federal clinical careers.",
+      },
+    ];
+    await writeFile(value.artifactPath, JSON.stringify(value.artifact));
+    await expect(
+      validateArticleOverviewV2Artifacts({
+        artifactInputs: [value.artifactPath],
+        manifestDirectory: value.manifestDirectory,
+      }),
+    ).resolves.toHaveLength(1);
+  });
+
   it("rejects an overview that does not collectively cite every source", async () => {
     const value = await fixture();
     value.artifact.articleOverview.summary.sourceEntryIds = [ENTRY_A];
