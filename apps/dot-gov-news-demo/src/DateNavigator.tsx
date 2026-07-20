@@ -14,7 +14,6 @@ function dayDistance(start: string, end: string): number {
   return Math.max(0, Math.round((endAt - startAt) / 86_400_000));
 }
 
-const ARROW_MOTION_MS = 460;
 const SNAP_MOTION_MS = 220;
 
 function magneticProgress(value: number): number {
@@ -170,7 +169,9 @@ export function DateNavigator({
       Math.min(span, emittedPosition.current + direction),
     );
     if (target === emittedPosition.current) return;
-    animateTo(target, ARROW_MOTION_MS);
+    cancelAnimation();
+    updateVisualPosition(target);
+    emitDay(target);
   }
 
   const progress = span === 0 ? 0 : (dragPosition / span) * 100;

@@ -1,11 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
@@ -16,23 +10,6 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
-
-function installAnimationClock() {
-  const frames: FrameRequestCallback[] = [];
-  vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
-    frames.push(callback);
-    return frames.length;
-  });
-  vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
-
-  return {
-    advance(time: number) {
-      const frame = frames.shift();
-      if (frame === undefined) throw new Error("No animation frame scheduled");
-      act(() => frame(time));
-    },
-  };
-}
 
 describe("date navigator", () => {
   it("keeps the ending date aligned to the end of the range track", () => {
@@ -83,8 +60,7 @@ describe("date navigator", () => {
     expect(dragValue?.textContent).toContain("Jul 21, 2025");
   });
 
-  it("replaces the advance action with arrows that glide to each date", () => {
-    const clock = installAnimationClock();
+  it("steps immediately and accepts consecutive arrow clicks", () => {
     const onChange = vi.fn();
     render(
       <DateNavigator
@@ -103,17 +79,15 @@ describe("date navigator", () => {
     expect(screen.queryByText(/Advance date/u)).toBeNull();
 
     fireEvent.click(next);
-    expect(onChange).not.toHaveBeenCalled();
-    clock.advance(0);
-    clock.advance(230);
-    expect(Number(slider.value)).toBeGreaterThan(0);
-    expect(Number(slider.value)).toBeLessThan(1);
-    expect((next as HTMLButtonElement).disabled).toBe(true);
-
-    clock.advance(460);
     expect(slider.value).toBe("1");
     expect(onChange).toHaveBeenCalledOnce();
     expect(onChange).toHaveBeenCalledWith("2025-07-19");
+    expect((next as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(next);
+    expect(slider.value).toBe("2");
+    expect(onChange).toHaveBeenCalledTimes(2);
+    expect(onChange).toHaveBeenLastCalledWith("2025-07-20");
   });
 
   it("starts the app on day zero when the timeline bounds load", () => {
