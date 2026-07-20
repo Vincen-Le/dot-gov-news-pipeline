@@ -36,6 +36,10 @@ export function RankingPage({ asOf }: { asOf: string }) {
     queryFn: ({ signal }) => dotGovApi.rankOverview(signal),
     queryKey: ["rank-overview"],
   });
+  const storylines = useQuery({
+    queryFn: ({ signal }) => dotGovApi.storylines(signal),
+    queryKey: ["storylines"],
+  });
   const rows = useQuery({
     enabled: overview.data !== undefined,
     queryFn: ({ signal }) =>
@@ -54,9 +58,9 @@ export function RankingPage({ asOf }: { asOf: string }) {
       (overview.data?.filters.themes ?? []).filter(
         (item) =>
           (category === "" || item.categoryId === category) &&
-          isThemeAvailableAsOf(item, asOf),
+          isThemeAvailableAsOf(item, storylines.data?.items ?? [], asOf),
       ),
-    [asOf, category, overview.data],
+    [asOf, category, overview.data, storylines.data],
   );
 
   useEffect(() => {

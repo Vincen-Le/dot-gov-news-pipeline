@@ -167,6 +167,7 @@ const ThemeRowSchema = z.object({
   first_storyline_at: z.string().nullable(),
   id: z.string(),
   merged_into: z.string().nullable(),
+  name_model: z.string().nullable(),
   newest_storyline_at: z.string().nullable(),
 });
 
@@ -225,6 +226,7 @@ export interface DemoTheme {
   displayName: string;
   firstStorylineAt: string | null;
   id: string;
+  manuallySet: boolean;
   newestStorylineAt: string | null;
   storylineCount: number;
 }
@@ -592,7 +594,7 @@ class SupabaseDemoRepository implements DemoRepository {
       await this.client
         .from("golden_topic_themes")
         .select(
-          "id,display_name,category_id,first_storyline_at,newest_storyline_at,merged_into",
+          "id,display_name,category_id,first_storyline_at,newest_storyline_at,merged_into,name_model",
         )
         .is("merged_into", null)
         .order("display_name")
@@ -714,6 +716,7 @@ class SupabaseDemoRepository implements DemoRepository {
         displayName: row.display_name,
         firstStorylineAt: row.first_storyline_at,
         id: row.id,
+        manuallySet: row.name_model === "golden-human",
         newestStorylineAt: row.newest_storyline_at,
         storylineCount: storylineCounts.get(row.id) ?? 0,
       }))

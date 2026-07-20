@@ -1,5 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { type ReactNode, useEffect, useMemo, useRef } from "react";
+import {
+  type CSSProperties,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import { type AgencyOption, type StorylineListItem } from "./api/contracts";
 import { dotGovApi } from "./api/client";
@@ -89,11 +95,13 @@ export function StorylineCard({
   asOf,
   item,
   onOpen,
+  revealIndex = 0,
 }: {
   agencyMap: Map<string, string>;
   asOf: string;
   item: StorylineListItem;
   onOpen: () => void;
+  revealIndex?: number;
 }) {
   const detail = useQuery({
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
@@ -114,7 +122,10 @@ export function StorylineCard({
     .slice(0, 2);
 
   return (
-    <article className="storyline-card event-card">
+    <article
+      className="storyline-card event-card"
+      style={{ "--reveal-index": revealIndex } as CSSProperties}
+    >
       <button
         aria-label={`Read ${headline}`}
         className="event-card-hit"
@@ -174,7 +185,7 @@ export function StorylineCard({
           )}
           <div className="taxonomy">
             <span>{item.categoryName ?? "Government"}</span>
-            <span>{item.themeName ?? "Current affairs"}</span>
+            {item.themeName === null ? null : <span>{item.themeName}</span>}
           </div>
           <footer>
             <span className="card-volume">

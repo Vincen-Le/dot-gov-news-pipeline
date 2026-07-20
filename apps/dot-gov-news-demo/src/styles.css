@@ -271,10 +271,7 @@ main {
 
 .intro-content {
   min-width: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(315px, 430px);
-  align-items: end;
-  gap: clamp(2rem, 5vw, 5rem);
+  max-width: 920px;
 }
 
 .eyebrow {
@@ -307,15 +304,24 @@ p {
   line-height: 1.55;
 }
 
+.date-navigation {
+  position: sticky;
+  top: 64px;
+  z-index: 25;
+  padding: 0.8rem clamp(1rem, 3vw, 3rem);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  border-bottom: 1px solid var(--rule);
+  backdrop-filter: blur(18px);
+}
+
 .date-simulator {
   min-width: 0;
   display: grid;
-  gap: 0.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--rule);
+  grid-template-columns: minmax(190px, 0.26fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem clamp(1rem, 3vw, 3rem);
 }
 
-.date-simulator header,
 .section-heading,
 .browse-heading,
 .event-card-meta,
@@ -324,6 +330,12 @@ p {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.date-simulator header {
+  grid-row: 1 / span 2;
+  display: grid;
+  gap: 0.35rem;
 }
 
 .micro-label {
@@ -351,6 +363,7 @@ input[type="range"] {
 }
 
 .date-ticks {
+  grid-column: 2;
   display: flex;
   justify-content: space-between;
   color: var(--muted);
@@ -567,10 +580,26 @@ select {
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
   background: var(--surface);
+  content-visibility: auto;
+  contain-intrinsic-size: 620px;
+  animation: event-card-reveal 480ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
+  animation-delay: min(calc(var(--reveal-index, 0) * 34ms), 340ms);
   transition:
     transform 150ms ease,
     background 150ms ease,
     box-shadow 150ms ease;
+}
+
+@keyframes event-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .event-card:nth-child(even) {
@@ -772,6 +801,24 @@ select {
   height: 0.48rem;
   display: block;
   background: color-mix(in srgb, var(--muted) 24%, transparent);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--text) 13%, transparent),
+    transparent
+  );
+  background-size: 220% 100%;
+  animation: loading-sheen 1.4s ease-in-out infinite;
+}
+
+@keyframes loading-sheen {
+  from {
+    background-position: 180% 0;
+  }
+
+  to {
+    background-position: -40% 0;
+  }
 }
 
 .card-copy-placeholder i:nth-of-type(2) {
@@ -827,7 +874,18 @@ select {
 }
 
 .load-more {
-  margin: 2rem auto 0;
+  margin: 0;
+}
+
+.load-more-sentinel {
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 2rem;
+  color: var(--muted);
+  font: 0.64rem var(--mono);
 }
 
 .table-view,
@@ -1536,7 +1594,12 @@ td.wrap {
 
 @media (max-width: 1180px) {
   .site-header {
+    position: static;
     grid-template-columns: 1fr auto;
+  }
+
+  .date-navigation {
+    top: 0;
   }
 
   .site-header nav {
@@ -1546,10 +1609,6 @@ td.wrap {
     overflow-x: auto;
     padding-top: 0.55rem;
     border-top: 1px solid var(--rule);
-  }
-
-  .intro-content {
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
   }
 
   .rank-heading {
@@ -1587,9 +1646,18 @@ td.wrap {
     gap: 2.5rem;
   }
 
-  .intro-content {
+  .date-simulator {
     grid-template-columns: 1fr;
-    gap: 2rem;
+  }
+
+  .date-simulator header {
+    grid-row: auto;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .date-ticks {
+    grid-column: 1;
   }
 
   .storyline-grid {
@@ -1657,6 +1725,10 @@ td.wrap {
     grid-template-columns: 1fr;
   }
 
+  .date-navigation {
+    padding: 0.65rem 1rem;
+  }
+
   .date-control-row .primary-button {
     width: 100%;
   }
@@ -1713,6 +1785,10 @@ td.wrap {
 
   .event-card-body footer {
     align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .load-more-sentinel {
     flex-direction: column;
   }
 

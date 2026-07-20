@@ -268,5 +268,6 @@ describe("generated event-card content", () => {
     );
 
     expect(screen.getByText("Storyline overview pending")).toBeTruthy();
+    expect(screen.queryByText("Current affairs")).toBeNull();
   });
 });
