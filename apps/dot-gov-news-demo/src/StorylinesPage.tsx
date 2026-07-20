@@ -15,6 +15,10 @@ import {
 } from "./components";
 import { isAvailableAsOf, isThemeAvailableAsOf } from "./domain/as-of";
 import { relativeStorylinePlacements } from "./domain/relative-rank";
+import {
+  groupStorylinesForTable,
+  type StorylineGroupBy,
+} from "./domain/storyline-groups";
 
 const INITIAL_COUNT = 18;
 
@@ -48,6 +52,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   const [themes, setThemes] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<SortOrder>("rank");
   const [view, setView] = useState<ViewMode>("product");
+  const [groupBy, setGroupBy] = useState<StorylineGroupBy>("theme");
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const loadMore = useRef<HTMLDivElement>(null);
 
@@ -196,6 +201,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       ? item
       : { ...item, themeId: null, themeName: null };
   const visibleItems = filtered.slice(0, visibleCount).map(displayItem);
+  const tableGroups = groupStorylinesForTable(visibleItems, groupBy);
 
   const selectedId = params.get("storyline");
   const selectedSource =
@@ -305,17 +311,34 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             Showing <strong>{filtered.length}</strong> of{" "}
             <strong>{available.length}</strong> reviewed storylines
           </div>
-          <div className="sort-field">
-            <label htmlFor="storyline-sort">Sort by</label>
-            <select
-              id="storyline-sort"
-              onChange={(event) => setSort(event.target.value as SortOrder)}
-              value={sort}
-            >
-              <option value="rank">Rank key</option>
-              <option value="newest">Newest update</option>
-              <option value="episodes">Episode count</option>
-            </select>
+          <div className="table-controls">
+            <div className="sort-field">
+              <label htmlFor="storyline-sort">Sort by</label>
+              <select
+                id="storyline-sort"
+                onChange={(event) => setSort(event.target.value as SortOrder)}
+                value={sort}
+              >
+                <option value="rank">Ranking</option>
+                <option value="newest">Newest update</option>
+                <option value="episodes">Episode count</option>
+              </select>
+            </div>
+            {view === "table" ? (
+              <div className="sort-field">
+                <label htmlFor="storyline-group">Group by</label>
+                <select
+                  id="storyline-group"
+                  onChange={(event) =>
+                    setGroupBy(event.target.value as StorylineGroupBy)
+                  }
+                  value={groupBy}
+                >
+                  <option value="theme">Theme</option>
+                  <option value="category">Category</option>
+                </select>
+              </div>
+            ) : null}
           </div>
           {agencies.size + categories.size + themes.size > 0 ? (
             <button
@@ -355,7 +378,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             <table>
               <thead>
                 <tr>
-                  <th scope="col">Rank key</th>
+                  <th scope="col">Ranking</th>
                   <th scope="col">Storyline</th>
                   <th scope="col">Agencies</th>
                   <th scope="col">Category / theme</th>
@@ -365,17 +388,24 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
                   <th scope="col">Review</th>
                 </tr>
               </thead>
-              <tbody>
-                {visibleItems.map((item) => (
-                  <StorylineTableRow
-                    agencyMap={agencyMap}
-                    asOf={asOf}
-                    item={item}
-                    key={item.id}
-                    onOpen={() => open(item)}
-                  />
-                ))}
-              </tbody>
+              {tableGroups.map((group) => (
+                <tbody key={group.key}>
+                  <tr className="table-group-heading">
+                    <th colSpan={8} scope="rowgroup">
+                      {group.label}
+                    </th>
+                  </tr>
+                  {group.items.map((item) => (
+                    <StorylineTableRow
+                      agencyMap={agencyMap}
+                      asOf={asOf}
+                      item={item}
+                      key={item.id}
+                      onOpen={() => open(item)}
+                    />
+                  ))}
+                </tbody>
+              ))}
             </table>
           </div>
         )}

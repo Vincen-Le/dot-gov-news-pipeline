@@ -548,6 +548,12 @@ input[type="range"] {
   text-transform: uppercase;
 }
 
+.table-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 select {
   width: 100%;
   height: var(--control-height);
@@ -972,6 +978,21 @@ thead th {
   font-weight: 600;
   letter-spacing: 0.09em;
   text-transform: uppercase;
+}
+
+.table-group-heading th {
+  padding-top: 1rem;
+  padding-bottom: 0.65rem;
+  background: var(--raised);
+  color: var(--text);
+  font: 600 0.66rem var(--mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.table-view tbody + tbody .table-group-heading th {
+  border-top-width: 2px;
+  border-top-color: var(--rule-strong);
 }
 
 tbody th {
@@ -1929,6 +1950,11 @@ td.wrap {
   .sort-field {
     width: 100%;
     grid-template-columns: 74px minmax(0, 1fr);
+  }
+
+  .table-controls {
+    width: 100%;
+    display: grid;
   }
 
   .clear-button {

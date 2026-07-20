@@ -399,7 +399,7 @@ export function StorylinesPage() {
             <select defaultValue={sort} id="sort" name="sort">
               <option value="">Newest first</option>
               <option value="episodes">Most episodes</option>
-              <option value="rank">Highest rank_key</option>
+              <option value="rank">Ranking</option>
             </select>
           </div>
           <button type="submit">Apply filter</button>
