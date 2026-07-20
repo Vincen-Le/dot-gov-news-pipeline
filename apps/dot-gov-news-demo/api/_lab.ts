@@ -3,7 +3,7 @@ import {
   handleDemoRequest,
   type DemoRepository,
   type DemoRepositoryConfig,
-} from "@dot-gov-news/demo-api";
+} from "../../../packages/demo-api/src/index.js";
 import { z } from "zod";
 
 import {
@@ -11,7 +11,7 @@ import {
   type DemoAssetStore,
   type R2AssetStoreConfig,
   r2AssetStoreConfig,
-} from "../_r2";
+} from "./_r2.js";
 
 type DemoRepositoryFactory = (config: DemoRepositoryConfig) => DemoRepository;
 type DemoAssetStoreFactory = (config: R2AssetStoreConfig) => DemoAssetStore;
@@ -63,6 +63,10 @@ function eventCardAssetId(pathname: string): string | null | undefined {
 
 function withoutVercelRouteMetadata(request: Request): Request {
   const url = new URL(request.url);
+  const routePath = url.searchParams.get("path");
+  if (url.pathname === "/api/lab" && routePath !== null && routePath !== "") {
+    url.pathname = `/api/lab/${routePath.replace(/^\/+/u, "")}`;
+  }
   url.searchParams.delete("path");
   return new Request(url, request);
 }
@@ -143,7 +147,8 @@ export function createVercelDemoHandler(
       });
     }
     repository ??= repositoryFactory(config);
-    const assetId = eventCardAssetId(new URL(request.url).pathname);
+    const routedRequest = withoutVercelRouteMetadata(request);
+    const assetId = eventCardAssetId(new URL(routedRequest.url).pathname);
     if (assetId === null) {
       return json(400, {
         error: {
@@ -163,12 +168,15 @@ export function createVercelDemoHandler(
         });
       }
       assetStore ??= assetStoreFactory(r2Config);
-      return eventCardAssetResponse(request, repository, assetStore, assetId);
+      return eventCardAssetResponse(
+        routedRequest,
+        repository,
+        assetStore,
+        assetId,
+      );
     }
-    return handleDemoRequest(withoutVercelRouteMetadata(request), {
+    return handleDemoRequest(routedRequest, {
       repository,
     });
   };
 }
-
-export default { fetch: createVercelDemoHandler(process.env) };

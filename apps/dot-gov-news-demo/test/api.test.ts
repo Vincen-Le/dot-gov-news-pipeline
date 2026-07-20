@@ -7,7 +7,7 @@ import type {
 } from "@dot-gov-news/demo-api";
 import { describe, expect, it, vi } from "vitest";
 
-import { createVercelDemoHandler } from "../api/lab/[...path]";
+import { createVercelDemoHandler } from "../api/_lab.js";
 
 const storylineId = "00000000-0000-4000-8000-000000000021";
 
@@ -116,10 +116,7 @@ describe("the Vercel demo API", () => {
 
   it("ignores Vercel catch-all route metadata when validating a query", async () => {
     const data = repository();
-    const handler = createVercelDemoHandler(
-      configuredEnvironment,
-      () => data,
-    );
+    const handler = createVercelDemoHandler(configuredEnvironment, () => data);
 
     const response = await handler(
       new Request(
@@ -131,12 +128,23 @@ describe("the Vercel demo API", () => {
     expect(data.listStorylines).toHaveBeenCalledWith(500);
   });
 
+  it("restores a nested public path from Vercel rewrite metadata", async () => {
+    const data = repository();
+    const handler = createVercelDemoHandler(configuredEnvironment, () => data);
+
+    const response = await handler(
+      new Request(
+        "https://demo.example/api/lab?limit=500&sort=rank&path=storylines",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(data.listStorylines).toHaveBeenCalledWith(500);
+  });
+
   it("continues to reject unknown public query parameters", async () => {
     const data = repository();
-    const handler = createVercelDemoHandler(
-      configuredEnvironment,
-      () => data,
-    );
+    const handler = createVercelDemoHandler(configuredEnvironment, () => data);
 
     const response = await handler(
       new Request(
@@ -201,7 +209,7 @@ describe("the Vercel demo API", () => {
 
     const response = await handler(
       new Request(
-        `https://demo.example/api/lab/assets/event-cards/${cardId}/card`,
+        `https://demo.example/api/lab?path=assets/event-cards/${cardId}/card`,
       ),
     );
 

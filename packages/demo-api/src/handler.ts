@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { DemoRepository } from "./repository";
+import type { DemoRepository } from "./repository.js";
 
 const responseHeaders = {
   "cache-control": "no-store",
