@@ -94,32 +94,35 @@ describe("date navigator", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
     });
-    client.setQueryData(["storylines"], {
-      hasMore: false,
-      items: [
-        {
-          agencies: ["fema"],
-          categoryName: "Disaster Response & Emergency",
-          distinctFeeds: 1,
-          entities: [],
-          entryCount: 1,
-          episodeCount: 1,
-          eventKeys: [],
-          firstEntryAt: "2025-07-18T12:00:00.000Z",
-          firstOverviewAt: null,
-          headline: null,
-          id: "00000000-0000-4000-8000-000000000001",
-          newestEntryAt: "2025-07-29T12:00:00.000Z",
-          rankKey: null,
-          themeId: null,
-          themeName: null,
-          unreviewedEntryCount: 0,
-        },
-      ],
+    client.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: [],
+      storylines: {
+        hasMore: false,
+        items: [
+          {
+            agencies: ["fema"],
+            categoryName: "Disaster Response & Emergency",
+            distinctFeeds: 1,
+            entities: [],
+            entryCount: 1,
+            episodeCount: 1,
+            eventKeys: [],
+            firstEntryAt: "2025-07-18T12:00:00.000Z",
+            firstOverviewAt: null,
+            headline: null,
+            id: "00000000-0000-4000-8000-000000000001",
+            newestEntryAt: "2025-07-29T12:00:00.000Z",
+            rankKey: null,
+            themeId: null,
+            themeName: null,
+            unreviewedEntryCount: 0,
+          },
+        ],
+      },
+      themes: [],
     });
-    client.setQueryData(["agencies"], { agencies: [] });
-    client.setQueryData(["categories"], { categories: [] });
-    client.setQueryData(["themes"], { themes: [] });
 
     render(
       <QueryClientProvider client={client}>

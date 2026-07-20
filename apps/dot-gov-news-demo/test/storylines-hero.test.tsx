@@ -1,13 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
-import type {
-  Card,
-  StorylineDetail,
-  StorylineListItem,
-} from "../src/api/contracts";
+import type { Card, StorylineListItem } from "../src/api/contracts";
 import { StorylinesPage } from "../src/StorylinesPage";
 
 const firstId = "00000000-0000-4000-8000-000000000021";
@@ -61,15 +57,6 @@ function overview(id: string, newestEntryAt: string): Card {
   };
 }
 
-function detail(item: StorylineListItem, card: Card): StorylineDetail {
-  return {
-    ...item,
-    categoryId: null,
-    episodes: [],
-    overviewCards: [card],
-  };
-}
-
 function heroImage(
   container: HTMLElement,
   modifier: "incoming" | "outgoing" | "preload",
@@ -77,10 +64,14 @@ function heroImage(
   return container.querySelector(`.storylines-hero-image--${modifier}`);
 }
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 describe("storylines hero artwork", () => {
   it("crossfades to the top-ranked storyline available on the selected day", async () => {
+    const fetch = vi.spyOn(globalThis, "fetch");
     const first = {
       ...storyline(firstId, "2026-07-10T12:00:00.000Z", 5),
       rankKey: 20,
@@ -100,16 +91,16 @@ describe("storylines hero artwork", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
     });
-    client.setQueryData(["storylines"], {
-      hasMore: false,
-      items: [second, first],
+    client.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: [
+        { overviewCards: [firstCard], storylineId: firstId },
+        { overviewCards: [secondCard], storylineId: secondId },
+      ],
+      storylines: { hasMore: false, items: [second, first] },
+      themes: [],
     });
-    client.setQueryData(["agencies"], { agencies: [] });
-    client.setQueryData(["categories"], { categories: [] });
-    client.setQueryData(["themes"], { themes: [] });
-    client.setQueryData(["storyline", firstId], detail(first, firstCard));
-    client.setQueryData(["storyline", secondId], detail(second, secondCard));
-
     const view = render(
       <QueryClientProvider client={client}>
         <MemoryRouter>
@@ -188,6 +179,7 @@ describe("storylines hero artwork", () => {
     expect(view.getByRole("region", { name: "Storylines" })).toBe(
       storylineGrid,
     );
+    expect(fetch).not.toHaveBeenCalled();
 
     const outgoing = heroImage(view.container, "outgoing");
     if (outgoing !== null) fireEvent.animationEnd(outgoing);

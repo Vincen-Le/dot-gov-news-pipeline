@@ -294,6 +294,26 @@ describe("demo repository", () => {
       firstStorylineAt: "2025-07-20T12:00:00.000Z",
       manuallySet: true,
     });
+    const bootstrap = await repository.getBootstrap(18);
+    expect(bootstrap).toMatchObject({
+      agencies: [{ displayName: "Food and Drug Administration", key: "fda" }],
+      categories: [{ displayName: "Public Health", storylineCount: 1 }],
+      storylines: { hasMore: false, items: [{ id: storylineId }] },
+      themes: [{ displayName: "Food safety", storylineCount: 1 }],
+    });
+    expect(bootstrap.previews).toEqual([
+      expect.objectContaining({
+        overviewCards: [
+          expect.objectContaining({
+            id: cardId,
+            thumbnail: expect.objectContaining({
+              cardUrl: `/api/lab/assets/event-cards/${cardId}/card`,
+            }),
+          }),
+        ],
+        storylineId,
+      }),
+    ]);
 
     const detail = await repository.getStoryline(storylineId);
     expect(detail?.episodes[0]?.entries[0]).toMatchObject({

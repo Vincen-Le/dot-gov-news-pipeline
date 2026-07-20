@@ -15,12 +15,12 @@ function clamp(value: string, minimum: string, maximum: string): string {
 
 export function App() {
   const location = useLocation();
-  const storylines = useQuery({
-    queryFn: ({ signal }) => dotGovApi.storylines(signal),
-    queryKey: ["storylines"],
+  const bootstrap = useQuery({
+    queryFn: ({ signal }) => dotGovApi.bootstrap(signal),
+    queryKey: ["bootstrap"],
   });
   const bounds = useMemo(() => {
-    const items = storylines.data?.items ?? [];
+    const items = bootstrap.data?.storylines.items ?? [];
     const starts = items
       .map((item) => isoDay(item.firstEntryAt))
       .filter((day): day is string => day !== null)
@@ -34,10 +34,10 @@ export function App() {
       maximum: ends.at(-1) ?? today,
       minimum: starts[0] ?? today,
     };
-  }, [storylines.data]);
+  }, [bootstrap.data]);
   const [asOf, setAsOf] = useState("");
   const [dark, setDark] = useState(() => {
-    const stored = window.localStorage.getItem("dot-gov-theme");
+    const stored = window.localStorage?.getItem("dot-gov-theme") ?? null;
     return stored === null ? true : stored === "dark";
   });
   const effectiveDay = asOf === "" ? bounds.minimum : asOf;
@@ -46,7 +46,7 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? "dark" : "light";
-    window.localStorage.setItem("dot-gov-theme", dark ? "dark" : "light");
+    window.localStorage?.setItem("dot-gov-theme", dark ? "dark" : "light");
   }, [dark]);
 
   useEffect(() => {

@@ -88,6 +88,21 @@ export const CardSchema = z.object({
   version: z.number(),
 });
 
+export const StorylinePreviewCardSchema = CardSchema.pick({
+  headline: true,
+  id: true,
+  newestEntryAt: true,
+  rankKey: true,
+  summary: true,
+  thumbnail: true,
+  version: true,
+});
+
+export const StorylinePreviewSchema = z.object({
+  overviewCards: z.array(StorylinePreviewCardSchema),
+  storylineId: z.string(),
+});
+
 export const EpisodeSchema = z.object({
   attachMethod: z.string(),
   attachReason: z.string().nullable(),
@@ -124,6 +139,17 @@ export const ThemeSchema = z.object({
   manuallySet: z.boolean().optional().default(false),
   newestStorylineAt: z.string().nullable(),
   storylineCount: z.number(),
+});
+
+export const BootstrapSchema = z.object({
+  agencies: z.array(AgencyOptionSchema),
+  categories: z.array(CategorySchema),
+  previews: z.array(StorylinePreviewSchema),
+  storylines: z.object({
+    hasMore: z.boolean(),
+    items: z.array(StorylineListItemSchema),
+  }),
+  themes: z.array(ThemeSchema),
 });
 
 export const RankTermsSchema = z
@@ -176,11 +202,14 @@ export const RankDatasetSchema = z
 
 export type AgencyOption = z.infer<typeof AgencyOptionSchema>;
 export type ArticleOverview = z.infer<typeof ArticleOverviewSchema>;
+export type Bootstrap = z.infer<typeof BootstrapSchema>;
 export type Card = z.infer<typeof CardSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type Episode = z.infer<typeof EpisodeSchema>;
 export type RankRow = z.infer<typeof RankRowSchema>;
 export type StorylineDetail = z.infer<typeof StorylineDetailSchema>;
 export type StorylineListItem = z.infer<typeof StorylineListItemSchema>;
+export type StorylinePreview = z.infer<typeof StorylinePreviewSchema>;
+export type StorylinePreviewCard = z.infer<typeof StorylinePreviewCardSchema>;
 export type Theme = z.infer<typeof ThemeSchema>;
 export type Thumbnail = z.infer<typeof ThumbnailSchema>;

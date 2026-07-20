@@ -7,7 +7,8 @@
     "build": "vite build",
     "dev": "vite",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "warm-cache": "node scripts/warm-cache.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1090.0",

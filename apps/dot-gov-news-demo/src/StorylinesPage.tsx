@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import type { StorylineListItem } from "./api/contracts";
+import type { StorylineListItem, StorylinePreview } from "./api/contracts";
 import { dotGovApi } from "./api/client";
 import {
   agencyNames,
@@ -14,7 +14,7 @@ import {
   type FilterOption,
 } from "./components";
 import {
-  detailAsOf,
+  cardAsOf,
   isAvailableAsOf,
   isThemeAvailableAsOf,
   rankKeyAsOf,
@@ -62,33 +62,31 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const loadMore = useRef<HTMLDivElement>(null);
 
-  const storylines = useQuery({
-    queryFn: ({ signal }) => dotGovApi.storylines(signal),
-    queryKey: ["storylines"],
-  });
-  const agencyQuery = useQuery({
-    queryFn: ({ signal }) => dotGovApi.agencies(signal),
-    queryKey: ["agencies"],
-  });
-  const categoryQuery = useQuery({
-    queryFn: ({ signal }) => dotGovApi.categories(signal),
-    queryKey: ["categories"],
-  });
-  const themeQuery = useQuery({
-    queryFn: ({ signal }) => dotGovApi.themes(signal),
-    queryKey: ["themes"],
+  const bootstrap = useQuery({
+    queryFn: ({ signal }) => dotGovApi.bootstrap(signal),
+    queryKey: ["bootstrap"],
   });
 
   const agencyMap = useMemo(
-    () => agencyNames(agencyQuery.data?.agencies ?? []),
-    [agencyQuery.data],
+    () => agencyNames(bootstrap.data?.agencies ?? []),
+    [bootstrap.data],
   );
   const available = useMemo(
     () =>
-      (storylines.data?.items ?? [])
+      (bootstrap.data?.storylines.items ?? [])
         .filter((item) => isAvailableAsOf(item, asOf))
         .map((item) => ({ ...item, rankKey: rankKeyAsOf(item, asOf) })),
-    [asOf, storylines.data],
+    [asOf, bootstrap.data],
+  );
+  const previewByStoryline = useMemo(
+    () =>
+      new Map<string, StorylinePreview>(
+        (bootstrap.data?.previews ?? []).map((preview) => [
+          preview.storylineId,
+          preview,
+        ]),
+      ),
+    [bootstrap.data],
   );
   const topStoryline = useMemo(
     () =>
@@ -105,20 +103,12 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       }, null),
     [available],
   );
-  const topStorylineDetail = useQuery({
-    enabled: topStoryline !== null,
-    queryFn: ({ signal }) => dotGovApi.storyline(topStoryline!.id, signal),
-    queryKey: ["storyline", topStoryline?.id],
-  });
   const heroArtwork = useMemo(() => {
     if (topStoryline === null) return null;
-    if (topStorylineDetail.data === undefined) {
-      return topStorylineDetail.isError ? null : undefined;
-    }
-    return (
-      detailAsOf(topStorylineDetail.data, asOf).overview?.thumbnail ?? null
-    );
-  }, [asOf, topStoryline, topStorylineDetail.data, topStorylineDetail.isError]);
+    const preview = previewByStoryline.get(topStoryline.id);
+    if (preview === undefined) return undefined;
+    return cardAsOf(preview.overviewCards, asOf)?.thumbnail ?? null;
+  }, [asOf, previewByStoryline, topStoryline]);
   const placements = useMemo(
     () => relativeStorylinePlacements(available),
     [available],
@@ -136,7 +126,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
         item.categoryName === null ? [] : [item.categoryName],
       ),
     );
-    const ordered = (categoryQuery.data?.categories ?? [])
+    const ordered = (bootstrap.data?.categories ?? [])
       .filter((category) => names.has(category.displayName))
       .map((category) => ({
         label: category.displayName,
@@ -147,21 +137,21 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       : [...names]
           .map((name) => ({ label: name, value: name }))
           .sort(optionSort);
-  }, [available, categoryQuery.data]);
+  }, [available, bootstrap.data]);
   const themeOptions = useMemo(() => {
     const ids = new Set(
       available.flatMap((item) =>
         item.themeId === null ? [] : [item.themeId],
       ),
     );
-    return (themeQuery.data?.themes ?? [])
+    return (bootstrap.data?.themes ?? [])
       .filter(
         (theme) =>
           ids.has(theme.id) && isThemeAvailableAsOf(theme, available, asOf),
       )
       .map((theme) => ({ label: theme.displayName, value: theme.id }))
       .sort(optionSort);
-  }, [asOf, available, themeQuery.data]);
+  }, [asOf, available, bootstrap.data]);
   const surfacedThemeIds = useMemo(
     () => new Set(themeOptions.map((theme) => theme.value)),
     [themeOptions],
@@ -258,14 +248,14 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
     setThemes(new Set());
   };
 
-  if (storylines.isLoading) {
+  if (bootstrap.isLoading) {
     return (
       <StatePanel title="Building the daily view">
         Loading approved storylines and their publishing history.
       </StatePanel>
     );
   }
-  if (storylines.error) {
+  if (bootstrap.error) {
     return (
       <StatePanel title="The storyline API is unavailable">
         Confirm that this deployment can reach its server-side API origin.
@@ -400,6 +390,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
                 key={item.id}
                 onOpen={() => open(item)}
                 placement={placements.get(item.id)!}
+                preview={previewByStoryline.get(item.id)}
                 revealIndex={index}
               />
             ))}
@@ -433,6 +424,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
                       item={item}
                       key={item.id}
                       onOpen={() => open(item)}
+                      preview={previewByStoryline.get(item.id)}
                     />
                   ))}
                 </tbody>

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   AgencyOptionSchema,
+  BootstrapSchema,
   CategorySchema,
   RankDatasetSchema,
   RankRowSchema,
@@ -60,6 +61,8 @@ async function get<T>(
 }
 
 export const dotGovApi = {
+  bootstrap: (signal?: AbortSignal) =>
+    get("/bootstrap?limit=500&sort=rank", BootstrapSchema, signal),
   agencies: (signal?: AbortSignal) =>
     get(
       "/agencies",

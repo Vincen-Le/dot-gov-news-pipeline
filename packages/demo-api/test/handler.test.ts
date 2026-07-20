@@ -47,6 +47,13 @@ function detail(
 
 function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
   return {
+    getBootstrap: vi.fn().mockResolvedValue({
+      agencies: [],
+      categories: [],
+      previews: [],
+      storylines: { hasMore: false, items: [storyline()] },
+      themes: [],
+    }),
     getCardThumbnailAsset: vi.fn().mockResolvedValue(null),
     getRankOverview: vi.fn().mockResolvedValue(null),
     getStoryline: vi.fn().mockResolvedValue(detail()),
@@ -63,6 +70,23 @@ function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
 }
 
 describe("demo read handler", () => {
+  it("serves the bootstrap payload with edge-cache headers", async () => {
+    const data = repository();
+    const response = await handleDemoRequest(
+      new Request("https://demo.example/api/lab/bootstrap?limit=500&sort=rank"),
+      { repository: data },
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe(
+      "public, max-age=0, must-revalidate",
+    );
+    expect(response.headers.get("vercel-cdn-cache-control")).toBe(
+      "public, s-maxage=300, stale-while-revalidate=86400",
+    );
+    expect(data.getBootstrap).toHaveBeenCalledWith(500);
+  });
+
   it("filters unreviewed items even when a repository returns one", async () => {
     const data = repository({
       listStorylines: vi.fn().mockResolvedValue({
@@ -114,6 +138,7 @@ describe("demo read handler", () => {
     );
 
     expect(response.status).toBe(404);
+    expect(response.headers.get("cache-control")).toBe("no-store");
   });
 
   it("rejects mutation methods and strips bodies from HEAD responses", async () => {

@@ -12,28 +12,34 @@ describe("application loading", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
     });
-    client.setQueryData(["storylines"], {
-      hasMore: false,
-      items: [
-        {
-          agencies: ["fda"],
-          categoryName: "Public Health",
-          distinctFeeds: 1,
-          entities: [],
-          entryCount: 1,
-          episodeCount: 1,
-          eventKeys: [],
-          firstEntryAt: "2026-07-20T12:00:00.000Z",
-          firstOverviewAt: "2026-07-20T12:00:00.000Z",
-          headline: "Reviewed agency update",
-          id: "00000000-0000-4000-8000-000000000021",
-          newestEntryAt: "2026-07-20T12:00:00.000Z",
-          rankKey: 8,
-          themeId: null,
-          themeName: null,
-          unreviewedEntryCount: 0,
-        },
-      ],
+    client.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: [],
+      storylines: {
+        hasMore: false,
+        items: [
+          {
+            agencies: ["fda"],
+            categoryName: "Public Health",
+            distinctFeeds: 1,
+            entities: [],
+            entryCount: 1,
+            episodeCount: 1,
+            eventKeys: [],
+            firstEntryAt: "2026-07-20T12:00:00.000Z",
+            firstOverviewAt: "2026-07-20T12:00:00.000Z",
+            headline: "Reviewed agency update",
+            id: "00000000-0000-4000-8000-000000000021",
+            newestEntryAt: "2026-07-20T12:00:00.000Z",
+            rankKey: 8,
+            themeId: null,
+            themeName: null,
+            unreviewedEntryCount: 0,
+          },
+        ],
+      },
+      themes: [],
     });
     client.setQueryData(["rank-overview"], {
       dataset: {

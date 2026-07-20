@@ -56,7 +56,10 @@ export function isThemeAvailableAsOf(
   );
 }
 
-export function cardAsOf(cards: Card[], day: string): Card | null {
+export function cardAsOf<T extends { newestEntryAt: string; version: number }>(
+  cards: T[],
+  day: string,
+): T | null {
   const cutoff = endOfDay(day);
   return (
     cards

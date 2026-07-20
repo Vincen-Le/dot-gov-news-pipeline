@@ -343,6 +343,32 @@ export interface DemoStorylineDetail extends DemoStorylineListItem {
   overviewCards: DemoCard[];
 }
 
+export interface DemoStorylinePreview {
+  overviewCards: DemoStorylinePreviewCard[];
+  storylineId: string;
+}
+
+export interface DemoStorylinePreviewCard {
+  headline: string;
+  id: string;
+  newestEntryAt: string;
+  rankKey: number;
+  summary: string;
+  thumbnail: DemoThumbnail | null;
+  version: number;
+}
+
+export interface DemoBootstrap {
+  agencies: DemoAgency[];
+  categories: DemoCategory[];
+  previews: DemoStorylinePreview[];
+  storylines: {
+    hasMore: boolean;
+    items: DemoStorylineListItem[];
+  };
+  themes: DemoTheme[];
+}
+
 export interface DemoRankRow {
   agencies: number;
   entryCount: number;
@@ -374,6 +400,7 @@ export interface DemoRankOverview {
 }
 
 export interface DemoRepository {
+  getBootstrap(limit: number): Promise<DemoBootstrap>;
   getCardThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null>;
   getRankOverview(): Promise<DemoRankOverview | null>;
   getStoryline(id: string): Promise<DemoStorylineDetail | null>;
@@ -543,7 +570,7 @@ class SupabaseDemoRepository implements DemoRepository {
       ),
     ];
 
-    const [articleOverviews, storylineThumbnails] = await Promise.all([
+    const [articleOverviews, thumbnailByStoryline] = await Promise.all([
       rows(
         "golden card article overviews",
         await this.client
@@ -553,38 +580,10 @@ class SupabaseDemoRepository implements DemoRepository {
           .limit(overviewIds.length),
         GoldenArticleOverviewRowSchema,
       ),
-      rows(
-        "golden storyline thumbnails",
-        await this.client
-          .from("golden_storyline_thumbnails")
-          .select("storyline_id,image_id")
-          .in("storyline_id", storylineIds)
-          .limit(storylineIds.length),
-        GoldenStorylineThumbnailRowSchema,
-      ),
+      this.thumbnailsForStorylines(storylineIds),
     ]);
-    const imageIds = storylineThumbnails.map((row) => row.image_id);
-    const images =
-      imageIds.length === 0
-        ? []
-        : rows(
-            "storyline thumbnail images",
-            await this.client
-              .from("images")
-              .select("id,r2_card_key,card_mime_type,alt_text,focal_x,focal_y")
-              .in("id", imageIds)
-              .limit(imageIds.length),
-            ImageThumbnailRowSchema,
-          );
     const articleOverviewByCard = new Map(
       articleOverviews.map((row) => [row.event_card_id, row.article_overview]),
-    );
-    const imageById = new Map(images.map((row) => [row.id, row]));
-    const thumbnailByStoryline = new Map(
-      storylineThumbnails.flatMap((row) => {
-        const image = imageById.get(row.image_id);
-        return image === undefined ? [] : [[row.storyline_id, image] as const];
-      }),
     );
 
     return cards.map((row) => {
@@ -605,6 +604,41 @@ class SupabaseDemoRepository implements DemoRepository {
               },
       };
     });
+  }
+
+  private async thumbnailsForStorylines(
+    storylineIds: string[],
+  ): Promise<Map<string, z.infer<typeof ImageThumbnailRowSchema>>> {
+    if (storylineIds.length === 0) return new Map();
+    const storylineThumbnails = rows(
+      "golden storyline thumbnails",
+      await this.client
+        .from("golden_storyline_thumbnails")
+        .select("storyline_id,image_id")
+        .in("storyline_id", storylineIds)
+        .limit(storylineIds.length),
+      GoldenStorylineThumbnailRowSchema,
+    );
+    const imageIds = storylineThumbnails.map((row) => row.image_id);
+    const images =
+      imageIds.length === 0
+        ? []
+        : rows(
+            "storyline thumbnail images",
+            await this.client
+              .from("images")
+              .select("id,r2_card_key,card_mime_type,alt_text,focal_x,focal_y")
+              .in("id", imageIds)
+              .limit(imageIds.length),
+            ImageThumbnailRowSchema,
+          );
+    const imageById = new Map(images.map((row) => [row.id, row]));
+    return new Map(
+      storylineThumbnails.flatMap((row) => {
+        const image = imageById.get(row.image_id);
+        return image === undefined ? [] : [[row.storyline_id, image] as const];
+      }),
+    );
   }
 
   async getCardThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null> {
@@ -669,7 +703,13 @@ class SupabaseDemoRepository implements DemoRepository {
     );
   }
 
-  private async listItems(): Promise<DemoStorylineListItem[]> {
+  private async catalog(): Promise<{
+    cards: GoldenCardRow[];
+    categories: CategoryRow[];
+    items: DemoStorylineListItem[];
+    storylines: GoldenStorylineRow[];
+    themes: ThemeRow[];
+  }> {
     const [storylines, memberships, categories, themes] = await Promise.all([
       this.storylineRows(),
       this.reviewedMemberships(),
@@ -716,7 +756,7 @@ class SupabaseDemoRepository implements DemoRepository {
       history.sort((left, right) => right.version - left.version);
     }
 
-    return storylines.map((row) => {
+    const items = storylines.map((row) => {
       const latest =
         row.latest_card_id === null
           ? undefined
@@ -748,6 +788,11 @@ class SupabaseDemoRepository implements DemoRepository {
         unreviewedEntryCount: Math.max(row.entry_count - reviewedEntries, 0),
       } satisfies DemoStorylineListItem;
     });
+    return { cards, categories, items, storylines, themes };
+  }
+
+  private async listItems(): Promise<DemoStorylineListItem[]> {
+    return (await this.catalog()).items;
   }
 
   async listStorylines(limit: number): Promise<{
@@ -764,6 +809,108 @@ class SupabaseDemoRepository implements DemoRepository {
     return {
       hasMore: reviewed.length > limit,
       items: reviewed.slice(0, limit),
+    };
+  }
+
+  async getBootstrap(limit: number): Promise<DemoBootstrap> {
+    const catalog = await this.catalog();
+    const reviewed = catalog.items
+      .filter((item) => item.unreviewedEntryCount === 0)
+      .sort((left, right) => {
+        if (left.rankKey === null) return 1;
+        if (right.rankKey === null) return -1;
+        return right.rankKey - left.rankKey;
+      });
+    const storylines = {
+      hasMore: reviewed.length > limit,
+      items: reviewed.slice(0, limit),
+    };
+    const includedStorylineIds = new Set(
+      storylines.items.map((item) => item.id),
+    );
+    const cards = catalog.cards.filter((row) =>
+      includedStorylineIds.has(row.storyline_id),
+    );
+    const thumbnailByStoryline = await this.thumbnailsForStorylines([
+      ...includedStorylineIds,
+    ]);
+    const overviewCardsByStoryline = new Map<
+      string,
+      DemoStorylinePreviewCard[]
+    >();
+    for (const cardRow of cards) {
+      if (cardRow.kind !== "overview") continue;
+      const storylineId = cardRow.storyline_id;
+      const grouped = overviewCardsByStoryline.get(storylineId) ?? [];
+      const thumbnail = thumbnailByStoryline.get(storylineId);
+      grouped.push({
+        headline: cardRow.headline,
+        id: cardRow.id,
+        newestEntryAt: cardRow.newest_entry_at,
+        rankKey: cardRow.rank_key,
+        summary: cardRow.summary,
+        thumbnail:
+          thumbnail === undefined
+            ? null
+            : {
+                altText: thumbnail.alt_text,
+                cardUrl: `/api/lab/assets/event-cards/${encodeURIComponent(cardRow.id)}/card`,
+                focalX: thumbnail.focal_x,
+                focalY: thumbnail.focal_y,
+              },
+        version: cardRow.version,
+      });
+      overviewCardsByStoryline.set(storylineId, grouped);
+    }
+
+    return {
+      agencies: [...new Set(storylines.items.flatMap((item) => item.agencies))]
+        .map((key) => ({ displayName: displayName(key), key }))
+        .sort((left, right) =>
+          left.displayName.localeCompare(right.displayName),
+        ),
+      categories: catalog.categories.map((row) => ({
+        displayName: row.display_name,
+        id: row.id,
+        origin: row.origin,
+        proposalReason: row.proposal_reason,
+        storylineCount: catalog.storylines.filter(
+          (storyline) => storyline.category_id === row.id,
+        ).length,
+        themeCount: catalog.themes.filter(
+          (theme) => theme.category_id === row.id,
+        ).length,
+      })),
+      previews: storylines.items.map((item) => ({
+        overviewCards: (overviewCardsByStoryline.get(item.id) ?? []).sort(
+          (left, right) => right.version - left.version,
+        ),
+        storylineId: item.id,
+      })),
+      storylines,
+      themes: catalog.themes
+        .map((row) => ({
+          categoryId: row.category_id,
+          categoryName:
+            row.category_id === null
+              ? null
+              : (catalog.categories.find(
+                  (category) => category.id === row.category_id,
+                )?.display_name ?? null),
+          displayName: row.display_name,
+          firstStorylineAt: row.first_storyline_at,
+          id: row.id,
+          manuallySet: row.name_model === "golden-human",
+          newestStorylineAt: row.newest_storyline_at,
+          storylineCount: catalog.storylines.filter(
+            (storyline) => storyline.theme_id === row.id,
+          ).length,
+        }))
+        .sort(
+          (left, right) =>
+            right.storylineCount - left.storylineCount ||
+            left.displayName.localeCompare(right.displayName),
+        ),
     };
   }
 

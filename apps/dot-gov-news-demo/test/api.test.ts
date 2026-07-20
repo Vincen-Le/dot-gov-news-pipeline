@@ -49,6 +49,13 @@ function detail(
 
 function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
   return {
+    getBootstrap: vi.fn().mockResolvedValue({
+      agencies: [],
+      categories: [],
+      previews: [],
+      storylines: { hasMore: false, items: [storyline()] },
+      themes: [],
+    }),
     getCardThumbnailAsset: vi.fn().mockResolvedValue(null),
     getRankOverview: vi.fn().mockResolvedValue(null),
     getStoryline: vi.fn().mockResolvedValue(detail()),
@@ -218,6 +225,9 @@ describe("the Vercel demo API", () => {
     expect(await response.text()).toBe("image-bytes");
     expect(response.headers.get("content-type")).toBe("image/webp");
     expect(response.headers.get("etag")).toBe('"asset-etag"');
+    expect(response.headers.get("vercel-cdn-cache-control")).toBe(
+      "public, s-maxage=31536000, immutable",
+    );
     expect(get).toHaveBeenCalledWith(
       `golden/event-cards/${cardId}/private-card.webp`,
     );
