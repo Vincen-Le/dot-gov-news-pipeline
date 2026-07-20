@@ -79,7 +79,13 @@ export async function setupLocal(
     );
   } else {
     await act("apply pending migrations (supabase migration up)", () =>
-      deps.run("pnpm", ["supabase", "migration", "up", "--local", "--include-all"]),
+      deps.run("pnpm", [
+        "supabase",
+        "migration",
+        "up",
+        "--local",
+        "--include-all",
+      ]),
     );
   }
 
