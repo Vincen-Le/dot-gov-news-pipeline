@@ -17,9 +17,9 @@ export {
   type DemoTheme,
   type DemoThumbnail,
   type DemoThumbnailAsset,
-} from "./repository";
+} from "./repository.js";
 export {
   handleDemoRequest,
   type DemoHandlerOptions,
   type DemoMetadataFactory,
-} from "./handler";
+} from "./handler.js";
