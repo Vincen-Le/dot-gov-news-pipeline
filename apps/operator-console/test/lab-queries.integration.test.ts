@@ -292,6 +292,20 @@ describe.skipIf(!enabled)("LabQueries against local Supabase", () => {
     ]);
   });
 
+  it("never surfaces demoted themes", async () => {
+    const themes = await withFixture((queries) => queries.topicThemes({}));
+    expect(themes.map((theme) => theme.displayName)).not.toContain(
+      "Demoted husk theme",
+    );
+    const categories = await withFixture((queries) =>
+      queries.topicCategories(),
+    );
+    const llm = categories.find(
+      (category) => category.displayName === "Test LLM Category",
+    );
+    expect(llm?.themeCount).toBe(1);
+  });
+
   it("lists categories with origin badges", async () => {
     const categories = await withFixture((queries) =>
       queries.topicCategories(),

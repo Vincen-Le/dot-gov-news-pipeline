@@ -131,6 +131,15 @@ values
     ('00000000-0000-4000-8000-0000000000d2', 'Field office access',
      '00000000-0000-4000-8000-0000000000c9', 0, null, null);
 
+-- Demoted husk: swept out (demoted_at set), must never surface as an option.
+insert into public.topic_themes
+    (id, display_name, category_id, storyline_count, first_storyline_at,
+     newest_storyline_at, demoted_at)
+values
+    ('00000000-0000-4000-8000-0000000000d3', 'Demoted husk theme',
+     '00000000-0000-4000-8000-0000000000c9', 0, null, null,
+     '2026-05-18T00:00:00Z');
+
 update public.storylines
 set category_id = '00000000-0000-4000-8000-0000000000c9',
     category_method = 'classified',

@@ -222,7 +222,7 @@ export class LabQueries {
              c.origin as category_origin
       from public.topic_themes t
       left join public.topic_categories c on c.id = t.category_id
-      where t.merged_into is null
+      where t.merged_into is null and t.demoted_at is null
         ${filter.category === undefined ? sql`` : sql`and t.category_id = ${filter.category}`}
       order by t.storyline_count desc, t.display_name
     `;
@@ -245,7 +245,8 @@ export class LabQueries {
     const rows = await this.sql`
       select c.id, c.display_name, c.origin, c.proposal_reason,
              (select count(*)::integer from public.topic_themes t
-              where t.category_id = c.id and t.merged_into is null) as theme_count,
+              where t.category_id = c.id and t.merged_into is null
+                and t.demoted_at is null) as theme_count,
              (select count(*)::integer from public.storylines s
               where s.category_id = c.id and s.merged_into is null) as storyline_count
       from public.topic_categories c

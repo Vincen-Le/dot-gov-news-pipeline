@@ -95,6 +95,7 @@ interface SnapshotCard {
 
 interface SnapshotTheme {
   category_id: string | null;
+  demoted_at: string | null;
   display_name: string;
   id: string;
   merged_into: string | null;
@@ -308,7 +309,7 @@ export class SnapshotQueries {
       snapshot.topic_categories.map((row) => [row.id, row]),
     );
     return snapshot.topic_themes
-      .filter((row) => row.merged_into === null)
+      .filter((row) => row.merged_into === null && row.demoted_at === null)
       .filter(
         (row) =>
           filter.category === undefined || row.category_id === filter.category,
@@ -351,7 +352,10 @@ export class SnapshotQueries {
             storyline.category_id === row.id && storyline.merged_into === null,
         ).length,
         themeCount: snapshot.topic_themes.filter(
-          (theme) => theme.category_id === row.id && theme.merged_into === null,
+          (theme) =>
+            theme.category_id === row.id &&
+            theme.merged_into === null &&
+            theme.demoted_at === null,
         ).length,
       }))
       .sort((left, right) => left.displayName.localeCompare(right.displayName));
