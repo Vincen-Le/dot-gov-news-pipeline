@@ -17,7 +17,6 @@
   --rank-agency: #34c875;
   --rank-feed: #e2b534;
   --rank-source: #ff7728;
-  --rank-freshness: #8db4ff;
   --max: 1600px;
   --control-height: 44px;
   --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -45,7 +44,6 @@
   --rank-agency: #167a42;
   --rank-feed: #9b6d00;
   --rank-source: #bd4c08;
-  --rank-freshness: #174ea6;
 }
 
 * {
@@ -1389,8 +1387,12 @@ td.wrap {
 .term-source {
   background: var(--rank-source);
 }
-.term-freshness {
-  background: var(--rank-freshness);
+
+.rank-legend-freshness i {
+  width: auto;
+  height: auto;
+  color: var(--text);
+  font: 0.65rem var(--mono);
 }
 
 .rank-controls {
@@ -1525,8 +1527,15 @@ td.wrap {
   white-space: nowrap;
 }
 
+.rank-term-cell {
+  display: inline-grid;
+  grid-template-columns: 132px auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .rank-term-bar {
-  width: 150px;
+  width: 132px;
   height: 9px;
   display: inline-flex;
   overflow: hidden;
@@ -1549,8 +1558,11 @@ td.wrap {
 .rank-term-bar .term-source {
   width: var(--source-width);
 }
-.rank-term-bar .term-freshness {
-  width: var(--freshness-width);
+.rank-term-cell small {
+  color: var(--muted);
+  font: 0.66rem var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .rank-source-value {

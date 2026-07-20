@@ -9,23 +9,36 @@ import { isThemeAvailableAsOf } from "./domain/as-of";
 function termStyle(terms: {
   agencyTerm: number;
   feedTerm: number;
-  freshnessTerm: number;
   rubricPoints: number;
   sourceTerm: number;
 }): CSSProperties {
-  const rubric = Math.abs(terms.rubricPoints);
-  const agency = Math.abs(terms.agencyTerm);
-  const feed = Math.abs(terms.feedTerm);
-  const source = Math.abs(terms.sourceTerm);
-  const freshness = Math.abs(terms.freshnessTerm);
-  const total = rubric + agency + feed + source + freshness || 1;
+  const rubric = Math.max(terms.rubricPoints, 0);
+  const agency = Math.max(terms.agencyTerm, 0);
+  const feed = Math.max(terms.feedTerm, 0);
+  const source = Math.max(terms.sourceTerm, 0);
+  const total = rubric + agency + feed + source || 1;
   return {
     "--agency-width": `${(agency / total) * 100}%`,
     "--feed-width": `${(feed / total) * 100}%`,
-    "--freshness-width": `${(freshness / total) * 100}%`,
     "--rubric-width": `${(rubric / total) * 100}%`,
     "--source-width": `${(source / total) * 100}%`,
   } as CSSProperties;
+}
+
+function termLabel(terms: {
+  agencyTerm: number;
+  feedTerm: number;
+  freshnessTerm: number;
+  rubricPoints: number;
+  sourceTerm: number;
+}): string {
+  return [
+    `rubric ${terms.rubricPoints.toFixed(2)}`,
+    `agency ${terms.agencyTerm.toFixed(2)}`,
+    `feed ${terms.feedTerm.toFixed(2)}`,
+    `source ${terms.sourceTerm.toFixed(2)}`,
+    `freshness ${terms.freshnessTerm.toFixed(1)}`,
+  ].join(" · ");
 }
 
 export function RankingPage({ asOf }: { asOf: string }) {
@@ -116,8 +129,8 @@ export function RankingPage({ asOf }: { asOf: string }) {
               <i className="term-source" />
               Source weight
             </li>
-            <li>
-              <i className="term-freshness" />
+            <li className="rank-legend-freshness">
+              <i aria-hidden="true">+t</i>
               Freshness
             </li>
           </ul>
@@ -228,16 +241,19 @@ export function RankingPage({ asOf }: { asOf: string }) {
                   </th>
                   <td className="rank-key-value">{row.rankKey.toFixed(3)}</td>
                   <td>
-                    <span
-                      aria-label="Rank term composition"
-                      className="rank-term-bar"
-                      style={termStyle(row.terms)}
-                    >
-                      <i className="term-rubric" />
-                      <i className="term-agency" />
-                      <i className="term-feed" />
-                      <i className="term-source" />
-                      <i className="term-freshness" />
+                    <span className="rank-term-cell">
+                      <span
+                        aria-label={termLabel(row.terms)}
+                        className="rank-term-bar"
+                        role="img"
+                        style={termStyle(row.terms)}
+                      >
+                        <i className="term-rubric" />
+                        <i className="term-agency" />
+                        <i className="term-feed" />
+                        <i className="term-source" />
+                      </span>
+                      <small>+{row.terms.freshnessTerm.toFixed(1)}t</small>
                     </span>
                   </td>
                   <td className="rank-source-value">
