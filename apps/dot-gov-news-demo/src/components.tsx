@@ -186,6 +186,7 @@ export function StorylineCard({
   themeExiting?: boolean;
 }) {
   const detail = useQuery({
+    enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
   });
@@ -352,6 +353,7 @@ export function StorylineTableRow({
   themeExiting?: boolean;
 }) {
   const detail = useQuery({
+    enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
   });

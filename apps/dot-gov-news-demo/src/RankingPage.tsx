@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { type CSSProperties, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { dotGovApi } from "./api/client";
@@ -54,10 +54,35 @@ function termLabel(terms: {
 
 export function RankingPage({ asOf }: { asOf: string }) {
   const [params, setParams] = useSearchParams();
-  const [agency, setAgency] = useState("");
-  const [category, setCategory] = useState("");
-  const [page, setPage] = useState(1);
-  const [theme, setTheme] = useState("");
+  const agency = params.get("agency") ?? "";
+  const category = params.get("category") ?? "";
+  const theme = params.get("theme") ?? "";
+  const requestedPage = Number.parseInt(params.get("page") ?? "1", 10);
+  const page =
+    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const setFilter = useCallback(
+    (key: "agency" | "category" | "theme", value: string) => {
+      setParams((current) => {
+        const next = new URLSearchParams(current);
+        if (value === "") next.delete(key);
+        else next.set(key, value);
+        next.delete("page");
+        return next;
+      });
+    },
+    [setParams],
+  );
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setParams((current) => {
+        const next = new URLSearchParams(current);
+        if (nextPage <= 1) next.delete("page");
+        else next.set("page", String(nextPage));
+        return next;
+      });
+    },
+    [setParams],
+  );
   const overview = useQuery({
     queryFn: ({ signal }) => dotGovApi.rankOverview(signal),
     queryKey: ["rank-overview"],
@@ -137,7 +162,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
   const openStoryline = (storylineId: string) => {
     const next = new URLSearchParams(params);
     next.set("storyline", storylineId);
-    setParams(next, { replace: true });
+    setParams(next);
   };
   const closeStoryline = () => {
     const next = new URLSearchParams(params);
@@ -146,16 +171,14 @@ export function RankingPage({ asOf }: { asOf: string }) {
   };
 
   useEffect(() => {
-    if (theme !== "" && !themes.some((item) => item.id === theme)) setTheme("");
-  }, [theme, themes]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [asOf]);
+    if (theme !== "" && !themes.some((item) => item.id === theme)) {
+      setFilter("theme", "");
+    }
+  }, [setFilter, theme, themes]);
 
   useEffect(() => {
     if (page > pageCount) setPage(pageCount);
-  }, [page, pageCount]);
+  }, [page, pageCount, setPage]);
 
   if (overview.isLoading) {
     return (
@@ -231,8 +254,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
           <span>Agency</span>
           <select
             onChange={(event) => {
-              setAgency(event.target.value);
-              setPage(1);
+              setFilter("agency", event.target.value);
             }}
             value={agency}
           >
@@ -248,9 +270,15 @@ export function RankingPage({ asOf }: { asOf: string }) {
           <span>Category</span>
           <select
             onChange={(event) => {
-              setCategory(event.target.value);
-              setTheme("");
-              setPage(1);
+              const value = event.target.value;
+              setParams((current) => {
+                const next = new URLSearchParams(current);
+                if (value === "") next.delete("category");
+                else next.set("category", value);
+                next.delete("theme");
+                next.delete("page");
+                return next;
+              });
             }}
             value={category}
           >
@@ -266,8 +294,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
           <span>Theme</span>
           <select
             onChange={(event) => {
-              setTheme(event.target.value);
-              setPage(1);
+              setFilter("theme", event.target.value);
             }}
             value={theme}
           >
@@ -327,16 +354,16 @@ export function RankingPage({ asOf }: { asOf: string }) {
               </thead>
               <tbody>
                 {pageRows.map((row) => (
-                  <tr
-                    className="rank-row"
-                    key={row.storylineId}
-                    onClick={() => openStoryline(row.storylineId)}
-                  >
+                  <tr className="rank-row" key={row.storylineId}>
                     <td className="rank-position">
                       {String(row.position).padStart(2, "0")}
                     </td>
                     <th className="rank-headline" scope="row">
-                      <button className="rank-headline-button" type="button">
+                      <button
+                        className="rank-headline-button"
+                        onClick={() => openStoryline(row.storylineId)}
+                        type="button"
+                      >
                         {row.headline ?? "Developing storyline"}
                       </button>
                       <small>
@@ -401,7 +428,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
           <nav aria-label="Ranking pages" className="rank-pagination">
             <button
               disabled={currentPage === 1}
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              onClick={() => setPage(Math.max(1, currentPage - 1))}
               type="button"
             >
               Previous
@@ -411,7 +438,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
             </span>
             <button
               disabled={currentPage === pageCount}
-              onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
+              onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
               type="button"
             >
               Next

@@ -137,14 +137,45 @@ function useFilterPresence(options: FilterOption[]): {
 
 export function StorylinesPage({ asOf }: { asOf: string }) {
   const [params, setParams] = useSearchParams();
-  const [agencies, setAgencies] = useState<Set<string>>(new Set());
-  const [categories, setCategories] = useState<Set<string>>(new Set());
-  const [themes, setThemes] = useState<Set<string>>(new Set());
-  const [sort, setSort] = useState<SortOrder>("rank");
-  const [view, setView] = useState<ViewMode>("product");
-  const [groupBy, setGroupBy] = useState<StorylineGroupBy>("theme");
+  const agencies = useMemo(() => new Set(params.getAll("agency")), [params]);
+  const categories = useMemo(
+    () => new Set(params.getAll("category")),
+    [params],
+  );
+  const themes = useMemo(() => new Set(params.getAll("theme")), [params]);
+  const requestedSort = params.get("sort");
+  const sort: SortOrder =
+    requestedSort === "episodes" || requestedSort === "newest"
+      ? requestedSort
+      : "rank";
+  const view: ViewMode = params.get("view") === "table" ? "table" : "product";
+  const groupBy: StorylineGroupBy =
+    params.get("group") === "category" ? "category" : "theme";
   const [visibleCount, setVisibleCount] = useState(RENDER_BATCH_SIZE);
   const loadMore = useRef<HTMLDivElement>(null);
+
+  const setValues = useCallback(
+    (key: string, values: ReadonlySet<string>) => {
+      setParams((current) => {
+        const next = new URLSearchParams(current);
+        next.delete(key);
+        for (const value of [...values].sort()) next.append(key, value);
+        return next;
+      });
+    },
+    [setParams],
+  );
+  const setValue = useCallback(
+    (key: string, value: string, defaultValue: string) => {
+      setParams((current) => {
+        const next = new URLSearchParams(current);
+        if (value === defaultValue) next.delete(key);
+        else next.set(key, value);
+        return next;
+      });
+    },
+    [setParams],
+  );
 
   const bootstrap = useQuery({
     queryFn: ({ signal }) => dotGovApi.bootstrap(signal),
@@ -223,18 +254,43 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
     [displayedThemes.options],
   );
 
-  useEffect(
-    () => setAgencies((current) => retainAvailable(current, agencyOptions)),
-    [agencyOptions],
-  );
-  useEffect(
-    () => setCategories((current) => retainAvailable(current, categoryOptions)),
-    [categoryOptions],
-  );
-  useEffect(
-    () => setThemes((current) => retainAvailable(current, themeOptions)),
-    [themeOptions],
-  );
+  useEffect(() => {
+    if (bootstrap.data === undefined) return;
+    const retainedAgencies = retainAvailable(agencies, agencyOptions);
+    const retainedCategories = retainAvailable(categories, categoryOptions);
+    const retainedThemes = retainAvailable(themes, themeOptions);
+    if (
+      retainedAgencies === agencies &&
+      retainedCategories === categories &&
+      retainedThemes === themes
+    ) {
+      return;
+    }
+    setParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        for (const [key, values] of [
+          ["agency", retainedAgencies],
+          ["category", retainedCategories],
+          ["theme", retainedThemes],
+        ] as const) {
+          next.delete(key);
+          for (const value of [...values].sort()) next.append(key, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [
+    agencies,
+    agencyOptions,
+    bootstrap.data,
+    categories,
+    categoryOptions,
+    setParams,
+    themes,
+    themeOptions,
+  ]);
 
   const filtered = useMemo(() => {
     const hasNoSelections =
@@ -323,7 +379,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   const open = (item: StorylineListItem) => {
     const next = new URLSearchParams(params);
     next.set("storyline", item.id);
-    setParams(next, { replace: true });
+    setParams(next);
   };
   const close = () => {
     const next = new URLSearchParams(params);
@@ -331,9 +387,13 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
     setParams(next, { replace: true });
   };
   const clearFilters = () => {
-    setAgencies(new Set());
-    setCategories(new Set());
-    setThemes(new Set());
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      next.delete("agency");
+      next.delete("category");
+      next.delete("theme");
+      return next;
+    });
   };
 
   if (bootstrap.isLoading) {
@@ -377,7 +437,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             <button
               aria-pressed={view === "product"}
               className="view-button"
-              onClick={() => setView("product")}
+              onClick={() => setValue("view", "product", "product")}
               type="button"
             >
               Product view
@@ -385,7 +445,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             <button
               aria-pressed={view === "table"}
               className="view-button"
-              onClick={() => setView("table")}
+              onClick={() => setValue("view", "table", "product")}
               type="button"
             >
               Table view
@@ -398,9 +458,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             exitingOptions={displayedAgencies.exitingIds}
             label="Agency"
             onOptionExit={displayedAgencies.completeExit}
-            onToggle={(value) =>
-              setAgencies((current) => toggled(current, value))
-            }
+            onToggle={(value) => setValues("agency", toggled(agencies, value))}
             optionClassName="filter-option-transition"
             options={displayedAgencies.options}
             selected={agencies}
@@ -411,7 +469,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             label="Category"
             onOptionExit={displayedCategories.completeExit}
             onToggle={(value) =>
-              setCategories((current) => toggled(current, value))
+              setValues("category", toggled(categories, value))
             }
             optionClassName="filter-option-transition"
             options={displayedCategories.options}
@@ -422,9 +480,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             exitingOptions={displayedThemes.exitingIds}
             label="Theme"
             onOptionExit={displayedThemes.completeExit}
-            onToggle={(value) =>
-              setThemes((current) => toggled(current, value))
-            }
+            onToggle={(value) => setValues("theme", toggled(themes, value))}
             optionClassName="filter-option-transition"
             options={displayedThemes.options}
             selected={themes}
@@ -441,7 +497,9 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               <label htmlFor="storyline-sort">Sort by</label>
               <select
                 id="storyline-sort"
-                onChange={(event) => setSort(event.target.value as SortOrder)}
+                onChange={(event) =>
+                  setValue("sort", event.target.value, "rank")
+                }
                 value={sort}
               >
                 <option value="rank">Ranking</option>
@@ -455,7 +513,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
                 <select
                   id="storyline-group"
                   onChange={(event) =>
-                    setGroupBy(event.target.value as StorylineGroupBy)
+                    setValue("group", event.target.value, "theme")
                   }
                   value={groupBy}
                 >

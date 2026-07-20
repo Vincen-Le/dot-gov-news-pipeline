@@ -3,13 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f4f2ed" />
+    <meta name="theme-color" content="#000000" />
     <meta
       name="description"
       content="A briefing built from official public information."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Dot Gov News</title>
+    <script>
+      try {
+        const theme = localStorage.getItem("dot-gov-theme") ?? "dark";
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').content =
+          theme === "light" ? "#f2f0e9" : "#000000";
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

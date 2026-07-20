@@ -34,7 +34,12 @@ function storyline(
 
 function CurrentLocation() {
   const location = useLocation();
-  return <output data-testid="location">{location.pathname}</output>;
+  return (
+    <output data-testid="location">
+      {location.pathname}
+      {location.search}
+    </output>
+  );
 }
 
 describe("ranking score makeup", () => {
@@ -100,10 +105,14 @@ describe("ranking score makeup", () => {
       </QueryClientProvider>,
     );
 
-    fireEvent.click(screen.getByText("Ranked story opens here").closest("tr")!);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Ranked story opens here" }),
+    );
 
     expect(screen.getByRole("button", { name: "Close storyline" })).toBeTruthy();
-    expect(screen.getByTestId("location").textContent).toBe("/ranking");
+    expect(screen.getByTestId("location").textContent).toBe(
+      `/ranking?storyline=${storylineId}`,
+    );
   });
 
   it("paginates the complete ranked set without dropping later stories", () => {
@@ -165,6 +174,7 @@ describe("ranking score makeup", () => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
           <RankingPage asOf="2026-07-20" />
+          <CurrentLocation />
         </MemoryRouter>
       </QueryClientProvider>,
     );
@@ -178,6 +188,7 @@ describe("ranking score makeup", () => {
     expect(screen.getByText("Showing 101–101 of 101")).toBeTruthy();
     expect(screen.getByText("Ranked story 101")).toBeTruthy();
     expect(screen.queryByText("Ranked story 100")).toBeNull();
+    expect(screen.getByTestId("location").textContent).toBe("/?page=2");
   });
 
   it("normalizes editorial terms separately from the epoch-scale freshness term", () => {

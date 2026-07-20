@@ -8,7 +8,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 
 import type {
   Card,
@@ -74,6 +74,10 @@ function detail(item: StorylineListItem): StorylineDetail {
   };
 }
 
+function CurrentSearch() {
+  return <output data-testid="search">{useLocation().search}</output>;
+}
+
 function renderFilterFixture() {
   const items = [
     {
@@ -117,6 +121,7 @@ function renderFilterFixture() {
     <QueryClientProvider client={client}>
       <MemoryRouter>
         <StorylinesPage asOf="2026-07-20" />
+        <CurrentSearch />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -139,6 +144,7 @@ describe("storyline rendering window", () => {
 
     expect(screen.getAllByRole("article")).toHaveLength(1);
     expect(screen.getByText("Labor storyline")).toBeTruthy();
+    expect(screen.getByTestId("search").textContent).toBe("?agency=bls");
   });
 
   it("shows storylines matching any selected facet across filter groups", () => {
@@ -316,7 +322,7 @@ describe("storyline rendering window", () => {
     ).toBe(true);
   });
 
-  it("prefetches detail for only the storylines rendered into the DOM", async () => {
+  it("does not fetch detail until a preview-backed storyline is opened", async () => {
     const items = Array.from({ length: 20 }, (_, index) =>
       storyline(index + 1),
     );
@@ -344,15 +350,8 @@ describe("storyline rendering window", () => {
       </QueryClientProvider>,
     );
 
-    await waitFor(() => expect(fetchDetail).toHaveBeenCalledTimes(18));
-    expect(fetchDetail).not.toHaveBeenCalledWith(
-      items[18]!.id,
-      expect.anything(),
-    );
-    expect(fetchDetail).not.toHaveBeenCalledWith(
-      items[19]!.id,
-      expect.anything(),
-    );
+    await act(async () => Promise.resolve());
+    expect(fetchDetail).not.toHaveBeenCalled();
   });
 
   it("renders the next 18 storylines before the current window is exhausted", async () => {
