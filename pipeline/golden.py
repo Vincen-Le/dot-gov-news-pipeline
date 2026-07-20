@@ -677,7 +677,10 @@ def apply_reviewed(db, cfg: Config, *, reset: bool = True,
     for row in rows:
         episode_rows[row["gold_episode_id"]].append(row)
         storyline_rows[row["gold_storyline_id"]].append(row)
-        theme_rows[row["gold_theme_id"]].append(row)
+        # reviewed rows may be unthemed (gold_theme_id null); a null key here
+        # would insert a null-id theme row
+        if row["gold_theme_id"] is not None:
+            theme_rows[row["gold_theme_id"]].append(row)
 
     cutoff = max((row["published_at"] for row in rows), default=None)
     store = Store(db)
