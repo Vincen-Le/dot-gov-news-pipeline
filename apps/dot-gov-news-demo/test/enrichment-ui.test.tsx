@@ -229,6 +229,59 @@ describe("generated event-card content", () => {
     ).toBeTruthy();
   });
 
+  it("uses the concise overview timeline instead of dense episode summaries", () => {
+    const client = queryClient();
+    const denseEpisodeSummary =
+      "A very long source-derived episode summary that should stay out of the compact timeline.";
+    client.setQueryData(["storyline", storylineId], {
+      ...detail,
+      episodes: detail.episodes.map((episode) => ({
+        ...episode,
+        card: {
+          ...firstCard,
+          articleOverview: null,
+          headline: "Fallback episode headline",
+          id: "00000000-0000-4000-8000-000000000051",
+          kind: "episode" as const,
+          summary: denseEpisodeSummary,
+          thumbnail: null,
+        },
+      })),
+      overviewCards: [
+        {
+          ...secondCard,
+          timeline: [
+            {
+              date: "2026-07-10",
+              episodeId: detail.episodes[0]?.id ?? null,
+              text: "FDA published a concise timeline development.",
+            },
+          ],
+        },
+      ],
+    });
+
+    render(
+      <QueryClientProvider client={client}>
+        <StorylineDialog
+          agencyMap={new Map([["fda", "Food and Drug Administration"]])}
+          asOf="2026-07-12"
+          close={vi.fn()}
+          item={item}
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByText("Latest overview")).toBeTruthy();
+    expect(screen.getByText("V2")).toBeTruthy();
+    expect(screen.getByText("2026-07-10")).toBeTruthy();
+    expect(
+      screen.getByText("FDA published a concise timeline development."),
+    ).toBeTruthy();
+    expect(screen.queryByText(denseEpisodeSummary)).toBeNull();
+    expect(screen.queryByText("Episode 01")).toBeNull();
+  });
+
   it("animates the dialog closed before removing it", () => {
     const client = queryClient();
     const close = vi.fn();

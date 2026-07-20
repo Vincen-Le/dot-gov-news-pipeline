@@ -307,7 +307,7 @@ p {
   position: sticky;
   top: 64px;
   z-index: 25;
-  padding: 0.8rem clamp(1rem, 3vw, 3rem);
+  padding: 0.8rem 1.25rem;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   border-bottom: 1px solid var(--rule);
   backdrop-filter: blur(18px);
@@ -316,9 +316,9 @@ p {
 .date-simulator {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(190px, 0.26fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 0.4rem clamp(1rem, 3vw, 3rem);
+  gap: 0.65rem;
 }
 
 .section-heading,
@@ -332,7 +332,6 @@ p {
 }
 
 .date-simulator header {
-  grid-row: 1 / span 2;
   display: grid;
   gap: 0.35rem;
 }
@@ -1197,7 +1196,7 @@ td.wrap {
 .dialog-columns {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
 }
 
 .chain-pane,
@@ -1220,19 +1219,14 @@ td.wrap {
   text-transform: uppercase;
 }
 
-.overview-card,
-.episode-stack li {
-  padding: 1rem;
+.overview-card {
+  padding: 1.15rem;
   background: var(--surface);
   border: 1px solid var(--rule);
-}
-
-.overview-card {
   border-top: 2px solid var(--live);
 }
 
 .overview-card h2,
-.episode-stack h3,
 .article-overview h2,
 .source-records-header h2 {
   margin: 0.65rem 0 0.5rem;
@@ -1242,7 +1236,6 @@ td.wrap {
 }
 
 .overview-card > p:not(.eyebrow),
-.episode-stack p,
 .article-overview p,
 .source-records-header + p {
   margin-bottom: 0;
@@ -1251,28 +1244,48 @@ td.wrap {
   line-height: 1.55;
 }
 
-.overview-card blockquote {
-  margin: 1rem 0 0;
-  padding-left: 0.8rem;
-  border-left: 2px solid var(--live);
+.overview-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   color: var(--muted);
-  font-size: 0.79rem;
-  line-height: 1.5;
+  font: 600 0.62rem var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
-.episode-stack {
-  display: grid;
-  gap: 0.8rem;
-  margin: 0.8rem 0 0;
+.overview-timeline {
+  margin: 1.1rem 0 0;
   padding: 0;
+  border-top: 1px solid var(--rule);
   list-style: none;
 }
 
-.episode-stack header {
+.overview-timeline li {
+  display: grid;
+  grid-template-columns: minmax(7.2rem, 0.3fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.overview-timeline li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.overview-timeline time {
+  color: var(--text);
+  font: 600 0.68rem var(--mono);
+  letter-spacing: 0.025em;
+}
+
+.overview-timeline p {
+  margin: 0;
   color: var(--muted);
-  font: 0.61rem var(--mono);
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  font-size: 0.76rem;
+  line-height: 1.42;
 }
 
 .article-overview {
@@ -1938,6 +1951,11 @@ td.wrap {
 
   .dialog-taxonomy {
     display: none;
+  }
+
+  .overview-timeline li {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
   }
 
   .rank-heading,

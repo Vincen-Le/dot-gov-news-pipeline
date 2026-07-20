@@ -72,6 +72,7 @@ export const CardSchema = z.object({
       z.object({
         date: z.string(),
         episodeId: z.string().nullable(),
+        text: z.string().nullable().optional().default(null),
       }),
     )
     .nullable(),

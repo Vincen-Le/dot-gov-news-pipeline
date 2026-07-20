@@ -135,7 +135,13 @@ function fixtures(entryCount = 1): Tables {
         source_run_id: runId,
         storyline_id: storylineId,
         summary: "A concise reviewed summary.",
-        timeline: [{ date: "2025-07-20", episode_id: episodeId }],
+        timeline: [
+          {
+            date: "2025-07-20",
+            episode_id: episodeId,
+            text: "FDA issued a concise reviewed public-health update.",
+          },
+        ],
         version: 1,
       },
     ],
@@ -299,6 +305,13 @@ describe("demo repository", () => {
         focalX: 0.4,
         focalY: 0.6,
       },
+      timeline: [
+        {
+          date: "2025-07-20",
+          episodeId,
+          text: "FDA issued a concise reviewed public-health update.",
+        },
+      ],
     });
     expect(detail?.overviewCards[0]?.articleOverview).not.toHaveProperty(
       "whatChangedAcrossUpdates",

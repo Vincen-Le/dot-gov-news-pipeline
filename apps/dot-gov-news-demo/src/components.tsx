@@ -11,7 +11,7 @@ import {
 
 import { type AgencyOption, type StorylineListItem } from "./api/contracts";
 import { dotGovApi } from "./api/client";
-import { detailAsOf } from "./domain/as-of";
+import { detailAsOf, isoDay } from "./domain/as-of";
 import type { StorylinePlacement } from "./domain/relative-rank";
 
 export function displayDate(value: string | null | undefined): string {
@@ -353,6 +353,37 @@ export function StorylineDialog({
     ),
   ];
   const synthesisCutoff = asOfDetail?.overview?.newestEntryAt ?? null;
+  const overviewTimeline = useMemo(() => {
+    if (asOfDetail === null) return [];
+    const episodesById = new Map(
+      asOfDetail.episodes.map((episode) => [episode.id, episode]),
+    );
+    const generatedTimeline = asOfDetail.overview?.timeline;
+    const timelineItems =
+      generatedTimeline !== null &&
+      generatedTimeline !== undefined &&
+      generatedTimeline.length > 0
+        ? generatedTimeline
+        : asOfDetail.episodes.map((episode) => ({
+            date: episode.firstEntryAt,
+            episodeId: episode.id,
+            text: null,
+          }));
+
+    return timelineItems.map((item) => {
+      const episode =
+        item.episodeId === null ? undefined : episodesById.get(item.episodeId);
+      return {
+        date: isoDay(item.date) ?? isoDay(episode?.firstEntryAt) ?? "",
+        episodeId: item.episodeId,
+        text:
+          item.text?.trim() ||
+          episode?.card?.headline ||
+          episode?.entries[0]?.title ||
+          "Developing episode",
+      };
+    });
+  }, [asOfDetail]);
 
   return (
     <dialog
@@ -406,43 +437,35 @@ export function StorylineDialog({
         ) : asOfDetail === null ? null : (
           <div className="dialog-columns">
             <main className="storyline-reading-column chain-pane">
-              <div className="pane-heading">Overview + episode chain</div>
+              <div className="pane-heading">Overview + timeline</div>
               <article className="overview-card">
-                <p className="eyebrow">Overview</p>
+                <header className="overview-card-meta">
+                  <span>Latest overview</span>
+                  {asOfDetail.overview === null ? null : (
+                    <span>V{asOfDetail.overview.version}</span>
+                  )}
+                </header>
                 <h2>{headline}</h2>
                 <p>
                   {asOfDetail.overview?.summary ??
                     "An editorial overview has not been generated for this date."}
                 </p>
-                {asOfDetail.overview?.interestReason === null ||
-                asOfDetail.overview?.interestReason === undefined ? null : (
-                  <blockquote>{asOfDetail.overview.interestReason}</blockquote>
-                )}
+                <ol
+                  aria-label="Storyline timeline"
+                  className="overview-timeline"
+                >
+                  {overviewTimeline.map((timelineItem, index) => (
+                    <li
+                      key={`${timelineItem.episodeId ?? "uncited"}:${timelineItem.date}:${index}`}
+                    >
+                      <time dateTime={timelineItem.date}>
+                        {timelineItem.date || "Date unavailable"}
+                      </time>
+                      <p>{timelineItem.text}</p>
+                    </li>
+                  ))}
+                </ol>
               </article>
-
-              <ol className="episode-stack">
-                {asOfDetail.episodes.map((episode, index) => (
-                  <li key={episode.id}>
-                    <article>
-                      <header>
-                        <span>
-                          Episode {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <time>{displayDate(episode.firstEntryAt)}</time>
-                      </header>
-                      <h3>
-                        {episode.card?.headline ??
-                          episode.entries[0]?.title ??
-                          "Developing episode"}
-                      </h3>
-                      <p>
-                        {episode.card?.summary ??
-                          "Episode-level editorial summary is queued."}
-                      </p>
-                    </article>
-                  </li>
-                ))}
-              </ol>
             </main>
 
             <aside className="source-column synthesis-pane">

@@ -298,7 +298,13 @@ export interface DemoCard {
   rankKey: number;
   summary: string;
   thumbnail: DemoThumbnail | null;
-  timeline: { date: string; episodeId: string | null }[] | null;
+  timeline:
+    | {
+        date: string;
+        episodeId: string | null;
+        text: string | null;
+      }[]
+    | null;
   version: number;
 }
 
@@ -425,11 +431,13 @@ function timeline(value: unknown): DemoCard["timeline"] {
         date: z.string().default(""),
         episode_id: z.string().nullable().optional(),
         episodeId: z.string().nullable().optional(),
+        text: z.string().nullable().optional(),
       })
       .parse(item);
     return {
       date: row.date,
       episodeId: row.episodeId ?? row.episode_id ?? null,
+      text: row.text?.trim() || null,
     };
   });
 }
