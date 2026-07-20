@@ -322,7 +322,7 @@ describe("storyline rendering window", () => {
     ).toBe(true);
   });
 
-  it("does not fetch detail until a preview-backed storyline is opened", async () => {
+  it("prefetches detail for each rendered preview-backed storyline", async () => {
     const items = Array.from({ length: 20 }, (_, index) =>
       storyline(index + 1),
     );
@@ -350,8 +350,18 @@ describe("storyline rendering window", () => {
       </QueryClientProvider>,
     );
 
-    await act(async () => Promise.resolve());
-    expect(fetchDetail).not.toHaveBeenCalled();
+    await waitFor(() => expect(fetchDetail).toHaveBeenCalledTimes(18));
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Load next storylines" }),
+    );
+
+    await waitFor(() => expect(fetchDetail).toHaveBeenCalledTimes(20));
+    await waitFor(() =>
+      expect(
+        client.getQueryState(["storyline", items[0]!.id])?.status,
+      ).toBe("success"),
+    );
   });
 
   it("renders the next 18 storylines before the current window is exhausted", async () => {

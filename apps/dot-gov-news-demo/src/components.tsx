@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { usePrefetchQuery, useQuery } from "@tanstack/react-query";
 import {
   type CSSProperties,
   type ReactNode,
@@ -60,6 +60,13 @@ export interface FilterOption {
   value: string;
 }
 
+function usePrefetchStorylineDetail(storylineId: string): void {
+  usePrefetchQuery({
+    queryFn: ({ signal }) => dotGovApi.storyline(storylineId, signal),
+    queryKey: ["storyline", storylineId],
+  });
+}
+
 export function FilterGroup({
   animateLayout = false,
   exitingOptions,
@@ -81,8 +88,14 @@ export function FilterGroup({
 }) {
   const rail = useRef<HTMLDivElement>(null);
   const previousPositions = useRef(new Map<string, number>());
+  const layoutAnimations = useRef(new Map<string, Animation>());
 
   useLayoutEffect(() => {
+    for (const animation of layoutAnimations.current.values()) {
+      animation.cancel();
+    }
+    layoutAnimations.current.clear();
+
     const buttons = rail.current?.querySelectorAll<HTMLButtonElement>(
       "[data-filter-option]",
     );
@@ -90,7 +103,10 @@ export function FilterGroup({
     for (const button of buttons ?? []) {
       const value = button.dataset.filterOption;
       if (value !== undefined) {
-        currentPositions.set(value, button.getBoundingClientRect().left);
+        // offsetLeft is the card's stable layout position inside the rail. A
+        // viewport-relative rect can include an in-flight transform or a
+        // browser-adjusted scroll position when the date changes quickly.
+        currentPositions.set(value, button.offsetLeft);
       }
     }
 
@@ -103,19 +119,19 @@ export function FilterGroup({
     if (animateLayout && layoutChanged && !reduceMotion) {
       for (const button of buttons ?? []) {
         const value = button.dataset.filterOption;
-        const previousLeft =
-          value === undefined
-            ? undefined
-            : previousPositions.current.get(value);
+        if (value === undefined) continue;
+        const previousLeft = previousPositions.current.get(value);
         if (
           previousLeft === undefined ||
           typeof button.animate !== "function"
         ) {
           continue;
         }
-        const delta = previousLeft - button.getBoundingClientRect().left;
+        const currentLeft = currentPositions.get(value);
+        if (currentLeft === undefined) continue;
+        const delta = previousLeft - currentLeft;
         if (delta === 0) continue;
-        button.animate(
+        const animation = button.animate(
           [
             { transform: `translateX(${delta}px)` },
             { transform: "translateX(0)" },
@@ -125,10 +141,20 @@ export function FilterGroup({
             easing: filterMotion.layoutEasing,
           },
         );
+        layoutAnimations.current.set(value, animation);
       }
     }
     previousPositions.current = currentPositions;
   }, [animateLayout, options]);
+
+  useEffect(
+    () => () => {
+      for (const animation of layoutAnimations.current.values()) {
+        animation.cancel();
+      }
+    },
+    [],
+  );
 
   if (options.length === 0) return null;
   return (
@@ -185,6 +211,7 @@ export function StorylineCard({
   revealIndex?: number;
   themeExiting?: boolean;
 }) {
+  usePrefetchStorylineDetail(item.id);
   const detail = useQuery({
     enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
@@ -352,6 +379,7 @@ export function StorylineTableRow({
   preview?: StorylinePreview;
   themeExiting?: boolean;
 }) {
+  usePrefetchStorylineDetail(item.id);
   const detail = useQuery({
     enabled: preview === undefined,
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),

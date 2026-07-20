@@ -401,32 +401,27 @@ describe("generated event-card content", () => {
 
 describe("filter option layout", () => {
   it("animates surviving options into alignment after an option disappears", () => {
-    const animate = vi.fn();
+    const cancel = vi.fn();
+    const animate = vi.fn(() => ({ cancel }) as unknown as Animation);
     const originalAnimate = HTMLElement.prototype.animate;
     Object.defineProperty(HTMLElement.prototype, "animate", {
       configurable: true,
       value: animate,
     });
-    const bounds = vi
-      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
-      .mockImplementation(function (this: HTMLElement) {
+    const originalOffsetLeft = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      "offsetLeft",
+    );
+    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
+      configurable: true,
+      get(this: HTMLElement) {
         const isSecondOption = this.dataset.filterOption === "theme-2";
         const firstOptionExists = document.querySelector(
           '[data-filter-option="theme-1"]',
         );
-        const left = isSecondOption && firstOptionExists !== null ? 100 : 0;
-        return {
-          bottom: 0,
-          height: 0,
-          left,
-          right: left,
-          toJSON: () => ({}),
-          top: 0,
-          width: 0,
-          x: left,
-          y: 0,
-        };
-      });
+        return isSecondOption && firstOptionExists !== null ? 100 : 0;
+      },
+    });
 
     try {
       const props = {
@@ -460,7 +455,88 @@ describe("filter option layout", () => {
         },
       );
     } finally {
-      bounds.mockRestore();
+      if (originalOffsetLeft === undefined) {
+        Reflect.deleteProperty(HTMLElement.prototype, "offsetLeft");
+      } else {
+        Object.defineProperty(
+          HTMLElement.prototype,
+          "offsetLeft",
+          originalOffsetLeft,
+        );
+      }
+      Object.defineProperty(HTMLElement.prototype, "animate", {
+        configurable: true,
+        value: originalAnimate,
+      });
+    }
+  });
+
+  it("cancels stale alignment motion when filter options change direction", () => {
+    const firstCancel = vi.fn();
+    const secondCancel = vi.fn();
+    const animate = vi
+      .fn()
+      .mockReturnValueOnce({ cancel: firstCancel } as unknown as Animation)
+      .mockReturnValueOnce({ cancel: secondCancel } as unknown as Animation);
+    const originalAnimate = HTMLElement.prototype.animate;
+    const originalOffsetLeft = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      "offsetLeft",
+    );
+    Object.defineProperty(HTMLElement.prototype, "animate", {
+      configurable: true,
+      value: animate,
+    });
+    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
+      configurable: true,
+      get(this: HTMLElement) {
+        if (this.dataset.filterOption !== "theme-2") return 0;
+        return document.querySelector('[data-filter-option="theme-1"]') ===
+          null
+          ? 0
+          : 100;
+      },
+    });
+
+    try {
+      const props = {
+        animateLayout: true,
+        label: "Theme",
+        onToggle: vi.fn(),
+        selected: new Set<string>(),
+      };
+      const allOptions = [
+        { label: "Food safety", value: "theme-1" },
+        { label: "Wildfire response", value: "theme-2" },
+      ];
+      const view = render(<FilterGroup {...props} options={allOptions} />);
+
+      view.rerender(
+        <FilterGroup
+          {...props}
+          options={[{ label: "Wildfire response", value: "theme-2" }]}
+        />,
+      );
+      view.rerender(<FilterGroup {...props} options={allOptions} />);
+
+      expect(firstCancel).toHaveBeenCalledOnce();
+      expect(animate).toHaveBeenLastCalledWith(
+        [{ transform: "translateX(-100px)" }, { transform: "translateX(0)" }],
+        {
+          duration: filterMotion.layoutDurationMs,
+          easing: filterMotion.layoutEasing,
+        },
+      );
+    } finally {
+      if (originalOffsetLeft === undefined) {
+        Reflect.deleteProperty(HTMLElement.prototype, "offsetLeft");
+      } else {
+        Object.defineProperty(
+          HTMLElement.prototype,
+          "offsetLeft",
+          originalOffsetLeft,
+        );
+      }
       Object.defineProperty(HTMLElement.prototype, "animate", {
         configurable: true,
         value: originalAnimate,
