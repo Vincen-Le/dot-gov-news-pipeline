@@ -26,7 +26,8 @@ import {
 } from "./domain/storyline-groups";
 import { StorylinesHero } from "./StorylinesHero";
 
-const INITIAL_COUNT = 18;
+const RENDER_BATCH_SIZE = 18;
+const LOAD_AHEAD_ROOT_MARGIN = "1200px 0px";
 
 type SortOrder = "episodes" | "newest" | "rank";
 type ViewMode = "product" | "table";
@@ -59,7 +60,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   const [sort, setSort] = useState<SortOrder>("rank");
   const [view, setView] = useState<ViewMode>("product");
   const [groupBy, setGroupBy] = useState<StorylineGroupBy>("theme");
-  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const [visibleCount, setVisibleCount] = useState(RENDER_BATCH_SIZE);
   const loadMore = useRef<HTMLDivElement>(null);
 
   const bootstrap = useQuery({
@@ -194,7 +195,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   }, [agencies, available, categories, sort, themes]);
 
   useEffect(
-    () => setVisibleCount(INITIAL_COUNT),
+    () => setVisibleCount(RENDER_BATCH_SIZE),
     [agencies, asOf, categories, sort, themes],
   );
 
@@ -202,7 +203,6 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
     const target = loadMore.current;
     if (
       target === null ||
-      view !== "product" ||
       visibleCount >= filtered.length ||
       globalThis.IntersectionObserver === undefined
     ) {
@@ -212,14 +212,14 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
         setVisibleCount((count) =>
-          Math.min(count + INITIAL_COUNT, filtered.length),
+          Math.min(count + RENDER_BATCH_SIZE, filtered.length),
         );
       },
-      { rootMargin: "480px 0px" },
+      { rootMargin: LOAD_AHEAD_ROOT_MARGIN },
     );
     observer.observe(target);
     return () => observer.disconnect();
-  }, [filtered.length, view, visibleCount]);
+  }, [filtered.length, visibleCount]);
 
   const displayItem = (item: StorylineListItem): StorylineListItem =>
     item.themeId !== null && surfacedThemeIds.has(item.themeId)
@@ -441,7 +441,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               className="load-more primary-button"
               onClick={() =>
                 setVisibleCount((count) =>
-                  Math.min(count + INITIAL_COUNT, filtered.length),
+                  Math.min(count + RENDER_BATCH_SIZE, filtered.length),
                 )
               }
               type="button"
