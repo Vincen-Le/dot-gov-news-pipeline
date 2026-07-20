@@ -436,15 +436,75 @@ p {
   gap: 0.4rem;
 }
 
-input[type="range"] {
+.date-range {
+  height: 24px;
   width: 100%;
-  accent-color: var(--text);
+  margin: 0;
+  appearance: none;
+  background: transparent;
   cursor: ew-resize;
   touch-action: pan-y;
 }
 
-input[type="range"]:active {
+.date-range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--text) 0 var(--date-progress),
+    var(--rule-strong) var(--date-progress) 100%
+  );
+}
+
+.date-range::-moz-range-track {
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--text) 0 var(--date-progress),
+    var(--rule-strong) var(--date-progress) 100%
+  );
+}
+
+.date-range::-webkit-slider-thumb {
+  width: 17px;
+  height: 17px;
+  margin-top: -7px;
+  appearance: none;
+  background: var(--text);
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--text);
+}
+
+.date-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  background: var(--text);
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--text);
+}
+
+.date-range.is-ticking::-webkit-slider-thumb {
+  animation: date-thumb-tick 160ms ease-out;
+}
+
+.date-range.is-ticking::-moz-range-thumb {
+  animation: date-thumb-tick 160ms ease-out;
+}
+
+.date-range:active {
   cursor: grabbing;
+}
+
+@keyframes date-thumb-tick {
+  0%,
+  100% {
+    scale: 1;
+  }
+
+  45% {
+    scale: 1.32;
+  }
 }
 
 .date-ticks {
@@ -452,6 +512,50 @@ input[type="range"]:active {
   justify-content: space-between;
   color: var(--muted);
   font: 0.61rem var(--mono);
+}
+
+.date-stepper {
+  display: grid;
+  grid-template-columns: repeat(2, var(--control-height));
+  gap: 0.4rem;
+  justify-self: end;
+}
+
+.date-arrow {
+  width: var(--control-height);
+  height: var(--control-height);
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.date-arrow span {
+  font: 500 1.15rem/1 var(--mono);
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.date-arrow:first-child:hover:not(:disabled) span {
+  transform: translateX(-3px);
+}
+
+.date-arrow:last-child:hover:not(:disabled) span {
+  transform: translateX(3px);
+}
+
+.date-arrow:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.date-arrow:disabled {
+  border-color: var(--rule);
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.48;
 }
 
 .primary-button,
@@ -1982,7 +2086,12 @@ td.wrap {
     padding: 0.65rem 1rem;
   }
 
-  .date-control-row .primary-button {
+  .date-stepper {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .date-arrow {
     width: 100%;
   }
 

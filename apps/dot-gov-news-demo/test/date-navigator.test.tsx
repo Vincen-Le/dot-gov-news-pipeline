@@ -1,12 +1,38 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
 import { App } from "../src/App";
 import { DateNavigator } from "../src/DateNavigator";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
+
+function installAnimationClock() {
+  const frames: FrameRequestCallback[] = [];
+  vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+    frames.push(callback);
+    return frames.length;
+  });
+  vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
+
+  return {
+    advance(time: number) {
+      const frame = frames.shift();
+      if (frame === undefined) throw new Error("No animation frame scheduled");
+      act(() => frame(time));
+    },
+  };
+}
 
 describe("date navigator", () => {
   it("keeps the ending date aligned to the end of the range track", () => {
@@ -21,13 +47,14 @@ describe("date navigator", () => {
 
     const track = view.container.querySelector(".date-track");
     const endDate = screen.getByText("Jul 29, 2025");
-    const button = screen.getByRole("button", { name: /Advance date/u });
+    const nextButton = screen.getByRole("button", { name: "Next date" });
 
     expect(track?.contains(endDate)).toBe(true);
-    expect(track?.contains(button)).toBe(false);
+    expect(track?.contains(nextButton)).toBe(false);
   });
 
-  it("moves continuously while emitting only crossed day boundaries", () => {
+  it("moves continuously, ticks at crossed dates, and settles smoothly", () => {
+    const clock = installAnimationClock();
     const onChange = vi.fn();
     render(
       <DateNavigator
@@ -49,7 +76,47 @@ describe("date navigator", () => {
     expect(onChange).toHaveBeenCalledWith("2025-07-20");
 
     fireEvent.pointerUp(slider);
+    expect(slider.value).toBe("2.4");
+    clock.advance(0);
+    clock.advance(0);
+    clock.advance(110);
+    expect(Number(slider.value)).toBeGreaterThan(2);
+    expect(Number(slider.value)).toBeLessThan(2.4);
+    clock.advance(220);
     expect(slider.value).toBe("2");
+  });
+
+  it("replaces the advance action with arrows that glide to each date", () => {
+    const clock = installAnimationClock();
+    const onChange = vi.fn();
+    render(
+      <DateNavigator
+        asOf="2025-07-18"
+        maximum="2025-07-29"
+        minimum="2025-07-18"
+        onChange={onChange}
+      />,
+    );
+    const slider = screen.getByRole("slider") as HTMLInputElement;
+    const previous = screen.getByRole("button", { name: "Previous date" });
+    const next = screen.getByRole("button", { name: "Next date" });
+
+    expect((previous as HTMLButtonElement).disabled).toBe(true);
+    expect((next as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.queryByText(/Advance date/u)).toBeNull();
+
+    fireEvent.click(next);
+    expect(onChange).not.toHaveBeenCalled();
+    clock.advance(0);
+    clock.advance(230);
+    expect(Number(slider.value)).toBeGreaterThan(0);
+    expect(Number(slider.value)).toBeLessThan(1);
+    expect((next as HTMLButtonElement).disabled).toBe(true);
+
+    clock.advance(460);
+    expect(slider.value).toBe("1");
+    expect(onChange).toHaveBeenCalledOnce();
+    expect(onChange).toHaveBeenCalledWith("2025-07-19");
   });
 
   it("starts the app on day zero when the timeline bounds load", () => {
