@@ -10,6 +10,8 @@ import {
   isThemeAvailableAsOf,
 } from "./domain/as-of";
 
+const RANKING_PAGE_SIZE = 100;
+
 function termStyle(terms: {
   agencyTerm: number;
   feedTerm: number;
@@ -48,6 +50,7 @@ function termLabel(terms: {
 export function RankingPage({ asOf }: { asOf: string }) {
   const [agency, setAgency] = useState("");
   const [category, setCategory] = useState("");
+  const [page, setPage] = useState(1);
   const [theme, setTheme] = useState("");
   const overview = useQuery({
     queryFn: ({ signal }) => dotGovApi.rankOverview(signal),
@@ -63,12 +66,13 @@ export function RankingPage({ asOf }: { asOf: string }) {
       dotGovApi.rankRows(
         {
           agency: agency || undefined,
+          asOf,
           category: category || undefined,
           theme: theme || undefined,
         },
         signal,
       ),
-    queryKey: ["rank-rows", agency, category, theme],
+    queryKey: ["rank-rows", asOf, agency, category, theme],
   });
   const themes = useMemo(
     () =>
@@ -104,10 +108,25 @@ export function RankingPage({ asOf }: { asOf: string }) {
         .map((row, index) => ({ ...row, position: index + 1 })),
     [asOf, availableStorylineIds, rows.data],
   );
+  const pageCount = Math.max(
+    1,
+    Math.ceil(visibleRows.length / RANKING_PAGE_SIZE),
+  );
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = (currentPage - 1) * RANKING_PAGE_SIZE;
+  const pageRows = visibleRows.slice(pageStart, pageStart + RANKING_PAGE_SIZE);
 
   useEffect(() => {
     if (theme !== "" && !themes.some((item) => item.id === theme)) setTheme("");
   }, [theme, themes]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [asOf]);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
 
   if (overview.isLoading) {
     return (
@@ -142,8 +161,8 @@ export function RankingPage({ asOf }: { asOf: string }) {
         <div className="rank-heading-meta">
           <span>
             Reviewed golden dataset ·{" "}
-            {rows.data === undefined ? "…" : visibleRows.length} of{" "}
-            {dataset.storylines} ranked stories by {displayDate(asOf)}
+            {rows.data === undefined ? "…" : visibleRows.length} ranked stories
+            by {displayDate(asOf)}
           </span>
           <ul aria-label="Score composition color key" className="rank-legend">
             <li>
@@ -182,7 +201,10 @@ export function RankingPage({ asOf }: { asOf: string }) {
         <label>
           <span>Agency</span>
           <select
-            onChange={(event) => setAgency(event.target.value)}
+            onChange={(event) => {
+              setAgency(event.target.value);
+              setPage(1);
+            }}
             value={agency}
           >
             <option value="">All agencies</option>
@@ -199,6 +221,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
             onChange={(event) => {
               setCategory(event.target.value);
               setTheme("");
+              setPage(1);
             }}
             value={category}
           >
@@ -213,7 +236,10 @@ export function RankingPage({ asOf }: { asOf: string }) {
         <label>
           <span>Theme</span>
           <select
-            onChange={(event) => setTheme(event.target.value)}
+            onChange={(event) => {
+              setTheme(event.target.value);
+              setPage(1);
+            }}
             value={theme}
           >
             <option value="">All themes</option>
@@ -245,78 +271,122 @@ export function RankingPage({ asOf }: { asOf: string }) {
           Advance the timeline to the first reviewed publication.
         </StatePanel>
       ) : (
-        <div className="rank-table-scroll">
-          <table className="rank-table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Headline</th>
-                <th scope="col">rank_key</th>
-                <th scope="col">Score makeup</th>
-                <th scope="col">Source</th>
-                <th scope="col">Agencies</th>
-                <th scope="col">Feeds</th>
-                <th scope="col">Entries</th>
-                <th scope="col">Rubric basis</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleRows.map((row) => (
-                <tr key={row.storylineId}>
-                  <td className="rank-position">
-                    {String(row.position).padStart(2, "0")}
-                  </td>
-                  <th className="rank-headline" scope="row">
-                    <Link
-                      to={`/?storyline=${encodeURIComponent(row.storylineId)}`}
-                    >
-                      {row.headline ?? "Developing storyline"}
-                    </Link>
-                    <small>
-                      {row.summary ?? "Editorial summary is queued."}
-                    </small>
-                  </th>
-                  <td className="rank-key-value">{row.rankKey.toFixed(3)}</td>
-                  <td>
-                    <span className="rank-term-cell">
-                      <span
-                        aria-label={termLabel(row.terms)}
-                        className="rank-term-bar"
-                        role="img"
-                        style={termStyle(row.terms)}
-                      >
-                        <i className="term-rubric" />
-                        <i className="term-agency" />
-                        <i className="term-feed" />
-                        <i className="term-source" />
-                      </span>
-                      <small>+{row.terms.freshnessTerm.toFixed(1)}t</small>
-                    </span>
-                  </td>
-                  <td className="rank-source-value">
-                    {row.sourceName ?? "Multiple agencies"}
-                    {row.sourceKey === null ? null : (
-                      <small>{row.sourceKey}</small>
-                    )}
-                  </td>
-                  <td className="rank-count">{row.agencies}</td>
-                  <td className="rank-count">{row.feeds}</td>
-                  <td className="rank-count">{row.entryCount}</td>
-                  <td className="rank-rubric">
-                    <span
-                      className={
-                        row.terms.priorUsed ? "rank-prior" : "rank-judged"
-                      }
-                    >
-                      {row.terms.priorUsed ? "Prior" : "Judged"}
-                    </span>
-                    <small>{row.terms.rubricPoints.toFixed(2)} points</small>
-                  </td>
+        <>
+          <div className="rank-pagination rank-pagination-top">
+            <span>
+              Showing {pageStart + 1}–{pageStart + pageRows.length} of{" "}
+              {visibleRows.length}
+            </span>
+            <span>
+              Page {currentPage} of {pageCount}
+            </span>
+          </div>
+          <div className="rank-table-scroll">
+            <table className="rank-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Headline</th>
+                  <th scope="col">rank_key</th>
+                  <th scope="col">Score makeup</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">Agencies</th>
+                  <th scope="col">Feeds</th>
+                  <th scope="col">Entries</th>
+                  <th scope="col">Rubric basis</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {pageRows.map((row) => (
+                  <tr key={row.storylineId}>
+                    <td className="rank-position">
+                      {String(row.position).padStart(2, "0")}
+                    </td>
+                    <th className="rank-headline" scope="row">
+                      <Link
+                        to={`/?storyline=${encodeURIComponent(row.storylineId)}`}
+                      >
+                        {row.headline ?? "Developing storyline"}
+                      </Link>
+                      <small>
+                        {row.summary ?? "Editorial summary is queued."}
+                      </small>
+                    </th>
+                    <td className="rank-key-value">{row.rankKey.toFixed(3)}</td>
+                    <td>
+                      {row.terms === null ? (
+                        <small>Historical breakdown unavailable</small>
+                      ) : (
+                        <span className="rank-term-cell">
+                          <span
+                            aria-label={termLabel(row.terms)}
+                            className="rank-term-bar"
+                            role="img"
+                            style={termStyle(row.terms)}
+                          >
+                            <i className="term-rubric" />
+                            <i className="term-agency" />
+                            <i className="term-feed" />
+                            <i className="term-source" />
+                          </span>
+                          <small>+{row.terms.freshnessTerm.toFixed(1)}t</small>
+                        </span>
+                      )}
+                    </td>
+                    <td className="rank-source-value">
+                      {row.terms === null
+                        ? "Historical attribution unavailable"
+                        : (row.sourceName ?? "Multiple agencies")}
+                      {row.sourceKey === null || row.terms === null ? null : (
+                        <small>{row.sourceKey}</small>
+                      )}
+                    </td>
+                    <td className="rank-count">{row.agencies ?? "—"}</td>
+                    <td className="rank-count">{row.feeds ?? "—"}</td>
+                    <td className="rank-count">{row.entryCount ?? "—"}</td>
+                    <td className="rank-rubric">
+                      {row.terms === null ? (
+                        <small>Unavailable for historical card</small>
+                      ) : (
+                        <>
+                          <span
+                            className={
+                              row.terms.priorUsed ? "rank-prior" : "rank-judged"
+                            }
+                          >
+                            {row.terms.priorUsed ? "Prior" : "Judged"}
+                          </span>
+                          <small>
+                            {row.terms.rubricPoints.toFixed(2)} points
+                          </small>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <nav aria-label="Ranking pages" className="rank-pagination">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              type="button"
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {pageCount}
+            </span>
+            <button
+              disabled={currentPage === pageCount}
+              onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
+              type="button"
+            >
+              Next
+            </button>
+          </nav>
+        </>
       )}
     </div>
   );

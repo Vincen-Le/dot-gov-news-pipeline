@@ -125,6 +125,33 @@ describe("demo read handler", () => {
     expect(malformed.status).toBe(400);
   });
 
+  it("forwards the historical ranking date and returns the complete set", async () => {
+    const data = repository();
+    const response = await handleDemoRequest(
+      new Request(
+        "https://demo.example/api/lab/rank/golden/filtered-snapshot?asOf=2025-07-27",
+      ),
+      { repository: data },
+    );
+
+    expect(response.status).toBe(200);
+    expect(data.listRankRows).toHaveBeenCalledWith({
+      asOf: "2025-07-27",
+      limit: 5000,
+    });
+  });
+
+  it("rejects an invalid historical ranking date", async () => {
+    const response = await handleDemoRequest(
+      new Request(
+        "https://demo.example/api/lab/rank/golden/filtered-snapshot?asOf=July-27",
+      ),
+      { repository: repository() },
+    );
+
+    expect(response.status).toBe(400);
+  });
+
   it("fails closed for an unreviewed detail", async () => {
     const data = repository({
       getStoryline: vi

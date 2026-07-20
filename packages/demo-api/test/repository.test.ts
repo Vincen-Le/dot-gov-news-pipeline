@@ -363,14 +363,103 @@ describe("demo repository", () => {
     expect(await repository.getRankOverview()).toMatchObject({
       dataset: { reviewedEntries: 1, sourceRunName: "canonical-golden" },
     });
-    expect(await repository.listRankRows({ agency: "fda", limit: 25 })).toEqual(
-      [
-        expect.objectContaining({
-          sourceName: "Food and Drug Administration",
-          storylineId,
-        }),
-      ],
-    );
+    expect(
+      await repository.listRankRows({
+        agency: "fda",
+        asOf: "2025-07-20",
+        limit: 25,
+      }),
+    ).toEqual([
+      expect.objectContaining({
+        sourceName: "Food and Drug Administration",
+        storylineId,
+      }),
+    ]);
+  });
+
+  it("uses the latest overview card available on the requested date", async () => {
+    const tables = fixtures();
+    tables.golden_event_cards?.push({
+      ...tables.golden_event_cards[0],
+      generated_at: "2025-07-21T18:00:00.000Z",
+      headline: "FDA issues a later reviewed update",
+      id: secondCardId,
+      newest_entry_at: "2025-07-21T12:00:00.000Z",
+      rank_key: 12,
+      version: 2,
+    });
+    Object.assign(tables.golden_storylines?.[0] ?? {}, {
+      latest_card_id: secondCardId,
+      newest_entry_at: "2025-07-21T12:00:00.000Z",
+    });
+    Object.assign(tables.simple_v1_rank_snapshots?.[0] ?? {}, {
+      card_id: secondCardId,
+      headline: "FDA issues a later reviewed update",
+      newest_entry_at: "2025-07-21T12:00:00.000Z",
+      rank_key: 12,
+    });
+    const repository = createDemoRepositoryFromClient(client(tables));
+
+    expect(
+      await repository.listRankRows({ asOf: "2025-07-20", limit: 25 }),
+    ).toEqual([
+      expect.objectContaining({
+        agencies: null,
+        entryCount: null,
+        feeds: null,
+        headline: "FDA issues a reviewed public-health update",
+        newestEntryAt: "2025-07-20T12:00:00.000Z",
+        rankKey: 9.5,
+        terms: null,
+      }),
+    ]);
+  });
+
+  it("selects and orders date-eligible cards before applying the limit", async () => {
+    const tables = fixtures();
+    const futureStorylineId = "00000000-0000-4000-8000-000000000022";
+    const futureCardId = "00000000-0000-4000-8000-000000000043";
+    const futureEntryId = "00000000-0000-4000-8000-000000000012";
+    tables.golden_storylines?.push({
+      ...tables.golden_storylines[0],
+      id: futureStorylineId,
+      latest_card_id: futureCardId,
+      newest_entry_at: "2025-07-21T12:00:00.000Z",
+    });
+    tables.golden_event_cards?.push({
+      ...tables.golden_event_cards[0],
+      headline: "Future top-ranked story",
+      id: futureCardId,
+      newest_entry_at: "2025-07-21T12:00:00.000Z",
+      rank_key: 20,
+      storyline_id: futureStorylineId,
+    });
+    tables.golden_news_entries?.push({
+      ...tables.golden_news_entries[0],
+      gold_storyline_id: futureStorylineId,
+      news_entry_id: futureEntryId,
+    });
+    tables.simple_v1_rank_snapshots?.push({
+      ...tables.simple_v1_rank_snapshots[0],
+      card_id: futureCardId,
+      headline: "Future top-ranked story",
+      newest_entry_at: "2025-07-21T12:00:00.000Z",
+      position: 1,
+      rank_key: 20,
+      storyline_id: futureStorylineId,
+    });
+    Object.assign(tables.simple_v1_rank_snapshots?.[0] ?? {}, { position: 2 });
+    const repository = createDemoRepositoryFromClient(client(tables));
+
+    expect(
+      await repository.listRankRows({ asOf: "2025-07-20", limit: 1 }),
+    ).toEqual([
+      expect.objectContaining({
+        headline: "FDA issues a reviewed public-health update",
+        position: 1,
+        storylineId,
+      }),
+    ]);
   });
 
   it("fails closed when the golden storyline contains an unreviewed membership", async () => {

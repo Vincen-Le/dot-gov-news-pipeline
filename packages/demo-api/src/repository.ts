@@ -365,9 +365,9 @@ export interface DemoBootstrap {
 }
 
 export interface DemoRankRow {
-  agencies: number;
-  entryCount: number;
-  feeds: number;
+  agencies: number | null;
+  entryCount: number | null;
+  feeds: number | null;
   headline: string | null;
   interestReason: string | null;
   newestEntryAt: string | null;
@@ -377,7 +377,7 @@ export interface DemoRankRow {
   sourceName: string | null;
   storylineId: string;
   summary: string | null;
-  terms: z.infer<typeof RankSnapshotRowSchema>["terms"];
+  terms: z.infer<typeof RankSnapshotRowSchema>["terms"] | null;
 }
 
 export interface DemoRankOverview {
@@ -403,6 +403,7 @@ export interface DemoRepository {
   listCategories(): Promise<DemoCategory[]>;
   listRankRows(filter: {
     agency?: string;
+    asOf: string;
     category?: string;
     limit: number;
     theme?: string;
@@ -1176,6 +1177,7 @@ class SupabaseDemoRepository implements DemoRepository {
 
   async listRankRows(filter: {
     agency?: string;
+    asOf: string;
     category?: string;
     limit: number;
     theme?: string;
@@ -1218,30 +1220,61 @@ class SupabaseDemoRepository implements DemoRepository {
         .limit(5000),
       RankSnapshotRowSchema,
     );
-    return snapshots
-      .filter((row) => {
-        const storyline = storylineById.get(row.storyline_id);
-        return storyline?.latest_card_id === row.card_id;
+    const snapshotByStoryline = new Map(
+      snapshots.map((row) => [row.storyline_id, row]),
+    );
+    const cutoff = `${filter.asOf}T23:59:59.999Z`;
+    const historicalCardByStoryline = new Map<string, GoldenCardRow>();
+    for (const cardRow of await this.cardsForStorylines([
+      ...storylineById.keys(),
+    ])) {
+      if (cardRow.kind !== "overview" || cardRow.newest_entry_at > cutoff) {
+        continue;
+      }
+      const current = historicalCardByStoryline.get(cardRow.storyline_id);
+      if (current === undefined || cardRow.version > current.version) {
+        historicalCardByStoryline.set(cardRow.storyline_id, cardRow);
+      }
+    }
+    return [...historicalCardByStoryline.entries()]
+      .flatMap(([storylineId, historicalCard]) => {
+        const storyline = storylineById.get(storylineId);
+        const snapshot = snapshotByStoryline.get(storylineId);
+        return storyline === undefined || snapshot === undefined
+          ? []
+          : [{ historicalCard, snapshot, storyline }];
       })
+      .sort(
+        (left, right) =>
+          right.historicalCard.rank_key - left.historicalCard.rank_key ||
+          left.storyline.first_entry_at.localeCompare(
+            right.storyline.first_entry_at,
+          ) ||
+          left.historicalCard.headline.localeCompare(
+            right.historicalCard.headline,
+          ) ||
+          left.storyline.id.localeCompare(right.storyline.id),
+      )
       .slice(0, filter.limit)
-      .map((row) => {
-        const storyline = storylineById.get(row.storyline_id);
-        const sourceKey =
-          row.terms.source_key ?? storyline?.agency_ids.at(0) ?? null;
+      .map(({ historicalCard, snapshot, storyline }, index) => {
+        const hasExactSnapshot = historicalCard.id === snapshot.card_id;
+        const sourceKey = hasExactSnapshot
+          ? (snapshot.terms.source_key ?? storyline.agency_ids.at(0) ?? null)
+          : null;
         return {
-          agencies: row.agencies,
-          entryCount: row.entry_count,
-          feeds: row.feeds,
-          headline: row.headline,
-          interestReason: row.interest_reason,
-          newestEntryAt: row.newest_entry_at,
-          position: row.position,
-          rankKey: row.rank_key,
+          agencies: hasExactSnapshot ? snapshot.agencies : null,
+          entryCount: hasExactSnapshot ? snapshot.entry_count : null,
+          feeds: hasExactSnapshot ? snapshot.feeds : null,
+          headline: historicalCard.headline,
+          interestReason: historicalCard.interest_reason,
+          newestEntryAt: historicalCard.newest_entry_at,
+          position: index + 1,
+          rankKey: historicalCard.rank_key,
           sourceKey,
           sourceName: sourceKey === null ? null : displayName(sourceKey),
-          storylineId: row.storyline_id,
-          summary: row.summary,
-          terms: row.terms,
+          storylineId: storyline.id,
+          summary: historicalCard.summary,
+          terms: hasExactSnapshot ? snapshot.terms : null,
         };
       });
   }

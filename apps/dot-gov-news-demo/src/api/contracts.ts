@@ -171,9 +171,9 @@ export const RankTermsSchema = z
   }));
 
 export const RankRowSchema = z.object({
-  agencies: z.number(),
-  entryCount: z.number(),
-  feeds: z.number(),
+  agencies: z.number().nullable(),
+  entryCount: z.number().nullable(),
+  feeds: z.number().nullable(),
   headline: z.string().nullable(),
   interestReason: z.string().nullable(),
   newestEntryAt: z.string().nullable(),
@@ -183,7 +183,7 @@ export const RankRowSchema = z.object({
   sourceName: z.string().nullable().default(null),
   storylineId: z.string(),
   summary: z.string().nullable(),
-  terms: RankTermsSchema,
+  terms: RankTermsSchema.nullable(),
 });
 
 export const RankDatasetSchema = z

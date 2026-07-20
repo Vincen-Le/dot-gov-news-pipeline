@@ -50,7 +50,9 @@ describe("application loading", () => {
       },
       filters: { agencies: [], categories: [], themes: [] },
     });
-    client.setQueryData(["rank-rows", "", "", ""], { rows: [] });
+    client.setQueryData(["rank-rows", "2026-07-20", "", "", ""], {
+      rows: [],
+    });
 
     render(
       <QueryClientProvider client={client}>

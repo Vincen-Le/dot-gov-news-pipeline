@@ -28,8 +28,9 @@ const StorylinesQuerySchema = z
 const RankRowsQuerySchema = z
   .object({
     agency: z.string().trim().min(1).max(128).optional(),
+    asOf: z.iso.date(),
     category: z.uuid().optional(),
-    limit: z.coerce.number().int().min(1).max(200).default(100),
+    limit: z.coerce.number().int().min(1).max(5000).default(5000),
     theme: z.uuid().optional(),
   })
   .strict();

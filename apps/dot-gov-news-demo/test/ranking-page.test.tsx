@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -33,6 +33,80 @@ function storyline(
 }
 
 describe("ranking score makeup", () => {
+  it("paginates the complete ranked set without dropping later stories", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    const terms = {
+      agencyTerm: 0.35,
+      feedTerm: 0.35,
+      freshnessTerm: 14_068,
+      priorUsed: false,
+      rubricPoints: 4,
+      sourceTerm: -0.2,
+    };
+    const rankedRows = Array.from({ length: 101 }, (_, index) => {
+      const suffix = String(index + 1).padStart(12, "0");
+      return {
+        agencies: 1,
+        entryCount: 1,
+        feeds: 1,
+        headline: `Ranked story ${index + 1}`,
+        interestReason: null,
+        newestEntryAt: "2026-07-20T12:00:00.000Z",
+        position: index + 1,
+        rankKey: 101 - index,
+        sourceKey: "fda",
+        sourceName: "Food and Drug Administration",
+        storylineId: `00000000-0000-4000-8000-${suffix}`,
+        summary: "A reviewed summary.",
+        terms,
+      };
+    });
+    queryClient.setQueryData(["rank-overview"], {
+      dataset: {
+        approvedAt: "2026-07-20T12:00:00.000Z",
+        approvedEntries: 101,
+        sourceRunName: "canonical-golden",
+        storylines: 101,
+      },
+      filters: { agencies: [], categories: [], themes: [] },
+    });
+    queryClient.setQueryData(["rank-rows", "2026-07-20", "", "", ""], {
+      rows: rankedRows,
+    });
+    queryClient.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: [],
+      storylines: {
+        hasMore: false,
+        items: rankedRows.map((row) =>
+          storyline(row.storylineId, row.newestEntryAt),
+        ),
+      },
+      themes: [],
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <RankingPage asOf="2026-07-20" />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByText("Showing 1–100 of 101")).toBeTruthy();
+    expect(screen.getByText("Ranked story 100")).toBeTruthy();
+    expect(screen.queryByText("Ranked story 101")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(screen.getByText("Showing 101–101 of 101")).toBeTruthy();
+    expect(screen.getByText("Ranked story 101")).toBeTruthy();
+    expect(screen.queryByText("Ranked story 100")).toBeNull();
+  });
+
   it("normalizes editorial terms separately from the epoch-scale freshness term", () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -46,7 +120,7 @@ describe("ranking score makeup", () => {
       },
       filters: { agencies: [], categories: [], themes: [] },
     });
-    queryClient.setQueryData(["rank-rows", "", "", ""], {
+    queryClient.setQueryData(["rank-rows", "2026-07-20", "", "", ""], {
       rows: [
         {
           agencies: 1,
@@ -161,7 +235,7 @@ describe("ranking score makeup", () => {
       rubricPoints: 4,
       sourceTerm: -0.2,
     };
-    queryClient.setQueryData(["rank-rows", "", "", ""], {
+    queryClient.setQueryData(["rank-rows", "2026-07-20", "", "", ""], {
       rows: [
         {
           agencies: 1,

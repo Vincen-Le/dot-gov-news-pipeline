@@ -89,10 +89,15 @@ export const dotGovApi = {
       signal,
     ),
   rankRows: (
-    filter: { agency?: string; category?: string; theme?: string },
+    filter: {
+      agency?: string;
+      asOf: string;
+      category?: string;
+      theme?: string;
+    },
     signal?: AbortSignal,
   ): Promise<{ rows: RankRow[] }> => {
-    const params = new URLSearchParams({ limit: "100" });
+    const params = new URLSearchParams({ asOf: filter.asOf, limit: "5000" });
     if (filter.agency !== undefined) params.set("agency", filter.agency);
     if (filter.category !== undefined) params.set("category", filter.category);
     if (filter.theme !== undefined) params.set("theme", filter.theme);
