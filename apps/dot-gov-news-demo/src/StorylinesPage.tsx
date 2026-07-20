@@ -237,7 +237,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
       <section className="page-intro">
         <div className="intro-content">
           <div>
-            <p className="eyebrow">The public record, made clear</p>
+            <p className="eyebrow">Government news connected.</p>
             <h1>Storylines</h1>
             <p className="intro-description">
               See how government actions unfold over time. Each storyline brings
