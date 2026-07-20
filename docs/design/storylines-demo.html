@@ -1,0 +1,3261 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Interactive design reference for the Dot Gov News reviewed-storylines demo."
+    />
+    <title>Dot Gov News / Storylines Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --canvas: #000;
+        --surface: #080808;
+        --raised: #141414;
+        --rule: #343434;
+        --rule-strong: #5b5b57;
+        --text: #f4f3ee;
+        --muted: #9b9b94;
+        --live: #8db4ff;
+        --healthy: #71d68a;
+        --attention: #f1bc63;
+        --failure: #f17878;
+        --max: 1600px;
+        --control-height: 44px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-family: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+        font-synthesis: none;
+        background: var(--canvas);
+        color: var(--text);
+      }
+
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --canvas: #f2f0e9;
+        --surface: #fbfaf6;
+        --raised: #fff;
+        --rule: #cfcbc0;
+        --rule-strong: #98948a;
+        --text: #111;
+        --muted: #5f5d57;
+        --live: #174ea6;
+        --healthy: #147a35;
+        --attention: #8b5700;
+        --failure: #b4232c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--canvas);
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background: var(--canvas);
+        color: var(--text);
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 2px solid var(--live);
+        outline-offset: 3px;
+      }
+
+      button {
+        border-radius: 0;
+      }
+
+      .skip-link {
+        position: fixed;
+        top: -5rem;
+        left: 1rem;
+        z-index: 100;
+        padding: 0.75rem 1rem;
+        background: var(--text);
+        color: var(--canvas);
+      }
+
+      .skip-link:focus {
+        top: 1rem;
+      }
+
+      .app-shell {
+        max-width: var(--max);
+        min-height: 100vh;
+        margin: 0 auto;
+        overflow: clip;
+        background: var(--surface);
+        border-inline: 1px solid var(--rule);
+      }
+
+      .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        min-height: 64px;
+        display: grid;
+        grid-template-columns: minmax(245px, auto) minmax(0, 1fr) auto;
+        align-items: center;
+        gap: clamp(0.9rem, 1.6vw, 1.5rem);
+        padding: 0.65rem 1.25rem;
+        background: color-mix(in srgb, var(--surface) 94%, transparent);
+        border-bottom: 1px solid var(--rule);
+        backdrop-filter: blur(18px);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--text);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.075em;
+        text-decoration: none;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .brand b {
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .brand-mark {
+        width: 23px;
+        height: 18px;
+        display: inline-flex;
+        align-items: end;
+        gap: 2px;
+      }
+
+      .brand-mark i {
+        width: 6px;
+        display: block;
+        background: currentColor;
+      }
+
+      .brand-mark i:nth-child(1) {
+        height: 7px;
+      }
+
+      .brand-mark i:nth-child(2) {
+        height: 13px;
+      }
+
+      .brand-mark i:nth-child(3) {
+        height: 18px;
+      }
+
+      .app-header nav {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(0.75rem, 1.2vw, 1.1rem);
+      }
+
+      .app-header nav a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        color: var(--muted);
+        font-size: 0.8rem;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .app-header nav a:hover,
+      .app-header nav a.active {
+        color: var(--text);
+      }
+
+      .app-header nav a.active {
+        text-decoration: underline;
+        text-underline-offset: 0.35rem;
+      }
+
+      .header-actions {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-self: end;
+        gap: 0.55rem;
+      }
+
+      .environment {
+        height: var(--control-height);
+        display: inline-flex;
+        align-items: center;
+        padding: 0 0.65rem;
+        border: 1px solid var(--rule);
+        color: var(--muted);
+        font-size: 0.72rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .theme-button {
+        width: var(--control-height);
+        height: var(--control-height);
+        border: 0;
+        background: none;
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .page-intro {
+        min-height: 286px;
+        display: grid;
+        grid-template-columns: minmax(120px, 0.3fr) minmax(0, 1fr);
+        align-items: end;
+        padding: clamp(2rem, 5vw, 5rem);
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .section-index,
+      .eyebrow,
+      .micro-label {
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .section-index {
+        align-self: start;
+        color: var(--muted);
+        font-size: 0.72rem;
+      }
+
+      .intro-content {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(315px, 430px);
+        align-items: end;
+        gap: clamp(2rem, 5vw, 5rem);
+      }
+
+      .eyebrow {
+        margin: 0 0 0.8rem;
+        color: var(--live);
+        font-size: 0.68rem;
+        font-weight: 600;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 1rem;
+        font-size: clamp(3.4rem, 8vw, 7.4rem);
+        font-weight: 500;
+        letter-spacing: -0.07em;
+        line-height: 0.86;
+      }
+
+      .intro-copy > p:last-child {
+        max-width: 690px;
+        margin: 1.4rem 0 0;
+        color: var(--muted);
+        font-size: clamp(0.95rem, 1.3vw, 1.12rem);
+        line-height: 1.55;
+      }
+
+      .date-simulator {
+        min-width: 0;
+        display: grid;
+        gap: 0.75rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--rule);
+      }
+
+      .date-simulator header,
+      .result-header,
+      .section-heading,
+      .dialog-header,
+      .event-card-meta,
+      .episode-meta,
+      .source-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .micro-label {
+        color: var(--muted);
+        font-size: 0.64rem;
+        font-weight: 600;
+      }
+
+      .as-of-value {
+        color: var(--text);
+        font: 500 0.78rem var(--mono);
+      }
+
+      .date-control-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--text);
+      }
+
+      .date-ticks {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font: 0.61rem var(--mono);
+      }
+
+      .primary-button,
+      .secondary-button,
+      .view-button,
+      .pill,
+      .clear-button {
+        min-height: var(--control-height);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.9rem;
+        border: 1px solid var(--rule);
+        background: transparent;
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .primary-button {
+        border-color: var(--text);
+        background: var(--text);
+        color: var(--canvas);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.055em;
+        text-transform: uppercase;
+      }
+
+      .primary-button:hover {
+        background: color-mix(in srgb, var(--text) 86%, var(--live));
+        transform: translateY(-1px);
+      }
+
+      .primary-button:disabled {
+        border-color: var(--rule);
+        background: var(--raised);
+        color: var(--muted);
+        cursor: default;
+        transform: none;
+      }
+
+      .workspace {
+        padding: clamp(1.4rem, 3vw, 2.75rem) clamp(1rem, 3vw, 3rem) 4rem;
+      }
+
+      .section-heading {
+        align-items: end;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .section-heading h2 {
+        margin: 0;
+        font-size: clamp(1.5rem, 2.2vw, 2.2rem);
+        font-weight: 500;
+        letter-spacing: -0.035em;
+      }
+
+      .view-switcher {
+        display: flex;
+        align-items: center;
+      }
+
+      .view-button {
+        min-width: 112px;
+        border-color: var(--rule);
+        color: var(--muted);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .view-button + .view-button {
+        border-left: 0;
+      }
+
+      .view-button[aria-pressed="true"] {
+        border-color: var(--text);
+        background: var(--text);
+        color: var(--canvas);
+      }
+
+      .filter-deck {
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .facet-row {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        align-items: center;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .facet-row:last-child {
+        border-bottom: 0;
+      }
+
+      .facet-label {
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem 0.8rem 0;
+        border-right: 1px solid var(--rule);
+        color: var(--muted);
+        font: 600 0.66rem var(--mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .pill-rail {
+        min-width: 0;
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding: 0.65rem 0 0.65rem 1rem;
+        scrollbar-color: var(--rule) transparent;
+      }
+
+      .pill {
+        min-height: 36px;
+        flex: 0 0 auto;
+        padding: 0 0.75rem;
+        color: var(--muted);
+        font-size: 0.72rem;
+        white-space: nowrap;
+      }
+
+      .pill:hover {
+        border-color: var(--muted);
+        color: var(--text);
+      }
+
+      .pill[aria-pressed="true"] {
+        border-color: var(--text);
+        background: var(--text);
+        color: var(--canvas);
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: end;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .result-copy {
+        color: var(--muted);
+        font: 0.72rem var(--mono);
+      }
+
+      .result-copy strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .sort-field {
+        display: grid;
+        grid-template-columns: auto minmax(155px, 210px);
+        align-items: center;
+        gap: 0.7rem;
+      }
+
+      .sort-field label {
+        color: var(--muted);
+        font: 600 0.65rem var(--mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .sort-field select {
+        width: 100%;
+        height: var(--control-height);
+        padding: 0 0.75rem;
+        border: 1px solid var(--rule);
+        border-radius: 0;
+        background: var(--canvas);
+        color: var(--text);
+        font: 0.72rem var(--mono);
+      }
+
+      .clear-button {
+        color: var(--muted);
+        font-size: 0.7rem;
+        text-decoration: underline;
+        text-underline-offset: 0.25rem;
+      }
+
+      .clear-button[hidden] {
+        display: none;
+      }
+
+      .product-view {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .event-card {
+        min-width: 0;
+        grid-column: span 6;
+        position: relative;
+        border-right: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        background: var(--surface);
+        transition:
+          transform 150ms ease,
+          background 150ms ease,
+          box-shadow 150ms ease;
+      }
+
+      .event-card:nth-child(even) {
+        border-right: 0;
+      }
+
+      .event-card.featured {
+        grid-column: span 7;
+      }
+
+      .event-card.featured + .event-card {
+        grid-column: span 5;
+        border-right: 0;
+      }
+
+      .event-card:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
+
+      .event-card:hover,
+      .event-card:focus-within {
+        z-index: 2;
+        background: var(--raised);
+        box-shadow: 0 18px 0 -10px color-mix(in srgb, var(--live) 28%, transparent);
+        transform: translateY(-6px);
+      }
+
+      .event-card-hit {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .event-image {
+        min-height: 250px;
+        position: relative;
+        overflow: hidden;
+        background: var(--canvas);
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .featured .event-image {
+        min-height: 320px;
+      }
+
+      .event-image svg,
+      .episode-image svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .image-credit {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        padding: 0.38rem 0.55rem;
+        background: color-mix(in srgb, var(--canvas) 82%, transparent);
+        color: var(--muted);
+        font: 0.58rem var(--mono);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .event-card-body {
+        display: flex;
+        flex-direction: column;
+        padding: clamp(1rem, 2vw, 1.6rem);
+      }
+
+      .event-card-meta {
+        align-items: flex-start;
+        color: var(--muted);
+        font: 0.64rem var(--mono);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .rank-key {
+        color: var(--live);
+        white-space: nowrap;
+      }
+
+      .event-card h3 {
+        margin: 1.2rem 0 0.7rem;
+        font-size: clamp(1.45rem, 2.6vw, 2.5rem);
+        font-weight: 500;
+        letter-spacing: -0.045em;
+        line-height: 1.02;
+      }
+
+      .event-card:not(.featured) h3 {
+        font-size: clamp(1.35rem, 2vw, 2rem);
+      }
+
+      .event-card-overview {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.87rem;
+        line-height: 1.58;
+      }
+
+      .taxonomy {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0;
+        margin: 1.2rem 0 0;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 550;
+        line-height: 1.4;
+      }
+
+      .taxonomy span + span::before {
+        content: "·";
+        margin: 0 0.55rem;
+      }
+
+      .card-footer {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: auto;
+        padding-top: 1.25rem;
+      }
+
+      .card-volume {
+        color: var(--muted);
+        font: 0.68rem var(--mono);
+      }
+
+      .open-cue {
+        color: var(--text);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .open-cue::after {
+        content: " ↗";
+        color: var(--live);
+      }
+
+      .table-view {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+      }
+
+      th,
+      td {
+        padding: 0.82rem 0.65rem;
+        border-top: 1px solid var(--rule);
+        text-align: left;
+        vertical-align: top;
+        white-space: nowrap;
+      }
+
+      thead th {
+        border-top: 0;
+        color: var(--muted);
+        font-size: 0.64rem;
+        font-weight: 600;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      tbody th {
+        min-width: 320px;
+        font-weight: 550;
+        white-space: normal;
+      }
+
+      td.wrap {
+        min-width: 180px;
+        max-width: 320px;
+        white-space: normal;
+      }
+
+      .table-open {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--text);
+        font-weight: 600;
+        text-align: left;
+        text-decoration: underline;
+        text-underline-offset: 0.25rem;
+        cursor: pointer;
+      }
+
+      .reviewed-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--healthy);
+        font: 600 0.62rem var(--mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .reviewed-mark::before {
+        width: 6px;
+        height: 6px;
+        display: block;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+      }
+
+      .empty-state {
+        min-height: 320px;
+        display: grid;
+        place-items: center;
+        padding: 3rem;
+        border-bottom: 1px solid var(--rule);
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .empty-state strong {
+        display: block;
+        margin-bottom: 0.7rem;
+        color: var(--text);
+        font-size: 1.15rem;
+      }
+
+      .empty-state button {
+        margin-top: 1rem;
+      }
+
+      .demo-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem clamp(1rem, 3vw, 3rem);
+        border-top: 1px solid var(--rule);
+        color: var(--muted);
+        font: 0.65rem var(--mono);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .story-dialog {
+        width: min(1240px, calc(100vw - 3rem));
+        height: min(820px, calc(100vh - 5rem));
+        max-width: none;
+        max-height: none;
+        margin: auto;
+        padding: 0;
+        overflow: hidden;
+        background: var(--raised);
+        border: 1px solid var(--text);
+        color: var(--text);
+        box-shadow: 0 32px 90px #000b;
+      }
+
+      .story-dialog::backdrop {
+        background: #000c;
+        backdrop-filter: blur(5px);
+      }
+
+      .story-dialog[open] {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .dialog-header {
+        align-items: flex-start;
+        padding: 1.35rem 1.5rem;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .dialog-header-copy {
+        min-width: 0;
+      }
+
+      .dialog-header h2 {
+        max-width: 920px;
+        margin: 0.25rem 0 0;
+        font-size: clamp(1.35rem, 2.5vw, 2.4rem);
+        font-weight: 500;
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+      }
+
+      .dialog-close {
+        width: var(--control-height);
+        height: var(--control-height);
+        flex: 0 0 var(--control-height);
+        border: 1px solid var(--rule);
+        background: transparent;
+        color: var(--text);
+        font-size: 1.7rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .dialog-layout {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .chain-pane,
+      .synthesis-pane {
+        min-width: 0;
+        overflow-y: auto;
+      }
+
+      .chain-pane {
+        padding: 1.5rem;
+        background: var(--canvas);
+        border-right: 1px solid var(--rule);
+      }
+
+      .synthesis-pane {
+        padding: 1.5rem;
+      }
+
+      .pane-heading {
+        margin-bottom: 1rem;
+        color: var(--muted);
+        font: 600 0.66rem var(--mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .overview-block,
+      .episode-card {
+        padding: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+      }
+
+      .overview-block {
+        border-top: 2px solid var(--live);
+      }
+
+      .overview-block h3,
+      .episode-card h3,
+      .synthesis-pane h3 {
+        margin: 0.65rem 0 0.5rem;
+        font-size: 1.02rem;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      .overview-block p,
+      .episode-card p,
+      .synthesis-pane p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 0.79rem;
+        line-height: 1.55;
+      }
+
+      .episode-stack {
+        display: grid;
+        gap: 0.8rem;
+        margin-top: 0.8rem;
+      }
+
+      .episode-card {
+        display: grid;
+        grid-template-columns: 116px minmax(0, 1fr);
+        gap: 1rem;
+      }
+
+      .episode-image {
+        min-height: 118px;
+        overflow: hidden;
+        background: var(--canvas);
+        border: 1px solid var(--rule);
+      }
+
+      .episode-meta {
+        color: var(--muted);
+        font: 0.61rem var(--mono);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .key-facts {
+        list-style: none;
+        margin: 1.2rem 0 1.6rem;
+        padding: 0;
+        border-top: 1px solid var(--rule);
+      }
+
+      .key-facts li {
+        display: grid;
+        grid-template-columns: 22px minmax(0, 1fr);
+        gap: 0.65rem;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid var(--rule);
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
+
+      .key-facts span:first-child {
+        color: var(--live);
+        font-family: var(--mono);
+      }
+
+      .source-list {
+        border-top: 1px solid var(--rule);
+      }
+
+      .source-row {
+        align-items: flex-start;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .source-row-copy {
+        min-width: 0;
+      }
+
+      .source-row a {
+        color: var(--text);
+        font-size: 0.78rem;
+        font-weight: 600;
+        line-height: 1.3;
+        text-decoration: underline;
+        text-underline-offset: 0.25rem;
+      }
+
+      .source-row p {
+        margin: 0.35rem 0 0;
+        font: 0.63rem var(--mono);
+      }
+
+      .source-row > span {
+        flex: 0 0 auto;
+        color: var(--muted);
+        font: 0.62rem var(--mono);
+      }
+
+      .status-line {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-top: 1rem;
+        color: var(--healthy);
+        font: 600 0.62rem var(--mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .status-line::before {
+        width: 6px;
+        height: 6px;
+        display: block;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+      }
+
+      .rank-page {
+        --rank-rubric: #7477f4;
+        --rank-agency: #34c875;
+        --rank-feed: #e2b534;
+        --rank-source: #ff7728;
+        min-width: 0;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      :root[data-theme="light"] .rank-page {
+        --rank-rubric: #4d50c8;
+        --rank-agency: #167a42;
+        --rank-feed: #9b6d00;
+        --rank-source: #bd4c08;
+      }
+
+      .rank-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 2rem;
+        padding: 1.15rem 1.5rem 1rem;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .rank-heading-title {
+        min-width: 0;
+        flex: 1 1 760px;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 0.75rem;
+      }
+
+      .rank-heading-title h2 {
+        min-width: 0;
+        display: inline-flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+        font-size: 1.45rem;
+        font-weight: 500;
+        letter-spacing: -0.025em;
+      }
+
+      .rank-algorithm {
+        min-width: 0;
+        flex: 1 1 620px;
+        display: inline-grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: baseline;
+        gap: 0.12rem 0.5rem;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        font-weight: 500;
+        letter-spacing: 0;
+        line-height: 1.45;
+      }
+
+      .rank-algorithm-dot {
+        grid-row: 1 / 3;
+        color: var(--muted);
+      }
+
+      .rank-algorithm-formula,
+      .rank-algorithm-note {
+        white-space: normal;
+      }
+
+      .rank-algorithm-formula {
+        color: var(--text);
+      }
+
+      .rank-algorithm-note {
+        grid-column: 2;
+        color: var(--muted);
+        font-size: 0.58rem;
+      }
+
+      .rank-heading-meta {
+        min-width: 0;
+        flex: 0 1 620px;
+        display: grid;
+        justify-items: end;
+        gap: 0.65rem;
+      }
+
+      .rank-context-note {
+        color: var(--muted);
+        font-size: 0.7rem;
+        letter-spacing: 0.045em;
+        text-transform: uppercase;
+      }
+
+      .rank-legend {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 0.45rem 1rem;
+        margin: 0;
+        padding: 0;
+        color: var(--muted);
+        font-size: 0.68rem;
+        list-style: none;
+      }
+
+      .rank-legend li {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        white-space: nowrap;
+      }
+
+      .rank-legend i {
+        width: 18px;
+        height: 7px;
+        display: inline-block;
+        border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+        font-style: normal;
+      }
+
+      .rank-legend .term-rubric,
+      .rank-term-bar .term-rubric {
+        background: var(--rank-rubric);
+      }
+
+      .rank-legend .term-agency,
+      .rank-term-bar .term-agency {
+        background: var(--rank-agency);
+      }
+
+      .rank-legend .term-feed,
+      .rank-term-bar .term-feed {
+        background: var(--rank-feed);
+      }
+
+      .rank-legend .term-source,
+      .rank-term-bar .term-source {
+        background: var(--rank-source);
+      }
+
+      .rank-legend-freshness i {
+        width: auto;
+        height: auto;
+        border: 0;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 0.65rem;
+      }
+
+      .rank-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+      }
+
+      .rank-controls label {
+        min-width: 0;
+        display: grid;
+        gap: 0.45rem;
+        color: var(--muted);
+        font-size: 0.68rem;
+        font-weight: 650;
+        letter-spacing: 0.085em;
+        text-transform: uppercase;
+      }
+
+      .rank-controls select {
+        width: 100%;
+        height: var(--control-height);
+        min-width: 0;
+        padding: 0 0.75rem;
+        border: 1px solid var(--rule);
+        border-radius: 0;
+        background: var(--canvas);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 0.76rem;
+        text-transform: none;
+      }
+
+      .rank-dataset-field output {
+        min-height: var(--control-height);
+        display: flex;
+        align-items: center;
+        padding: 0 0.75rem;
+        border: 1px solid var(--rule);
+        background: color-mix(in srgb, var(--raised) 64%, transparent);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 0.76rem;
+        font-weight: 500;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .rank-controls select:hover {
+        border-color: var(--muted);
+      }
+
+      .rank-controls select:disabled {
+        opacity: 0.62;
+        cursor: wait;
+      }
+
+      .rank-audit-receipt {
+        margin: 0;
+        padding: 0.75rem 1.5rem;
+        background: color-mix(in srgb, var(--raised) 64%, transparent);
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        color: var(--muted);
+        font: 0.7rem/1.5 var(--mono);
+      }
+
+      .rank-audit-receipt code {
+        color: var(--text);
+      }
+
+      .rank-empty {
+        margin: 0;
+        padding: 2rem 1.5rem;
+        border-top: 1px solid var(--rule);
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .rank-table-scroll {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .rank-table {
+        width: 100%;
+        min-width: 1180px;
+        border-collapse: collapse;
+        table-layout: auto;
+        font-size: 0.78rem;
+      }
+
+      .rank-table th,
+      .rank-table td {
+        padding: 0.72rem 0.65rem;
+        border-top: 0;
+        border-bottom: 1px solid var(--rule);
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      .rank-table thead th {
+        padding-top: 0.62rem;
+        padding-bottom: 0.62rem;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.095em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .rank-table tbody tr:hover {
+        background: color-mix(in srgb, var(--raised) 72%, transparent);
+      }
+
+      .rank-position,
+      .rank-key-value,
+      .rank-count,
+      .rank-delta {
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      .rank-position {
+        width: 48px;
+        color: var(--muted);
+        font-size: 0.72rem;
+      }
+
+      .rank-key-value {
+        color: var(--text);
+        font-weight: 650;
+      }
+
+      .rank-count {
+        text-align: center !important;
+      }
+
+      .rank-source-value {
+        min-width: 220px;
+        color: var(--text);
+        font-size: 0.72rem;
+        line-height: 1.35;
+        white-space: normal;
+      }
+
+      .rank-source-value small {
+        color: var(--muted);
+        font: inherit;
+        white-space: nowrap;
+      }
+
+      .rank-headline {
+        width: 38%;
+        min-width: 360px;
+        white-space: normal;
+      }
+
+      .rank-headline button {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--text);
+        font-size: 0.82rem;
+        font-weight: 650;
+        line-height: 1.3;
+        text-align: left;
+        text-decoration: underline;
+        text-decoration-color: color-mix(in srgb, var(--live) 72%, transparent);
+        text-underline-offset: 0.2rem;
+        cursor: pointer;
+      }
+
+      .rank-headline button:hover {
+        color: var(--live);
+      }
+
+      .rank-headline small {
+        max-width: 42rem;
+        display: block;
+        margin-top: 0.3rem;
+        overflow: hidden;
+        color: var(--muted);
+        font-size: 0.7rem;
+        line-height: 1.35;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .rank-term-cell {
+        display: inline-grid;
+        grid-template-columns: 132px auto;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .rank-term-bar {
+        width: 132px;
+        height: 9px;
+        display: inline-flex;
+        overflow: hidden;
+        background: color-mix(in srgb, var(--text) 8%, transparent);
+        border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+      }
+
+      .rank-term-cell small {
+        color: var(--muted);
+        font: 0.66rem var(--mono);
+        white-space: nowrap;
+      }
+
+      .rank-judged,
+      .rank-prior {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.38rem;
+        color: var(--muted);
+        font-size: 0.64rem;
+        font-weight: 700;
+        letter-spacing: 0.075em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .rank-judged::before,
+      .rank-prior::before {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+      }
+
+      .rank-judged {
+        color: var(--healthy);
+      }
+
+      .rank-prior::before {
+        background: transparent;
+        border: 1px solid currentColor;
+      }
+
+      .rank-rubric {
+        min-width: 210px;
+        white-space: normal;
+      }
+
+      .rank-chip {
+        display: inline-block;
+        margin: 0.12rem 0.18rem 0.12rem 0;
+        padding: 0.15rem 0.38rem;
+        border: 1px solid var(--rule);
+        color: var(--muted);
+        font-size: 0.61rem;
+        letter-spacing: 0.045em;
+        line-height: 1.35;
+        text-transform: uppercase;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (max-width: 1180px) {
+        .app-header {
+          grid-template-columns: 1fr auto;
+        }
+
+        .app-header nav {
+          grid-column: 1 / -1;
+          order: 3;
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-top: 0.55rem;
+          border-top: 1px solid var(--rule);
+        }
+
+        .intro-content {
+          grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+        }
+
+        .rank-heading {
+          flex-direction: column;
+        }
+
+        .rank-heading-meta {
+          justify-items: start;
+        }
+
+        .rank-legend {
+          justify-content: flex-start;
+        }
+
+        .rank-controls {
+          grid-template-columns: 1fr 1fr;
+        }
+
+      }
+
+      @media (max-width: 900px) {
+        .app-shell {
+          border: 0;
+        }
+
+        .app-header {
+          position: static;
+          gap: 0.7rem;
+          padding: 0.8rem;
+        }
+
+        .page-intro {
+          grid-template-columns: 1fr;
+          gap: 2.5rem;
+        }
+
+        .intro-content {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        .product-view {
+          grid-template-columns: 1fr;
+        }
+
+        .event-card,
+        .event-card.featured,
+        .event-card.featured + .event-card {
+          grid-column: 1;
+          border-right: 0;
+          border-bottom: 1px solid var(--rule);
+        }
+
+        .event-card:nth-last-child(-n + 2) {
+          border-bottom: 1px solid var(--rule);
+        }
+
+        .event-card:last-child {
+          border-bottom: 0;
+        }
+
+        .event-image,
+        .featured .event-image {
+          min-height: 280px;
+        }
+
+        .story-dialog {
+          width: calc(100vw - 2rem);
+          height: calc(100vh - 2rem);
+        }
+
+        .dialog-layout {
+          grid-template-columns: 1fr;
+          overflow-y: auto;
+        }
+
+        .chain-pane,
+        .synthesis-pane {
+          overflow: visible;
+        }
+
+        .chain-pane {
+          border-right: 0;
+          border-bottom: 1px solid var(--rule);
+        }
+      }
+
+      @media (max-width: 680px) {
+        .brand b,
+        .environment {
+          display: none;
+        }
+
+        .header-actions {
+          gap: 0;
+        }
+
+        .page-intro {
+          min-height: 0;
+          padding: 2rem 1rem;
+        }
+
+        h1 {
+          font-size: clamp(3.3rem, 19vw, 5.2rem);
+        }
+
+        .workspace {
+          padding-inline: 0;
+        }
+
+        .section-heading,
+        .toolbar {
+          margin-inline: 1rem;
+        }
+
+        .section-heading {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .view-switcher,
+        .view-button {
+          width: 100%;
+        }
+
+        .facet-row {
+          grid-template-columns: 86px minmax(0, 1fr);
+        }
+
+        .facet-label {
+          padding-left: 0.75rem;
+          font-size: 0.58rem;
+        }
+
+        .toolbar {
+          grid-template-columns: 1fr;
+          align-items: start;
+        }
+
+        .sort-field {
+          width: 100%;
+          grid-template-columns: 74px minmax(0, 1fr);
+        }
+
+        .clear-button {
+          width: 100%;
+        }
+
+        .event-card-body {
+          padding: 1.15rem;
+        }
+
+        .episode-card {
+          grid-template-columns: 82px minmax(0, 1fr);
+        }
+
+        .episode-image {
+          min-height: 92px;
+        }
+
+        .dialog-header,
+        .chain-pane,
+        .synthesis-pane {
+          padding: 1rem;
+        }
+
+        .demo-footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .rank-heading,
+        .rank-controls,
+        .rank-audit-receipt {
+          padding-inline: 1rem;
+        }
+
+        .rank-heading-title {
+          grid-template-columns: 28px minmax(0, 1fr);
+        }
+
+        .rank-controls {
+          grid-template-columns: 1fr;
+        }
+
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#storyline-results">Skip to storylines</a>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="brand" href="#top" aria-label="Dot Gov News storylines demo">
+          <span aria-hidden="true" class="brand-mark"><i></i><i></i><i></i></span>
+          <span>Dot Gov News <b id="brandSection">/ Storylines</b></span>
+        </a>
+        <nav aria-label="Primary navigation">
+          <a href="#top">Overview</a>
+          <a href="#top">Inventory</a>
+          <a href="#ranking" data-page="ranking">Ranking</a>
+          <a class="active" href="#storyline-results" data-page="storylines" aria-current="page">Storylines</a>
+        </nav>
+        <div class="header-actions">
+          <button
+            aria-label="Use light theme"
+            class="theme-button"
+            id="themeToggle"
+            type="button"
+          >
+            ○
+          </button>
+          <span class="environment">Demo edition</span>
+        </div>
+      </header>
+
+      <main id="top">
+        <div id="storylinesPage" data-page-panel="storylines">
+          <section class="page-intro" aria-labelledby="pageTitle">
+          <span class="section-index">04 / Reviewed output</span>
+          <div class="intro-content">
+            <div class="intro-copy">
+              <p class="eyebrow">Public information, connected over time</p>
+              <h1 id="pageTitle">Storylines</h1>
+              <p>
+                Follow related government updates as one evolving event. This demo
+                shows reviewed golden records only, presented as they would have
+                appeared on the selected date.
+              </p>
+            </div>
+
+            <section class="date-simulator" aria-labelledby="dateSimulatorLabel">
+              <header>
+                <span class="micro-label" id="dateSimulatorLabel">Simulated publication date</span>
+                <time class="as-of-value" id="asOfValue" datetime="2026-07-19">Jul 19, 2026</time>
+              </header>
+              <div class="date-control-row">
+                <input
+                  aria-label="Simulated publication date"
+                  id="dateRange"
+                  max="4"
+                  min="0"
+                  step="1"
+                  type="range"
+                  value="4"
+                />
+                <button class="primary-button" id="advanceDate" type="button">
+                  Advance date →
+                </button>
+              </div>
+              <div class="date-ticks" aria-hidden="true">
+                <span>Jul 15</span><span>Jul 16</span><span>Jul 17</span>
+                <span>Jul 18</span><span>Jul 19</span>
+              </div>
+            </section>
+          </div>
+          </section>
+
+          <section class="workspace" id="storyline-results" aria-labelledby="resultsTitle">
+          <header class="section-heading">
+            <div>
+              <p class="eyebrow">Browse the current brief</p>
+              <h2 id="resultsTitle">Reviewed storylines</h2>
+            </div>
+            <div class="view-switcher" aria-label="Choose storylines view">
+              <button
+                aria-pressed="true"
+                class="view-button"
+                data-view="product"
+                type="button"
+              >
+                Product view
+              </button>
+              <button
+                aria-pressed="false"
+                class="view-button"
+                data-view="table"
+                type="button"
+              >
+                Table view
+              </button>
+            </div>
+          </header>
+
+          <div class="filter-deck" aria-label="Storyline filters">
+            <div class="facet-row">
+              <span class="facet-label" id="agencyLabel">Agency</span>
+              <div class="pill-rail" id="agencyFilters" aria-labelledby="agencyLabel"></div>
+            </div>
+            <div class="facet-row">
+              <span class="facet-label" id="categoryLabel">Category</span>
+              <div class="pill-rail" id="categoryFilters" aria-labelledby="categoryLabel"></div>
+            </div>
+            <div class="facet-row">
+              <span class="facet-label" id="themeLabel">Theme</span>
+              <div class="pill-rail" id="themeFilters" aria-labelledby="themeLabel"></div>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="result-copy" aria-live="polite" id="resultCount"></div>
+            <div class="sort-field">
+              <label for="sortSelect">Sort by</label>
+              <select id="sortSelect">
+                <option value="rank">Rank key</option>
+                <option value="newest">Newest update</option>
+                <option value="episodes">Episode count</option>
+                <option value="title">Title A–Z</option>
+              </select>
+            </div>
+            <button class="clear-button" id="clearFilters" hidden type="button">
+              Clear selected filters
+            </button>
+          </div>
+
+          <div class="product-view" id="productView"></div>
+
+          <div class="table-view" id="tableView" hidden>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Rank key</th>
+                  <th scope="col">Storyline</th>
+                  <th scope="col">Agencies</th>
+                  <th scope="col">Category / Theme</th>
+                  <th scope="col">Episodes</th>
+                  <th scope="col">Articles</th>
+                  <th scope="col">Newest</th>
+                  <th scope="col">Review</th>
+                </tr>
+              </thead>
+              <tbody id="storyTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="empty-state" id="emptyState" hidden>
+            <div>
+              <strong>No reviewed storylines match this combination.</strong>
+              <span>Remove one or more filters to broaden the current brief.</span><br />
+              <button class="secondary-button" id="emptyClear" type="button">Clear filters</button>
+            </div>
+          </div>
+          </section>
+        </div>
+
+        <section class="rank-page" id="ranking" data-page-panel="ranking" hidden aria-labelledby="rankingTitle">
+          <header class="rank-heading">
+            <div class="rank-heading-title">
+              <span class="section-index">R</span>
+              <div>
+                <h2 id="rankingTitle">
+                  Ranking
+                  <span class="rank-algorithm">
+                    <span aria-hidden="true" class="rank-algorithm-dot">·</span>
+                    <span class="rank-algorithm-formula">rank_key = rubric_points + 0.5×ln(1+agencies) + 0.5×ln(1+feeds) + ln(max(source_weight, 0.001)) + epoch(newest_at) / τ</span>
+                    <span class="rank-algorithm-note">rubric_points = Σ enabled weights · unjudged prior = 0.5×Σ all weights · rubric v1 · τ=124,600s</span>
+                  </span>
+                </h2>
+              </div>
+            </div>
+            <div class="rank-heading-meta">
+              <span class="rank-context-note" id="rankContextNote">Reviewed golden dataset · frozen canonical ranking</span>
+              <ul aria-label="Score composition color key" class="rank-legend">
+                <li><i class="term-rubric" aria-hidden="true"></i>Rubric</li>
+                <li><i class="term-agency" aria-hidden="true"></i>Agency</li>
+                <li><i class="term-feed" aria-hidden="true"></i>Feed diversity</li>
+                <li><i class="term-source" aria-hidden="true"></i>Source weight</li>
+                <li class="rank-legend-freshness"><i aria-hidden="true">+t</i>Freshness</li>
+              </ul>
+            </div>
+          </header>
+
+          <div class="rank-controls rank-controls-dataset">
+            <label>
+              <span>Scope</span>
+              <select id="rankScope" aria-label="Scope">
+                <option value="dataset">Reviewed dataset</option>
+                <option value="run">Experiment run</option>
+              </select>
+            </label>
+            <label class="rank-dataset-field" id="rankDatasetField">
+              <span>Dataset</span>
+              <output id="rankDatasetOutput">Reviewed golden · 12 storylines</output>
+            </label>
+            <label id="rankRunField" hidden>
+              <span>Run</span>
+              <select id="rankRun" aria-label="Run">
+                <option value="current">demo-reviewed-golden · Jul 19, 2026 2:15 PM</option>
+                <option value="prior">demo-reviewed-golden · Jul 18, 2026 2:15 PM</option>
+              </select>
+            </label>
+            <label id="rankCompareField" hidden>
+              <span>Compare with</span>
+              <select id="rankCompare" aria-label="Compare with">
+                <option value="">(none)</option>
+                <option value="prior">prior demo snapshot · Jul 18</option>
+              </select>
+            </label>
+            <label>
+              <span>Agency</span>
+              <select id="rankAgency" aria-label="Agency"></select>
+            </label>
+            <label>
+              <span>Category</span>
+              <select id="rankCategory" aria-label="Category"></select>
+            </label>
+            <label>
+              <span>Theme</span>
+              <select id="rankTheme" aria-label="Theme"></select>
+            </label>
+          </div>
+
+          <p class="rank-audit-receipt" id="rankAuditReceipt">
+            canonical source: demo-reviewed-golden · golden-demo-2026-07-19 · reviewed Jul 19, 2026 2:15 PM · 12 ranked cards
+          </p>
+          <p class="rank-audit-receipt" id="rankRunAuditReceipt" hidden>
+            audit: 36 pairs · agreement 89% · τ 0.84 · inconsistent 3%
+          </p>
+          <p class="rank-empty" id="rankEmpty" hidden>No ranked storylines match these filters.</p>
+
+          <div class="rank-table-scroll" id="rankTableScroll">
+            <table class="rank-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col" class="rank-delta-heading" hidden>Δ</th>
+                  <th scope="col">Headline</th>
+                  <th scope="col">rank_key</th>
+                  <th scope="col">Score makeup</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">Agencies</th>
+                  <th scope="col">Feeds</th>
+                  <th scope="col">Entries</th>
+                  <th scope="col">Rubric basis</th>
+                  <th scope="col">Criteria</th>
+                </tr>
+              </thead>
+              <tbody id="rankTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="demo-footer">
+        <span>Illustrative content · interaction and layout reference</span>
+        <span>Source policy: reviewed golden rows only</span>
+      </footer>
+    </div>
+
+    <dialog class="story-dialog" id="storyDialog" aria-labelledby="dialogTitle">
+      <header class="dialog-header">
+        <div class="dialog-header-copy">
+          <p class="eyebrow" id="dialogEyebrow">Storyline preview</p>
+          <h2 id="dialogTitle"></h2>
+          <div class="taxonomy" id="dialogTaxonomy"></div>
+        </div>
+        <button class="dialog-close" id="dialogClose" type="button" aria-label="Close storyline preview">
+          ×
+        </button>
+      </header>
+      <div class="dialog-layout">
+        <section class="chain-pane" aria-labelledby="chainHeading">
+          <div class="pane-heading" id="chainHeading">Overview + episode chain</div>
+          <div id="chainContent"></div>
+        </section>
+        <aside class="synthesis-pane" aria-labelledby="synthesisHeading">
+          <div class="pane-heading" id="synthesisHeading">Article synthesis</div>
+          <div id="synthesisContent"></div>
+        </aside>
+      </div>
+    </dialog>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var dates = [
+          "2026-07-15",
+          "2026-07-16",
+          "2026-07-17",
+          "2026-07-18",
+          "2026-07-19"
+        ];
+
+        var storylines = [
+          {
+            id: "bridge-grants",
+            firstSeen: "2026-07-15",
+            agencies: ["DOT", "FHWA"],
+            category: "Infrastructure",
+            theme: "Capital investment",
+            art: "bridge",
+            imageAlt: "Graphic study of a bridge crossing a river",
+            imageCredit: "Demo image · DOT",
+            episodes: [
+              {
+                date: "2026-07-15",
+                title: "Notice of funding opportunity opens",
+                summary: "The department opened the next bridge investment grant round and published eligibility requirements for state, local, and tribal applicants.",
+                articles: 3
+              },
+              {
+                date: "2026-07-18",
+                title: "Technical assistance calendar added",
+                summary: "New webinars and office hours explain benefit-cost analysis, resilience criteria, and the application schedule.",
+                articles: 2
+              }
+            ],
+            articles: [
+              {
+                title: "Bridge Investment Program grant applications open",
+                agency: "U.S. Department of Transportation",
+                date: "Jul 15",
+                url: "https://www.transportation.gov/briefing-room"
+              },
+              {
+                title: "FHWA publishes applicant guide and scoring criteria",
+                agency: "Federal Highway Administration",
+                date: "Jul 16",
+                url: "https://highways.dot.gov/newsroom"
+              },
+              {
+                title: "Technical assistance sessions announced",
+                agency: "U.S. Department of Transportation",
+                date: "Jul 18",
+                url: "https://www.transportation.gov/briefing-room"
+              }
+            ],
+            versions: [
+              {
+                generatedAt: "2026-07-15",
+                rankKey: 0.914,
+                headline: "Federal bridge grant round opens for state and local projects",
+                overview: "Transportation agencies opened a new bridge investment round, giving public applicants a defined path to fund replacement, rehabilitation, and resilience work.",
+                synthesis: "The available notices establish who may apply, the project types in scope, and the first major deadlines. Later guidance adds hands-on support for applicants preparing technical and benefit-cost materials.",
+                facts: [
+                  "Eligible applicants include states, local governments, federal land agencies, and tribal governments.",
+                  "Awards can support bridge replacement, rehabilitation, preservation, and planning.",
+                  "Initial application materials emphasize measurable safety, mobility, and resilience outcomes."
+                ]
+              },
+              {
+                generatedAt: "2026-07-18",
+                rankKey: 0.942,
+                headline: "Bridge grant round expands with application support and office hours",
+                overview: "A federal bridge funding round now pairs the core notice with a technical-assistance schedule, helping public agencies translate local bridge needs into competitive applications.",
+                synthesis: "Across the notices, the practical change is the addition of applicant support. The funding scope remains focused on bridge condition and resilience, while webinars and office hours clarify scoring, benefit-cost expectations, and timing.",
+                facts: [
+                  "The grant round remains open to state, local, tribal, and federal land-management applicants.",
+                  "Technical sessions now cover benefit-cost analysis and resilience scoring.",
+                  "The application timeline includes staged deadlines for planning and construction proposals."
+                ]
+              }
+            ]
+          },
+          {
+            id: "hurricane-outlook",
+            firstSeen: "2026-07-16",
+            agencies: ["NOAA", "FEMA"],
+            category: "Climate",
+            theme: "Emergency preparedness",
+            art: "storm",
+            imageAlt: "Graphic study of a coastal storm system",
+            imageCredit: "Demo image · NOAA",
+            episodes: [
+              {
+                date: "2026-07-16",
+                title: "Seasonal preparedness bulletin issued",
+                summary: "Federal forecasters highlighted elevated coastal risk and urged households and local officials to review evacuation and communication plans.",
+                articles: 4
+              },
+              {
+                date: "2026-07-19",
+                title: "Coastal briefing adds local readiness actions",
+                summary: "An updated briefing connects the seasonal outlook with shelter, flood-map, and emergency-alert resources.",
+                articles: 3
+              }
+            ],
+            articles: [
+              {
+                title: "Updated Atlantic hurricane season outlook",
+                agency: "National Oceanic and Atmospheric Administration",
+                date: "Jul 16",
+                url: "https://www.noaa.gov/news"
+              },
+              {
+                title: "Prepare now for coastal hazards",
+                agency: "Federal Emergency Management Agency",
+                date: "Jul 17",
+                url: "https://www.fema.gov/press-releases"
+              },
+              {
+                title: "Local readiness actions for coastal communities",
+                agency: "National Oceanic and Atmospheric Administration",
+                date: "Jul 19",
+                url: "https://www.noaa.gov/news"
+              }
+            ],
+            versions: [
+              {
+                generatedAt: "2026-07-16",
+                rankKey: 0.872,
+                headline: "Federal agencies urge early preparation for elevated coastal storm risk",
+                overview: "A seasonal outlook and preparedness bulletin align federal forecasting with practical steps for households and coastal communities.",
+                synthesis: "The initial guidance combines NOAA risk framing with FEMA preparedness actions. It emphasizes that seasonal probability is not a local forecast and that readiness work should happen before a storm is named.",
+                facts: [
+                  "The outlook describes above-normal activity as a seasonal probability, not a landfall prediction.",
+                  "Households are advised to review evacuation routes, insurance coverage, medications, and communication plans.",
+                  "Local officials are directed to current alerting, shelter, and flood-risk resources."
+                ]
+              },
+              {
+                generatedAt: "2026-07-19",
+                rankKey: 0.901,
+                headline: "Coastal storm guidance shifts from seasonal outlook to local readiness",
+                overview: "Federal storm guidance now connects the broad seasonal outlook to concrete local actions, including alerts, evacuation planning, shelter information, and flood-risk checks.",
+                synthesis: "The newest materials make the storyline more actionable. NOAA continues to supply the risk context, while FEMA and coastal briefings translate it into decisions residents and local governments can make now.",
+                facts: [
+                  "Residents should confirm how local emergency alerts are delivered before severe weather develops.",
+                  "Evacuation and shelter information varies by locality and should be checked directly with local officials.",
+                  "Flood risk can extend beyond mapped coastal zones and should be considered separately from wind risk."
+                ]
+              }
+            ]
+          },
+          {
+            id: "cisa-logging",
+            firstSeen: "2026-07-17",
+            agencies: ["CISA"],
+            category: "Technology",
+            theme: "Cybersecurity",
+            art: "network",
+            imageAlt: "Graphic study of connected government network nodes",
+            imageCredit: "Demo image · CISA",
+            episodes: [
+              {
+                date: "2026-07-17",
+                title: "Baseline logging guidance published",
+                summary: "The guidance prioritizes identity, administrative, cloud, and endpoint logs that help organizations reconstruct security events.",
+                articles: 3
+              }
+            ],
+            articles: [
+              {
+                title: "CISA publishes baseline event logging guidance",
+                agency: "Cybersecurity and Infrastructure Security Agency",
+                date: "Jul 17",
+                url: "https://www.cisa.gov/news-events"
+              },
+              {
+                title: "Implementation companion for resource-constrained teams",
+                agency: "Cybersecurity and Infrastructure Security Agency",
+                date: "Jul 17",
+                url: "https://www.cisa.gov/resources-tools"
+              }
+            ],
+            versions: [
+              {
+                generatedAt: "2026-07-17",
+                rankKey: 0.887,
+                headline: "CISA sets a practical baseline for security event logging",
+                overview: "New guidance narrows a broad logging problem into a prioritized set of records that organizations can retain, protect, and use during incident response.",
+                synthesis: "The documents focus less on collecting every possible signal and more on retaining the records most likely to explain access, privilege changes, cloud activity, and endpoint behavior during an investigation.",
+                facts: [
+                  "Identity and administrative activity are treated as high-value sources for incident reconstruction.",
+                  "Organizations should protect logs from alteration and align retention with investigative needs.",
+                  "The companion guide offers a staged path for teams with limited staff or storage."
+                ]
+              }
+            ]
+          },
+          {
+            id: "respiratory-outlook",
+            firstSeen: "2026-07-18",
+            agencies: ["CDC", "HHS"],
+            category: "Public health",
+            theme: "Disease surveillance",
+            art: "health",
+            imageAlt: "Graphic study of a public health surveillance waveform",
+            imageCredit: "Demo image · CDC",
+            episodes: [
+              {
+                date: "2026-07-18",
+                title: "Seasonal respiratory outlook updated",
+                summary: "The outlook combines hospital, laboratory, and wastewater signals to describe several plausible paths for the coming respiratory season.",
+                articles: 4
+              }
+            ],
+            articles: [
+              {
+                title: "Respiratory disease season outlook",
+                agency: "Centers for Disease Control and Prevention",
+                date: "Jul 18",
+                url: "https://www.cdc.gov/media"
+              },
+              {
+                title: "How health systems can use scenario ranges",
+                agency: "U.S. Department of Health and Human Services",
+                date: "Jul 18",
+                url: "https://www.hhs.gov/about/news"
+              }
+            ],
+            versions: [
+              {
+                generatedAt: "2026-07-18",
+                rankKey: 0.851,
+                headline: "Federal outlook frames the next respiratory season as a range of scenarios",
+                overview: "Public-health agencies are presenting the coming respiratory season through scenarios rather than a single forecast, giving health systems a clearer way to plan for uncertainty.",
+                synthesis: "The outlook uses several surveillance streams to frame a plausible range of demand. Its main operational message is to prepare for more than one trajectory and update plans as hospital, lab, and wastewater signals change.",
+                facts: [
+                  "The outlook is scenario-based and should not be read as a precise national forecast.",
+                  "Hospital, laboratory, and wastewater data provide complementary signals.",
+                  "Health systems are encouraged to plan staffing and capacity against a range of possible peaks."
+                ]
+              }
+            ]
+          },
+          {
+            id: "wildfire-assistance",
+            firstSeen: "2026-07-19",
+            agencies: ["USDA", "FEMA"],
+            category: "Public lands",
+            theme: "Disaster recovery",
+            art: "wildfire",
+            imageAlt: "Graphic study of wildfire recovery in a forest landscape",
+            imageCredit: "Demo image · USDA",
+            episodes: [
+              {
+                date: "2026-07-19",
+                title: "Post-fire assistance portal consolidated",
+                summary: "A consolidated resource page directs landowners and rural communities to debris, watershed, livestock, and emergency conservation programs.",
+                articles: 5
+              }
+            ],
+            articles: [
+              {
+                title: "Post-fire assistance for rural communities and landowners",
+                agency: "U.S. Department of Agriculture",
+                date: "Jul 19",
+                url: "https://www.usda.gov/about-usda/news"
+              },
+              {
+                title: "Federal disaster assistance and recovery resources",
+                agency: "Federal Emergency Management Agency",
+                date: "Jul 19",
+                url: "https://www.fema.gov/press-releases"
+              }
+            ],
+            versions: [
+              {
+                generatedAt: "2026-07-19",
+                rankKey: 0.826,
+                headline: "Federal wildfire recovery resources consolidate around land and water needs",
+                overview: "A new assistance package organizes post-fire help around immediate rural needs, from livestock and debris to watershed stabilization and longer-term land recovery.",
+                synthesis: "The materials bring several programs into one navigable storyline. USDA resources lead on agricultural and conservation needs, while FEMA material explains the broader disaster-assistance process and local coordination.",
+                facts: [
+                  "Available programs address livestock losses, damaged fencing, debris, watershed risk, and emergency conservation.",
+                  "Eligibility, deadlines, and required documentation vary by program and declared area.",
+                  "Applicants are directed to preserve records and coordinate with local service centers early."
+                ]
+              }
+            ]
+          }
+        ];
+
+        var agencyNames = {
+          CDC: "Centers for Disease Control and Prevention",
+          CISA: "Cybersecurity and Infrastructure Security Agency",
+          DOE: "U.S. Department of Energy",
+          DOT: "U.S. Department of Transportation",
+          ED: "U.S. Department of Education",
+          EPA: "U.S. Environmental Protection Agency",
+          FEMA: "Federal Emergency Management Agency",
+          FERC: "Federal Energy Regulatory Commission",
+          FHWA: "Federal Highway Administration",
+          HHS: "U.S. Department of Health and Human Services",
+          IRS: "Internal Revenue Service",
+          NOAA: "National Oceanic and Atmospheric Administration",
+          NPS: "National Park Service",
+          SBA: "U.S. Small Business Administration",
+          Treasury: "U.S. Department of the Treasury",
+          USDA: "U.S. Department of Agriculture",
+          VA: "U.S. Department of Veterans Affairs"
+        };
+
+        function agencyName(code) {
+          return agencyNames[code] || code;
+        }
+
+        function makeDemoStory(config) {
+          var displayDate = "Jul " + Number(config.firstSeen.slice(-2));
+          return {
+            id: config.id,
+            firstSeen: config.firstSeen,
+            agencies: config.agencies,
+            category: config.category,
+            theme: config.theme,
+            art: config.art,
+            imageAlt: config.imageAlt,
+            imageCredit: "Demo image · " + agencyName(config.agencies[0]),
+            episodes: [
+              {
+                date: config.firstSeen,
+                title: config.episodeTitle,
+                summary: config.overview,
+                articles: 2
+              }
+            ],
+            articles: [
+              {
+                title: config.sourceTitle,
+                agency: agencyName(config.agencies[0]),
+                date: displayDate,
+                url: config.url
+              },
+              {
+                title: config.companionTitle,
+                agency: agencyName(config.agencies[config.agencies.length - 1]),
+                date: displayDate,
+                url: config.url
+              }
+            ],
+            versions: [
+              {
+                generatedAt: config.firstSeen,
+                rankKey: config.rankKey,
+                headline: config.headline,
+                overview: config.overview,
+                synthesis: config.synthesis,
+                facts: config.facts
+              }
+            ]
+          };
+        }
+
+        storylines = storylines.concat([
+          makeDemoStory({
+            id: "water-infrastructure",
+            firstSeen: "2026-07-15",
+            agencies: ["EPA"],
+            category: "Environment",
+            theme: "Drinking water",
+            art: "health",
+            imageAlt: "Graphic study of water infrastructure monitoring",
+            rankKey: 0.809,
+            headline: "EPA directs new water infrastructure funds toward small and disadvantaged systems",
+            overview: "A new funding notice emphasizes drinking-water upgrades, lead service-line work, and technical help for systems with limited local capacity.",
+            episodeTitle: "Water infrastructure allocation published",
+            sourceTitle: "Drinking water infrastructure funding allocation",
+            companionTitle: "Technical assistance for small water systems",
+            url: "https://www.epa.gov/newsreleases",
+            synthesis: "The paired notices connect capital funding with hands-on assistance so smaller systems can complete planning, compliance, and construction work.",
+            facts: [
+              "Priority areas include lead service lines, contaminants, and aging treatment infrastructure.",
+              "Small and disadvantaged systems can use technical-assistance providers during planning.",
+              "State-level program rules determine project sequencing and final awards."
+            ]
+          }),
+          makeDemoStory({
+            id: "small-business-recovery",
+            firstSeen: "2026-07-15",
+            agencies: ["SBA", "FEMA"],
+            category: "Economy",
+            theme: "Small business recovery",
+            art: "bridge",
+            imageAlt: "Graphic study of storefront recovery and public assistance",
+            rankKey: 0.795,
+            headline: "Disaster loan guidance gives small businesses a clearer recovery sequence",
+            overview: "Updated federal guidance organizes the first recovery steps for affected businesses, including damage documentation, insurance coordination, and loan applications.",
+            episodeTitle: "Small-business recovery checklist released",
+            sourceTitle: "Disaster assistance for businesses and nonprofits",
+            companionTitle: "Documenting losses after a declared disaster",
+            url: "https://www.sba.gov/article",
+            synthesis: "The guidance presents federal disaster lending as one part of a broader recovery process and clarifies which records applicants should assemble early.",
+            facts: [
+              "Businesses should preserve damage, insurance, payroll, and ownership records.",
+              "Loan eligibility and deadlines depend on the disaster declaration.",
+              "Applicants may coordinate SBA lending with other eligible recovery assistance."
+            ]
+          }),
+          makeDemoStory({
+            id: "grid-reliability",
+            firstSeen: "2026-07-16",
+            agencies: ["DOE", "FERC"],
+            category: "Energy",
+            theme: "Grid resilience",
+            art: "network",
+            imageAlt: "Graphic study of connected electric grid nodes",
+            rankKey: 0.833,
+            headline: "Federal grid guidance focuses resilience planning on extreme-weather operations",
+            overview: "Energy agencies are aligning reliability planning around severe-weather scenarios, interregional coordination, and the performance of critical grid assets.",
+            episodeTitle: "Extreme-weather grid guidance published",
+            sourceTitle: "Planning considerations for grid resilience",
+            companionTitle: "Reliability coordination during extreme weather",
+            url: "https://www.energy.gov/articles",
+            synthesis: "The documents connect long-range resilience investment with operational coordination, emphasizing scenario planning and shared assumptions across regions.",
+            facts: [
+              "Planning scenarios should include compound and region-spanning weather events.",
+              "Transmission and generation assumptions need consistent regional treatment.",
+              "Critical asset performance should be tested against realistic operating conditions."
+            ]
+          }),
+          makeDemoStory({
+            id: "veterans-benefits",
+            firstSeen: "2026-07-16",
+            agencies: ["VA"],
+            category: "Veterans",
+            theme: "Benefits access",
+            art: "bridge",
+            imageAlt: "Graphic study of a pathway connecting veterans to benefits",
+            rankKey: 0.784,
+            headline: "Veterans benefits update consolidates claims help and appointment access",
+            overview: "A revised service guide brings claims support, health enrollment, and appointment pathways into one clearer entry point for veterans and caregivers.",
+            episodeTitle: "Unified benefits access guide released",
+            sourceTitle: "How to access VA benefits and health services",
+            companionTitle: "Claims and appointment support options",
+            url: "https://news.va.gov/",
+            synthesis: "The materials reduce navigation friction by grouping common tasks and identifying when online, phone, or in-person assistance is appropriate.",
+            facts: [
+              "Veterans can begin several claims and enrollment tasks online.",
+              "Accredited representatives remain available for claims assistance.",
+              "Urgent health needs follow a separate access path from routine appointments."
+            ]
+          }),
+          makeDemoStory({
+            id: "park-access",
+            firstSeen: "2026-07-17",
+            agencies: ["NPS"],
+            category: "Public lands",
+            theme: "Visitor access",
+            art: "wildfire",
+            imageAlt: "Graphic study of trail and visitor access improvements",
+            rankKey: 0.768,
+            headline: "National parks publish a coordinated set of summer access improvements",
+            overview: "Visitor updates connect shuttle changes, trail accessibility work, reservation guidance, and heat-safety information across several high-use parks.",
+            episodeTitle: "Summer visitor access bulletin published",
+            sourceTitle: "Summer access and reservation updates",
+            companionTitle: "Accessible trails and shuttle service improvements",
+            url: "https://www.nps.gov/orgs/1207/news.htm",
+            synthesis: "The updates are most useful when read together: transportation, reservations, accessible routes, and weather safety all affect whether a visit is workable.",
+            facts: [
+              "Shuttle and reservation rules vary by park and date.",
+              "Accessibility updates identify both completed work and temporary constraints.",
+              "Visitors should check current heat, smoke, and trail conditions before arrival."
+            ]
+          }),
+          makeDemoStory({
+            id: "digital-filing",
+            firstSeen: "2026-07-18",
+            agencies: ["IRS", "Treasury"],
+            category: "Economy",
+            theme: "Tax administration",
+            art: "network",
+            imageAlt: "Graphic study of a secure digital filing network",
+            rankKey: 0.812,
+            headline: "Federal tax filing updates expand digital account and correction tools",
+            overview: "New guidance groups several online account, document, and correction improvements into a clearer picture of how taxpayers can resolve common filing issues.",
+            episodeTitle: "Digital filing service update released",
+            sourceTitle: "Online account and filing service improvements",
+            companionTitle: "Guidance for correcting common filing issues",
+            url: "https://www.irs.gov/newsroom",
+            synthesis: "The changes shift more routine follow-up work into authenticated online tools while preserving phone and in-person routes for cases that need staff review.",
+            facts: [
+              "Authenticated accounts expose more notices and document history.",
+              "Not every correction can be completed online.",
+              "Taxpayers should use official account links rather than email or text prompts."
+            ]
+          }),
+          makeDemoStory({
+            id: "student-safety",
+            firstSeen: "2026-07-19",
+            agencies: ["ED", "HHS"],
+            category: "Education",
+            theme: "Student safety",
+            art: "health",
+            imageAlt: "Graphic study of student health and school safety signals",
+            rankKey: 0.758,
+            headline: "School safety resources connect emergency planning with student mental health",
+            overview: "A combined federal resource set frames school safety as both operational preparedness and sustained support for student well-being.",
+            episodeTitle: "School safety resource collection updated",
+            sourceTitle: "Emergency planning resources for schools",
+            companionTitle: "Student mental-health supports and referral guidance",
+            url: "https://www.ed.gov/about/news",
+            synthesis: "The guidance avoids treating physical security and student well-being as separate systems, instead connecting planning, communication, training, and referral pathways.",
+            facts: [
+              "Emergency plans should define communication and reunification responsibilities.",
+              "Training should include staff roles, accessibility needs, and family communication.",
+              "Mental-health supports require clear referral and escalation pathways."
+            ]
+          })
+        ]);
+
+        var state = {
+          dateIndex: dates.length - 1,
+          page: "storylines",
+          view: "product",
+          sort: "rank",
+          filters: {
+            agency: new Set(),
+            category: new Set(),
+            theme: new Set()
+          }
+        };
+
+        var els = {
+          brandSection: document.getElementById("brandSection"),
+          themeToggle: document.getElementById("themeToggle"),
+          dateRange: document.getElementById("dateRange"),
+          asOfValue: document.getElementById("asOfValue"),
+          advanceDate: document.getElementById("advanceDate"),
+          agencyFilters: document.getElementById("agencyFilters"),
+          categoryFilters: document.getElementById("categoryFilters"),
+          themeFilters: document.getElementById("themeFilters"),
+          sortSelect: document.getElementById("sortSelect"),
+          clearFilters: document.getElementById("clearFilters"),
+          resultCount: document.getElementById("resultCount"),
+          productView: document.getElementById("productView"),
+          tableView: document.getElementById("tableView"),
+          storyTableBody: document.getElementById("storyTableBody"),
+          emptyState: document.getElementById("emptyState"),
+          emptyClear: document.getElementById("emptyClear"),
+          storyDialog: document.getElementById("storyDialog"),
+          dialogClose: document.getElementById("dialogClose"),
+          dialogTitle: document.getElementById("dialogTitle"),
+          dialogEyebrow: document.getElementById("dialogEyebrow"),
+          dialogTaxonomy: document.getElementById("dialogTaxonomy"),
+          chainContent: document.getElementById("chainContent"),
+          synthesisContent: document.getElementById("synthesisContent"),
+          rankScope: document.getElementById("rankScope"),
+          rankContextNote: document.getElementById("rankContextNote"),
+          rankDatasetField: document.getElementById("rankDatasetField"),
+          rankDatasetOutput: document.getElementById("rankDatasetOutput"),
+          rankRunField: document.getElementById("rankRunField"),
+          rankRun: document.getElementById("rankRun"),
+          rankCompareField: document.getElementById("rankCompareField"),
+          rankCompare: document.getElementById("rankCompare"),
+          rankAgency: document.getElementById("rankAgency"),
+          rankCategory: document.getElementById("rankCategory"),
+          rankTheme: document.getElementById("rankTheme"),
+          rankAuditReceipt: document.getElementById("rankAuditReceipt"),
+          rankRunAuditReceipt: document.getElementById("rankRunAuditReceipt"),
+          rankEmpty: document.getElementById("rankEmpty"),
+          rankTableScroll: document.getElementById("rankTableScroll"),
+          rankTableBody: document.getElementById("rankTableBody")
+        };
+
+        function escapeHTML(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function formatDate(value) {
+          return new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric"
+          }).format(new Date(value + "T12:00:00"));
+        }
+
+        function shortDate(value) {
+          return new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric"
+          }).format(new Date(value + "T12:00:00"));
+        }
+
+        function uniqueValues(field, asOf) {
+          var values = [];
+          storylines.forEach(function (story) {
+            if (field === "theme" && !snapshotFor(story, asOf)) return;
+            var next = field === "agency" ? story.agencies : [story[field]];
+            next.forEach(function (value) {
+              if (values.indexOf(value) === -1) values.push(value);
+            });
+          });
+          return values.sort();
+        }
+
+        function getVersion(story, asOf) {
+          var versions = story.versions.filter(function (version) {
+            return version.generatedAt <= asOf;
+          });
+          return versions.length ? versions[versions.length - 1] : null;
+        }
+
+        function snapshotFor(story, asOf) {
+          var version = getVersion(story, asOf);
+          if (!version || story.firstSeen > asOf) return null;
+          var episodes = story.episodes.filter(function (episode) {
+            return episode.date <= asOf;
+          });
+          var articles = story.articles.filter(function (article) {
+            var articleDate = "2026-" + (article.date.indexOf("Jul") === 0 ? "07-" : "") + article.date.replace("Jul ", "").padStart(2, "0");
+            return articleDate <= asOf;
+          });
+          return {
+            id: story.id,
+            agencies: story.agencies,
+            category: story.category,
+            theme: story.theme,
+            art: story.art,
+            imageAlt: story.imageAlt,
+            imageCredit: story.imageCredit,
+            episodes: episodes,
+            articles: articles,
+            articleCount: articles.length,
+            newest: episodes.length ? episodes[episodes.length - 1].date : story.firstSeen,
+            version: version
+          };
+        }
+
+        function matchesFilters(story) {
+          var agencyMatch =
+            state.filters.agency.size === 0 ||
+            story.agencies.some(function (agency) {
+              return state.filters.agency.has(agency);
+            });
+          var categoryMatch =
+            state.filters.category.size === 0 ||
+            state.filters.category.has(story.category);
+          var themeMatch =
+            state.filters.theme.size === 0 ||
+            state.filters.theme.has(story.theme);
+          return agencyMatch && categoryMatch && themeMatch;
+        }
+
+        function getVisibleStories() {
+          var asOf = dates[state.dateIndex];
+          var list = storylines
+            .map(function (story) {
+              return snapshotFor(story, asOf);
+            })
+            .filter(Boolean)
+            .filter(matchesFilters);
+
+          list.sort(function (a, b) {
+            if (state.sort === "newest") return b.newest.localeCompare(a.newest);
+            if (state.sort === "episodes") return b.episodes.length - a.episodes.length;
+            if (state.sort === "title") return a.version.headline.localeCompare(b.version.headline);
+            return b.version.rankKey - a.version.rankKey;
+          });
+          return list;
+        }
+
+        function artSVG(type, label) {
+          var common =
+            '<svg viewBox="0 0 800 420" role="img" aria-label="' +
+            escapeHTML(label) +
+            '" xmlns="http://www.w3.org/2000/svg">' +
+            '<rect width="800" height="420" fill="var(--canvas)"/>' +
+            '<g fill="none" stroke="var(--rule)" stroke-width="1">';
+          var grid = "";
+          for (var x = 0; x <= 800; x += 80) grid += '<path d="M' + x + ' 0V420"/>';
+          for (var y = 20; y <= 420; y += 80) grid += '<path d="M0 ' + y + 'H800"/>';
+          common += grid + '</g><g fill="none" stroke="var(--text)" stroke-width="5">';
+
+          var drawing = "";
+          if (type === "bridge") {
+            drawing =
+              '<path d="M0 332H800"/><path d="M84 325V202M716 325V202"/>' +
+              '<path d="M42 286H758"/><path d="M84 202C246 370 554 34 716 202"/>' +
+              '<path d="M180 286V256M276 286V228M372 286V211M468 286V214M564 286V238M660 286V270"/>' +
+              '<path d="M0 362C152 325 250 405 414 366S650 337 800 382" stroke="var(--live)"/>';
+          } else if (type === "storm") {
+            drawing =
+              '<path d="M405 208c62-67 178-43 209 33 38 92-49 172-134 145-62-20-79-92-42-135 32-38 99-24 111 23 11 42-33 72-65 53" stroke="var(--live)"/>' +
+              '<path d="M397 214c-62 67-178 43-209-33-38-92 49-172 134-145 62 20 79 92 42 135-32 38-99 24-111-23-11-42 33-72 65-53"/>' +
+              '<circle cx="401" cy="210" r="17" fill="var(--text)" stroke="none"/>';
+          } else if (type === "network") {
+            drawing =
+              '<path d="M128 94L292 174 418 84 602 164 690 310 492 336 318 285 124 326Z"/>' +
+              '<path d="M292 174L318 285M418 84L492 336M602 164L318 285M128 94L492 336"/>' +
+              '<g fill="var(--canvas)"><circle cx="128" cy="94" r="21"/><circle cx="292" cy="174" r="21"/><circle cx="418" cy="84" r="21"/><circle cx="602" cy="164" r="21"/><circle cx="690" cy="310" r="21"/><circle cx="492" cy="336" r="21"/><circle cx="318" cy="285" r="21"/><circle cx="124" cy="326" r="21"/></g>' +
+              '<circle cx="418" cy="84" r="8" fill="var(--live)" stroke="none"/>';
+          } else if (type === "health") {
+            drawing =
+              '<path d="M0 228H132l42-90 67 184 67-139 56 45h95l43-111 68 215 63-104H800" stroke="var(--live)"/>' +
+              '<path d="M590 68v116M532 126h116"/>' +
+              '<rect x="52" y="55" width="696" height="310" stroke="var(--rule)"/>';
+          } else {
+            drawing =
+              '<path d="M0 342L125 230l72 70 112-153 91 122 89-172 92 158 89-116 130 203"/>' +
+              '<path d="M210 326V196M190 235l20-51 20 51M335 326V161M311 213l24-65 24 65M544 326V132M518 197l26-76 26 76" stroke="var(--live)"/>' +
+              '<path d="M0 342H800"/>';
+          }
+
+          return (
+            common +
+            drawing +
+            '</g><g fill="var(--muted)" font-family="ui-monospace, monospace" font-size="13" letter-spacing="2">' +
+            '<text x="28" y="390">REVIEWED SOURCE IMAGE / DEMO</text>' +
+            '<text x="772" y="390" text-anchor="end">16:9</text></g></svg>'
+          );
+        }
+
+        function renderPills(field, element, asOf) {
+          element.innerHTML = uniqueValues(field, asOf)
+            .map(function (value) {
+              var label = field === "agency" ? agencyName(value) : value;
+              return (
+                '<button class="pill" type="button" data-filter="' +
+                field +
+                '" data-value="' +
+                escapeHTML(value) +
+                '" aria-pressed="' +
+                (state.filters[field].has(value) ? "true" : "false") +
+                '">' +
+                escapeHTML(label) +
+                "</button>"
+              );
+            })
+            .join("");
+        }
+
+        function taxonomyMarkup(story) {
+          return (
+            story.agencies.map(function (agency) {
+              return "<span>" + escapeHTML(agencyName(agency)) + "</span>";
+            }).join("") +
+            "<span>" +
+            escapeHTML(story.category) +
+            "</span><span>" +
+            escapeHTML(story.theme) +
+            "</span>"
+          );
+        }
+
+        function productCardMarkup(story, index) {
+          return (
+            '<article class="event-card' +
+            (index === 0 ? " featured" : "") +
+            '">' +
+            '<button class="event-card-hit" type="button" data-open-id="' +
+            story.id +
+            '" aria-haspopup="dialog">' +
+            '<div class="event-image">' +
+            artSVG(story.art, story.imageAlt) +
+            '<span class="image-credit">' +
+            escapeHTML("Demo image · " + agencyName(story.agencies[0])) +
+            "</span></div>" +
+            '<div class="event-card-body"><div class="event-card-meta">' +
+            '<span>Updated ' +
+            escapeHTML(shortDate(story.newest)) +
+            " · v" +
+            story.version.generatedAt.replace("2026-07-", "") +
+            '</span><span class="rank-key">rank_key ' +
+            story.version.rankKey.toFixed(3) +
+            "</span></div>" +
+            "<h3>" +
+            escapeHTML(story.version.headline) +
+            "</h3>" +
+            '<p class="event-card-overview">' +
+            escapeHTML(story.version.overview) +
+            "</p>" +
+            '<div class="taxonomy">' +
+            taxonomyMarkup(story) +
+            "</div>" +
+            '<div class="card-footer"><span class="card-volume">' +
+            story.episodes.length +
+            (story.episodes.length === 1 ? " episode" : " episodes") +
+            " · " +
+            story.articleCount +
+            " articles</span>" +
+            '<span class="open-cue">Open chain</span></div></div></button></article>'
+          );
+        }
+
+        function tableRowMarkup(story) {
+          return (
+            "<tr><td class=\"rank-key\">" +
+            story.version.rankKey.toFixed(3) +
+            "</td><th scope=\"row\"><button class=\"table-open\" type=\"button\" data-open-id=\"" +
+            story.id +
+            "\">" +
+            escapeHTML(story.version.headline) +
+            "</button></th><td>" +
+            escapeHTML(story.agencies.map(agencyName).join(", ")) +
+            '</td><td class="wrap">' +
+            escapeHTML(story.category) +
+            " · " +
+            escapeHTML(story.theme) +
+            "</td><td>" +
+            story.episodes.length +
+            "</td><td>" +
+            story.articleCount +
+            "</td><td>" +
+            escapeHTML(shortDate(story.newest)) +
+            '</td><td><span class="reviewed-mark">Reviewed</span></td></tr>'
+          );
+        }
+
+        function rubricCriteria(story) {
+          var byCategory = {
+            Climate: ["health_safety", "national_scope", "urgency"],
+            Economy: ["economic", "policy_change", "national_scope"],
+            Education: ["health_safety", "rights_legal", "policy_change"],
+            Energy: ["mass_impact", "economic", "national_scope"],
+            Environment: ["health_safety", "policy_change", "national_scope"],
+            Infrastructure: ["mass_impact", "economic", "national_scope"],
+            "Public health": ["health_safety", "urgency", "national_scope"],
+            "Public lands": ["mass_impact", "health_safety", "urgency"],
+            Technology: ["national_scope", "urgency", "novelty"],
+            Veterans: ["rights_legal", "policy_change", "mass_impact"]
+          };
+          return byCategory[story.category] || ["mass_impact", "policy_change"];
+        }
+
+        function rankTermMarkup(story, index) {
+          var rubric = 48 + (index % 4) * 4;
+          var agency = 13 + story.agencies.length * 4;
+          var feed = 12 + (index % 3) * 3;
+          var source = Math.max(8, 100 - rubric - agency - feed);
+          var freshness = Math.max(1.2, 8.4 - index * 0.35);
+          var label =
+            "rubric " + rubric + "% · agency " + agency + "% · feed " + feed + "% · source " + source + "% · freshness " + freshness.toFixed(1);
+          return (
+            '<span class="rank-term-cell"><span class="rank-term-bar" role="img" aria-label="' +
+            escapeHTML(label) +
+            '"><span class="term-rubric" style="width:' + rubric + '%"></span>' +
+            '<span class="term-agency" style="width:' + agency + '%"></span>' +
+            '<span class="term-feed" style="width:' + feed + '%"></span>' +
+            '<span class="term-source" style="width:' + source + '%"></span></span>' +
+            '<small>+' + freshness.toFixed(1) + 't</small></span>'
+          );
+        }
+
+        function rankRows(asOf) {
+          return storylines
+            .map(function (story) {
+              return snapshotFor(story, asOf);
+            })
+            .filter(Boolean)
+            .filter(function (story) {
+              var agencyMatch = els.rankAgency.value === "" || story.agencies.indexOf(els.rankAgency.value) !== -1;
+              var categoryMatch = els.rankCategory.value === "" || story.category === els.rankCategory.value;
+              var themeMatch = els.rankTheme.value === "" || story.theme === els.rankTheme.value;
+              return agencyMatch && categoryMatch && themeMatch;
+            })
+            .sort(function (a, b) {
+              return b.version.rankKey - a.version.rankKey;
+            });
+        }
+
+        function optionMarkup(value, label, selected) {
+          return (
+            '<option value="' +
+            escapeHTML(value) +
+            '"' +
+            (value === selected ? " selected" : "") +
+            ">" +
+            escapeHTML(label) +
+            "</option>"
+          );
+        }
+
+        function populateRankFilters(asOf) {
+          var available = storylines
+            .map(function (story) {
+              return snapshotFor(story, asOf);
+            })
+            .filter(Boolean);
+          var selectedAgency = els.rankAgency.value;
+          var selectedCategory = els.rankCategory.value;
+          var selectedTheme = els.rankTheme.value;
+          var agencyKeys = [];
+          var categoryCounts = new Map();
+
+          available.forEach(function (story) {
+            story.agencies.forEach(function (agency) {
+              if (agencyKeys.indexOf(agency) === -1) agencyKeys.push(agency);
+            });
+            categoryCounts.set(story.category, (categoryCounts.get(story.category) || 0) + 1);
+          });
+          agencyKeys.sort(function (a, b) {
+            return agencyName(a).localeCompare(agencyName(b));
+          });
+
+          if (agencyKeys.indexOf(selectedAgency) === -1) selectedAgency = "";
+          if (!categoryCounts.has(selectedCategory)) selectedCategory = "";
+
+          els.rankAgency.innerHTML =
+            optionMarkup("", "All agencies", selectedAgency) +
+            agencyKeys
+              .map(function (agency) {
+                return optionMarkup(agency, agencyName(agency), selectedAgency);
+              })
+              .join("");
+
+          els.rankCategory.innerHTML =
+            optionMarkup("", "All categories", selectedCategory) +
+            Array.from(categoryCounts.entries())
+              .sort(function (a, b) {
+                return a[0].localeCompare(b[0]);
+              })
+              .map(function (entry) {
+                return optionMarkup(entry[0], entry[0] + " · " + entry[1], selectedCategory);
+              })
+              .join("");
+
+          var themeCounts = new Map();
+          available.forEach(function (story) {
+            if (selectedCategory !== "" && story.category !== selectedCategory) return;
+            themeCounts.set(story.theme, (themeCounts.get(story.theme) || 0) + 1);
+          });
+          if (!themeCounts.has(selectedTheme)) selectedTheme = "";
+          els.rankTheme.innerHTML =
+            optionMarkup("", themeCounts.size === 0 ? "No themes assigned" : "All themes", selectedTheme) +
+            Array.from(themeCounts.entries())
+              .sort(function (a, b) {
+                return a[0].localeCompare(b[0]);
+              })
+              .map(function (entry) {
+                return optionMarkup(entry[0], entry[0] + " (" + entry[1] + ")", selectedTheme);
+              })
+              .join("");
+          els.rankTheme.disabled = themeCounts.size === 0;
+        }
+
+        function renderRanking() {
+          var scope = els.rankScope.value;
+          var asOf = scope === "dataset" || els.rankRun.value === "current" ? "2026-07-19" : "2026-07-18";
+          var rankControls = els.rankScope.closest(".rank-controls");
+
+          rankControls.className = "rank-controls rank-controls-" + scope;
+          els.rankDatasetField.hidden = scope !== "dataset";
+          els.rankRunField.hidden = scope !== "run";
+          els.rankCompareField.hidden = scope !== "run";
+          els.rankContextNote.textContent =
+            scope === "dataset"
+              ? "Reviewed golden dataset · frozen canonical ranking"
+              : "Experiment run · frozen per-run ranking";
+
+          populateRankFilters(asOf);
+          var rows = rankRows(asOf);
+          var compareEnabled = scope === "run" && els.rankCompare.value !== "";
+          var priorRows = rankRows("2026-07-18");
+          var priorPositions = new Map(
+            priorRows.map(function (story, index) {
+              return [story.id, index + 1];
+            })
+          );
+
+          document.querySelectorAll(".rank-delta-heading").forEach(function (heading) {
+            heading.hidden = !compareEnabled;
+          });
+
+          var reviewedEntries = storylines
+            .map(function (story) {
+              return snapshotFor(story, "2026-07-19");
+            })
+            .filter(Boolean)
+            .reduce(function (sum, story) {
+              return sum + story.articleCount;
+            }, 0);
+          els.rankDatasetOutput.textContent =
+            "Reviewed golden · " + storylines.length + " storylines · " + reviewedEntries + " entries";
+
+          if (scope === "dataset") {
+            els.rankAuditReceipt.innerHTML =
+              'canonical source: <code>demo-reviewed-golden</code> · <code>golden-demo-2026-07-19</code> · reviewed Jul 19, 2026 2:15 PM · ' +
+              storylines.length +
+              " ranked cards";
+            els.rankRunAuditReceipt.hidden = true;
+          } else {
+            els.rankAuditReceipt.innerHTML =
+              'run: <code>demo-reviewed-golden</code> · <code>run-demo-' +
+              asOf +
+              "</code> · created " +
+              formatDate(asOf) +
+              " 2:15 PM";
+            els.rankRunAuditReceipt.textContent =
+              "audit: " +
+              Math.max(0, rows.length * 3) +
+              " pairs · agreement 89% · τ 0.84 · inconsistent 3%";
+            els.rankRunAuditReceipt.hidden = false;
+          }
+
+          els.rankEmpty.hidden = rows.length !== 0;
+          els.rankTableScroll.hidden = rows.length === 0;
+
+          els.rankTableBody.innerHTML = rows
+            .map(function (story, index) {
+              var prior = priorPositions.get(story.id);
+              var delta = prior === undefined ? "new" : prior === index + 1 ? "=" : prior > index + 1 ? "▲" + (prior - index - 1) : "▼" + (index + 1 - prior);
+              var judged = index % 4 !== 3;
+              return (
+                '<tr><td class="rank-position">' +
+                (index + 1) +
+                "</td>" +
+                (compareEnabled ? '<td class="rank-delta">' + delta + "</td>" : "") +
+                '<td class="rank-headline"><button type="button" data-open-id="' +
+                story.id +
+                '" data-open-asof="' +
+                asOf +
+                '">' +
+                escapeHTML(story.version.headline) +
+                '</button><small>' +
+                escapeHTML(story.version.overview) +
+                '</small></td><td class="rank-key-value">' +
+                story.version.rankKey.toFixed(3) +
+                "</td><td>" +
+                rankTermMarkup(story, index) +
+                '</td><td class="rank-source-value">' +
+                escapeHTML(agencyName(story.agencies[0])) +
+                ' <small>(1.' +
+                ((index % 4) + 1) +
+                ')</small></td><td class="rank-count">' +
+                story.agencies.length +
+                '</td><td class="rank-count">' +
+                (story.agencies.length + 1 + (index % 3)) +
+                '</td><td class="rank-count">' +
+                story.articleCount +
+                '</td><td><span class="' +
+                (judged ? "rank-judged" : "rank-prior") +
+                '">' +
+                (judged ? "judged rubric" : "unjudged prior") +
+                '</span></td><td class="rank-rubric">' +
+                rubricCriteria(story)
+                  .map(function (criterion) {
+                    return '<span class="rank-chip">' + escapeHTML(criterion.replace(/_/g, " ")) + "</span>";
+                  })
+                  .join("") +
+                "</td></tr>"
+              );
+            })
+            .join("");
+        }
+
+        function renderPage() {
+          document.querySelectorAll("[data-page-panel]").forEach(function (panel) {
+            panel.hidden = panel.dataset.pagePanel !== state.page;
+          });
+          document.querySelectorAll("nav [data-page]").forEach(function (link) {
+            var active = link.dataset.page === state.page;
+            link.classList.toggle("active", active);
+            if (active) link.setAttribute("aria-current", "page");
+            else link.removeAttribute("aria-current");
+          });
+          els.brandSection.textContent = state.page === "ranking" ? "/ Ranking" : "/ Storylines";
+          if (state.page === "ranking") renderRanking();
+        }
+
+        function anyFilters() {
+          return Object.keys(state.filters).some(function (field) {
+            return state.filters[field].size > 0;
+          });
+        }
+
+        function render() {
+          var asOf = dates[state.dateIndex];
+          var emergedThemes = new Set(uniqueValues("theme", asOf));
+          state.filters.theme.forEach(function (theme) {
+            if (!emergedThemes.has(theme)) state.filters.theme.delete(theme);
+          });
+          var visible = getVisibleStories();
+          var filtersActive = anyFilters();
+
+          els.dateRange.value = String(state.dateIndex);
+          els.asOfValue.textContent = formatDate(asOf);
+          els.asOfValue.dateTime = asOf;
+          els.advanceDate.disabled = state.dateIndex === dates.length - 1;
+          els.advanceDate.textContent =
+            state.dateIndex === dates.length - 1 ? "Latest date" : "Advance date →";
+
+          renderPills("agency", els.agencyFilters, asOf);
+          renderPills("category", els.categoryFilters, asOf);
+          renderPills("theme", els.themeFilters, asOf);
+
+          document.querySelectorAll("[data-view]").forEach(function (button) {
+            button.setAttribute("aria-pressed", button.dataset.view === state.view ? "true" : "false");
+          });
+
+          els.resultCount.innerHTML =
+            "<strong>" +
+            visible.length +
+            "</strong> reviewed " +
+            (visible.length === 1 ? "storyline" : "storylines") +
+            " as of " +
+            escapeHTML(shortDate(asOf)) +
+            (filtersActive ? " · filters applied" : "");
+          els.clearFilters.hidden = !filtersActive;
+
+          els.productView.innerHTML = visible.map(productCardMarkup).join("");
+          els.storyTableBody.innerHTML = visible.map(tableRowMarkup).join("");
+
+          var empty = visible.length === 0;
+          els.emptyState.hidden = !empty;
+          els.productView.hidden = empty || state.view !== "product";
+          els.tableView.hidden = empty || state.view !== "table";
+        }
+
+        function clearFilters() {
+          Object.keys(state.filters).forEach(function (field) {
+            state.filters[field].clear();
+          });
+          render();
+        }
+
+        function episodeMarkup(episode, index, art) {
+          return (
+            '<article class="episode-card"><div class="episode-image">' +
+            artSVG(art, "Episode " + (index + 1) + " image study") +
+            '</div><div><div class="episode-meta"><span>Episode ' +
+            String(index + 1).padStart(2, "0") +
+            "</span><time>" +
+            escapeHTML(shortDate(episode.date)) +
+            "</time></div><h3>" +
+            escapeHTML(episode.title) +
+            "</h3><p>" +
+            escapeHTML(episode.summary) +
+            "</p></div></article>"
+          );
+        }
+
+        function openStory(id, asOfOverride) {
+          var asOf = asOfOverride || dates[state.dateIndex];
+          var base = storylines.find(function (story) {
+            return story.id === id;
+          });
+          if (!base) return;
+          var story = snapshotFor(base, asOf);
+          if (!story) return;
+
+          els.dialogEyebrow.textContent =
+            "Storyline preview · rank_key " + story.version.rankKey.toFixed(3);
+          els.dialogTitle.textContent = story.version.headline;
+          els.dialogTaxonomy.innerHTML = taxonomyMarkup(story);
+          els.chainContent.innerHTML =
+            '<article class="overview-block"><div class="episode-meta"><span>Current overview</span><span>Generated ' +
+            escapeHTML(shortDate(story.version.generatedAt)) +
+            "</span></div><h3>" +
+            escapeHTML(story.version.headline) +
+            "</h3><p>" +
+            escapeHTML(story.version.overview) +
+            '</p></article><div class="episode-stack">' +
+            story.episodes.map(function (episode, index) {
+              return episodeMarkup(episode, index, story.art);
+            }).join("") +
+            "</div>";
+
+          els.synthesisContent.innerHTML =
+            "<h3>What the available articles say</h3><p>" +
+            escapeHTML(story.version.synthesis) +
+            '</p><ol class="key-facts">' +
+            story.version.facts.map(function (fact, index) {
+              return "<li><span>" + String(index + 1).padStart(2, "0") + "</span><span>" + escapeHTML(fact) + "</span></li>";
+            }).join("") +
+            '</ol><div class="pane-heading">Available source articles</div><div class="source-list">' +
+            story.articles.map(function (article) {
+              return (
+                '<article class="source-row"><div class="source-row-copy"><a href="' +
+                escapeHTML(article.url) +
+                '" target="_blank" rel="noreferrer">' +
+                escapeHTML(article.title) +
+                ' ↗</a><p>' +
+                escapeHTML(article.agency) +
+                "</p></div><span>" +
+                escapeHTML(article.date) +
+                "</span></article>"
+              );
+            }).join("") +
+            '</div><div class="status-line">Synthesis limited to articles available by ' +
+            escapeHTML(shortDate(asOf)) +
+            "</div>";
+
+          if (typeof els.storyDialog.showModal === "function") {
+            els.storyDialog.showModal();
+          } else {
+            els.storyDialog.setAttribute("open", "");
+          }
+        }
+
+        document.addEventListener("click", function (event) {
+          var pageLink = event.target.closest("[data-page]");
+          if (pageLink) {
+            event.preventDefault();
+            state.page = pageLink.dataset.page;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+          }
+
+          var filterButton = event.target.closest("[data-filter]");
+          if (filterButton) {
+            var field = filterButton.dataset.filter;
+            var value = filterButton.dataset.value;
+            if (state.filters[field].has(value)) state.filters[field].delete(value);
+            else state.filters[field].add(value);
+            render();
+            return;
+          }
+
+          var viewButton = event.target.closest("[data-view]");
+          if (viewButton) {
+            state.view = viewButton.dataset.view;
+            render();
+            return;
+          }
+
+          var openButton = event.target.closest("[data-open-id]");
+          if (openButton) openStory(openButton.dataset.openId, openButton.dataset.openAsof);
+        });
+
+        els.dateRange.addEventListener("input", function () {
+          state.dateIndex = Number(els.dateRange.value);
+          render();
+        });
+
+        els.advanceDate.addEventListener("click", function () {
+          if (state.dateIndex < dates.length - 1) {
+            state.dateIndex += 1;
+            render();
+          }
+        });
+
+        els.sortSelect.addEventListener("change", function () {
+          state.sort = els.sortSelect.value;
+          render();
+        });
+
+        els.rankScope.addEventListener("change", function () {
+          els.rankAgency.value = "";
+          els.rankCategory.value = "";
+          els.rankTheme.value = "";
+          els.rankCompare.value = "";
+          renderRanking();
+        });
+        els.rankRun.addEventListener("change", function () {
+          els.rankAgency.value = "";
+          els.rankCategory.value = "";
+          els.rankTheme.value = "";
+          els.rankCompare.value = "";
+          renderRanking();
+        });
+        els.rankCompare.addEventListener("change", renderRanking);
+        els.rankAgency.addEventListener("change", renderRanking);
+        els.rankCategory.addEventListener("change", function () {
+          els.rankTheme.value = "";
+          renderRanking();
+        });
+        els.rankTheme.addEventListener("change", renderRanking);
+
+        els.clearFilters.addEventListener("click", clearFilters);
+        els.emptyClear.addEventListener("click", clearFilters);
+
+        els.dialogClose.addEventListener("click", function () {
+          els.storyDialog.close();
+        });
+
+        els.storyDialog.addEventListener("click", function (event) {
+          if (event.target === els.storyDialog) els.storyDialog.close();
+        });
+
+        els.themeToggle.addEventListener("click", function () {
+          var light = document.documentElement.dataset.theme === "light";
+          document.documentElement.dataset.theme = light ? "dark" : "light";
+          els.themeToggle.textContent = light ? "○" : "●";
+          els.themeToggle.setAttribute("aria-label", "Use " + (light ? "light" : "dark") + " theme");
+        });
+
+        render();
+        renderPage();
+      })();
+    </script>
+
+    <!--
+      DESIGN CONTRACT FOR LATER IMPLEMENTATION
+      1. The demo query is read-only and returns reviewed golden storylines only.
+      2. rank_key comes from the selected event-card version; no new storyline column is required.
+      3. For an as-of date, choose the newest event card newest_entry_at <= as-of.
+      4. Do not reveal episodes, articles, summaries, or images whose source timestamp is after as-of.
+      5. Multi-select behavior is OR within a facet and AND across agency, category, and theme.
+      6. Agency labels use the full agency name; stable acronym keys remain internal filter values.
+      7. A theme becomes available only when its first reviewed storyline exists at or before as-of.
+      8. Image records should retain asset URL, source URL, alt text, captured_at, dimensions,
+         and rights/license metadata; the graphics above are deliberately illustrative.
+      9. The right modal pane is a derived synthesis of the article URLs available at the as-of date.
+      10. Ranking defaults to the reviewed-dataset scope with canonical source metadata and
+          agency/category/theme filters; experiment-run comparison remains the secondary scope.
+      11. Ranking mirrors the operator-console evaluation ledger and uses the event-card rank_key.
+      12. This file is a design prototype only. It does not run the processing pipeline or write data.
+    -->
+  </body>
+</html>
