@@ -29,6 +29,7 @@ import { StorylinesHero } from "./StorylinesHero";
 const RENDER_BATCH_SIZE = 18;
 const LOAD_AHEAD_ROOT_MARGIN = "1200px 0px";
 const FILTER_EXIT_DURATION_MS = 320;
+const FILTER_ENTRY_DELAY_MS = 140;
 
 type SortOrder = "episodes" | "newest" | "rank";
 type ViewMode = "product" | "table";
@@ -60,54 +61,47 @@ function useFilterPresence(options: FilterOption[]): {
   const [displayed, setDisplayed] = useState(options);
   const [exitingIds, setExitingIds] = useState<ReadonlySet<string>>(new Set());
   const displayedRef = useRef(displayed);
-  const exitTimers = useRef(
-    new Map<string, ReturnType<typeof globalThis.setTimeout>>(),
-  );
 
   useEffect(() => {
     const activeIds = new Set(options.map((option) => option.value));
-    for (const option of options) {
-      const timer = exitTimers.current.get(option.value);
-      if (timer !== undefined) globalThis.clearTimeout(timer);
-      exitTimers.current.delete(option.value);
-    }
-
     const exiting = displayedRef.current.filter(
       (option) => !activeIds.has(option.value),
     );
-    const nextDisplayed = [...options, ...exiting].sort(optionSort);
+    const displayedIds = new Set(
+      displayedRef.current.map((option) => option.value),
+    );
+    const retained = options.filter((option) => displayedIds.has(option.value));
+    const nextDisplayed = [...retained, ...exiting].sort(optionSort);
     const nextExitingIds = new Set(exiting.map((option) => option.value));
+
+    if (exiting.length === 0) {
+      displayedRef.current = options;
+      setDisplayed(options);
+      setExitingIds(nextExitingIds);
+      return;
+    }
+
     displayedRef.current = nextDisplayed;
     setDisplayed(nextDisplayed);
     setExitingIds(nextExitingIds);
 
-    for (const option of exiting) {
-      if (exitTimers.current.has(option.value)) continue;
-      const timer = globalThis.setTimeout(() => {
-        exitTimers.current.delete(option.value);
-        setDisplayed((current) => {
-          const next = current.filter((item) => item.value !== option.value);
-          displayedRef.current = next;
-          return next;
-        });
-        setExitingIds((current) => {
-          const next = new Set(current);
-          next.delete(option.value);
-          return next;
-        });
-      }, FILTER_EXIT_DURATION_MS);
-      exitTimers.current.set(option.value, timer);
-    }
-  }, [options]);
+    let entryTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
+    const exitTimer = globalThis.setTimeout(() => {
+      displayedRef.current = retained;
+      setDisplayed(retained);
+      setExitingIds(new Set());
 
-  useEffect(
-    () => () => {
-      for (const timer of exitTimers.current.values()) {
-        globalThis.clearTimeout(timer);
-      }
-    },
-    [],
-  );
+      entryTimer = globalThis.setTimeout(() => {
+        displayedRef.current = options;
+        setDisplayed(options);
+      }, FILTER_ENTRY_DELAY_MS);
+    }, FILTER_EXIT_DURATION_MS);
+
+    return () => {
+      globalThis.clearTimeout(exitTimer);
+      if (entryTimer !== undefined) globalThis.clearTimeout(entryTimer);
+    };
+  }, [options]);
 
   return { exitingIds, options: displayed };
 }

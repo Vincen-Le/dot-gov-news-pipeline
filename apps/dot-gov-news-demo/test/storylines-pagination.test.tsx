@@ -234,6 +234,89 @@ describe("storyline rendering window", () => {
     expect(screen.queryByText("Food safety")).toBeNull();
   });
 
+  it("finishes an outgoing theme before introducing its replacement", () => {
+    vi.useFakeTimers();
+    const oldItems = [1, 2, 3, 4].map((index) => ({
+      ...storyline(index),
+      firstEntryAt: "2026-07-20T12:00:00.000Z",
+      firstOverviewAt: "2026-07-20T12:00:00.000Z",
+      newestEntryAt: "2026-07-22T12:00:00.000Z",
+      themeId: "theme-old",
+      themeName: "Outgoing theme",
+    }));
+    const newItems = [5, 6, 7, 8].map((index, offset) => ({
+      ...storyline(index),
+      firstEntryAt: `2026-07-${23 + offset}T12:00:00.000Z`,
+      firstOverviewAt: `2026-07-${23 + offset}T12:00:00.000Z`,
+      newestEntryAt: `2026-07-${23 + offset}T12:00:00.000Z`,
+      themeId: "theme-new",
+      themeName: "Incoming theme",
+    }));
+    const items = [...oldItems, ...newItems];
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    client.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: items.map(preview),
+      storylines: { hasMore: false, items },
+      themes: [
+        {
+          categoryId: null,
+          categoryName: null,
+          displayName: "Outgoing theme",
+          firstStorylineAt: "2026-07-20T12:00:00.000Z",
+          id: "theme-old",
+          manuallySet: false,
+          newestStorylineAt: "2026-07-22T12:00:00.000Z",
+          storylineCount: 4,
+        },
+        {
+          categoryId: null,
+          categoryName: null,
+          displayName: "Incoming theme",
+          firstStorylineAt: "2026-07-23T12:00:00.000Z",
+          id: "theme-new",
+          manuallySet: false,
+          newestStorylineAt: "2026-07-26T12:00:00.000Z",
+          storylineCount: 4,
+        },
+      ],
+    });
+
+    const page = (asOf: string) => (
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <StorylinesPage asOf={asOf} />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+    const view = render(page("2026-07-22"));
+
+    view.rerender(page("2026-07-26"));
+
+    expect(
+      screen
+        .getByRole("button", { name: "Outgoing theme" })
+        .classList.contains("is-exiting"),
+    ).toBe(true);
+    expect(screen.queryByRole("button", { name: "Incoming theme" })).toBeNull();
+
+    act(() => vi.advanceTimersByTime(320));
+
+    expect(screen.queryByRole("button", { name: "Outgoing theme" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Incoming theme" })).toBeNull();
+
+    act(() => vi.advanceTimersByTime(140));
+
+    expect(
+      screen
+        .getByRole("button", { name: "Incoming theme" })
+        .classList.contains("filter-option-transition"),
+    ).toBe(true);
+  });
+
   it("prefetches detail for only the storylines rendered into the DOM", async () => {
     const items = Array.from({ length: 20 }, (_, index) =>
       storyline(index + 1),

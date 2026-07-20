@@ -454,7 +454,7 @@ describe("filter option layout", () => {
       expect(animate).toHaveBeenCalledWith(
         [{ transform: "translateX(100px)" }, { transform: "translateX(0)" }],
         {
-          duration: 280,
+          duration: 360,
           easing: "cubic-bezier(0.2, 0.75, 0.2, 1)",
         },
       );

@@ -1133,7 +1133,7 @@ select {
 .filter-option-transition,
 .theme-emergence {
   display: inline-block;
-  animation: filter-option-emergence 420ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
+  animation: filter-option-emergence 520ms cubic-bezier(0.16, 0.8, 0.2, 1) both;
 }
 
 @keyframes filter-option-emergence {
@@ -1164,7 +1164,7 @@ select {
 
   to {
     opacity: 0;
-    transform: translateY(-0.2rem);
+    transform: translateY(-0.28rem) scale(0.98);
   }
 }
 

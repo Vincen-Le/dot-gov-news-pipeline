@@ -91,12 +91,13 @@ export function FilterGroup({
       }
     }
 
-    const optionsWereRemoved =
-      currentPositions.size < previousPositions.current.size;
+    const layoutChanged = [...currentPositions].some(
+      ([value, left]) => previousPositions.current.get(value) !== left,
+    );
     const reduceMotion =
       typeof globalThis.matchMedia === "function" &&
       globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (animateLayout && optionsWereRemoved && !reduceMotion) {
+    if (animateLayout && layoutChanged && !reduceMotion) {
       for (const button of buttons ?? []) {
         const value = button.dataset.filterOption;
         const previousLeft =
@@ -117,7 +118,7 @@ export function FilterGroup({
             { transform: "translateX(0)" },
           ],
           {
-            duration: 280,
+            duration: 360,
             easing: "cubic-bezier(0.2, 0.75, 0.2, 1)",
           },
         );
