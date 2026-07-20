@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import {
   type CSSProperties,
   type ReactNode,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 
 import { type AgencyOption, type StorylineListItem } from "./api/contracts";
@@ -286,6 +288,8 @@ export function StorylineDialog({
   item: StorylineListItem;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const closeFinished = useRef(false);
+  const [closing, setClosing] = useState(false);
   const detail = useQuery({
     queryFn: ({ signal }) => dotGovApi.storyline(item.id, signal),
     queryKey: ["storyline", item.id],
@@ -298,12 +302,33 @@ export function StorylineDialog({
     [asOf, detail.data],
   );
 
+  const finishClose = useCallback(() => {
+    if (closeFinished.current) return;
+    closeFinished.current = true;
+    dialog.current?.close();
+    close();
+  }, [close]);
+  const requestClose = useCallback(() => {
+    if (closing || closeFinished.current) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      finishClose();
+      return;
+    }
+    setClosing(true);
+  }, [closing, finishClose]);
+
   useEffect(() => {
     const current = dialog.current;
     if (current === null) return;
     current.showModal();
     return () => current.close();
   }, []);
+
+  useEffect(() => {
+    if (!closing) return;
+    const fallback = window.setTimeout(finishClose, 260);
+    return () => window.clearTimeout(fallback);
+  }, [closing, finishClose]);
 
   const headline = asOfDetail?.overview?.headline ?? "Loading storyline";
   const visibleEntries =
@@ -320,13 +345,16 @@ export function StorylineDialog({
   return (
     <dialog
       aria-label={headline}
-      className="storyline-dialog story-dialog"
+      className={`storyline-dialog story-dialog${closing ? " is-closing" : ""}`}
       onCancel={(event) => {
         event.preventDefault();
-        close();
+        requestClose();
       }}
       onClick={(event) => {
-        if (event.target === event.currentTarget) close();
+        if (event.target === event.currentTarget) requestClose();
+      }}
+      onAnimationEnd={(event) => {
+        if (closing && event.target === event.currentTarget) finishClose();
       }}
       ref={dialog}
     >
@@ -344,7 +372,7 @@ export function StorylineDialog({
           <button
             aria-label="Close storyline"
             className="dialog-close"
-            onClick={close}
+            onClick={requestClose}
             type="button"
           >
             <span aria-hidden="true">×</span>

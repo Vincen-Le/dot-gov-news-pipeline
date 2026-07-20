@@ -46,17 +46,24 @@ export function DateNavigator({
           </time>
         </header>
         <div className="date-control-row">
-          <input
-            aria-label="Simulated publication date"
-            max={span}
-            min="0"
-            onChange={(event) =>
-              onChange(offsetDay(minimum, Number(event.target.value)))
-            }
-            step="1"
-            type="range"
-            value={Math.min(position, span)}
-          />
+          <div className="date-track">
+            <input
+              aria-label="Simulated publication date"
+              max={span}
+              min="0"
+              onChange={(event) =>
+                onChange(offsetDay(minimum, Number(event.target.value)))
+              }
+              step="1"
+              type="range"
+              value={Math.min(position, span)}
+            />
+            <div className="date-ticks" aria-hidden="true">
+              <span>{displayDate(minimum)}</span>
+              {span > 1 ? <span>{displayDate(midpoint)}</span> : null}
+              <span>{displayDate(maximum)}</span>
+            </div>
+          </div>
           <button
             className="primary-button"
             disabled={asOf >= maximum}
@@ -67,11 +74,6 @@ export function DateNavigator({
           >
             Advance date <span aria-hidden="true">→</span>
           </button>
-        </div>
-        <div className="date-ticks" aria-hidden="true">
-          <span>{displayDate(minimum)}</span>
-          {span > 1 ? <span>{displayDate(midpoint)}</span> : null}
-          <span>{displayDate(maximum)}</span>
         </div>
       </section>
     </aside>

@@ -230,7 +230,6 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   return (
     <div className="page-stack">
       <section className="page-intro">
-        <span className="section-index">04 / Reviewed output</span>
         <div className="intro-content">
           <div>
             <p className="eyebrow">Public information, connected over time</p>

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
@@ -215,6 +215,30 @@ describe("generated event-card content", () => {
         "1 source article available as of Jul 12, 2026. Synthesis reflects source material through Jul 12, 2026.",
       ),
     ).toBeTruthy();
+  });
+
+  it("animates the dialog closed before removing it", () => {
+    const client = queryClient();
+    const close = vi.fn();
+    const view = render(
+      <QueryClientProvider client={client}>
+        <StorylineDialog
+          agencyMap={new Map([["fda", "Food and Drug Administration"]])}
+          asOf="2026-07-12"
+          close={close}
+          item={item}
+        />
+      </QueryClientProvider>,
+    );
+    const dialog = view.container.querySelector("dialog");
+
+    fireEvent.click(screen.getByRole("button", { name: "Close storyline" }));
+
+    expect(dialog?.classList.contains("is-closing")).toBe(true);
+    expect(close).not.toHaveBeenCalled();
+
+    if (dialog !== null) fireEvent.animationEnd(dialog);
+    expect(close).toHaveBeenCalledOnce();
   });
 
   it("renders table rows from the selected historical snapshot", () => {
