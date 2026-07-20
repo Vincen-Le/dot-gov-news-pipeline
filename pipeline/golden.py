@@ -573,7 +573,7 @@ def promote_clustered(db, source_run_id: str | None = None) -> dict:
 
 
 _MIRRORED_TABLES = ("topic_categories", "topic_themes", "storylines",
-                    "episodes", "event_cards")
+                    "episodes", "event_cards", "event_card_contexts")
 
 
 def _mirror_render_tables(db, source_run_id) -> dict:
@@ -659,7 +659,8 @@ def _mean(vectors: list[np.ndarray]) -> np.ndarray:
 
 
 def apply_reviewed(db, cfg: Config, *, reset: bool = True,
-                   include_proposed: bool = False) -> dict:
+                   include_proposed: bool = False,
+                   source_run_id: str | None = None) -> dict:
     """Rebuild disposable clustering state from golden memberships.
 
     Reviewed rows are the experiment anchor. ``include_proposed`` is a local
@@ -685,6 +686,7 @@ def apply_reviewed(db, cfg: Config, *, reset: bool = True,
 
     cutoff = max((row["published_at"] for row in rows), default=None)
     store = Store(db)
+    store.bind_experiment(source_run_id, cfg.publisher_weight_version)
     with db.conn.transaction():
         if reset:
             reset_clusters(db)

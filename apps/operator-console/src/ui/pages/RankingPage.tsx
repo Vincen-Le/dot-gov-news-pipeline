@@ -1,25 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 
 import {
-  ExperimentRunSchema,
+  RankExperimentSchema,
   RankAuditPairSchema,
   RankAuditRunSchema,
   RankFacetSchema,
   RankSnapshotRowSchema,
+  RankRowDetailSchema,
   type RankAuditPair,
   type RankSnapshotRow,
 } from "../../lab/contracts";
 import { ErrorState, LoadingState, SectionHeading } from "../components";
 import { fetchLab, postLab } from "../lab-api";
 import { usePipelineEnvironment } from "../pipeline-environment";
+import { RankStorylineDialog } from "../ranking/RankStorylineDialog";
 import "../rank.css";
 
 const ExperimentListSchema = z.object({
-  active: z.unknown().nullable(),
-  items: ExperimentRunSchema.array(),
+  items: RankExperimentSchema.array(),
 });
 const FacetsSchema = z.object({ facets: RankFacetSchema.array() });
 const SnapshotSchema = z.object({ rows: RankSnapshotRowSchema.array() });
@@ -39,6 +40,11 @@ const RUBRIC_CRITERIA = [
 ] as const;
 
 function TermBar({ row }: { row: RankSnapshotRow }) {
+  if (!row.termsAvailable) {
+    return (
+      <small className="rank-terms-unavailable">legacy terms unavailable</small>
+    );
+  }
   const t = row.terms;
   const parts = [
     ["term-rubric", t.rubric_points, "rubric"],
@@ -143,13 +149,15 @@ export function RankingPage() {
 
   const runs = useQuery({
     enabled: ready,
-    queryFn: () => fetchLab("/experiments", ExperimentListSchema, pipeline),
-    queryKey: ["lab-experiments", pipeline],
+    queryFn: () =>
+      fetchLab("/rank/experiments", ExperimentListSchema, pipeline),
+    queryKey: ["rank-experiments", pipeline],
   });
   const runId = params.get("run") ?? runs.data?.items[0]?.id ?? "";
   const compareId = params.get("compare") ?? "";
   const facetType = params.get("facetType") ?? "global";
   const facetKey = params.get("facetKey") ?? "";
+  const selectedCardId = params.get("card") ?? "";
   const facetParam = `run=${runId}&facetType=${encodeURIComponent(facetType)}&facetKey=${encodeURIComponent(facetKey)}`;
   const runIsValid =
     runId !== "" && runs.data?.items.some((run) => run.id === runId) === true;
@@ -177,6 +185,8 @@ export function RankingPage() {
       if (key === "run") {
         next.delete("facetType");
         next.delete("facetKey");
+        next.delete("storyline");
+        next.delete("card");
       }
       return next;
     });
@@ -221,6 +231,50 @@ export function RankingPage() {
       ),
     queryKey: ["rank-snapshot", pipeline, compareId, facetType, facetKey],
   });
+  const detail = useQuery({
+    enabled: runIsValid && selectedCardId !== "",
+    queryFn: () =>
+      fetchLab(
+        `/rank/detail?experiment=${encodeURIComponent(runId)}&card=${encodeURIComponent(selectedCardId)}`,
+        RankRowDetailSchema,
+        pipeline,
+      ),
+    queryKey: ["rank-detail", pipeline, runId, selectedCardId],
+  });
+
+  useEffect(() => {
+    if (selectedCardId === "" || snapshot.data === undefined) return;
+    if (snapshot.data.rows.some((row) => row.cardId === selectedCardId)) return;
+    setParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.delete("storyline");
+        next.delete("card");
+        return next;
+      },
+      { replace: true },
+    );
+  }, [selectedCardId, setParams, snapshot.data]);
+
+  const openDetail = (row: RankSnapshotRow): void => {
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      next.set("storyline", row.storylineId);
+      next.set("card", row.cardId);
+      return next;
+    });
+  };
+  const closeDetail = (): void => {
+    setParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.delete("storyline");
+        next.delete("card");
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   if (runs.isPending) return <LoadingState label="Loading experiment runs" />;
   if (runs.isError) return <ErrorState error={runs.error} />;
@@ -265,7 +319,8 @@ export function RankingPage() {
           >
             {runs.data.items.map((run) => (
               <option key={run.id} value={run.id}>
-                {run.name} · {new Date(run.createdAt).toLocaleString()}
+                {run.name} · rank v{run.rankSystemVersionNumber} ·{" "}
+                {new Date(run.createdAt).toLocaleString()}
               </option>
             ))}
           </select>
@@ -309,7 +364,7 @@ export function RankingPage() {
               .filter((run) => run.id !== runId)
               .map((run) => (
                 <option key={run.id} value={run.id}>
-                  {run.name} · {new Date(run.createdAt).toLocaleString()}
+                  {run.name} · rank v{run.rankSystemVersionNumber}
                 </option>
               ))}
           </select>
@@ -364,7 +419,19 @@ export function RankingPage() {
                 const delta = other === undefined ? null : other - row.position;
                 const rowKey = `${row.facetType}|${row.facetKey}|${row.position}`;
                 return (
-                  <tr key={rowKey}>
+                  <tr
+                    className={
+                      selectedCardId === row.cardId
+                        ? "rank-row-open"
+                        : "rank-row"
+                    }
+                    key={rowKey}
+                    onClick={(event) => {
+                      if ((event.target as HTMLElement).closest("button, a"))
+                        return;
+                      openDetail(row);
+                    }}
+                  >
                     <td>
                       {row.position}
                       {pairs.length > 0 ? (
@@ -403,11 +470,13 @@ export function RankingPage() {
                       </td>
                     )}
                     <td className="rank-headline">
-                      <Link
-                        to={`/storylines/${row.storylineId}?experiment=${encodeURIComponent(runId)}`}
+                      <button
+                        className="rank-headline-button"
+                        onClick={() => openDetail(row)}
+                        type="button"
                       >
                         {row.headline ?? "(no headline)"}
-                      </Link>
+                      </button>
                       {row.interestReason === null ? null : (
                         <small title={row.interestReason}>
                           {row.interestReason}
@@ -444,6 +513,14 @@ export function RankingPage() {
           </table>
         </div>
       ) : null}
+      {selectedCardId === "" ? null : (
+        <RankStorylineDialog
+          detail={detail.data}
+          error={detail.error}
+          loading={detail.isPending}
+          onClose={closeDetail}
+        />
+      )}
     </section>
   );
 }

@@ -202,6 +202,7 @@ export const RankSnapshotRowSchema = z.object({
   rubric: z.record(z.string(), z.unknown()).nullable(),
   storylineId: z.string(),
   summary: z.string().nullable(),
+  termsAvailable: z.boolean().default(true),
   terms: RankTermsSchema,
 });
 
@@ -230,6 +231,101 @@ export const RankAuditRunSchema = z.object({
   runId: z.string(),
 });
 
+export const RankExperimentSchema = z.object({
+  createdAt: z.string(),
+  dataCutoffAt: z.string().nullable(),
+  id: z.string(),
+  name: z.string(),
+  rankSystemVersionId: z.string(),
+  rankSystemVersionNumber: z.number(),
+  sourceRunId: z.string().nullable(),
+  status: z.string(),
+});
+
+const FrozenEpisodeSchema = z.object({
+  firstEntryAt: z.string().nullable(),
+  headline: z.string().nullable(),
+  id: z.string(),
+  newestEntryAt: z.string().nullable(),
+  summary: z.string().nullable(),
+});
+
+const FrozenSourceEntrySchema = z.object({
+  agencies: z.array(z.string()),
+  contentHash: z.string(),
+  episodeId: z.string().nullable(),
+  id: z.string(),
+  isSyndicated: z.boolean().nullable(),
+  publishedAt: z.string().nullable(),
+  title: z.string().nullable(),
+  url: z.string(),
+});
+
+export const RankRowDetailSchema = z.object({
+  calculation: z.object({
+    formulaKey: z.string(),
+    rankInput: z.record(z.string(), z.unknown()),
+    rankKey: z.number(),
+    rubricDecisions: z.array(z.object({ key: z.string(), value: z.boolean() })),
+    termBreakdown: z.array(
+      z.object({ key: z.string(), label: z.string(), value: z.number() }),
+    ),
+  }),
+  categoryNeighbors: z.array(
+    z.object({
+      categoryPosition: z.number(),
+      goldenEventCardId: z.string(),
+      headline: z.string(),
+      rankKey: z.number(),
+      relation: z.enum(["above", "target", "below"]),
+    }),
+  ),
+  identity: z.object({
+    experimentId: z.string(),
+    goldenEventCardId: z.string(),
+    rankSystemVersionId: z.string(),
+    rankSystemVersionNumber: z.number(),
+    storylineId: z.string(),
+  }),
+  positionOpinion: z
+    .object({
+      currentCategoryPosition: z.number(),
+      direction: z.enum(["up", "down", "stay", "uncertain"]),
+      positionDelta: z.number().nullable(),
+      reason: z.string().nullable(),
+      status: z.enum([
+        "available",
+        "bounded",
+        "not_run",
+        "insufficient_neighbors",
+        "inconsistent",
+        "failed",
+      ]),
+      suggestedCategoryPosition: z.number().nullable(),
+    })
+    .nullable(),
+  provenance: z.object({
+    codeCommit: z.string().nullable(),
+    configHash: z.string(),
+    contextHash: z.string(),
+    dataSnapshotHash: z.string().nullable(),
+    experimentStatus: z.string(),
+    rankInputHash: z.string(),
+  }),
+  storylineSnapshot: z.object({
+    agencies: z.array(z.string()),
+    categoryId: z.string().nullable(),
+    entryCount: z.number(),
+    episodes: z.array(FrozenEpisodeSchema),
+    headline: z.string(),
+    knowledgeCutoffAt: z.string(),
+    sourceEntries: z.array(FrozenSourceEntrySchema),
+    summary: z.string(),
+    themeId: z.string().nullable(),
+    timeline: z.array(z.record(z.string(), z.unknown())),
+  }),
+});
+
 export function labResponse<T extends z.ZodType>(schema: T) {
   return z.object({ data: schema });
 }
@@ -251,3 +347,5 @@ export type RankSnapshotRow = z.infer<typeof RankSnapshotRowSchema>;
 export type RankFacet = z.infer<typeof RankFacetSchema>;
 export type RankAuditPair = z.infer<typeof RankAuditPairSchema>;
 export type RankAuditRun = z.infer<typeof RankAuditRunSchema>;
+export type RankExperiment = z.infer<typeof RankExperimentSchema>;
+export type RankRowDetail = z.infer<typeof RankRowDetailSchema>;

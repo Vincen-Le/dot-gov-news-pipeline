@@ -34,11 +34,12 @@ const LOCAL_DSN =
   process.env.GOLDEN_SOURCE_DSN ??
   "postgresql://postgres:postgres@127.0.0.1:57422/simple_v1_db";
 const MIRRORS = [
-  "golden_topic_categories",
-  "golden_topic_themes",
-  "golden_storylines",
-  "golden_episodes",
-  "golden_event_cards",
+  { table: "golden_topic_categories", key: "id" },
+  { table: "golden_topic_themes", key: "id" },
+  { table: "golden_storylines", key: "id" },
+  { table: "golden_episodes", key: "id" },
+  { table: "golden_event_cards", key: "id" },
+  { table: "golden_event_card_contexts", key: "event_card_id" },
 ];
 
 function wire(row) {
@@ -71,14 +72,14 @@ async function upsert(table, rows, conflict = "id") {
   }
 }
 
-async function deleteMissing(table, keepIds) {
+async function deleteMissing(table, key, keepIds) {
   // PostgREST caps responses at its max-rows setting regardless of limit=,
   // so page explicitly — a capped fetch silently strands stale rows.
   const hosted = [];
   for (let offset = 0; ; offset += 1000) {
     const page = await (
       await fetch(
-        `${base}/rest/v1/${table}?select=id&limit=1000&offset=${offset}`,
+        `${base}/rest/v1/${table}?select=${key}&limit=1000&offset=${offset}`,
         { headers },
       )
     ).json();
@@ -86,11 +87,13 @@ async function deleteMissing(table, keepIds) {
     if (page.length < 1000) break;
   }
   const keep = new Set(keepIds.map(String));
-  const dead = hosted.map((r) => r.id).filter((id) => !keep.has(String(id)));
+  const dead = hosted
+    .map((row) => row[key])
+    .filter((id) => !keep.has(String(id)));
   for (let start = 0; start < dead.length; start += 200) {
     const chunk = dead.slice(start, start + 200);
     const response = await fetch(
-      `${base}/rest/v1/${table}?id=in.(${chunk.join(",")})`,
+      `${base}/rest/v1/${table}?${key}=in.(${chunk.join(",")})`,
       { method: "DELETE", headers },
     );
     if (!response.ok) {
@@ -104,12 +107,13 @@ const sql = postgres(LOCAL_DSN, { max: 1, prepare: false });
 
 // mirrors last-write-wins; cards reference storylines only by uuid (no FK),
 // so ordering is cosmetic
-for (const table of MIRRORS) {
+for (const { table, key } of MIRRORS) {
   const rows = await sql`select * from ${sql(table)}`;
-  await upsert(table, rows);
+  await upsert(table, rows, key);
   const removed = await deleteMissing(
     table,
-    rows.map((r) => r.id),
+    key,
+    rows.map((row) => row[key]),
   );
   console.log(`${table}: ${rows.length} upserted, ${removed} removed`);
 }

@@ -123,6 +123,8 @@ def test_record_run_inserts_redacted_config():
     assert run_id == "run-1"
     sql, params = db.conn.executed[0]
     assert sql.startswith("insert into public.complex_v1_experiment_runs")
+    assert "(id, name," in sql
+    assert params["run_id"]
     assert "cf_api_token" not in params["config"]
     assert '"near_dup_threshold": 0.9' in params["config"]
 

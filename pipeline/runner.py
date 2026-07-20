@@ -46,7 +46,12 @@ def cluster(store, models, cfg: Config, limit: int | None = None,
                     prior["content_hash"], prior["published_at"],
                     prior["embedding"])
             window.advance(first["published_at"])
-        replay = ReplayStore(store.db, window)
+        replay = ReplayStore(
+            store.db,
+            window,
+            source_run_id=store.source_run_id,
+            publisher_weight_version=store.publisher_weight_version,
+        )
     else:
         replay = _WindowedFake(store, window)
 

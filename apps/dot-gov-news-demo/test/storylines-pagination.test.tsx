@@ -358,9 +358,9 @@ describe("storyline rendering window", () => {
 
     await waitFor(() => expect(fetchDetail).toHaveBeenCalledTimes(20));
     await waitFor(() =>
-      expect(
-        client.getQueryState(["storyline", items[0]!.id])?.status,
-      ).toBe("success"),
+      expect(client.getQueryState(["storyline", items[0]!.id])?.status).toBe(
+        "success",
+      ),
     );
   });
 

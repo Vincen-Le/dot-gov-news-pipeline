@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from dataclasses import asdict
 from datetime import datetime, timezone
 
@@ -244,16 +245,19 @@ def render_report(name: str, cfg: Config, cluster_report: dict, summary: dict,
 
 
 def record_run(db, name: str, cfg: Config, cluster_report: dict, summary: dict,
-               cache_stats: dict, started_at, finished_at) -> str:
+               cache_stats: dict, started_at, finished_at,
+               run_id: str | None = None) -> str:
     ns = _namespace(cfg)
+    run_id = run_id or str(uuid.uuid4())
     cursor = db.conn.execute(
         f"insert into public.{ns}_experiment_runs "
-        "(name, started_at, finished_at, config, cluster_report, summary, "
+        "(id, name, started_at, finished_at, config, cluster_report, summary, "
         " cache_hits, cache_misses) "
-        "values (%(name)s, %(started_at)s, %(finished_at)s, %(config)s::jsonb, "
+        "values (%(run_id)s, %(name)s, %(started_at)s, %(finished_at)s, %(config)s::jsonb, "
         "        %(cluster_report)s::jsonb, %(summary)s::jsonb, %(hits)s, %(misses)s) "
         "returning id",
-        {"name": name, "started_at": started_at, "finished_at": finished_at,
+        {"run_id": run_id, "name": name,
+         "started_at": started_at, "finished_at": finished_at,
          "config": json.dumps(_redacted_config(cfg), sort_keys=True),
          "cluster_report": json.dumps(cluster_report, default=str),
          "summary": json.dumps(summary, default=str),
@@ -279,6 +283,9 @@ def run_experiment(db, store, models, cfg: Config, name: str,
                    multi_entry_single_episode_percent: float = 0.0,
                    topology_seed: str = "default",
                    use_golden: bool = False) -> dict:
+    run_id = str(uuid.uuid4())
+    if hasattr(store, "bind_experiment"):
+        store.bind_experiment(run_id, cfg.publisher_weight_version)
     started = datetime.now(timezone.utc)
     import sys
     print(f"[experiment] engine={cfg.engine} "
@@ -287,6 +294,8 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     if cfg.engine == "spine" and topology_label_set_id is not None:
         raise ValueError("spine engine does not support topology curation")
     golden_anchor = None
+    if use_golden:
+        since = _anchored_replay_since(since)
     if use_golden and cfg.engine == "spine":
         # anchored continue: the live tables ARE the reviewed golden image
         # (golden promote froze them); verify that, skip the reset, and let
@@ -313,12 +322,11 @@ def run_experiment(db, store, models, cfg: Config, name: str,
                              "where review_status = 'reviewed'")["n"]}
     elif use_golden:
         from pipeline.golden import GoldenValidationError, apply_reviewed, validate
-        since = _anchored_replay_since(since)
         validation = validate(db, complete=True)
         if not validation["valid"]:
             raise GoldenValidationError(
                 "golden anchor is not ready: " + "; ".join(validation["errors"][:10]))
-        golden_anchor = apply_reviewed(db, cfg)
+        golden_anchor = apply_reviewed(db, cfg, source_run_id=run_id)
     else:
         reset_clusters(db)
     if cfg.engine == "spine":
@@ -347,7 +355,9 @@ def run_experiment(db, store, models, cfg: Config, name: str,
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as handle:
         handle.write(report)
-    run_id = record_run(db, name, cfg, cluster_report, summary, cache_stats, started, finished)
+    run_id = record_run(
+        db, name, cfg, cluster_report, summary, cache_stats, started, finished,
+        run_id=run_id)
     from pipeline.rank import snapshot_run
     snapshot = snapshot_run(db, cfg, run_id)
     cluster_snapshot_rows = capture_run_snapshot(db, cfg, run_id)

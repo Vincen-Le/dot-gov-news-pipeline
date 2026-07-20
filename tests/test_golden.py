@@ -8,6 +8,7 @@ import pytest
 from pipeline.shared.config import Config
 from pipeline.shared.db import Db
 from pipeline.golden import (
+    _MIRRORED_TABLES,
     GoldenValidationError,
     _one_parent_errors,
     _required_label_errors,
@@ -98,6 +99,10 @@ def test_source_run_is_inferred_only_when_unique():
 
     assert _resolve_source_run_id(db) == "run-1"
     assert db.params == {"requested": None}
+
+
+def test_golden_render_mirror_includes_point_in_time_card_contexts():
+    assert _MIRRORED_TABLES[-2:] == ("event_cards", "event_card_contexts")
 
 
 def test_requested_source_run_must_match_current_cards():

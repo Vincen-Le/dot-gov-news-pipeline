@@ -32,6 +32,36 @@ def test_unprocessed_entries_rejects_missing_publisher_attribution():
         Store(db).unprocessed_entries()
 
 
+def test_insert_card_carries_preallocated_run_and_weight_provenance():
+    class RpcDb:
+        def __init__(self):
+            self.call = None
+
+        def rpc(self, fn, **kwargs):
+            self.call = (fn, kwargs)
+            return "card-1"
+
+        @staticmethod
+        def jsonb(value):
+            return value
+
+    db = RpcDb()
+    store = Store(db)
+    store.bind_experiment("00000000-0000-4000-8000-000000000123", 4)
+
+    card_id = store.insert_card(
+        storyline_id="story-1", episode_id=None, kind="overview",
+        headline="Headline", summary="Summary", timeline=[], rubric=None,
+        rubric_version=None, interest_reason=None,
+        representative_entry_id=None, judge_model=None, prompt_version=1,
+        overview_embedding=None, tau=124600.0)
+
+    assert card_id == "card-1"
+    assert db.call[0] == "insert_event_card"
+    assert db.call[1]["p_source_run_id"] == "00000000-0000-4000-8000-000000000123"
+    assert db.call[1]["p_publisher_weight_version"] == 4
+
+
 def test_entries_needing_features_filters_by_curated_publisher_key():
     db = ReadDb([])
 

@@ -244,6 +244,15 @@ export function createLabRouter(deps: LabRouteDeps): Router {
   };
 
   router.get(
+    "/rank/experiments",
+    handle(async (_request, response) => {
+      const rank = await requireRankQueries(response);
+      if (rank === null) return;
+      response.json({ data: { items: await rank.rankExperiments() } });
+    }),
+  );
+
+  router.get(
     "/rank/facets",
     handle(async (request, response) => {
       const rank = await requireRankQueries(response);
@@ -254,6 +263,36 @@ export function createLabRouter(deps: LabRouteDeps): Router {
         return;
       }
       response.json({ data: { facets: await rank.rankFacets(run.data) } });
+    }),
+  );
+
+  router.get(
+    "/rank/detail",
+    handle(async (request, response) => {
+      const rank = await requireRankQueries(response);
+      if (rank === null) return;
+      const experiment = UUID.safeParse(request.query.experiment);
+      const card = UUID.safeParse(request.query.card);
+      if (!experiment.success || !card.success) {
+        sendError(
+          response,
+          400,
+          "bad_request",
+          "experiment and card must be uuids",
+        );
+        return;
+      }
+      const detail = await rank.rankRowDetail(experiment.data, card.data);
+      if (detail === null) {
+        sendError(
+          response,
+          404,
+          "not_found",
+          "Card does not belong to the pinned rank experiment",
+        );
+        return;
+      }
+      response.json({ data: detail });
     }),
   );
 

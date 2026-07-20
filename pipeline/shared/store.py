@@ -24,6 +24,17 @@ class Store:
 
     def __init__(self, db: Db) -> None:
         self.db = db
+        self.source_run_id: str | None = None
+        self.publisher_weight_version = 1
+
+    def bind_experiment(self, source_run_id: str | None,
+                        publisher_weight_version: int) -> None:
+        """Attach preallocated experiment provenance to subsequent card writes."""
+
+        if publisher_weight_version < 1:
+            raise ValueError("publisher_weight_version must be positive")
+        self.source_run_id = source_run_id
+        self.publisher_weight_version = publisher_weight_version
 
     # -- writes (RPCs) -------------------------------------------------
     def upsert_news_source(self, canonical_url: str, source_type: str, title: str | None) -> str:
@@ -95,7 +106,8 @@ class Store:
             p_rubric_version=rubric_version, p_interest_reason=interest_reason,
             p_representative_entry_id=representative_entry_id, p_judge_model=judge_model,
             p_prompt_version=prompt_version, p_overview_embedding=overview_embedding,
-            p_tau=tau)
+            p_tau=tau, p_source_run_id=self.source_run_id,
+            p_publisher_weight_version=self.publisher_weight_version)
 
     # -- reads ----------------------------------------------------------
     def unprocessed_entries(self, batch: int = 500) -> list[dict]:

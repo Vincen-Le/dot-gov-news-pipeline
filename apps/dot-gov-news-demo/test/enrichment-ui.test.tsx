@@ -491,8 +491,7 @@ describe("filter option layout", () => {
       configurable: true,
       get(this: HTMLElement) {
         if (this.dataset.filterOption !== "theme-2") return 0;
-        return document.querySelector('[data-filter-option="theme-1"]') ===
-          null
+        return document.querySelector('[data-filter-option="theme-1"]') === null
           ? 0
           : 100;
       },

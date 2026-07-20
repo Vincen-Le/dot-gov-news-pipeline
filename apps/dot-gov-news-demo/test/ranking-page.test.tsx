@@ -84,9 +84,7 @@ describe("ranking score makeup", () => {
       ],
     });
     queryClient.setQueryData(["bootstrap"], {
-      agencies: [
-        { displayName: "Food and Drug Administration", key: "fda" },
-      ],
+      agencies: [{ displayName: "Food and Drug Administration", key: "fda" }],
       categories: [],
       previews: [],
       storylines: {
@@ -109,7 +107,9 @@ describe("ranking score makeup", () => {
       screen.getByRole("button", { name: "Ranked story opens here" }),
     );
 
-    expect(screen.getByRole("button", { name: "Close storyline" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Close storyline" }),
+    ).toBeTruthy();
     expect(screen.getByTestId("location").textContent).toBe(
       `/ranking?storyline=${storylineId}`,
     );

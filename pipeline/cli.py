@@ -91,15 +91,25 @@ def main() -> None:
     p.add_argument("--no-cache", action="store_true")
     _add_topology_curation_arguments(p)
 
-    p = sub.add_parser("rank", help="rank observability: snapshot | audit | fit")
-    p.add_argument("action", choices=["snapshot", "audit", "fit"])
+    p = sub.add_parser(
+        "rank", help="rank observability and versioned context maintenance")
+    p.add_argument(
+        "action", choices=[
+            "snapshot", "audit", "fit", "backfill-contexts", "calculate",
+            "bootstrap-legacy", "opinions"
+        ])
+    p.add_argument("--name", help="immutable rank experiment name (calculate)")
     p.add_argument("--run", help="complex_v1_experiment_runs.id (snapshot/audit)")
     p.add_argument("--runs", help="comma-separated run ids (fit)")
     p.add_argument("--labels", default=None,
                    help="rank-labels csv overriding llm verdicts (fit)")
     p.add_argument("--min-pairs", type=int, default=50, dest="min_pairs")
     p.add_argument("--write", action="store_true",
-                   help="insert fitted weights as a new rubric_version")
+                   help="persist fitted weights or exact context backfill rows")
+    p.add_argument("--allow-fallback", action="store_true",
+                   help="deprecated safety check; fallback writes are rejected")
+    p.add_argument("--limit", type=int,
+                   help="maximum missing cards to inspect during context backfill")
     p.add_argument("--stub", action="store_true")
     p.add_argument("--no-cache", action="store_true")
 
@@ -190,7 +200,28 @@ def main() -> None:
         from pipeline.rank import audit_run, snapshot_run
         if args.action in ("snapshot", "audit") and not args.run:
             parser.error("--run is required for snapshot/audit")
-        if args.action == "snapshot":
+        if args.action == "bootstrap-legacy":
+            from pipeline.ranking.experiments import bootstrap_legacy_rank
+            out = bootstrap_legacy_rank(db)
+        elif args.action == "opinions":
+            if not args.run:
+                parser.error("--run is required for rank opinions")
+            from pipeline.ranking.opinions import generate_position_opinions
+            out = generate_position_opinions(
+                db, _models(cfg, args.stub, args.no_cache), cfg, args.run)
+        elif args.action == "calculate":
+            if not args.name:
+                parser.error("--name is required for rank calculate")
+            from pipeline.ranking.experiments import create_rank_experiment
+            out = create_rank_experiment(
+                db, cfg, args.name, source_run_id=args.run)
+        elif args.action == "backfill-contexts":
+            from pipeline.ranking.backfill import backfill_event_card_contexts
+            out = backfill_event_card_contexts(
+                db, cfg, write=args.write,
+                allow_fallback=args.allow_fallback, limit=args.limit,
+                source_run_id=args.run)
+        elif args.action == "snapshot":
             out = snapshot_run(db, cfg, args.run)
         elif args.action == "audit":
             out = audit_run(db, _models(cfg, args.stub, args.no_cache), cfg, args.run)

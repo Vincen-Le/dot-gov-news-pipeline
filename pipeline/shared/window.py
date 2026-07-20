@@ -51,9 +51,12 @@ class ReplayWindow:
 class ReplayStore(Store):
     """Store with the two window reads served from RAM; everything else hits Postgres."""
 
-    def __init__(self, db, window: ReplayWindow) -> None:
+    def __init__(self, db, window: ReplayWindow, *, source_run_id: str | None = None,
+                 publisher_weight_version: int = 1) -> None:
         super().__init__(db)
         self.window = window
+        if source_run_id is not None:
+            self.bind_experiment(source_run_id, publisher_weight_version)
 
     def content_hash_dup(self, hash_: str, t: datetime, window_hours: float) -> dict | None:
         return self.window.content_hash_dup(hash_, t, window_hours)
