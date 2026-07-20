@@ -27,7 +27,7 @@ before changing or operating the pipeline.
 | Work with generalized news-source contracts                         | [`news-source.ts`](../packages/contracts/src/news-source.ts)                                                                 | Generalized schema migration and database tests                                                                                                       |
 | Curate aggregation experiments by expected corpus topology          | [Topology-label curation](operations/topology-label-curation.md)                                                             | Versioned sidecar labels and deterministic whole-storyline sampling                                                                                   |
 | Build the chronological human-reviewed anchor                       | [Golden news curation](operations/golden-news-curation.md)                                                                   | July-August batches, correction workflow, reconstruction, validation, export, and anchored replay                                                     |
-| Generate card thumbnails/article synthesis or recover golden assets | [Image and synthesis generation](../apps/image_and_synthesis_gen/README.md)                                                  | Invoke the **Backfill Golden Enrichment** skill with `$golden-enrichment-backfill` for the reviewed-card workflow                                     |
+| Generate storyline thumbnails/article synthesis or recover golden assets | [Image and synthesis generation](../apps/image_and_synthesis_gen/README.md)                                                  | Invoke the **Thumbnail and Article Synthesis** skill with `$thumbnail-and-article-synthesis-skill` for the reviewed-card workflow                     |
 | Start or recover local Chroma                                       | [Infrastructure runbook](infrastructure/runbook.md)                                                                          | [`infra/chroma/compose.yaml`](../infra/chroma/compose.yaml)                                                                                           |
 | Rotate credentials or investigate failures                          | [Infrastructure runbook](infrastructure/runbook.md)                                                                          | [Provider access](infrastructure/access.md)                                                                                                           |
 | Remove infrastructure                                               | [Teardown procedure](infrastructure/teardown.md)                                                                             | Live provider inventory before taking action                                                                                                          |
@@ -65,7 +65,7 @@ before changing or operating the pipeline.
   database setup, and per-engine experiment/snapshot tables.
 - [Image and synthesis generation](../apps/image_and_synthesis_gen/README.md)
   documents the independent thumbnail and article-synthesis lanes and the
-  Backfill Golden Enrichment skill.
+  Thumbnail and Article Synthesis skill.
 - [Evaluation harness runbook](operations/evaluation-harness.md) is the
   comprehensive guide to setup, costs, state boundaries, experiment design,
   topology curation, result interpretation, ranking audits, and recovery.

@@ -24,16 +24,16 @@ apps/image_and_synthesis_gen/
 ```
 
 Use `pnpm card:generate` for new operator commands. `pnpm golden:enrich` is a
-compatibility alias retained for the Backfill Golden Enrichment skill and
+compatibility alias retained for the Thumbnail and Article Synthesis skill and
 existing runbooks. The following durable names also remain unchanged to avoid
 breaking resumable runs or hosted data: `.data/golden-enrichment`,
 `golden-enrichment/images/...`, golden database tables/RPCs, frozen artifact
 schema names, and CLI event names.
 
-## Backfill Golden Enrichment skill
+## Thumbnail and article synthesis skill
 
-Use the **Backfill Golden Enrichment** Codex skill by invoking
-`$golden-enrichment-backfill` when asking Codex to run, resume, audit, or
+Use the **Thumbnail and Article Synthesis** Codex skill by invoking
+`$thumbnail-and-article-synthesis-skill` when asking Codex to run, resume, audit, or
 recover the reviewed golden-card workflow. The skill is the agent-facing
 operational runbook for:
 
@@ -58,8 +58,8 @@ arbitrary unreviewed cards.
 Example requests:
 
 ```text
-Use $golden-enrichment-backfill to resume missing images and syntheses.
-Use $golden-enrichment-backfill to audit hosted coverage before generating more.
+Use $thumbnail-and-article-synthesis-skill to resume missing images and syntheses.
+Use $thumbnail-and-article-synthesis-skill to audit hosted coverage before generating more.
 ```
 
 ```bash
