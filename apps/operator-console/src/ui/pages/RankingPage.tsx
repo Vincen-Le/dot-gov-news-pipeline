@@ -341,104 +341,108 @@ export function RankingPage() {
       {snapshot.isPending ? <LoadingState label="Loading snapshot" /> : null}
       {snapshot.isError ? <ErrorState error={snapshot.error} /> : null}
       {snapshot.data ? (
-        <table className="rank-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              {compareId === "" ? null : <th>Δ</th>}
-              <th>headline</th>
-              <th>rank_key</th>
-              <th>terms</th>
-              <th>ag</th>
-              <th>feeds</th>
-              <th>entries</th>
-              <th>judged</th>
-              <th>rubric</th>
-            </tr>
-          </thead>
-          <tbody>
-            {snapshot.data.rows.map((row) => {
-              const pairs = disagreeing.get(row.position) ?? [];
-              const other = comparePosition.get(row.storylineId);
-              const delta = other === undefined ? null : other - row.position;
-              const rowKey = `${row.facetType}|${row.facetKey}|${row.position}`;
-              return (
-                <tr key={rowKey}>
-                  <td>
-                    {row.position}
-                    {pairs.length > 0 ? (
-                      <button
-                        className="rank-audit-flag"
-                        onClick={() =>
-                          setExpanded(expanded === rowKey ? null : rowKey)
-                        }
-                        title="LLM audit disagrees with this placement"
-                        type="button"
-                      >
-                        ⚑
-                      </button>
-                    ) : null}
-                    {expanded === rowKey
-                      ? pairs.map((pair) => (
-                          <AuditDetail
-                            key={`${pair.positionA}-${pair.positionB}`}
-                            pair={pair}
-                            pipeline={pipeline}
-                            rows={snapshot.data.rows}
-                            runId={runId}
-                          />
-                        ))
-                      : null}
-                  </td>
-                  {compareId === "" ? null : (
-                    <td className="rank-delta">
-                      {delta === null
-                        ? "·"
-                        : delta === 0
-                          ? "="
-                          : delta > 0
-                            ? `▼${delta}`
-                            : `▲${-delta}`}
+        <div className="table-scroll rank-table-scroll">
+          <table className="rank-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                {compareId === "" ? null : <th>Δ</th>}
+                <th>headline</th>
+                <th>rank_key</th>
+                <th>terms</th>
+                <th>ag</th>
+                <th>feeds</th>
+                <th>entries</th>
+                <th>judged</th>
+                <th>rubric</th>
+              </tr>
+            </thead>
+            <tbody>
+              {snapshot.data.rows.map((row) => {
+                const pairs = disagreeing.get(row.position) ?? [];
+                const other = comparePosition.get(row.storylineId);
+                const delta = other === undefined ? null : other - row.position;
+                const rowKey = `${row.facetType}|${row.facetKey}|${row.position}`;
+                return (
+                  <tr key={rowKey}>
+                    <td>
+                      {row.position}
+                      {pairs.length > 0 ? (
+                        <button
+                          className="rank-audit-flag"
+                          onClick={() =>
+                            setExpanded(expanded === rowKey ? null : rowKey)
+                          }
+                          title="LLM audit disagrees with this placement"
+                          type="button"
+                        >
+                          ⚑
+                        </button>
+                      ) : null}
+                      {expanded === rowKey
+                        ? pairs.map((pair) => (
+                            <AuditDetail
+                              key={`${pair.positionA}-${pair.positionB}`}
+                              pair={pair}
+                              pipeline={pipeline}
+                              rows={snapshot.data.rows}
+                              runId={runId}
+                            />
+                          ))
+                        : null}
                     </td>
-                  )}
-                  <td className="rank-headline">
-                    <Link
-                      to={`/storylines/${row.storylineId}?experiment=${encodeURIComponent(runId)}`}
-                    >
-                      {row.headline ?? "(no headline)"}
-                    </Link>
-                    {row.interestReason === null ? null : (
-                      <small title={row.interestReason}>
-                        {row.interestReason}
-                      </small>
+                    {compareId === "" ? null : (
+                      <td className="rank-delta">
+                        {delta === null
+                          ? "·"
+                          : delta === 0
+                            ? "="
+                            : delta > 0
+                              ? `▼${delta}`
+                              : `▲${-delta}`}
+                      </td>
                     )}
-                  </td>
-                  <td>{row.rankKey.toFixed(2)}</td>
-                  <td>
-                    <TermBar row={row} />
-                  </td>
-                  <td>{row.agencies}</td>
-                  <td>{row.feeds}</td>
-                  <td>{row.entryCount}</td>
-                  <td>
-                    <span className={row.judged ? "rank-judged" : "rank-prior"}>
-                      {row.judged ? "judged" : "prior"}
-                    </span>
-                  </td>
-                  <td className="rank-rubric">
-                    {RUBRIC_CRITERIA.filter(
-                      (criterion) => String(row.rubric?.[criterion]) === "1",
-                    ).map((criterion) => (
-                      <span className="rank-chip" key={criterion}>
-                        {criterion}
+                    <td className="rank-headline">
+                      <Link
+                        to={`/storylines/${row.storylineId}?experiment=${encodeURIComponent(runId)}`}
+                      >
+                        {row.headline ?? "(no headline)"}
+                      </Link>
+                      {row.interestReason === null ? null : (
+                        <small title={row.interestReason}>
+                          {row.interestReason}
+                        </small>
+                      )}
+                    </td>
+                    <td>{row.rankKey.toFixed(2)}</td>
+                    <td>
+                      <TermBar row={row} />
+                    </td>
+                    <td>{row.agencies}</td>
+                    <td>{row.feeds}</td>
+                    <td>{row.entryCount}</td>
+                    <td>
+                      <span
+                        className={row.judged ? "rank-judged" : "rank-prior"}
+                      >
+                        {row.judged ? "judged" : "prior"}
                       </span>
-                    ))}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="rank-rubric">
+                      {RUBRIC_CRITERIA.filter(
+                        (criterion) => String(row.rubric?.[criterion]) === "1",
+                      ).map((criterion) => (
+                        <span className="rank-chip" key={criterion}>
+                          {criterion}
+                        </span>
+                      ))}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       ) : null}
     </section>
   );

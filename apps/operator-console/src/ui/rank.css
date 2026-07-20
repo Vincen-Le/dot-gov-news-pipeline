@@ -101,6 +101,19 @@
   background: color-mix(in srgb, var(--live) 7%, transparent);
 }
 
+.rank-table-scroll {
+  max-width: 100%;
+}
+
+.rank-table-scroll .rank-table thead th {
+  top: 0;
+}
+
+.rank-rubric {
+  min-width: 18rem;
+  white-space: normal;
+}
+
 .rank-headline {
   min-width: 320px;
   font-weight: 600;
