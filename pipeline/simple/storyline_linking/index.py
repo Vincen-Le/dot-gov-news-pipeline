@@ -1,4 +1,4 @@
-"""In-memory storyline index for the spine replay.
+"""Candidate retrieval and episode-lifecycle index for storyline linking.
 
 Retrieval is max cosine against MEMBER embeddings (research amendment #1:
 overview vectors drift and hub; members do not). Centroids are kept only as

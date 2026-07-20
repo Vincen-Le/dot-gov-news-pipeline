@@ -30,7 +30,8 @@ class CardEngine:
         # than corpus_dim -- e.g. a --stub run over a db seeded with real
         # embeddings. storylines.centroid started at corpus_dim
         # (news_entries.embedding); overwriting it with a mismatched vector
-        # would corrupt every downstream pairwise cosine (pipeline/simple/themes.py
+        # would corrupt every downstream pairwise cosine
+        # (pipeline/simple/theme_clustering/average_linkage.py
         # cluster_storylines). Passing overview_embedding None keeps the
         # existing centroid (insert_event_card does
         # `coalesce(p_overview_embedding, centroid)`).

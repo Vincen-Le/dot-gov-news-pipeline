@@ -4,8 +4,7 @@ import numpy as np
 
 from pipeline.shared.config import Config
 from pipeline.shared.stub import StubModels
-from pipeline.simple.index import StorylineIndex
-from pipeline.simple.linker import Linker
+from pipeline.simple.storyline_linking import Linker, StorylineIndex
 from tests.fakes import FakeStore
 
 CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t",
@@ -14,7 +13,8 @@ T0 = datetime(2025, 7, 1, tzinfo=timezone.utc)
 
 # Mirrors episodes_attach_method_valid / episode_entries_attach_method_valid
 # in supabase/migrations/20260718000600_create_storylines_episodes.sql — the
-# DB-legal vocabulary spine's writes must map onto (see pipeline/simple/linker.py's
+# DB-legal vocabulary spine's writes must map onto (see
+# pipeline/simple/storyline_linking/linker.py's
 # _EPISODE_ATTACH_METHOD / _ENTRY_ATTACH_METHOD).
 EPISODE_ATTACH_METHODS = {
     "event_key", "entity_candidate", "adjudicated_join", "new_storyline",

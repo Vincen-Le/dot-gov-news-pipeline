@@ -267,7 +267,10 @@ class WorkersAI:
             raise
 
     def link_storyline(self, entry: dict, candidates: list[dict]) -> dict:
-        from pipeline.simple.prompts import LINK_JSON_SCHEMA, build_link_prompt
+        from pipeline.simple.storyline_linking.prompts import (
+            LINK_JSON_SCHEMA,
+            build_link_prompt,
+        )
         try:
             system, user = build_link_prompt(entry, candidates)
             data = _extract_json(self._chat(
@@ -287,7 +290,10 @@ class WorkersAI:
                     "reason": f"adjudicator_error: {exc}"[:512]}
 
     def induce_theme(self, members: list[dict]) -> dict:
-        from pipeline.simple.prompts import THEME_JSON_SCHEMA, build_theme_prompt
+        from pipeline.simple.theme_clustering.prompts import (
+            THEME_JSON_SCHEMA,
+            build_theme_prompt,
+        )
         try:
             system, user = build_theme_prompt(members)
             data = _extract_json(self._chat(

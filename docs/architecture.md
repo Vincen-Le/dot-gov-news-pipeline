@@ -155,9 +155,12 @@ apps/image_and_synthesis_gen/ Card thumbnail and article-synthesis tooling
 apps/operator-api/          Read-only token-protected operator Worker
 apps/operator-console/      Local CLI, dashboard, and clustering lab
 packages/contracts/         Provider-neutral runtime-validated event contract
-pipeline/simple/            Active storyline spine used for golden data
+pipeline/simple/            Active storyline spine orchestration
+  storyline_linking/        Top-N retrieval and judge-gated episode/storyline assignment
+  theme_clustering/         Global theme clustering and persistent-ID reconciliation
 pipeline/complex/           Retained original clustering implementation
-pipeline/shared/            Shared preparation, storage, model, and evaluation code
+pipeline/shared/            Shared storage, model, and evaluation code
+  preparation/              Enrichment, embedding, and extraction preprocessing
 pipeline/*.py               Stable CLI and cross-family orchestration adapters
 config/news-backfill/       Curated backfill manifests
 scripts/                    Discovery backfill and canary operator scripts

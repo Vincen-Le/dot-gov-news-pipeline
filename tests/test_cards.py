@@ -151,7 +151,7 @@ def test_compressor_failure_falls_back_to_deterministic_overview():
 # then running a --stub (256-dim bag-of-words) experiment corrupts
 # storylines.centroid (insert_event_card does
 # `centroid = coalesce(p_overview_embedding, centroid)`), producing
-# mixed-dimension centroids that crash pipeline/simple/themes.py's pairwise cosine
+# mixed-dimension centroids that crash theme clustering's pairwise cosine
 # three files away. CardEngine.corpus_dim (set by the replay driver from the
 # corpus's real embedding dimension) guards _regenerate_overview so a
 # dimension mismatch omits the embedding instead of corrupting the centroid.

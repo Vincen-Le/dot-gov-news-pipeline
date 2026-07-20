@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
-from pipeline.simple.index import StorylineIndex
+from pipeline.simple.storyline_linking import StorylineIndex
 
 T0 = datetime(2025, 7, 1, tzinfo=timezone.utc)
 VX = np.array([1.0, 0.0], dtype=np.float32)

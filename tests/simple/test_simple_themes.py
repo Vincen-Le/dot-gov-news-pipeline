@@ -4,7 +4,7 @@ import pytest
 from pipeline.shared.config import Config
 from pipeline.shared.stub import StubModels
 from pipeline.shared.vectors import pack_fp16
-from pipeline.simple.themes import cluster_storylines, reconcile, sweep
+from pipeline.simple.theme_clustering import cluster_storylines, reconcile, sweep
 from tests.fakes import FakeStore
 
 # storylines.theme_attach_method_valid in

@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from pipeline.shared.vectors import pack_fp16
-from pipeline.simple.index import StorylineIndex
+from pipeline.simple.storyline_linking.index import StorylineIndex
 
 _MAX_HEADLINE = 512
 _MAX_SUMMARY = 8192

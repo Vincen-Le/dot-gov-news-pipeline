@@ -21,7 +21,8 @@ import numpy as np
 
 from pipeline.shared.bench import assert_local_dsn, reset_clusters
 from pipeline.shared.config import Config
-from pipeline.runner import _valid_enrichment, cluster
+from pipeline.shared.preparation import valid_enrichment
+from pipeline.runner import cluster
 from pipeline.shared.store import Store
 from pipeline.shared.vectors import pack_fp16, running_mean, unpack_fp16
 
@@ -303,7 +304,7 @@ def _invalid_feature_rows(db, batch_number: int | None = None) -> list[dict]:
         """,
         {"batch": batch_number} if batch_number is not None else None,
     )
-    return [row for row in rows if not _valid_enrichment(row["enriched_text"])]
+    return [row for row in rows if not valid_enrichment(row["enriched_text"])]
 
 
 def clear_invalid_features(db, batch_number: int | None = None) -> dict:

@@ -6,10 +6,14 @@ older complex experiment.
 
 ```text
 pipeline/
-├── simple/    active storyline spine used to produce the reviewed golden data
-├── complex/   original clustering approach; retained for comparison and recovery
-├── shared/    database, models, evaluation, normalization, and other common code
-└── *.py       stable CLI and orchestration adapters
+├── simple/                         active storyline spine
+│   ├── storyline_linking/          top-N retrieval + judge-gated assignment
+│   ├── theme_clustering/           global clustering + ID reconciliation
+│   └── replay.py                   event-time orchestration
+├── complex/                        retained original clustering approach
+├── shared/
+│   └── preparation/                enrich + embed + extract preprocessing
+└── *.py                            stable CLI and orchestration adapters
 ```
 
 The folder names describe the code organization. Existing runtime identifiers
@@ -23,13 +27,24 @@ database history:
 
 ## What belongs where
 
-- `simple/` owns the deterministic spine index, linker, replay driver, themes,
-  and its prompt contracts.
+- `simple/storyline_linking/` owns max-member top-N retrieval and the listwise
+  judge outcome: join the active episode, create an episode under the matched
+  storyline, or create a new storyline. Its narrow package interface is
+  `Linker` plus `StorylineIndex`.
+- `simple/theme_clustering/` owns global average-linkage clustering, LLM
+  confirmation/naming, and persistent theme-ID reconciliation. Its replay
+  interface is `sweep`; the pure clustering and reconciliation functions are
+  exposed for focused algorithm tests.
+- `simple/replay.py` owns event-time ordering and calls those two algorithm
+  packages; it does not implement either algorithm.
 - `complex/` owns the original episode, storyline, topic, promotion, and
   ranking-fit implementation.
-- `shared/` owns code used across both families: configuration, Postgres access,
-  corpus sync, feature preparation, model clients, caches, cards, evaluation,
-  and normalization.
+- `shared/preparation/` owns experiment-invariant preprocessing: semantic text
+  selection, enrichment validation and fallback, batched embedding, anchor
+  extraction, and feature persistence.
+- The rest of `shared/` owns code used across both families: configuration,
+  Postgres access, corpus sync, model clients, caches, cards, evaluation, and
+  normalization.
 - `cli.py`, `runner.py`, `experiment.py`, `rank.py`, and `golden.py` remain at
   the package root. They are compatibility adapters or cross-family
   orchestration seams, not a third pipeline implementation.

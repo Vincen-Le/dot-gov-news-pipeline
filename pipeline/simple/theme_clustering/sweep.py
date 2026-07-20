@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from pipeline.simple.theme_clustering.average_linkage import cluster_storylines
+from pipeline.simple.theme_clustering.reconciliation import reconcile
 from pipeline.shared.vectors import cosine, pack_fp16
 
 # storylines.theme_attach_method_valid (see
@@ -14,62 +16,6 @@ from pipeline.shared.vectors import cosine, pack_fp16
 # include a "spine_sweep" value — the closest legal value for a sweep-time
 # assignment is "sweep_join".
 _THEME_ATTACH_METHOD = "sweep_join"
-
-
-def cluster_storylines(vecs: list, link_sim: float) -> list[list[int]]:
-    clusters = [[i] for i in range(len(vecs))]
-    if len(vecs) < 2:
-        return clusters
-    dims = sorted({len(v) for v in vecs})
-    if len(dims) > 1:
-        # storylines.centroid holds mixed embedding dimensions -- almost
-        # always a --stub replay run over a db that also has real
-        # (e.g. bge-m3, 1024-dim) embeddings from a prior real run. A
-        # pairwise cosine over mismatched-length vectors crashes with an
-        # opaque numpy shape error three frames down; fail here instead with
-        # actionable remediation.
-        raise ValueError(
-            f"storylines.centroid has mixed embedding dimensions {dims} -- "
-            "cannot cluster. This usually means a --stub run wrote overview "
-            "cards on top of a corpus with real embeddings. Fix by "
-            "regenerating a consistent corpus: `pipeline reset --features` "
-            "then `pipeline prepare --stub`.")
-    sims = np.array([[cosine(a, b) for b in vecs] for a in vecs])
-    while len(clusters) > 1:
-        best, best_pair = -1.0, None
-        for i in range(len(clusters)):
-            for j in range(i + 1, len(clusters)):
-                avg = float(np.mean(
-                    [sims[a][b] for a in clusters[i] for b in clusters[j]]))
-                if avg > best:
-                    best, best_pair = avg, (i, j)
-        if best < link_sim:
-            break
-        i, j = best_pair
-        clusters[i] = clusters[i] + clusters[j]
-        del clusters[j]
-    return clusters
-
-
-def reconcile(clusters: list[list[str]], existing: dict[str, set[str]],
-              keep_overlap: float) -> list[tuple[str | None, list[str]]]:
-    pairs = []
-    for ci, cluster in enumerate(clusters):
-        members = set(cluster)
-        for theme_id, theme_members in existing.items():
-            jaccard = (len(members & theme_members)
-                       / len(members | theme_members))
-            if jaccard >= keep_overlap:
-                pairs.append((jaccard, ci, theme_id))
-    pairs.sort(key=lambda p: (-p[0], p[1], p[2]))
-    cluster_theme: dict[int, str] = {}
-    used: set[str] = set()
-    for jaccard, ci, theme_id in pairs:
-        if ci not in cluster_theme and theme_id not in used:
-            cluster_theme[ci] = theme_id
-            used.add(theme_id)
-    return [(cluster_theme.get(ci), cluster) for ci, cluster in
-            enumerate(clusters)]
 
 
 def sweep(store, models, cfg) -> dict:

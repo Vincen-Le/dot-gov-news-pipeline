@@ -17,9 +17,8 @@ from pipeline.shared.categories import CategoryEngine
 from pipeline.runner import _WindowedFake
 from pipeline.shared.vectors import unpack_fp16
 from pipeline.shared.window import ReplayStore, ReplayWindow
-from pipeline.simple.index import StorylineIndex
-from pipeline.simple.linker import Linker
-from pipeline.simple.themes import sweep
+from pipeline.simple.storyline_linking import Linker, StorylineIndex
+from pipeline.simple.theme_clustering import sweep
 
 
 def _prime_index(db, index: StorylineIndex) -> int:

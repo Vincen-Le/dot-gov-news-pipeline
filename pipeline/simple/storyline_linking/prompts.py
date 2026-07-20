@@ -1,14 +1,6 @@
-"""Spine prompt builders. All verdicts are strict JSON."""
+"""Listwise storyline-link judge prompt and cache contract."""
 
 from __future__ import annotations
-
-SPINE_ENRICHER_SYSTEM = (
-    "Compress the article into exactly ONE sentence optimized for semantic "
-    "search. Hard requirements: preserve every named agency, person, program, "
-    "place, and date verbatim; state the concrete action (who did what to "
-    "whom, with numbers if present); no editorializing, no vague abstractions "
-    "like 'officials announced changes'. Output only the sentence."
-)
 
 # Workers AI JSON mode schemas — see pipeline/shared/prompts.py for rationale.
 # No union types ("type": [..., "null"]): Workers AI's constrained decoder
@@ -24,16 +16,6 @@ LINK_JSON_SCHEMA = {
     "required": ["match", "same_development", "reason"],
 }
 
-THEME_JSON_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "theme": {"type": "boolean"},
-        "name": {"type": "string"},
-        "reason": {"type": "string"},
-    },
-    "required": ["theme", "name", "reason"],
-}
-
 LINK_SYSTEM = (
     "You link government news articles into storylines (chains of episodes "
     "about one evolving real-world matter). Given a new article and candidate "
@@ -47,15 +29,6 @@ LINK_SYSTEM = (
     "same concrete development as the storyline's latest coverage (a "
     "follow-up, restatement, or detail of it), false if it is a new "
     "development in the same storyline."
-)
-
-THEME_SYSTEM = (
-    "You review a proposed theme: a group of storylines that may share a "
-    "recurring pattern (same policy area, campaign, or recurring activity). "
-    'Respond with strict JSON: {"theme": <bool>, "name": "<3-8 word title '
-    'case name>", "reason": "<one sentence>"}. theme is true only if a '
-    "clear majority of the storylines share one nameable pattern a reader "
-    "would want to follow; the name must describe the pattern, not one event."
 )
 
 
@@ -83,19 +56,13 @@ def build_link_prompt(entry: dict, candidates: list[dict]) -> tuple[str, str]:
     return LINK_SYSTEM, "\n".join(lines)
 
 
-def build_theme_prompt(members: list[dict]) -> tuple[str, str]:
-    lines = ["PROPOSED THEME MEMBERS:"]
-    lines += [f"  - {m['headline']}" for m in members]
-    lines.append("\nJSON verdict:")
-    return THEME_SYSTEM, "\n".join(lines)
-
-
 def link_cache_parts(entry: dict, candidates: list[dict]) -> list:
     """Content-stable cache key parts — never row ids. The prompt varies with
     the full entry payload (title/enriched_text/published_at/entity_set/
     content_hash) and full candidate payloads (headline/summary/
     newest_entry_at/gap_hours/shared_entities/episode_count), so key on both
-    payload dicts in full — neither carries a row id (see pipeline/simple/linker.py's
-    _entry_payload/_candidate_payload) — and let the caller's sha256-over-
+    payload dicts in full — neither carries a row id (see
+    pipeline/simple/storyline_linking/linker.py's _entry_payload and
+    _candidate_payload) — and let the caller's sha256-over-
     sorted-json handle stability."""
     return [entry, candidates]

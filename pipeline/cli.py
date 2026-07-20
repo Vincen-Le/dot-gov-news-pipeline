@@ -160,7 +160,7 @@ def main() -> None:
         url, key = load_hosted()
         out = sync_corpus(db, url, key)
     elif args.command == "prepare":
-        from pipeline.runner import prepare
+        from pipeline.shared.preparation import prepare
         out = prepare(store, _models(cfg, args.stub, no_cache=True), cfg,
                       limit=args.limit, concurrency=args.concurrency,
                       per_agency=args.per_agency, agencies=args.agencies)

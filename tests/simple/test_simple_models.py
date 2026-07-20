@@ -1,6 +1,7 @@
 from pipeline.shared.cache import CachedModels, DecisionCache
 from pipeline.shared.stub import StubModels
-from pipeline.simple.prompts import build_link_prompt, build_theme_prompt
+from pipeline.simple.storyline_linking.prompts import build_link_prompt
+from pipeline.simple.theme_clustering.prompts import build_theme_prompt
 
 ENTRY = {"title": "FTC sues Acme Corp over merger", "enriched_text":
          "FTC filed an antitrust suit against Acme Corp on 2025-07-02.",

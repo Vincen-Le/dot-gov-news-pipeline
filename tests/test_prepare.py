@@ -4,7 +4,7 @@ import numpy as np
 
 from pipeline.shared.config import Config
 from pipeline.shared.extraction import EXTRACTOR_VERSION
-from pipeline.runner import prepare
+from pipeline.shared.preparation import prepare
 
 T0 = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)
 CFG = Config(database_url="x", cf_account_id="a", cf_api_token="t")
