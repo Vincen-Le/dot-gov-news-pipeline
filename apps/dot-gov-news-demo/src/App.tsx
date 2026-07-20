@@ -1,9 +1,8 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 
-import { dotGovApi, storylineDetailQuery } from "./api/client";
-import { StatePanel } from "./components";
+import { dotGovApi } from "./api/client";
 import { isoDay } from "./domain/as-of";
 import { DateNavigator } from "./DateNavigator";
 import { NewsMark } from "./NewsMark";
@@ -20,14 +19,6 @@ export function App() {
     queryFn: ({ signal }) => dotGovApi.storylines(signal),
     queryKey: ["storylines"],
   });
-  const storylineDetails = useQueries({
-    queries: (storylines.data?.items ?? []).map((item) =>
-      storylineDetailQuery(item.id),
-    ),
-  });
-  const isPreparingStorylines = storylineDetails.some(
-    (detail) => detail.isPending,
-  );
   const bounds = useMemo(() => {
     const items = storylines.data?.items ?? [];
     const starts = items
@@ -100,24 +91,18 @@ export function App() {
         onChange={setAsOf}
       />
       <main id="main-content">
-        {isPreparingStorylines ? (
-          <StatePanel title="Preparing the publication timeline">
-            Loading every reviewed storyline snapshot for smooth date changes.
-          </StatePanel>
-        ) : (
-          <Routes>
-            <Route element={<StorylinesPage asOf={effectiveDay} />} path="/" />
-            <Route
-              element={<StorylinesPage asOf={effectiveDay} />}
-              path="/storylines"
-            />
-            <Route
-              element={<RankingPage asOf={effectiveDay} />}
-              path="/ranking"
-            />
-            <Route element={<StorylinesPage asOf={effectiveDay} />} path="*" />
-          </Routes>
-        )}
+        <Routes>
+          <Route element={<StorylinesPage asOf={effectiveDay} />} path="/" />
+          <Route
+            element={<StorylinesPage asOf={effectiveDay} />}
+            path="/storylines"
+          />
+          <Route
+            element={<RankingPage asOf={effectiveDay} />}
+            path="/ranking"
+          />
+          <Route element={<StorylinesPage asOf={effectiveDay} />} path="*" />
+        </Routes>
       </main>
       <footer className="site-footer">
         <span>Public information connected over time</span>

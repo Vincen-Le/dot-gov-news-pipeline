@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import type { StorylineListItem } from "./api/contracts";
-import { dotGovApi, storylineDetailQuery } from "./api/client";
+import { dotGovApi } from "./api/client";
 import {
   agencyNames,
   FilterGroup,
@@ -106,8 +106,9 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
     [available],
   );
   const topStorylineDetail = useQuery({
-    ...storylineDetailQuery(topStoryline?.id ?? ""),
     enabled: topStoryline !== null,
+    queryFn: ({ signal }) => dotGovApi.storyline(topStoryline!.id, signal),
+    queryKey: ["storyline", topStoryline?.id],
   });
   const heroArtwork = useMemo(() => {
     if (topStoryline === null) return null;
