@@ -100,6 +100,7 @@ const themeId = "00000000-0000-4000-8000-000000000061";
 const sourceId = "00000000-0000-4000-8000-000000000071";
 const runId = "00000000-0000-4000-8000-000000000081";
 const imageId = "00000000-0000-4000-8000-000000000091";
+const missingImageId = "00000000-0000-4000-8000-000000000099";
 
 function fixtures(entryCount = 1): Tables {
   return {
@@ -307,7 +308,7 @@ describe("demo repository", () => {
           expect.objectContaining({
             id: cardId,
             thumbnail: expect.objectContaining({
-              cardUrl: `/api/lab/assets/event-cards/${cardId}/card`,
+              cardUrl: `/api/lab/assets/images/${imageId}/card`,
             }),
           }),
         ],
@@ -336,7 +337,7 @@ describe("demo repository", () => {
       newestEntryAt: "2025-07-20T12:00:00.000Z",
       thumbnail: {
         altText: "Geometric editorial illustration of the agency action.",
-        cardUrl: `/api/lab/assets/event-cards/${cardId}/card`,
+        cardUrl: `/api/lab/assets/images/${imageId}/card`,
         focalX: 0.4,
         focalY: 0.6,
       },
@@ -354,7 +355,7 @@ describe("demo repository", () => {
     expect(detail?.overviewCards[0]?.articleOverview).not.toHaveProperty(
       "whatRemainsUnresolved",
     );
-    expect(await repository.getCardThumbnailAsset(cardId)).toEqual({
+    expect(await repository.getThumbnailAsset(imageId)).toEqual({
       key: `golden/storylines/${storylineId}/card.webp`,
       mimeType: "image/webp",
     });
@@ -392,7 +393,7 @@ describe("demo repository", () => {
       id: cardId,
       thumbnail: null,
     });
-    expect(await repository.getCardThumbnailAsset(cardId)).toBeNull();
+    expect(await repository.getThumbnailAsset(missingImageId)).toBeNull();
   });
 
   it("resolves every card version through the storyline thumbnail", async () => {
@@ -414,7 +415,7 @@ describe("demo repository", () => {
       "Geometric editorial illustration of the agency action.",
       "Geometric editorial illustration of the agency action.",
     ]);
-    expect(await repository.getCardThumbnailAsset(secondCardId)).toEqual({
+    expect(await repository.getThumbnailAsset(imageId)).toEqual({
       key: `golden/storylines/${storylineId}/card.webp`,
       mimeType: "image/webp",
     });

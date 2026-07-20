@@ -77,7 +77,7 @@ function overviewCard(
     summary: `Summary version ${version}`,
     thumbnail: {
       altText,
-      cardUrl: `/api/lab/assets/event-cards/${id}/card`,
+      cardUrl: `/api/lab/assets/images/${id}/card`,
       focalX: 0.25,
       focalY: 0.75,
     },

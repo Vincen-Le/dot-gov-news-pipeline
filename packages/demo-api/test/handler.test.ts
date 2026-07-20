@@ -54,7 +54,7 @@ function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
       storylines: { hasMore: false, items: [storyline()] },
       themes: [],
     }),
-    getCardThumbnailAsset: vi.fn().mockResolvedValue(null),
+    getThumbnailAsset: vi.fn().mockResolvedValue(null),
     getRankOverview: vi.fn().mockResolvedValue(null),
     getStoryline: vi.fn().mockResolvedValue(detail()),
     listAgencies: vi.fn().mockResolvedValue([]),

@@ -91,7 +91,7 @@ describe("operator-console API contracts", () => {
       summary: "Reviewed summary",
       thumbnail: {
         altText: "Geometric editorial illustration of an agency notice.",
-        cardUrl: "/api/lab/assets/event-cards/card-1/card",
+        cardUrl: "/api/lab/assets/images/image-1/card",
         focalX: 0.25,
         focalY: 0.75,
       },

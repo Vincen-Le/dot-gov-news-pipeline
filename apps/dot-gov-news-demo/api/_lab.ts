@@ -52,10 +52,8 @@ function environmentConfig(
   return { supabaseKey, supabaseUrl };
 }
 
-function eventCardAssetId(pathname: string): string | null | undefined {
-  const match = /^\/api\/lab\/assets\/event-cards\/([^/]+)\/card$/u.exec(
-    pathname,
-  );
+function imageAssetId(pathname: string): string | null | undefined {
+  const match = /^\/api\/lab\/assets\/images\/([^/]+)\/card$/u.exec(pathname);
   if (match?.[1] === undefined) return undefined;
   const id = z.uuid().safeParse(match[1]);
   return id.success ? id.data : null;
@@ -71,11 +69,11 @@ function withoutVercelRouteMetadata(request: Request): Request {
   return new Request(url, request);
 }
 
-async function eventCardAssetResponse(
+async function imageAssetResponse(
   request: Request,
   repository: DemoRepository,
   store: DemoAssetStore,
-  eventCardId: string,
+  imageId: string,
 ): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return json(405, {
@@ -86,16 +84,16 @@ async function eventCardAssetResponse(
     });
   }
   try {
-    const asset = await repository.getCardThumbnailAsset(eventCardId);
+    const asset = await repository.getThumbnailAsset(imageId);
     if (asset === null) {
       return json(404, {
-        error: { code: "not_found", message: "Unknown event-card asset." },
+        error: { code: "not_found", message: "Unknown image asset." },
       });
     }
     const object = await store.get(asset.key);
     if (object === null) {
       return json(404, {
-        error: { code: "not_found", message: "Unknown event-card asset." },
+        error: { code: "not_found", message: "Unknown image asset." },
       });
     }
     const headers = new Headers({
@@ -121,7 +119,7 @@ async function eventCardAssetResponse(
     return json(503, {
       error: {
         code: "provider_unavailable",
-        message: "The event-card asset provider is unavailable.",
+        message: "The image asset provider is unavailable.",
         retryable: true,
       },
     });
@@ -149,12 +147,12 @@ export function createVercelDemoHandler(
     }
     repository ??= repositoryFactory(config);
     const routedRequest = withoutVercelRouteMetadata(request);
-    const assetId = eventCardAssetId(new URL(routedRequest.url).pathname);
+    const assetId = imageAssetId(new URL(routedRequest.url).pathname);
     if (assetId === null) {
       return json(400, {
         error: {
-          code: "invalid_event_card_id",
-          message: "Event card ID is invalid.",
+          code: "invalid_image_id",
+          message: "Image ID is invalid.",
         },
       });
     }
@@ -164,17 +162,12 @@ export function createVercelDemoHandler(
         return json(503, {
           error: {
             code: "asset_store_not_configured",
-            message: "The event-card asset store is not configured.",
+            message: "The image asset store is not configured.",
           },
         });
       }
       assetStore ??= assetStoreFactory(r2Config);
-      return eventCardAssetResponse(
-        routedRequest,
-        repository,
-        assetStore,
-        assetId,
-      );
+      return imageAssetResponse(routedRequest, repository, assetStore, assetId);
     }
     return handleDemoRequest(routedRequest, {
       repository,

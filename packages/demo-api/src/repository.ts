@@ -136,11 +136,6 @@ const GoldenStorylineThumbnailRowSchema = z.object({
   storyline_id: z.string(),
 });
 
-const CardStorylineRowSchema = z.object({
-  id: z.string(),
-  storyline_id: z.string(),
-});
-
 const GoldenMembershipRowSchema = z.object({
   gold_episode_id: z.string().nullable(),
   gold_storyline_id: z.string().nullable(),
@@ -401,7 +396,7 @@ export interface DemoRankOverview {
 
 export interface DemoRepository {
   getBootstrap(limit: number): Promise<DemoBootstrap>;
-  getCardThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null>;
+  getThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null>;
   getRankOverview(): Promise<DemoRankOverview | null>;
   getStoryline(id: string): Promise<DemoStorylineDetail | null>;
   listAgencies(): Promise<DemoAgency[]>;
@@ -598,7 +593,7 @@ class SupabaseDemoRepository implements DemoRepository {
             ? null
             : {
                 altText: thumbnail.alt_text,
-                cardUrl: `/api/lab/assets/event-cards/${encodeURIComponent(row.id)}/card`,
+                cardUrl: `/api/lab/assets/images/${encodeURIComponent(thumbnail.id)}/card`,
                 focalX: thumbnail.focal_x,
                 focalY: thumbnail.focal_y,
               },
@@ -641,33 +636,13 @@ class SupabaseDemoRepository implements DemoRepository {
     );
   }
 
-  async getCardThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null> {
-    const cardRow = nullableRow(
-      "golden card thumbnail storyline",
-      await this.client
-        .from("golden_event_cards")
-        .select("id,storyline_id")
-        .eq("id", id)
-        .maybeSingle(),
-      CardStorylineRowSchema,
-    );
-    if (cardRow === null) return null;
-    const association = nullableRow(
-      "golden storyline thumbnail association",
-      await this.client
-        .from("golden_storyline_thumbnails")
-        .select("storyline_id,image_id")
-        .eq("storyline_id", cardRow.storyline_id)
-        .maybeSingle(),
-      GoldenStorylineThumbnailRowSchema,
-    );
-    if (association === null) return null;
+  async getThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null> {
     const image = nullableRow(
-      "golden storyline thumbnail image",
+      "golden thumbnail image",
       await this.client
         .from("images")
         .select("id,r2_card_key,card_mime_type,alt_text,focal_x,focal_y")
-        .eq("id", association.image_id)
+        .eq("id", id)
         .maybeSingle(),
       ImageThumbnailRowSchema,
     );
@@ -854,7 +829,7 @@ class SupabaseDemoRepository implements DemoRepository {
             ? null
             : {
                 altText: thumbnail.alt_text,
-                cardUrl: `/api/lab/assets/event-cards/${encodeURIComponent(cardRow.id)}/card`,
+                cardUrl: `/api/lab/assets/images/${encodeURIComponent(thumbnail.id)}/card`,
                 focalX: thumbnail.focal_x,
                 focalY: thumbnail.focal_y,
               },

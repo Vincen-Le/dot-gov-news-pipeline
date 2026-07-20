@@ -56,7 +56,7 @@ function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
       storylines: { hasMore: false, items: [storyline()] },
       themes: [],
     }),
-    getCardThumbnailAsset: vi.fn().mockResolvedValue(null),
+    getThumbnailAsset: vi.fn().mockResolvedValue(null),
     getRankOverview: vi.fn().mockResolvedValue(null),
     getStoryline: vi.fn().mockResolvedValue(detail()),
     listAgencies: vi.fn().mockResolvedValue([]),
@@ -195,11 +195,11 @@ describe("the Vercel demo API", () => {
     expect(factory).toHaveBeenCalledTimes(1);
   });
 
-  it("serves only the card-scoped R2 object selected by the repository", async () => {
-    const cardId = crypto.randomUUID();
+  it("serves the immutable image-scoped R2 object selected by its image ID", async () => {
+    const imageId = crypto.randomUUID();
     const data = repository({
-      getCardThumbnailAsset: vi.fn().mockResolvedValue({
-        key: `golden/event-cards/${cardId}/private-card.webp`,
+      getThumbnailAsset: vi.fn().mockResolvedValue({
+        key: `golden/images/${imageId}/private-card.webp`,
         mimeType: "image/webp",
       }),
     });
@@ -217,7 +217,7 @@ describe("the Vercel demo API", () => {
 
     const response = await handler(
       new Request(
-        `https://demo.example/api/lab?path=assets/event-cards/${cardId}/card`,
+        `https://demo.example/api/lab?path=assets/images/${imageId}/card`,
       ),
     );
 
@@ -229,8 +229,9 @@ describe("the Vercel demo API", () => {
       "public, s-maxage=31536000, immutable",
     );
     expect(get).toHaveBeenCalledWith(
-      `golden/event-cards/${cardId}/private-card.webp`,
+      `golden/images/${imageId}/private-card.webp`,
     );
+    expect(data.getThumbnailAsset).toHaveBeenCalledWith(imageId);
     expect(assetFactory).toHaveBeenCalledWith({
       accessKeyId: "r2-access-key",
       bucket: "demo-assets",
@@ -249,13 +250,11 @@ describe("the Vercel demo API", () => {
     );
 
     const response = await handler(
-      new Request(
-        "https://demo.example/api/lab/assets/event-cards/not-a-uuid/card",
-      ),
+      new Request("https://demo.example/api/lab/assets/images/not-a-uuid/card"),
     );
 
     expect(response.status).toBe(400);
-    expect(data.getCardThumbnailAsset).not.toHaveBeenCalled();
+    expect(data.getThumbnailAsset).not.toHaveBeenCalled();
     expect(get).not.toHaveBeenCalled();
   });
 });

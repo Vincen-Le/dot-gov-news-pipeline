@@ -91,7 +91,7 @@ thumbnail, making it suitable for a post-deploy CI step.
 - `GET /api/lab/topics/themes`
 - `GET /api/lab/rank/golden`
 - `GET /api/lab/rank/golden/filtered-snapshot`
-- `GET /api/lab/assets/event-cards/:id/card`
+- `GET /api/lab/assets/images/:id/card`
 
 Images and AI-generated episode analysis intentionally render as pending until
 those enrichment jobs populate the serving data.
