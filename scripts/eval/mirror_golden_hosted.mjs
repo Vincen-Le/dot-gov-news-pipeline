@@ -65,8 +65,16 @@ async function upsert(table, rows, conflict = "id") {
 }
 
 async function deleteMissing(table, keepIds) {
-  const hosted = await (await fetch(
-    `${base}/rest/v1/${table}?select=id&limit=100000`, { headers })).json();
+  // PostgREST caps responses at its max-rows setting regardless of limit=,
+  // so page explicitly — a capped fetch silently strands stale rows.
+  const hosted = [];
+  for (let offset = 0; ; offset += 1000) {
+    const page = await (await fetch(
+      `${base}/rest/v1/${table}?select=id&limit=1000&offset=${offset}`,
+      { headers })).json();
+    hosted.push(...page);
+    if (page.length < 1000) break;
+  }
   const keep = new Set(keepIds.map(String));
   const dead = hosted.map((r) => r.id).filter((id) => !keep.has(String(id)));
   for (let start = 0; start < dead.length; start += 200) {
