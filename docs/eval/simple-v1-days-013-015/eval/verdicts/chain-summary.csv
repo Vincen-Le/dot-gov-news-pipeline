@@ -1,0 +1,28 @@
+storyline_id,endpoints_related,chain_verdict,reason
+0703aa86-e150-4438-ab02-c4f6077bc5d1,0,should_split,Two different weeks of recurring job listings are not one event thread.
+0bb6fc42-03c5-4399-b516-9f67940f7abf,1,coherent,Both cover the same $14M Brownfields NOFO.
+2d7c9bf9-79cc-4c8a-9af4-542499961e8e,0,should_split,Chain mixes distinct Tennessee and Kentucky FEMA declarations.
+30ced07a-21c9-4753-bbcb-b895a9213040,1,coherent,Both cover the same VA Nursing Home to Home program.
+32e16b54-2d1e-4db4-8887-dea17265eca7,1,coherent,Both cover the same USDA reorganization plan.
+3d36f83b-4624-412f-b3ba-f95564f2d8e1,1,coherent,All cover the same ongoing Kilauea summit eruption monitoring.
+40f3c0e5-e3b4-494f-8f33-478988bd4198,1,coherent,All cover the same Marcos Washington visit.
+48bdd9ce-e36d-4944-8293-6a64cb43a8b0,1,coherent,All part of the same coordinated North Korea crackdown.
+4a24e587-9e7f-4a7c-9061-828595180b42,1,coherent,All cover the same evolving Elevidys safety saga.
+4e298912-73ad-42f5-a549-4a179537ff3d,1,coherent,Both part of the same quarterly refunding cycle.
+5184a6b9-16e4-4f5b-9631-0018bf7a9cfd,1,coherent,Both cover the same 44th Wheelchair Games.
+69cbb205-d96c-4064-b8de-524e7a6f0653,1,coherent,Both cover the same Great American Farmers Market.
+7af8300d-35c0-44f5-9083-46bf23d02e09,1,coherent,Both cover the same USPS 250th anniversary celebration.
+7e0d574b-8526-40fe-ae7c-a671d85ee511,0,should_split,State and national employment reports are distinct recurring releases.
+818cc9cc-c4ae-4fd9-82e3-5d9be268b8b1,1,coherent,Both cover the same Tijuana River sewage agreement.
+87fb2eaa-b38c-4fca-94fe-503038fe2c97,1,coherent,All track the same Thailand-Cambodia ceasefire diplomacy.
+93a0435f-aa05-4b0d-ab5b-b463a8d7b863,1,coherent,Both from the same DRC-Rwanda peace implementation meetings.
+9c056b74-160e-4a63-b0b6-8c39d147e315,0,should_split,State and national JOLTS are distinct recurring releases.
+a1f7e7d3-2499-4352-afd9-77b0992afa0e,0,should_split,"A theme of distinct bilateral engagements, not one event thread."
+a67a2118-f213-41af-803d-49a81f4be393,1,coherent,Both cover the same 2026-27 FISAP reporting cycle.
+a891c37b-c119-43fe-a6f9-e10f040c446e,1,coherent,All cover the same 3DEP program within a tight window.
+ae6f94d1-b42d-4580-9ed1-8ac6009da3b9,1,coherent,Both part of the same Haitian-gang enforcement push.
+cf4d18e2-6cf4-46ca-91f9-e29d5c544dfc,0,should_split,Recurring daily schedules are not one evolving event.
+d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e,1,coherent,Both cover the same Crew-11 mission.
+d992b1ba-5726-491c-b97a-732f15467c28,1,coherent,All track the same escalating action against Moraes.
+dabf64dd-802e-4bdb-9328-055945969283,1,coherent,Both cover the same FTC/DOJ listening session.
+efa54f86-fd90-4f77-b976-e043da974805,1,coherent,Both cover the same endangerment-finding rescission proposal.

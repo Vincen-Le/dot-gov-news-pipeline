@@ -1,0 +1,297 @@
+{
+  "chains": {
+    "0703aa86-e150-4438-ab02-c4f6077bc5d1": {
+      "consecutive_cosine": [
+        0.7933
+      ],
+      "entity_overlap": [
+        0
+      ]
+    },
+    "0bb6fc42-03c5-4399-b516-9f67940f7abf": {
+      "consecutive_cosine": [
+        0.9107
+      ],
+      "entity_overlap": [
+        4
+      ]
+    },
+    "2d7c9bf9-79cc-4c8a-9af4-542499961e8e": {
+      "consecutive_cosine": [
+        0.9362,
+        0.7234,
+        0.7392,
+        0.7815,
+        0.9755
+      ],
+      "entity_overlap": [
+        3,
+        0,
+        0,
+        0,
+        5
+      ]
+    },
+    "30ced07a-21c9-4753-bbcb-b895a9213040": {
+      "consecutive_cosine": [
+        0.7488
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "32e16b54-2d1e-4db4-8887-dea17265eca7": {
+      "consecutive_cosine": [
+        0.821
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "3d36f83b-4624-412f-b3ba-f95564f2d8e1": {
+      "consecutive_cosine": [
+        0.6737,
+        0.7364
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "40f3c0e5-e3b4-494f-8f33-478988bd4198": {
+      "consecutive_cosine": [
+        0.7761,
+        0.7975
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "48bdd9ce-e36d-4944-8293-6a64cb43a8b0": {
+      "consecutive_cosine": [
+        0.6502,
+        0.6167
+      ],
+      "entity_overlap": [
+        0,
+        1
+      ]
+    },
+    "4a24e587-9e7f-4a7c-9061-828595180b42": {
+      "consecutive_cosine": [
+        0.7257,
+        0.651
+      ],
+      "entity_overlap": [
+        1,
+        1
+      ]
+    },
+    "4e298912-73ad-42f5-a549-4a179537ff3d": {
+      "consecutive_cosine": [
+        0.6564
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "5184a6b9-16e4-4f5b-9631-0018bf7a9cfd": {
+      "consecutive_cosine": [
+        0.6869
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "69cbb205-d96c-4064-b8de-524e7a6f0653": {
+      "consecutive_cosine": [
+        0.7885
+      ],
+      "entity_overlap": [
+        3
+      ]
+    },
+    "7af8300d-35c0-44f5-9083-46bf23d02e09": {
+      "consecutive_cosine": [
+        0.7844
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "7e0d574b-8526-40fe-ae7c-a671d85ee511": {
+      "consecutive_cosine": [
+        0.7951
+      ],
+      "entity_overlap": [
+        0
+      ]
+    },
+    "818cc9cc-c4ae-4fd9-82e3-5d9be268b8b1": {
+      "consecutive_cosine": [
+        0.8091
+      ],
+      "entity_overlap": [
+        8
+      ]
+    },
+    "87fb2eaa-b38c-4fca-94fe-503038fe2c97": {
+      "consecutive_cosine": [
+        0.6831,
+        0.7131,
+        0.7535,
+        0.6925
+      ],
+      "entity_overlap": [
+        0,
+        2,
+        2,
+        0
+      ]
+    },
+    "93a0435f-aa05-4b0d-ab5b-b463a8d7b863": {
+      "consecutive_cosine": [
+        0.8209
+      ],
+      "entity_overlap": [
+        6
+      ]
+    },
+    "9c056b74-160e-4a63-b0b6-8c39d147e315": {
+      "consecutive_cosine": [
+        0.7594
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "a1f7e7d3-2499-4352-afd9-77b0992afa0e": {
+      "consecutive_cosine": [
+        0.7376,
+        0.61,
+        0.8675,
+        0.7306,
+        0.7205,
+        0.6101,
+        0.7473,
+        0.6547,
+        0.6669,
+        0.6513,
+        0.612
+      ],
+      "entity_overlap": [
+        7,
+        2,
+        1,
+        0,
+        7,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "a67a2118-f213-41af-803d-49a81f4be393": {
+      "consecutive_cosine": [
+        0.8185
+      ],
+      "entity_overlap": [
+        0
+      ]
+    },
+    "a891c37b-c119-43fe-a6f9-e10f040c446e": {
+      "consecutive_cosine": [
+        0.8866,
+        0.649
+      ],
+      "entity_overlap": [
+        3,
+        1
+      ]
+    },
+    "ae6f94d1-b42d-4580-9ed1-8ac6009da3b9": {
+      "consecutive_cosine": [
+        0.6429
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "cf4d18e2-6cf4-46ca-91f9-e29d5c544dfc": {
+      "consecutive_cosine": [
+        0.6763,
+        0.7252,
+        0.7006,
+        0.7146
+      ],
+      "entity_overlap": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e": {
+      "consecutive_cosine": [
+        0.7771
+      ],
+      "entity_overlap": [
+        4
+      ]
+    },
+    "d992b1ba-5726-491c-b97a-732f15467c28": {
+      "consecutive_cosine": [
+        0.765,
+        0.8176
+      ],
+      "entity_overlap": [
+        1,
+        2
+      ]
+    },
+    "dabf64dd-802e-4bdb-9328-055945969283": {
+      "consecutive_cosine": [
+        0.8882
+      ],
+      "entity_overlap": [
+        6
+      ]
+    },
+    "efa54f86-fd90-4f77-b976-e043da974805": {
+      "consecutive_cosine": [
+        0.9352
+      ],
+      "entity_overlap": [
+        5
+      ]
+    }
+  },
+  "theme_cohesion": {
+    "15c67b7e-5b4a-44a4-b77a-38724d1fcb58": 0.8459540754556656,
+    "20db1ac9-d272-4808-a08a-42ca7772c23a": 0.8477556258440018,
+    "34e98295-0b01-4896-b701-02705ee9f57a": 0.8453860878944397,
+    "37ff3e77-f783-4048-8359-f9b95048f5e4": 0.8409366309642792,
+    "3b0ab9c9-2f08-4abf-817c-574c5176ba69": 0.9394547343254089,
+    "3b10ffe1-9d4f-44bb-a7a3-751a79432bd9": 0.8482900559902191,
+    "4fabbf0e-9852-40a5-a971-638157aa6a1d": 0.8238076448440552,
+    "615bac19-2e4d-4a94-9ba0-b1be5904ef36": 0.8364819049835205,
+    "6cfbcccd-ae6d-45d0-9733-70a973f246e1": 0.8265334367752075,
+    "788bd142-c1ec-4248-8b48-97bff36a4746": 0.8146361351013184,
+    "7ca10d73-ff72-4f17-9541-7df96ad509b8": 0.8301449120044708,
+    "8c75056e-9552-4f7e-a68a-39e8e6768f87": 0.8281840607523918,
+    "9a524fe0-7adf-4840-b1dc-30b725677b08": 0.859360858798027,
+    "b083fc1e-723b-4c8a-bf15-2b1f9ec52926": 0.8753968278566996,
+    "b722dee1-b6d5-465c-9ee0-20561b2041b3": 0.8206275900204977,
+    "ba6ebd23-0058-47ed-a81d-707c4fa9813f": 0.8287377953529358,
+    "bc8630a0-1c65-4513-ac8e-462f7574f11a": 0.8534447699785233,
+    "d0b74468-d5d7-4c53-8ede-7c4efde5ca8a": 0.8852262794971466,
+    "e4146a2b-f866-45c7-97c4-4596044e6378": 0.8300191760063171,
+    "ed80610a-1307-4211-9bed-9244d99fb33c": 0.8394390225410462,
+    "f13a8946-2865-4321-b526-8660094adbc0": 0.7958128154277802,
+    "f19428da-b19b-4009-8022-1b7c87c09cbf": 0.838446170091629,
+    "fab89bfb-af0c-4a7e-94d1-862bc619edd2": 0.8448547124862671
+  }
+}

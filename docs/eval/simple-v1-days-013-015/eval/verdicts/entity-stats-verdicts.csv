@@ -1,0 +1,51 @@
+entity,valid,reason
+rubio,1,Named Secretary of State is a real entity.
+schedule,0,Generic noun.
+sentenced,0,Generic legal verb shared across many stories.
+trump,1,Named person and real entity.
+home,0,Generic noun.
+guilty,0,Generic legal verb.
+pigott,1,Named State Department spokesperson.
+tommy,1,Distinctive first name of a named spokesperson.
+republic,0,Generic term shared across many stories.
+scheme,0,Generic noun.
+space,0,Generic noun.
+pleads,0,Generic legal verb.
+research,0,Generic noun.
+principal,0,Generic noun.
+prison,0,Generic noun.
+drinking,0,Generic word.
+south,0,Bare direction geography.
+years,0,Generic noun.
+house,0,Generic noun.
+white,0,Generic adjective.
+communities,0,Generic noun.
+sanctions,0,Recurring generic topical term.
+division,0,Generic org word.
+artemis,1,Named NASA program.
+landau,1,Named Deputy Secretary of State.
+protect,0,Generic verb.
+administrator,0,Generic title.
+charged,0,Generic legal verb.
+subscribe,0,Boilerplate token.
+scott,0,Common first name shared broadly.
+york,0,Bare geography fragment.
+cleanup,0,Recurring generic term.
+civil,0,Generic word.
+bessent,1,Named Treasury Secretary.
+affairs,0,Generic office word.
+order,0,Generic noun.
+city,0,Generic noun.
+lead,0,Generic word.
+florida,0,Bare state geography.
+mexico,0,Bare geography shared broadly.
+global,0,Generic adjective.
+superfund,1,Specific EPA program name.
+iran,1,Specific country central to distinct stories.
+county,0,Generic geography word.
+system,0,Generic noun.
+general,0,Generic title word.
+prime,0,Generic word.
+charges,0,Generic legal noun.
+illegal,0,Generic adjective.
+texas,0,Bare state geography.

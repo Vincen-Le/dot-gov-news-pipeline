@@ -1,0 +1,479 @@
+entry_id,kind,token,valid,reason
+05552cdd-e85b-4d6b-9887-83587840c722,entity,beaver,1,Names the specific power station.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,biennial,0,Generic descriptor.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,commonwealth,0,Generic term.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,emergency,0,Generic term.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,evaluate,0,Generic verb.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,exercise,0,Generic noun.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,management,0,Generic term.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,pennsylvania,0,Bare state geography.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,philadelphia,0,Bare city geography.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,power,0,Generic word fragment.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,preparedness,0,Generic term.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,radiological,1,Specific to this radiological exercise.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,station,0,Generic word.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,valley,0,Generic geography fragment.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,virginia,0,Bare state geography.
+05552cdd-e85b-4d6b-9887-83587840c722,entity,west,0,Bare direction.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,entity,border,0,Generic noun.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,entity,cambodia,1,Country central to this conflict story.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,entity,fighting,0,Generic noun.
+088fe3a5-6066-43ed-8a22-6fc0d631d9d3,entity,thailand,1,Country central to this conflict story.
+0b4a9de5-efcf-4184-9b09-ed3b63eeac51,entity,cleveland,0,Bare city geography.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,congo,1,Country central to this outbreak.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,democratic,0,Country-name fragment.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,ebola,1,Disease defining the story.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,note,0,Boilerplate token.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,outbreak,0,Generic term.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,please,0,Boilerplate token.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,republic,0,Generic term.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,transcript,0,Boilerplate token.
+0fe6116a-482c-4c8b-a15b-236c87597230,entity,uganda,1,Country central to this outbreak.
+1026a52f-577a-45d9-b184-53c7203479a9,entity,hawaii,0,Recurring geography in this column.
+1026a52f-577a-45d9-b184-53c7203479a9,entity,salvador,1,Country central to the story.
+1026a52f-577a-45d9-b184-53c7203479a9,entity,think,0,Title filler word.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,coinbase,1,Named regulated company.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,kalshi,1,Named prediction market.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,markets,0,Generic noun.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,polymarket,1,Named prediction market.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,prediction,1,Defines the prediction-market dispute.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,reaffirm,0,Generic verb.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,robinhood,1,Named company.
+12031650-7b83-4655-a2d3-047fd94ae7db,entity,wisconsin,1,Defendant state in this suit.
+12160cc1-b74d-4225-9429-053b28f61de7,entity,form,0,Generic noun.
+12160cc1-b74d-4225-9429-053b28f61de7,entity,notification,0,Generic noun.
+12160cc1-b74d-4225-9429-053b28f61de7,entity,premerger,1,Specific to the premerger form.
+12160cc1-b74d-4225-9429-053b28f61de7,entity,seek,0,Generic verb.
+13a747c3-8464-46c1-9ff1-c58ac980d277,entity,abbott,1,Named governor.
+13a747c3-8464-46c1-9ff1-c58ac980d277,entity,declaration,0,Generic noun.
+13a747c3-8464-46c1-9ff1-c58ac980d277,entity,signs,0,Generic verb.
+13a747c3-8464-46c1-9ff1-c58ac980d277,entity,weather,0,Generic noun.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,entity,crash,0,Generic noun.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,entity,recommendations,0,Generic noun.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,entity,school,0,Generic noun.
+176e6b5c-3722-4006-bdd1-67c14f725a2b,entity,texas,0,Bare state geography.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,entity,connect,1,Part of Provider Connect program name.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,entity,primary,0,Generic term.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,entity,provider,1,Part of Provider Connect program name.
+198284a2-6cc7-439f-b04b-3e0ac69df30d,entity,with,0,Stopword.
+1e0f7c08-d4a8-4ae9-a9d9-567127e91f75,entity,cracks,0,Generic noun.
+1e0f7c08-d4a8-4ae9-a9d9-567127e91f75,entity,district,0,Generic term.
+1e0f7c08-d4a8-4ae9-a9d9-567127e91f75,entity,puna,1,Specific place in the story.
+1e344c37-4ac8-4a59-93be-1d081d303388,entity,antibodies,1,Part of monoclonal antibodies subject.
+1e344c37-4ac8-4a59-93be-1d081d303388,entity,monoclonal,1,Specific drug class.
+1e344c37-4ac8-4a59-93be-1d081d303388,entity,primates,1,Central subject of the guidance.
+1e344c37-4ac8-4a59-93be-1d081d303388,entity,testing,0,Generic noun.
+22519bb4-3db5-4639-9df1-4947df4136f8,entity,countries,0,Generic noun.
+22519bb4-3db5-4639-9df1-4947df4136f8,entity,determination,0,Generic noun.
+22519bb4-3db5-4639-9df1-4947df4136f8,entity,illicit,0,Generic adjective.
+22519bb4-3db5-4639-9df1-4947df4136f8,entity,presidential,0,Generic adjective.
+22519bb4-3db5-4639-9df1-4947df4136f8,entity,producing,0,Generic verb.
+22519bb4-3db5-4639-9df1-4947df4136f8,entity,transit,0,Generic noun.
+2361e877-48e7-469f-929b-c48a2903548d,entity,$1.3 million,1,Specific penalty amount.
+2361e877-48e7-469f-929b-c48a2903548d,entity,disgorgement,1,Specific legal remedy.
+2361e877-48e7-469f-929b-c48a2903548d,entity,florida,0,Bare state geography.
+2361e877-48e7-469f-929b-c48a2903548d,entity,imposes,0,Generic verb.
+2361e877-48e7-469f-929b-c48a2903548d,entity,order,0,Generic noun.
+2361e877-48e7-469f-929b-c48a2903548d,entity,pool,0,Generic word fragment.
+2361e877-48e7-469f-929b-c48a2903548d,entity,requiring,0,Generic verb.
+2361e877-48e7-469f-929b-c48a2903548d,entity,resident,0,Generic noun.
+2361e877-48e7-469f-929b-c48a2903548d,entity,secures,0,Generic verb.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,entity,delta,1,Part of hepatitis delta virus name.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,entity,hepatitis,1,Disease defining the story.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,entity,infection,0,Generic noun.
+24254e18-0ad2-4a4b-bce3-e2a3eecbacf5,entity,treatment,0,Generic noun.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,entity,bell,1,Part of Taco Bell name.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,entity,media,0,Boilerplate token.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,entity,shredded,0,Generic descriptor.
+2532b4ec-0673-46de-8d4b-1f3103f4f500,entity,taco,1,Part of Taco Bell name.
+28be5d30-3663-484e-b812-b3c07f98fce9,entity,resources,0,Generic noun.
+28be5d30-3663-484e-b812-b3c07f98fce9,entity,technologies,0,Generic noun.
+28be5d30-3663-484e-b812-b3c07f98fce9,entity,tools,0,Generic noun.
+28be5d30-3663-484e-b812-b3c07f98fce9,entity,transformational,0,Generic adjective.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,entity,coastal,0,Generic facility descriptor.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,entity,fayetteville,1,Specific VA facility location.
+2b87f9d0-d5e6-4f2e-80f6-0cf349385d26,entity,vigilant,0,Generic adjective.
+3242c1f8-f98a-40c5-94af-d97cabc951f0,entity,ocean,0,Generic geography.
+3242c1f8-f98a-40c5-94af-d97cabc951f0,entity,rockies,0,Generic geography example.
+32822c35-84ae-47b3-8720-923258695797,entity,alabama,0,Bare state geography.
+32822c35-84ae-47b3-8720-923258695797,entity,huntsville,0,Bare city geography.
+3429aa94-0acf-4a3e-92cd-f74111ff25c5,entity,submit,0,Generic verb.
+3429aa94-0acf-4a3e-92cd-f74111ff25c5,entity,submitters,0,Generic noun.
+3429aa94-0acf-4a3e-92cd-f74111ff25c5,entity,upcoming,0,Generic adjective.
+36e5051a-08da-4def-bd06-d20892038bf9,entity,lumpy,1,Names Lumpy Ridge area.
+36e5051a-08da-4def-bd06-d20892038bf9,entity,mountain,0,Generic word.
+36e5051a-08da-4def-bd06-d20892038bf9,entity,ridge,0,Generic word.
+36e5051a-08da-4def-bd06-d20892038bf9,entity,rocky,1,Part of Rocky Mountain park name.
+36e5051a-08da-4def-bd06-d20892038bf9,entity,small,0,Generic adjective.
+38ec735f-5df7-460d-aba2-9c922f96e09f,entity,abbott,1,Named governor.
+38ec735f-5df7-460d-aba2-9c922f96e09f,entity,provides,0,Generic verb.
+3bfbf1ef-ae4c-4789-819d-1c477c7ab23f,entity,annotation,0,Generic noun.
+3bfbf1ef-ae4c-4789-819d-1c477c7ab23f,entity,matched,0,Generic word fragment.
+3bfbf1ef-ae4c-4789-819d-1c477c7ab23f,entity,released,0,Generic verb.
+3f51e221-c12f-47df-931f-841d8898333c,entity,aircraft,0,Generic noun.
+3f51e221-c12f-47df-931f-841d8898333c,entity,ensure,0,Generic verb.
+3f51e221-c12f-47df-931f-841d8898333c,entity,flying,0,Generic word.
+3f51e221-c12f-47df-931f-841d8898333c,entity,ground,0,Generic word.
+3f51e221-c12f-47df-931f-841d8898333c,entity,keeping,0,Generic verb.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,business,0,Generic noun.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,businesses,0,Generic noun.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,conduct,0,Generic noun.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,created,0,Generic verb.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,fake,0,Generic adjective.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,home,0,Generic noun.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,illinois,0,Bare state geography.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,listings,0,Generic noun.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,local,0,Generic adjective.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,stop,0,Generic verb.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,take,0,Generic verb.
+401d4591-9eaf-4c1b-95d9-a1a6c5e09950,entity,thousands,0,Generic quantifier.
+4145d16b-f9db-4679-a8e0-1a697123ff90,entity,forbearance,1,Specific to mortgage forbearance action.
+4145d16b-f9db-4679-a8e0-1a697123ff90,entity,mortgage,1,Central subject of the story.
+4145d16b-f9db-4679-a8e0-1a697123ff90,entity,rebuild,0,Generic verb.
+4145d16b-f9db-4679-a8e0-1a697123ff90,entity,secured,0,Generic verb.
+4145d16b-f9db-4679-a8e0-1a697123ff90,entity,survivors,0,Generic noun.
+4145d16b-f9db-4679-a8e0-1a697123ff90,entity,wildfire,0,Recurring generic topic.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,award,0,Generic noun.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,broadcast,0,Generic noun.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,eclipse,1,Names the solar eclipse subject.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,emmy,1,Specific award won.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,excellence,0,Generic noun.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,production,0,Generic noun.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,solar,1,Part of solar eclipse subject.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,technology,0,Generic noun.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,total,0,Generic word.
+42365564-8749-47df-8bcb-6e88a5352c4c,entity,wins,0,Generic verb.
+42690ad4-53bf-469b-b34f-02dd02432d6d,entity,dynawave,1,Part of company name.
+42690ad4-53bf-469b-b34f-02dd02432d6d,entity,implosion,1,Specific event described.
+42690ad4-53bf-469b-b34f-02dd02432d6d,entity,mill,0,Generic word.
+42690ad4-53bf-469b-b34f-02dd02432d6d,entity,nippon,1,Part of company name.
+42690ad4-53bf-469b-b34f-02dd02432d6d,entity,paper,0,Generic word.
+43f9112f-4fa2-4c3f-b128-3be820aae42d,entity,army,0,Generic term.
+43f9112f-4fa2-4c3f-b128-3be820aae42d,entity,kaczor,1,Named veteran.
+463ce20b-17fe-4e0c-888f-2ef6065d72b2,entity,$308 million,1,Specific funding amount.
+463ce20b-17fe-4e0c-888f-2ef6065d72b2,entity,boston,0,Bare city geography.
+463ce20b-17fe-4e0c-888f-2ef6065d72b2,entity,england,0,Region geography.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,entity,closure,0,Generic noun.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,entity,emergency,0,Generic noun.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,entity,provincial,0,Generic adjective.
+5e5b33cb-a14e-4ba2-bd69-5b58c21e7c27,entity,quetico,1,Names the specific park.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,conspiracy,0,Generic term.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,construction,0,Generic noun.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,dollar,0,Generic word.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,executive,0,Generic noun.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,guilty,0,Generic legal term.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,multi,0,Fragment.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,pleads,0,Generic legal verb.
+63429f2c-b9ec-4a7a-95c6-8371d57f4d1c,entity,rigging,0,Generic offense category.
+655768e5-e87b-44c1-930a-5f60c990716f,entity,strike,0,Title filler word.
+65592242-2a3c-4a7a-b4e9-3f4d5e297c12,entity,postal,0,Generic agency word.
+65592242-2a3c-4a7a-b4e9-3f4d5e297c12,entity,quarter,0,Generic term.
+65b0ce41-c38e-43ea-b901-c5da7b251cfd,entity,conditional,1,Part of Conditional Intensity product name.
+65b0ce41-c38e-43ea-b901-c5da7b251cfd,entity,intensity,1,Part of Conditional Intensity product name.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,entity,account,0,Generic noun.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,entity,astrogeology,1,Specific program subject.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,entity,campus,0,Generic noun.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,entity,flagstaff,1,Names the specific campus.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,entity,mamula,1,Named USGS director.
+6a2c1a00-5067-4d1a-9543-dba06b8a17c6,entity,team,0,Generic noun.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,entity,affairs,0,Generic office word.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,entity,appoints,0,Generic verb.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,entity,hutchinson,1,Named appointee.
+6c128e77-9228-46ae-8d67-9e710a65f1e2,entity,kathleen,1,Named appointee first name.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,entity,cambodian,0,Nationality adjective.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,entity,control,0,Office-name fragment.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,entity,defrauding,0,Generic verb.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,entity,network,0,Generic noun.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,entity,sanctions,0,Recurring generic term.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,entity,scam,0,Generic topic word.
+75a88b6f-1019-4253-9ac9-2bad3a65e524,entity,senator,0,Generic title.
+7a81843f-93ab-41f3-86bd-71794bb4117f,entity,clairton,1,Names the specific works.
+7a81843f-93ab-41f3-86bd-71794bb4117f,entity,coke,1,Part of Coke Works facility name.
+7a81843f-93ab-41f3-86bd-71794bb4117f,entity,steel,1,Part of U.S. Steel name.
+7a81843f-93ab-41f3-86bd-71794bb4117f,entity,works,0,Generic word.
+7aafc9c6-76ca-48da-908e-75896c1accfe,entity,encourages,0,Generic verb.
+7aafc9c6-76ca-48da-908e-75896c1accfe,entity,fern,1,Names Winter Storm Fern.
+7aafc9c6-76ca-48da-908e-75896c1accfe,entity,prepare,0,Generic verb.
+7aafc9c6-76ca-48da-908e-75896c1accfe,entity,producers,0,Generic noun.
+7aafc9c6-76ca-48da-908e-75896c1accfe,entity,residents,0,Generic noun.
+7aafc9c6-76ca-48da-908e-75896c1accfe,entity,storm,0,Generic noun.
+7aafc9c6-76ca-48da-908e-75896c1accfe,entity,winter,0,Generic noun.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,entity,cash,0,Generic word.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,entity,disbursement,0,Generic noun.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,entity,excess,0,Generic adjective.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,entity,reconciliation,0,Generic noun.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,entity,reporting,0,Generic noun.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,entity,requirements,0,Generic noun.
+7b3f9fc4-cc2e-4ae7-8feb-51304c5e2d19,entity,title,0,Program-name fragment.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,entity,designation,0,Generic noun.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,entity,kristi,1,Named secretary first name.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,entity,noem,1,Named secretary.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,entity,protected,0,Status-name fragment.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,entity,somalia,1,Country central to the story.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,entity,status,0,Generic noun.
+7eebdafb-2cfe-4d03-9b60-b75c018074d6,entity,terminates,0,Generic verb.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,entity,beds,0,Generic word fragment.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,entity,fossil,0,Generic word fragment.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,entity,hagerman,1,Names the specific monument.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,entity,idaho,0,Bare state geography.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,entity,parks,0,Generic noun.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,entity,southern,0,Bare direction.
+80b3e03d-8ac7-4b28-b7fb-7e8ad7491b42,entity,visits,0,Generic noun.
+8163f47d-c3c4-435b-bb04-abfae824812e,entity,duckling,1,Central subject of the study.
+8163f47d-c3c4-435b-bb04-abfae824812e,entity,fish,0,Agency-name fragment.
+8163f47d-c3c4-435b-bb04-abfae824812e,entity,grizzly,1,Names Grizzly Island area.
+8163f47d-c3c4-435b-bb04-abfae824812e,entity,wildlife,0,Generic term.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,entity,hurley,1,Named under secretary.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,entity,intelligence,0,Office-name fragment.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,entity,israel,1,Country on the itinerary.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,entity,john,1,Named official first name.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,entity,lebanon,1,Country on the itinerary.
+81fc8863-e03d-4dc3-bdde-9932929d92fc,entity,travel,0,Generic verb.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,accelerate,0,Generic verb.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,cars,0,Generic word.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,concerns,0,Generic noun.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,dakota,0,State geography fragment.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,derailment,1,Specific event described.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,hazardous,0,Generic adjective.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,materials,0,Generic noun.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,phase,0,Generic word.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,prompts,0,Generic verb.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,raises,0,Generic verb.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,renewed,0,Generic adjective.
+8d487898-4847-41fc-8aed-53f312aeeceb,entity,retrofitted,0,Generic adjective.
+91150100-71fb-4646-95f4-6757996aef39,entity,communications,0,Generic noun fragment.
+91150100-71fb-4646-95f4-6757996aef39,entity,deep,0,Generic word fragment.
+91150100-71fb-4646-95f4-6757996aef39,entity,demo,0,Generic noun.
+91150100-71fb-4646-95f4-6757996aef39,entity,exceeds,0,Generic verb.
+91150100-71fb-4646-95f4-6757996aef39,entity,expectations,0,Generic noun.
+91150100-71fb-4646-95f4-6757996aef39,entity,mars,1,Names the mission destination.
+91150100-71fb-4646-95f4-6757996aef39,entity,project,0,Generic noun.
+91150100-71fb-4646-95f4-6757996aef39,entity,space,0,Generic noun.
+9239e7fe-93c1-46cf-819f-4c85c2e84bcd,entity,endangered,1,Names Endangered Species Act subject.
+9239e7fe-93c1-46cf-819f-4c85c2e84bcd,entity,interior,0,Agency-name fragment.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,entity,advisor,0,Generic noun.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,entity,outlook,0,Generic noun.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,entity,resource,0,Generic noun.
+93885693-8aa8-46b5-8a5f-bbc158b3d7d4,entity,smoke,0,Generic noun.
+9947f606-9fe9-4f46-afd0-980a48672f6d,entity,homepage,0,Boilerplate token.
+9947f606-9fe9-4f46-afd0-980a48672f6d,entity,indicators,0,Generic noun.
+9947f606-9fe9-4f46-afd0-980a48672f6d,entity,latest,0,Generic adjective.
+9947f606-9fe9-4f46-afd0-980a48672f6d,entity,numbers,0,Generic noun.
+9947f606-9fe9-4f46-afd0-980a48672f6d,entity,sections,0,Boilerplate token.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,average,0,Method-name fragment.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,fungal,1,Specific to fungal genomics topic.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,genomics,0,Generic term.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,identity,0,Method-name fragment.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,nucleotide,1,Part of ANI method name.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,strengthening,0,Generic verb.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,using,0,Generic verb.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,verify,0,Generic verb.
+9bca90bc-7840-4e91-97d5-8362bc4341ff,entity,yeast,1,Central subject species.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,entity,gavin,1,Named governor first name.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,entity,newsom,1,Named governor.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,entity,proposition,1,Refers to Proposition 50.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,entity,race,0,Generic word fragment.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,entity,redistricting,1,Central subject of the suit.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,entity,shirley,1,Named secretary first name.
+9d41e9c7-31bd-49fc-a3e6-432770c84f3b,entity,weber,1,Named secretary.
+9fcd0eb5-8ace-4e46-a6f9-42b5f7ef6680,entity,launch,0,Generic noun.
+9fcd0eb5-8ace-4e46-a6f9-42b5f7ef6680,entity,real,0,Fragment.
+9fcd0eb5-8ace-4e46-a6f9-42b5f7ef6680,entity,time,0,Fragment.
+a09924c0-a8be-41cd-90a4-31b780938794,entity,authorization,0,Generic noun.
+a09924c0-a8be-41cd-90a4-31b780938794,entity,automatic,0,Generic adjective.
+a09924c0-a8be-41cd-90a4-31b780938794,entity,ends,0,Generic verb.
+a272bac4-793b-49b1-8a71-c51043637238,entity,halts,0,Generic verb.
+a272bac4-793b-49b1-8a71-c51043637238,entity,operations,0,Generic noun.
+a272bac4-793b-49b1-8a71-c51043637238,entity,request,0,Generic noun.
+a272bac4-793b-49b1-8a71-c51043637238,entity,telemarketers,1,Central subject of the action.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,fielder,1,Named photographer.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,foggy,0,Photo-title fragment.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,jagged,0,Photo-title fragment.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,john,1,Named photographer first name.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,mountain,0,Generic word.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,postal,0,Generic agency word.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,statehood,1,Names Colorado statehood subject.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,weminuche,1,Names Weminuche Wilderness.
+a545565e-2200-4dfd-a99f-04d84d00d8d6,entity,wilderness,0,Generic word.
+a5571abd-578d-4c84-bc42-712864916694,entity,adopts,0,Generic verb.
+a5571abd-578d-4c84-bc42-712864916694,entity,atlanta,0,Bare city geography.
+a5571abd-578d-4c84-bc42-712864916694,entity,born,0,Generic word.
+a5571abd-578d-4c84-bc42-712864916694,entity,decision,0,Generic noun.
+a5571abd-578d-4c84-bc42-712864916694,entity,hepatitis,1,Disease defining the story.
+a5571abd-578d-4c84-bc42-712864916694,entity,immunization,0,Generic term.
+a5571abd-578d-4c84-bc42-712864916694,entity,individual,0,Generic adjective.
+a5571abd-578d-4c84-bc42-712864916694,entity,infants,1,Central subject population.
+a5571abd-578d-4c84-bc42-712864916694,entity,making,0,Fragment.
+a5571abd-578d-4c84-bc42-712864916694,entity,negative,0,Generic adjective.
+a5571abd-578d-4c84-bc42-712864916694,entity,test,0,Generic word.
+a5571abd-578d-4c84-bc42-712864916694,entity,women,0,Generic noun.
+a8f8ca36-c317-475b-80cb-97da57d2629a,entity,administrator,0,Generic title.
+a8f8ca36-c317-475b-80cb-97da57d2629a,entity,announce,0,Generic verb.
+a8f8ca36-c317-475b-80cb-97da57d2629a,entity,drinking,0,Generic word.
+a8f8ca36-c317-475b-80cb-97da57d2629a,entity,microplastics,1,Central subject of the action.
+a8f8ca36-c317-475b-80cb-97da57d2629a,entity,protect,0,Generic verb.
+a8f8ca36-c317-475b-80cb-97da57d2629a,entity,safeguard,0,Generic verb.
+a8f8ca36-c317-475b-80cb-97da57d2629a,entity,zeldin,1,Named EPA administrator.
+a9e1e195-9b59-4f7a-9442-1a1f8f07e7ae,entity,canyons,1,Part of Northeast Canyons monument name.
+a9e1e195-9b59-4f7a-9442-1a1f8f07e7ae,entity,northeast,0,Bare direction.
+a9e1e195-9b59-4f7a-9442-1a1f8f07e7ae,entity,seamounts,1,Part of Seamounts monument name.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,change,0,Convention-name fragment.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,climate,1,Part of Green Climate Fund name.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,convention,0,Generic noun.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,framework,0,Generic noun.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,fund,1,Part of Green Climate Fund name.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,green,1,Part of Green Climate Fund name.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,immediate,0,Generic adjective.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,trump,0,Ubiquitous non-discriminating name.
+afcdb90c-7544-4835-8423-ef9206a0ef9a,entity,withdrawal,0,Generic noun.
+b169157f-8a57-405d-9643-884dd40b1def,entity,summer,0,Generic word.
+b169157f-8a57-405d-9643-884dd40b1def,entity,summit,0,Generic word.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,entity,gear,0,Generic word.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,entity,landing,0,Generic word.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,entity,learjet,1,Names the aircraft type.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,entity,main,0,Generic word.
+b321a38f-0b7b-4fb4-8a6a-039c1f841096,entity,recommendation,0,Generic noun.
+b3f4a409-4aa1-4e90-bddf-e33585e84f39,entity,four,0,Generic number.
+b3f4a409-4aa1-4e90-bddf-e33585e84f39,entity,investor,1,Part of Investor Advisory Committee name.
+b3f4a409-4aa1-4e90-bddf-e33585e84f39,entity,members,0,Generic noun.
+b4ae30b1-56a6-49d6-9316-9de3be33209b,entity,handbook,0,Generic noun.
+b4ae30b1-56a6-49d6-9316-9de3be33209b,entity,student,0,Generic word.
+b4ae30b1-56a6-49d6-9316-9de3be33209b,entity,volume,0,Generic word.
+b5f6ebfb-baea-4a1b-ba01-fc577439e1bb,entity,listeria,1,Pathogen defining the story.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,entity,$2.4 million,1,Specific grant amount.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,entity,assess,0,Generic verb.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,entity,cleanup,0,Recurring generic term.
+b7d49522-96f8-401b-ad5b-2c39ddddd506,entity,communities,0,Generic noun.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,entity,establishes,0,Generic verb.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,entity,required,0,Generic adjective.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,entity,standards,0,Generic noun.
+b82d9326-7837-4cc5-8e93-7435b5d39c24,entity,transparency,1,Part of Financial Data Transparency Act.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,entity,$10.9 million,1,Specific redress amount.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,entity,consumers,0,Generic noun.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,entity,harmed,0,Generic verb.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,entity,pyramid,1,Names the pyramid scheme.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,entity,scheme,0,Recurring generic term.
+b8fed506-ccb2-48dd-9f2a-ddc7a5ad1917,entity,sends,0,Generic verb.
+ba874312-6404-435c-befb-8bed1048db85,entity,biologics,0,Generic term.
+ba874312-6404-435c-befb-8bed1048db85,entity,collection,0,Generic noun.
+ba874312-6404-435c-befb-8bed1048db85,entity,improve,0,Generic verb.
+ba874312-6404-435c-befb-8bed1048db85,entity,pregnancy,1,Central subject of the guidance.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,congratulating,0,Generic verb.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,costa,1,Part of Costa Rica name.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,delgado,1,Named president-elect.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,elect,0,Generic word.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,electoral,0,Generic adjective.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,laura,1,Named president-elect first name.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,rica,1,Part of Costa Rica name.
+bc30930d-2fa1-4fae-b9b6-26689c924a85,entity,victory,0,Generic noun.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,asset,0,Generic word.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,brokers,0,Generic noun.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,categorization,0,Generic noun.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,certain,0,Generic word.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,confirms,0,Generic verb.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,customer,0,Generic noun.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,letter,0,Generic noun.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,margin,0,Generic noun.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,perpetuals,1,Specific instrument type.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,regarding,0,Generic word.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,staff,0,Generic noun.
+c38cb894-9280-4276-a27e-a1244f2ec437,entity,transfers,0,Generic noun.
+c4b414da-0d36-4873-8a84-b0fbcb085f52,entity,houston,0,Bare city geography.
+c4b414da-0d36-4873-8a84-b0fbcb085f52,entity,revolutionizing,0,Generic verb.
+c584a9fb-5d60-4cf6-8e97-26e4de5a370d,entity,kentucky,1,Defendant state in this suit.
+c584a9fb-5d60-4cf6-8e97-26e4de5a370d,entity,prevent,0,Generic verb.
+c584a9fb-5d60-4cf6-8e97-26e4de5a370d,entity,violation,0,Generic noun.
+c662c7c4-8c23-41fb-8321-04641850aed2,entity,downloads,0,Generic noun.
+c662c7c4-8c23-41fb-8321-04641850aed2,entity,retire,0,Generic verb.
+c662c7c4-8c23-41fb-8321-04641850aed2,entity,will,0,Stopword.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,entity,bessent,1,Named secretary.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,entity,delivers,0,Generic verb.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,entity,good,0,Boilerplate token.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,entity,ministerial,0,Generic word.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,entity,political,0,Generic adjective.
+c7de6a33-19c8-4cf6-a490-dd227e9ddad7,entity,resurgence,0,Generic noun.
+ca92e9f0-8341-4818-9f0d-389a33f435b1,entity,$754 million,1,Specific tourism figure.
+ca92e9f0-8341-4818-9f0d-389a33f435b1,entity,seashore,0,Generic word.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,entity,begins,0,Generic verb.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,entity,internet,0,Generic word.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,entity,live,0,Generic adjective.
+d04f952f-174d-4880-a6ef-4bd1e426cb0c,entity,webinars,0,Generic noun.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,entity,accurate,1,Part of company name.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,entity,energetic,1,Part of company name.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,entity,explosions,0,Generic event word.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,entity,systems,0,Generic word.
+d1b54efb-334d-4389-b9ac-7a75cd545ae9,entity,tennessee,0,Bare state geography.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,$11.1 million,1,Specific funding amount.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,arizona,0,Bare state geography.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,calif,0,Bare geography.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,community,0,Generic noun.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,guam,0,Bare geography.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,hawai,0,Bare geography.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,oakland,0,Bare city geography.
+d254af57-c8e2-456e-b69c-10034f4a8c62,entity,resilience,0,Generic noun.
+d390909a-ef00-450b-b7fd-794c058bf1c0,entity,biosolids,1,Central subject of the guidance.
+d390909a-ef00-450b-b7fd-794c058bf1c0,entity,healthy,0,Slogan fragment.
+d390909a-ef00-450b-b7fd-794c058bf1c0,entity,make,0,Generic verb.
+d390909a-ef00-450b-b7fd-794c058bf1c0,entity,risk,0,Generic noun.
+d390909a-ef00-450b-b7fd-794c058bf1c0,entity,seeks,0,Generic verb.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,applications,0,Generic noun.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,arrests,0,Generic noun.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,connection,0,Generic noun.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,coordinated,0,Generic adjective.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,enforcement,0,Generic noun.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,fraudulent,0,Generic adjective.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,loan,0,Generic noun.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,relief,0,Generic noun.
+d3b3b489-6d32-4bdf-9078-d8fefb95d359,entity,seven,0,Generic number.
+dc15779e-e52e-4c0e-a8fa-08732443e683,entity,facility,0,Generic noun.
+dc15779e-e52e-4c0e-a8fa-08732443e683,entity,givaudan,1,Names the company.
+dc15779e-e52e-4c0e-a8fa-08732443e683,entity,kentucky,0,Bare state geography.
+dc15779e-e52e-4c0e-a8fa-08732443e683,entity,louisville,0,Bare city geography.
+ddd61e79-8b31-49e2-9307-728e1a31d152,entity,adoption,1,Names the Adoption Tax Credit topic.
+ddd61e79-8b31-49e2-9307-728e1a31d152,entity,hello,0,Boilerplate token.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,entity,forecasting,0,Generic noun.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,entity,hogsett,1,Named NHC officer.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,entity,hurricane,0,Generic word.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,entity,officer,0,Generic title.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,entity,operation,0,Generic noun.
+e0e4fd2b-e5a3-44a1-a8ca-7bf78aa73358,entity,wallace,1,Named officer first name.
+e1f30c9d-5b14-43f9-9332-9eeeefdd1681,entity,situation,0,Generic word.
+e1f30c9d-5b14-43f9-9332-9eeeefdd1681,entity,transmission,0,Boilerplate token.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,abuses,0,Generic noun.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,immigrant,0,Program-name fragment.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,juvenile,1,Part of Special Immigrant Juvenile program.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,significant,0,Generic adjective.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,special,0,Generic adjective.
+e719f990-19f6-45c3-9e01-e8ebf7488ba8,entity,uncovers,0,Generic verb.
+e7f7dbc6-2a87-4968-82dd-895f4f786b7f,entity,willow,1,Names the Willow Fire.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,city,0,Generic word.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,civil,0,Generic word.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,consent,0,Generic legal term.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,decree,0,Generic legal term.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,division,0,Generic word.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,motion,0,Generic noun.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,police,0,Generic noun.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,rights,0,Generic word.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,seattle,1,Names the city in this case.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,supports,0,Generic verb.
+e8f64cbe-5189-49cd-b160-e81315970aa0,entity,terminate,0,Generic verb.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,entity,appointed,0,Generic verb.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,entity,citizens,0,Committee-name fragment.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,entity,member,0,Generic noun.
+eae8049f-6f5d-4bfe-a2bb-759e2bbed9ee,entity,stamp,0,Generic word.
+ef7b0d31-745a-48c0-8514-608f3f8bfd57,entity,$1,0,Truncated amount artifact.
+ef7b0d31-745a-48c0-8514-608f3f8bfd57,entity,jersey,0,State geography fragment.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,entity,hormone,0,Generic word.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,entity,labeling,0,Generic noun.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,entity,menopausal,1,Specific to menopausal hormone therapy.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,entity,products,0,Generic noun.
+f179ec2e-2d4d-4e5a-896b-e0ac74a80b25,entity,therapy,0,Generic word.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,entity,authorizes,0,Generic verb.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,entity,county,0,Generic word.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,entity,fight,0,Generic verb.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,entity,funds,0,Generic noun.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,entity,lake,0,Bare geography.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,entity,leadville,0,Bare city geography.
+f78b1d87-a697-4c82-8725-9bcd8bf41930,entity,willow,1,Names the Willow Fire.
+f94a3c2f-0ff3-4a03-9553-55d1e88431b8,entity,closing,0,Generic verb.
+97ed1535-1493-42c0-873f-9ea236167db6,event_key,ir-2025-102,1,Real IRS news release identifier.

@@ -1,0 +1,10 @@
+theme_a_id,theme_b_id,should_merge,reason
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,b083fc1e-723b-4c8a-bf15-2b1f9ec52926,0,"USPS stamps and BLS labor data are unrelated topics sharing only the generic token ""releases"" at low 0.55 cosine."
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,f19428da-b19b-4009-8022-1b7c87c09cbf,0,"Postal stamp promotions differ entirely from USGS geological maps, linked only by the generic token ""releases""."
+34e98295-0b01-4896-b701-02705ee9f57a,37ff3e77-f783-4048-8359-f9b95048f5e4,0,"Grant/funding awards and site remediation proposals are distinct, coherent EPA activities despite shared agency vocabulary."
+34e98295-0b01-4896-b701-02705ee9f57a,ba6ebd23-0058-47ed-a81d-707c4fa9813f,0,"Brownfields funding awards differ from enforcement settlements and are below the 0.75 cosine floor."
+37ff3e77-f783-4048-8359-f9b95048f5e4,ba6ebd23-0058-47ed-a81d-707c4fa9813f,0,"Superfund remediation planning is distinct from violation settlements; each holds a coherent standalone label."
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,ba6ebd23-0058-47ed-a81d-707c4fa9813f,0,"Foreign sanctions and EPA environmental cleanup share only the generic token ""enforcement""."
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,bc8630a0-1c65-4513-ac8e-462f7574f11a,0,"Sanctions foreign policy and FTC consumer protection are unrelated, linked only by generic ""enforcement""."
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,f19428da-b19b-4009-8022-1b7c87c09cbf,0,"BLS labor statistics and USGS geological mapping are different domains sharing only generic ""data""/""releases"" tokens."
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,bc8630a0-1c65-4513-ac8e-462f7574f11a,0,"EPA environmental settlements and FTC consumer actions are distinct, sharing only generic ""enforcement"" at 0.53 cosine."

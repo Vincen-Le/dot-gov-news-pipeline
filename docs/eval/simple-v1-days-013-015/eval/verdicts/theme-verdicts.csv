@@ -1,0 +1,222 @@
+theme_id,storyline_id,fits,reason
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,2c2979a2-7eff-48ef-b6a7-109bbe2ee622,1,Schooner stamped card is a USPS philatelic release
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,36d6f9a1-62f3-4dd1-bb19-82194928538b,0,Tax shelter sentencing unrelated to USPS stamps
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,4a3ca880-17d6-45f6-aeca-fa7d72f4964e,1,Stamp reissue contest is a USPS stamp promotion
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,4aac38d2-a6e6-4aa6-8dfb-b312494b0345,0,USPS board meeting is not a stamp release or promotion
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,729c897b-c2f9-4bbe-8fee-67f5180325b6,0,IRS audit guidance unrelated to USPS stamps
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,7af8300d-35c0-44f5-9083-46bf23d02e09,1,250th anniversary commemorative stamps fit theme
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,ad71487a-a91c-45b2-98ab-d81e794002bb,1,USPS commemorative stamp release fits the theme
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,cf4ff16e-8552-4957-a05e-ed52540a5200,0,USGS topographic maps are not USPS stamps
+20db1ac9-d272-4808-a08a-42ca7772c23a,064070aa-56b3-4f7b-9c05-ff4cb168d9e9,1,GENIUS Act stablecoin regulation fits crypto policy
+20db1ac9-d272-4808-a08a-42ca7772c23a,35e0c1fe-e71f-4436-860f-85fb10b107dc,1,Bessent financial regulatory policy push fits theme
+20db1ac9-d272-4808-a08a-42ca7772c23a,38af195e-52ae-4849-8a63-d8f1917854e5,0,VA diet segment unrelated to Treasury
+20db1ac9-d272-4808-a08a-42ca7772c23a,4c46c663-5e73-46e7-81ba-f47c7fd3e8db,1,Treasury crypto regulation blueprint fits theme
+20db1ac9-d272-4808-a08a-42ca7772c23a,4e298912-73ad-42f5-a549-4a179537ff3d,1,Treasury economic and debt market report fits theme
+20db1ac9-d272-4808-a08a-42ca7772c23a,815250bb-66aa-42a4-b619-7e6aeecf010d,0,Asylum fraud case unrelated to Treasury policy
+20db1ac9-d272-4808-a08a-42ca7772c23a,82cb736e-d3e7-4f2f-a86d-1fdc41717374,0,Treasury staff appointments are not fiscal or crypto policy
+20db1ac9-d272-4808-a08a-42ca7772c23a,9347ee5b-d830-4975-aea1-631a1d4de0a2,1,Treasury borrowing estimates fit fiscal policy
+34e98295-0b01-4896-b701-02705ee9f57a,0bb6fc42-03c5-4399-b516-9f67940f7abf,1,EPA brownfields job training grant fits theme
+34e98295-0b01-4896-b701-02705ee9f57a,0be7a9c8-814e-4338-9623-b164304fe67c,1,EPA brownfields revolving loan grant fits theme
+34e98295-0b01-4896-b701-02705ee9f57a,0f0bebb7-24ef-4cde-a6a2-a475e1ec2542,1,EPA drinking water protection grant fits theme
+34e98295-0b01-4896-b701-02705ee9f57a,13086fa4-f440-4349-bb46-074d4b9bf6e1,0,National park fire unrelated to EPA grants
+34e98295-0b01-4896-b701-02705ee9f57a,2948c33c-c211-44de-944f-cdd6315ca072,1,EPA brownfields grant to Red Oak fits theme
+34e98295-0b01-4896-b701-02705ee9f57a,5f3904ec-314f-4cba-902a-c6da5831e792,1,EPA brownfields assessment grant fits theme
+34e98295-0b01-4896-b701-02705ee9f57a,94736bbd-af4d-4a08-9a8e-d069de6eaf7b,1,EPA cleanup grant award fits theme
+34e98295-0b01-4896-b701-02705ee9f57a,e068a938-3b9b-4b76-8e6d-13cdfb8ba601,0,VA rural careers unrelated to EPA grants
+34e98295-0b01-4896-b701-02705ee9f57a,f2d3dd74-4bbc-4595-bb9c-62d6bd1504e4,1,EPA brownfields grant to Kansas City fits theme
+34e98295-0b01-4896-b701-02705ee9f57a,f4e0a3e0-1b5e-462c-a1f3-3f86fd522cef,0,Superfund groundwater plan is not a grant award
+34e98295-0b01-4896-b701-02705ee9f57a,fa92af0b-281d-42b5-8ac7-30bdb6e2bb07,0,Superfund risk plan is not a grant award
+34e98295-0b01-4896-b701-02705ee9f57a,fbbc3221-0136-415d-8058-b43d682cc915,0,Superfund cleanup meeting is not a grant award
+37ff3e77-f783-4048-8359-f9b95048f5e4,0448e069-4732-49a3-864c-16734e8bfbbe,1,EPA Superfund cleanup progress fits theme
+37ff3e77-f783-4048-8359-f9b95048f5e4,5f3904ec-314f-4cba-902a-c6da5831e792,0,Brownfields grant is not a Superfund cleanup plan
+37ff3e77-f783-4048-8359-f9b95048f5e4,749336ec-f7c3-4ed2-8cdb-1d63e922fe32,1,EPA Superfund groundwater cleanup plan fits theme
+37ff3e77-f783-4048-8359-f9b95048f5e4,815250bb-66aa-42a4-b619-7e6aeecf010d,0,Asylum case unrelated to EPA Superfund
+37ff3e77-f783-4048-8359-f9b95048f5e4,b66c38e4-7ce5-49a6-9897-e03fc52e8d49,0,Administrator site tour is not a cleanup plan
+37ff3e77-f783-4048-8359-f9b95048f5e4,d315553c-4d46-4df8-978b-829a73b98805,0,USGS award unrelated to EPA Superfund cleanup
+37ff3e77-f783-4048-8359-f9b95048f5e4,d34ea3bc-7d71-4b94-95dc-a740c6130b19,1,Superfund site presentation fits theme
+37ff3e77-f783-4048-8359-f9b95048f5e4,f2d3dd74-4bbc-4595-bb9c-62d6bd1504e4,0,Brownfields grant is not a Superfund cleanup plan
+37ff3e77-f783-4048-8359-f9b95048f5e4,f4e0a3e0-1b5e-462c-a1f3-3f86fd522cef,1,EPA NJ Superfund cleanup plan fits theme
+37ff3e77-f783-4048-8359-f9b95048f5e4,fa92af0b-281d-42b5-8ac7-30bdb6e2bb07,1,EPA Superfund risk reduction plan fits theme
+37ff3e77-f783-4048-8359-f9b95048f5e4,fbbc3221-0136-415d-8058-b43d682cc915,1,EPA Superfund cleanup plan meeting fits theme
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,09926b22-8867-41c8-aedf-a4692885c9a5,1,Weekly VA research wrap-up fits criterion
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,89fa691a-5cad-41dc-b2b2-b973f39eb655,0,DOJ consent decree unrelated to VA research
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,a4e78614-bba0-4f50-b06a-1f99b29432aa,1,VA R&D weekly research brief fits criterion
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,b81a8877-66a9-4ab1-bb55-cb09deb700b0,1,Weekly VA research wrap-up fits criterion
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,24797c8d-7ad1-401e-9ce1-36129a9bf425,1,Big South Fork festival fits theme
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,3069989b-24d4-4900-937c-c0379921c1aa,0,NASA collaboration unrelated to Big South Fork
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,376920bc-d340-4ef3-a6e8-6180e366f41f,0,Great Smoky Mountains advisory not Big South Fork
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,43244048-cd39-4bdc-9bb3-2421c75c0530,1,Big South Fork picnic repairs fit theme
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,46247540-6e15-4322-bacc-8848aa79b033,1,Big South Fork restoration fits theme
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,4b2cf318-c6fe-451f-abe4-766fba8bda7a,0,Upper Delaware award not Big South Fork
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,945f5498-0983-448a-8a9f-751719cd947e,0,Upper Delaware award not Big South Fork
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,bf9e4ce7-abaa-43fb-84c3-0690a88232c8,1,Big South Fork Outdoors Day fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,00a53ac2-b185-4755-bd80-7527107cdf69,1,Peru national day greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,25d8b0b1-bfce-47c1-9e82-48ce6d85783e,1,Benin independence greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,27774b33-19b1-4908-a79f-b090ea47fecb,0,Venezuela prisoner release not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,27beaab2-1a94-4f68-a18a-7c5338443a18,1,Colombia independence greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,2f8d308d-b61c-4ff0-992d-fe2ef3a682bf,1,Switzerland national day greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,5888e045-11b9-40cd-96ec-6f93d3db4979,1,Maldives independence greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,5b6eca2c-7820-42c4-becc-6b93ee5ee6a7,1,Egypt national day greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,7853bd15-f451-44e8-b580-ad27d3ec2545,1,Morocco throne day greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,7af8300d-35c0-44f5-9083-46bf23d02e09,0,USPS anniversary not a foreign national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,8f9c3c3d-b580-41d9-9bcc-7f80fc7839e4,1,Vanuatu national day greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,c1f3ce2f-217a-45d6-a186-2eb470a31d38,1,Belgium national day greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,d6233b0f-5744-4014-a9c6-fc63d4eae15c,0,NPS closure unrelated to national day greetings
+4fabbf0e-9852-40a5-a971-638157aa6a1d,db53a455-ea00-4c23-b751-8dd75305683c,1,Liberia independence greeting fits theme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,dea804cc-2c01-4758-b523-f21f3a5da65e,0,Economic meeting not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,ec9d27d2-67c7-4a79-9c05-b4fcb59f36ab,0,DRC declaration not a national day greeting
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,13acfb3e-f7ab-4e24-a746-fde4b6586c39,1,Houthi network sanctions fit theme
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,1497df54-9a20-40a9-a9e3-bcb1a3f7a4e6,0,SSA customer service unrelated to sanctions
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,265110f4-234b-4e1e-b91b-0b7b9e90ba20,0,Joint condemnation statement is not a sanctions action
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,48bdd9ce-e36d-4944-8293-6a64cb43a8b0,1,North Korean IT worker sanctions fit theme
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,57bb431c-3db8-4d05-9fc7-67952c9ca39d,1,Iran petroleum sanctions fit theme
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,675db8c2-84bb-4b4f-adff-5998477d0169,1,Treasury Iran shipping sanctions fit theme
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,7610d044-c460-4809-9ddc-712c53f6c030,0,CFTC no-action letter unrelated to sanctions
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,7617cf5a-77b3-41b5-a3c4-f5a63ca08318,0,Sanctions conference is not a sanctions action
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,bbf00f28-28e2-427b-a7b7-12e84bdb0502,0,Condemnation of bounties is not a sanctions action
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,c69efc27-7d7d-4c67-8716-536af1254df6,1,Iran UAV network sanctions fit theme
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,09b541fa-2089-4c96-803a-4c7b139b3aca,0,Yellowstone rumor unrelated to NASA
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,3069989b-24d4-4900-937c-c0379921c1aa,1,NASA commercial space collaboration fits theme
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,61588017-9505-4c8b-ac31-0b518430e1bc,1,NASA industry proposal solicitation fits theme
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,d13c0b76-d6b0-4d4d-864f-329568113c7d,0,Ames lodging info is not a commercial space partnership
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e,1,NASA SpaceX crew mission fits commercial partnership
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,d66616c2-2c68-43eb-85a9-4af21f15e4c6,0,NASA event calendar is not a commercial partnership
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,ecf2fc42-be1d-4ad0-a853-480d12e86c96,0,Satellite tech test is not a commercial partnership
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,f1d6c031-dbdf-494a-9e41-8da6534bad55,0,DOJ strike force unrelated to NASA
+788bd142-c1ec-4248-8b48-97bff36a4746,0c1561f5-6278-4eb8-b7fe-b435fef712bd,0,Prize competition is not a consent decree action
+788bd142-c1ec-4248-8b48-97bff36a4746,35010901-a730-4cbc-bb10-719cfdd3793e,0,Education aid notice unrelated to consent decrees
+788bd142-c1ec-4248-8b48-97bff36a4746,40d08579-f093-44e6-82ff-028e98ce6cb7,0,Lawsuit dismissal is not a consent decree action
+788bd142-c1ec-4248-8b48-97bff36a4746,4327adad-0321-4c6f-bf76-b78103232ede,1,DOJ ending juvenile detention consent decree fits theme
+788bd142-c1ec-4248-8b48-97bff36a4746,6f2e0635-9372-40d1-a6a8-060e1b7a3121,0,IRS taxpayer tip unrelated to consent decrees
+788bd142-c1ec-4248-8b48-97bff36a4746,89fa691a-5cad-41dc-b2b2-b973f39eb655,1,DOJ ending police consent decree fits theme
+788bd142-c1ec-4248-8b48-97bff36a4746,92ba5ddc-c46a-48d7-bc5a-3a7ce707d081,0,DEI funding guidance is not a consent decree action
+788bd142-c1ec-4248-8b48-97bff36a4746,a3640baf-17c1-4b0d-b440-1548a6e5bdaa,0,Sanctuary lawsuit is not a consent decree action
+788bd142-c1ec-4248-8b48-97bff36a4746,c929bdb8-392f-4fba-aff5-b8014319ef8e,1,DOJ reform agreement completion fits theme
+788bd142-c1ec-4248-8b48-97bff36a4746,e9dbbe7e-bba3-4d90-aa25-6350a6cfaf0c,0,Firearms rights rule is not a consent decree action
+7ca10d73-ff72-4f17-9541-7df96ad509b8,0f0bebb7-24ef-4cde-a6a2-a475e1ec2542,0,EPA water grant unrelated to USDA Rollins
+7ca10d73-ff72-4f17-9541-7df96ad509b8,1c38846e-6724-49b0-b5ec-c2d8379fa32c,1,Rollins applauds USDA confirmation fits theme
+7ca10d73-ff72-4f17-9541-7df96ad509b8,32e16b54-2d1e-4db4-8887-dea17265eca7,1,USDA reorganization under Rollins fits theme
+7ca10d73-ff72-4f17-9541-7df96ad509b8,44391e2b-12b4-4262-ae48-7c04c4577595,1,Rollins Florida disaster aid fits theme
+7ca10d73-ff72-4f17-9541-7df96ad509b8,4a97f28e-2ba3-4315-a0f7-fc0d7b3188ae,1,USDA working forests investment fits theme
+7ca10d73-ff72-4f17-9541-7df96ad509b8,5b48f79d-3671-4b56-8e09-f1e3b52df559,1,Rollins local food program fits theme
+7ca10d73-ff72-4f17-9541-7df96ad509b8,6335600d-7ccb-4fad-855e-b11d4947537f,0,State Department food aid not a USDA Rollins action
+7ca10d73-ff72-4f17-9541-7df96ad509b8,69cbb205-d96c-4064-b8de-524e7a6f0653,1,Rollins farmers market event fits theme
+7ca10d73-ff72-4f17-9541-7df96ad509b8,7ad47d1a-4cf7-4fef-8f29-d7c3b9336dd1,0,DOJ MLK files unrelated to USDA
+7ca10d73-ff72-4f17-9541-7df96ad509b8,a49303a2-51eb-4cb5-b66c-5977ada6eb92,0,Defense contractor settlement unrelated to USDA
+7ca10d73-ff72-4f17-9541-7df96ad509b8,d0d0be22-e811-4342-a44e-901bee4310a4,1,Rollins disaster aid announcement fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,0950f235-0016-4c66-b072-f933c5dc8845,1,IRS verified-source advisory fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,27774b33-19b1-4908-a79f-b090ea47fecb,0,Venezuela release unrelated to IRS
+8c75056e-9552-4f7e-a68a-39e8e6768f87,4cd2f15e-79dc-4b72-8f14-c283c6a36ca3,1,IRS extension filer guidance fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,52ec9c61-ceed-4afa-b69c-b4330fbdd7e0,0,USCIS visa vetting unrelated to IRS guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,54ae0b71-79d7-4bbc-86ba-48e1ef69b1bd,1,IRS marital-status tax tip fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,5bfceb17-7238-4d93-b342-c1c374d189ca,1,IRS revalidation reminder fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,6f2e0635-9372-40d1-a6a8-060e1b7a3121,1,IRS taxpayer finality guidance fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,729c897b-c2f9-4bbe-8fee-67f5180325b6,1,IRS examination guidance fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,9e129fb8-dd05-49c7-80f8-3d26061acd89,0,Whistleblower appreciation is not taxpayer guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,a67a2118-f213-41af-803d-49a81f4be393,0,Education FISAP guidance is not IRS guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,be9f9957-ce59-4bb2-b6ab-3b20807bb2fa,1,IRS data security reminder fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,cce87ba3-277a-4d29-b302-ad4064dff3f0,1,IRS late-filing reminder fits theme
+8c75056e-9552-4f7e-a68a-39e8e6768f87,eec371d0-61f7-449a-80c4-c6ea8e489e52,0,EPA pesticide settlement unrelated to IRS guidance
+9a524fe0-7adf-4840-b1dc-30b725677b08,133f18e2-0ed1-473c-b108-9111b2bde0fa,1,Landau meeting Honduran minister fits theme
+9a524fe0-7adf-4840-b1dc-30b725677b08,333b4dfc-538a-4f0b-9afb-e5551c468495,0,Treasury AML rule delay is not a diplomatic meeting
+9a524fe0-7adf-4840-b1dc-30b725677b08,40f3c0e5-e3b4-494f-8f33-478988bd4198,1,Rubio bilateral meeting with Marcos fits theme
+9a524fe0-7adf-4840-b1dc-30b725677b08,775073fd-ca2b-4264-b65a-17fa41c4212f,0,IRS fraud sentencing unrelated to diplomacy
+9a524fe0-7adf-4840-b1dc-30b725677b08,c3591b86-fdc5-43ae-a866-d5285bc8c9dd,1,Trilateral partnership meeting fits theme
+9a524fe0-7adf-4840-b1dc-30b725677b08,cf583756-238a-4317-b067-6b077c0ae965,1,Landau meeting Palau president fits theme
+9a524fe0-7adf-4840-b1dc-30b725677b08,d006e6d6-1b03-460d-ae6e-6ab76ef6bceb,1,US-Hungary officials meeting fits theme
+9a524fe0-7adf-4840-b1dc-30b725677b08,dea804cc-2c01-4758-b523-f21f3a5da65e,1,Bessent bilateral economic meeting fits theme
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,12a28a96-fccb-49c0-b861-b44b73c02264,1,BLS earnings report fits theme
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,1497df54-9a20-40a9-a9e3-bcb1a3f7a4e6,0,SSA service update is not BLS labor data
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,23a229eb-ba81-43cf-aea6-6a8663c6124d,0,Art exhibit unrelated to BLS data
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,37be9b04-9d29-4882-b582-dcfee079c17d,1,BLS business dynamics data fits theme
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,52ce780b-51f1-4617-aca5-d61c57e0b532,0,USGS coastal briefs unrelated to BLS data
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,729c897b-c2f9-4bbe-8fee-67f5180325b6,0,IRS examination guidance is not BLS data
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,79786a6f-8edb-4268-89c8-3621a65973cb,1,Employment cost index release fits theme
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,7e0d574b-8526-40fe-ae7c-a671d85ee511,1,BLS employment data release fits theme
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,8f29c6bf-b7f2-46dd-9c85-c53767399087,0,USGS photo roundup is not BLS labor data
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,9c056b74-160e-4a63-b0b6-8c39d147e315,1,BLS JOLTS release fits theme
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,b9f35344-7729-42aa-8d2f-b359b6448a19,1,BLS metro employment data fits theme
+b722dee1-b6d5-465c-9ee0-20561b2041b3,12217909-4764-4310-b395-a7b74377d38c,0,NASA 5G test unrelated to FCA settlements
+b722dee1-b6d5-465c-9ee0-20561b2041b3,76792b1f-8ca7-44fb-a159-bc3addef7cf9,1,Grosfillex FCA duties settlement fits theme
+b722dee1-b6d5-465c-9ee0-20561b2041b3,7b1d713a-199b-4ab1-b3da-7a3eb6bb2a0f,0,USGS mapping unrelated to FCA settlements
+b722dee1-b6d5-465c-9ee0-20561b2041b3,8a7e424f-8486-4079-81be-8962a950c18a,1,Dermatology FCA Medicare settlement fits theme
+b722dee1-b6d5-465c-9ee0-20561b2041b3,a49303a2-51eb-4cb5-b66c-5977ada6eb92,1,Aero Turbine FCA cybersecurity settlement fits theme
+b722dee1-b6d5-465c-9ee0-20561b2041b3,abee6e89-d2f9-4ac4-9de2-94ce6d720ade,1,Illumina FCA cybersecurity settlement fits theme
+b722dee1-b6d5-465c-9ee0-20561b2041b3,b25941af-a61a-4e78-a8de-78312b676312,0,Export control guilty plea is not an FCA settlement
+b722dee1-b6d5-465c-9ee0-20561b2041b3,b488d1a7-3ea1-4a6d-9ae2-4e88402bd0de,1,Q Link FCA Lifeline settlement fits theme
+b722dee1-b6d5-465c-9ee0-20561b2041b3,c69e5a98-c79a-4e2e-b968-db268d123d36,0,OSHA safety settlement is not a False Claims Act case
+b722dee1-b6d5-465c-9ee0-20561b2041b3,c868a9cf-09f3-40cb-84f7-90034709d850,1,Importers FCA customs settlement fits theme
+b722dee1-b6d5-465c-9ee0-20561b2041b3,eec371d0-61f7-449a-80c4-c6ea8e489e52,0,EPA pesticide settlement is not an FCA case
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,2dce82d6-82e8-4504-b349-94cc81a0e69d,1,EPA disaster cleanup completion fits theme
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,35010901-a730-4cbc-bb10-719cfdd3793e,0,Education aid notice unrelated to EPA
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,749336ec-f7c3-4ed2-8cdb-1d63e922fe32,0,Superfund cleanup plan proposal is not a settlement
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,7617cf5a-77b3-41b5-a3c4-f5a63ca08318,0,Maritime conference unrelated to EPA settlements
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,93f13b8f-3d89-4870-a0ae-de5fcfb5cbdd,1,PREPA Clean Air Act settlement fits theme
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,afdf6645-b9eb-40a3-9c78-87ca2dc185ef,1,EPA Vistra cleanup agreement fits theme
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,bff41193-d0c5-4000-a421-60631ca1024f,1,EPA PG&E enforcement settlement fits theme
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,d412ffee-6590-43f7-8ada-c1db358b0557,1,EPA Clean Air Act violation resolution fits theme
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,fa92af0b-281d-42b5-8ac7-30bdb6e2bb07,0,Superfund cleanup plan proposal is not a settlement
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,fbbc3221-0136-415d-8058-b43d682cc915,0,Superfund meeting is not an enforcement settlement
+bc8630a0-1c65-4513-ac8e-462f7574f11a,0af32934-cc24-4c55-8ab6-fd1712a1b1e3,1,FTC ban on deceptive scheme fits theme
+bc8630a0-1c65-4513-ac8e-462f7574f11a,260bd659-445f-4275-b2f7-8ff27cb9cb93,0,SSA PIN feature unrelated to FTC
+bc8630a0-1c65-4513-ac8e-462f7574f11a,723500cd-a8d3-4f77-88a9-29449d32b67d,1,FTC scam refunds fit theme
+bc8630a0-1c65-4513-ac8e-462f7574f11a,7d4842bb-10b9-4655-b348-c2bc7b5b55a2,0,CFTC fraud order is not FTC enforcement
+bc8630a0-1c65-4513-ac8e-462f7574f11a,9cb7e86b-eb94-4db0-87ab-29994999bb6f,1,FTC debt-relief shutdown fits theme
+bc8630a0-1c65-4513-ac8e-462f7574f11a,b261660f-82a2-486e-9311-b49d9afa4b1a,1,FTC gender-affirming care inquiry fits theme
+bc8630a0-1c65-4513-ac8e-462f7574f11a,c792e59a-9b46-490e-ae78-714a59adcc28,0,CFTC no-action letter is not FTC enforcement
+bc8630a0-1c65-4513-ac8e-462f7574f11a,edde8d88-6f99-4503-99c0-0400a027be2c,1,FTC stalkerware order action fits consumer protection
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,0bb6fc42-03c5-4399-b516-9f67940f7abf,0,EPA grant unrelated to CFTC letters
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,599fcd46-d916-4a5d-b2a6-905ee8272a6a,1,CFTC swap data relief letter fits theme
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,7610d044-c460-4809-9ddc-712c53f6c030,1,CFTC event contracts no-action letter fits theme
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,86d525ea-3e02-455a-8d95-17254bbd5ccc,1,CFTC SEF order book relief fits theme
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,9cb7e86b-eb94-4db0-87ab-29994999bb6f,0,FTC action is not a CFTC no-action letter
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,b98e7e91-579a-446b-8673-5ccc460f4738,0,Ponzi case unrelated to CFTC letters
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,c792e59a-9b46-490e-ae78-714a59adcc28,1,CFTC position aggregation letter fits theme
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,edde8d88-6f99-4503-99c0-0400a027be2c,0,FTC petition is not a CFTC letter
+e4146a2b-f866-45c7-97c4-4596044e6378,064070aa-56b3-4f7b-9c05-ff4cb168d9e9,0,GENIUS Act unrelated to satellites
+e4146a2b-f866-45c7-97c4-4596044e6378,44391e2b-12b4-4262-ae48-7c04c4577595,0,USDA disaster aid unrelated to satellites
+e4146a2b-f866-45c7-97c4-4596044e6378,48003bac-8150-4a0e-80b0-551237c343aa,1,Satellite flood monitoring fits theme
+e4146a2b-f866-45c7-97c4-4596044e6378,5db4d7d2-fa8e-49a0-baa6-e281ea1ca99a,1,NISAR Earth observation satellite fits theme
+e4146a2b-f866-45c7-97c4-4596044e6378,7a92a475-51cb-4375-a368-91a8e79b1862,1,Sentinel-6B Earth observation mission fits theme
+e4146a2b-f866-45c7-97c4-4596044e6378,851a3819-9168-484a-9568-2ade7dfd56d7,1,AI Earth-observing satellite fits theme
+e4146a2b-f866-45c7-97c4-4596044e6378,ecf2fc42-be1d-4ad0-a853-480d12e86c96,0,Scalable satellite tech test is not Earth observation
+e4146a2b-f866-45c7-97c4-4596044e6378,fa5d966f-5922-4e01-9189-6d44262bda10,0,Communications relay satellites are not Earth observation
+ed80610a-1307-4211-9bed-9244d99fb33c,35010901-a730-4cbc-bb10-719cfdd3793e,1,Education campus-based aid notice fits theme
+ed80610a-1307-4211-9bed-9244d99fb33c,42156dac-775b-4b9d-a5db-544c09d77a58,1,StudentAid.gov maintenance notice fits theme
+ed80610a-1307-4211-9bed-9244d99fb33c,5c5eb34b-8a4a-4b8c-9bc0-61241711d1ba,1,Education delinquent borrower report fits theme
+ed80610a-1307-4211-9bed-9244d99fb33c,92ba5ddc-c46a-48d7-bc5a-3a7ce707d081,0,DOJ DEI guidance unrelated to student aid
+ed80610a-1307-4211-9bed-9244d99fb33c,a67a2118-f213-41af-803d-49a81f4be393,1,Education FISAP guidance fits theme
+ed80610a-1307-4211-9bed-9244d99fb33c,afdf6645-b9eb-40a3-9c78-87ca2dc185ef,0,EPA cleanup deal unrelated to student aid
+ed80610a-1307-4211-9bed-9244d99fb33c,cce87ba3-277a-4d29-b302-ad4064dff3f0,0,IRS reminder unrelated to student aid
+ed80610a-1307-4211-9bed-9244d99fb33c,cf4d18e2-6cf4-46ca-91f9-e29d5c544dfc,0,State schedules unrelated to student aid
+ed80610a-1307-4211-9bed-9244d99fb33c,f2d3dd74-4bbc-4595-bb9c-62d6bd1504e4,0,EPA brownfields grant unrelated to student aid
+ed80610a-1307-4211-9bed-9244d99fb33c,fae70933-0e63-40c2-8db9-40b15d7a45b2,1,Federal school code list fits theme
+f13a8946-2865-4321-b526-8660094adbc0,40f3c0e5-e3b4-494f-8f33-478988bd4198,1,Rubio meeting with Marcos fits theme
+f13a8946-2865-4321-b526-8660094adbc0,4a1ee998-f2a6-4152-95f6-72a1492d22a2,1,Rubio Suriname partnership call fits theme
+f13a8946-2865-4321-b526-8660094adbc0,72b0a537-1eb5-4fcc-ac78-762ee6548658,1,Rubio foreign policy interview fits theme
+f13a8946-2865-4321-b526-8660094adbc0,7617cf5a-77b3-41b5-a3c4-f5a63ca08318,1,State Department diplomatic conference fits theme
+f13a8946-2865-4321-b526-8660094adbc0,87fb2eaa-b38c-4fca-94fe-503038fe2c97,1,Rubio ceasefire diplomacy fits theme
+f13a8946-2865-4321-b526-8660094adbc0,9347ee5b-d830-4975-aea1-631a1d4de0a2,0,Treasury borrowing unrelated to State diplomacy
+f13a8946-2865-4321-b526-8660094adbc0,9edc4a89-6dcd-4f06-a95c-ff40caecb374,1,Rubio State Department interview fits theme
+f13a8946-2865-4321-b526-8660094adbc0,a1f7e7d3-2499-4352-afd9-77b0992afa0e,1,Rubio diplomatic calls series fits theme
+f13a8946-2865-4321-b526-8660094adbc0,be9f9957-ce59-4bb2-b6ab-3b20807bb2fa,0,IRS reminder unrelated to State diplomacy
+f13a8946-2865-4321-b526-8660094adbc0,c3591b86-fdc5-43ae-a866-d5285bc8c9dd,1,Deputy Secretary trilateral meeting fits theme
+f13a8946-2865-4321-b526-8660094adbc0,cf4d18e2-6cf4-46ca-91f9-e29d5c544dfc,1,State Department daily diplomatic schedules fit theme
+f13a8946-2865-4321-b526-8660094adbc0,cf583756-238a-4317-b067-6b077c0ae965,1,Deputy Secretary bilateral meeting fits theme
+f13a8946-2865-4321-b526-8660094adbc0,f8795edd-53fd-464a-a8ad-165ac216a4a4,1,Rubio Djibouti partnership call fits theme
+f19428da-b19b-4009-8022-1b7c87c09cbf,3963a1e1-9930-4cb7-808b-c47bf5ddac67,0,VA travel reimbursement unrelated to USGS
+f19428da-b19b-4009-8022-1b7c87c09cbf,5945773b-87ab-47d1-af8f-af4e2075ba02,1,USGS aerial geophysical survey fits theme
+f19428da-b19b-4009-8022-1b7c87c09cbf,71ce17c0-7e63-4d0b-ae55-db8e3cb19f33,1,USGS lunar mineral map fits theme
+f19428da-b19b-4009-8022-1b7c87c09cbf,7b1d713a-199b-4ab1-b3da-7a3eb6bb2a0f,1,USGS geologic mapping fits theme
+f19428da-b19b-4009-8022-1b7c87c09cbf,825e60a2-1157-47b3-8590-4374adfe68ac,0,NCBI ClinVar update is not a USGS release
+f19428da-b19b-4009-8022-1b7c87c09cbf,a891c37b-c119-43fe-a6f9-e10f040c446e,1,USGS 3D elevation data release fits theme
+f19428da-b19b-4009-8022-1b7c87c09cbf,c8e03efe-6585-45a0-b5d7-a38b0732ecbd,1,USGS groundwater data tool fits theme
+f19428da-b19b-4009-8022-1b7c87c09cbf,cf4ff16e-8552-4957-a05e-ed52540a5200,1,USGS topographic maps fit theme
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,37be9b04-9d29-4882-b582-dcfee079c17d,0,BLS data unrelated to commemorations
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,43ec7f44-7c63-4541-b6f9-7bb9a0698233,1,Pearl Harbor 80th atomic bombing commemoration fits theme
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,59d973ce-90b9-45f7-83b0-13414c32bb62,1,80th atomic bombing commemoration fits theme
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,635d16c8-e573-42a0-9b36-de2dddcb6c8d,1,Manhattan Project anniversary ceremony fits theme
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,b662279e-ac1e-4843-978b-c1ba4c6be260,0,Railroad mapping event unrelated to atomic bombings
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,c00979b9-24db-4b1a-a716-874515a9177b,0,Internment site anniversary is not atomic bombing commemoration
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,c5befe6f-79a7-4a9e-aec7-fbbaef6b881d,0,EPA confirmation unrelated to commemorations
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,fa86c6c3-1e50-47cd-b3e4-ad15af21cb30,0,Amphitheater anniversary unrelated to atomic bombings

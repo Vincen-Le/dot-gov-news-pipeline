@@ -1,0 +1,1030 @@
+{
+  "total_multi_entry_episodes": 18,
+  "sampled_episode_count": 18,
+  "episodes": [
+    {
+      "episode_id": "0374c8ff-2d5e-4f79-b3e5-0d8e570d7d5c",
+      "entry_count": 2,
+      "entities": [
+        "foreign",
+        "jordanian",
+        "minister",
+        "rubio",
+        "safadi",
+        "schedule"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-22 04:00:00+00:00",
+      "newest_entry_at": "2025-07-23 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "bcdeec1f-6786-47fa-bacf-04724325f662",
+          "title": "Public Schedule \u2013 July 23, 2025 - United States Department of State",
+          "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 4:30 p.m. Secretary Rubio meets with Jordanian Deputy Prime Minister and Foreign Minister Ayman Safadi at the Department of State. (OPEN PRESS COVERAGE) Call time for video cameras, still cameras, and writers is 4:00 p.m. from the 23rd Street entrance. DEPUTY SECRETARY OF STATE CHRISTOPHER LANDAU Deputy [\u2026]",
+          "published_at": "2025-07-22 04:00:00+00:00",
+          "entities": [
+            "schedule"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "cf58ffb0-e38c-4fa3-9d62-aab65eebf2b6",
+          "title": "Secretary Rubio's Meeting with Jordanian Foreign Minister Safadi - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio met today with Jordan\u2019s Deputy Prime Minister and Minister of Foreign Affairs and Expatriates Ayman Safadi to discuss the trilateral agreement between the United States, Jordan, and Syria to maintain the ceasefire in Syria. The Secretary stressed the need for dialogue to [\u2026]",
+          "published_at": "2025-07-23 04:00:00+00:00",
+          "entities": [
+            "jordanian",
+            "rubio",
+            "safadi"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.787017
+        }
+      ]
+    },
+    {
+      "episode_id": "14b8059c-a3c5-4a85-92d5-482cde0396f7",
+      "entry_count": 2,
+      "entities": [
+        "amangeldiev",
+        "christopher",
+        "daniiar",
+        "kyrgyz",
+        "landau",
+        "prime",
+        "rubio",
+        "schedule",
+        "tammy"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-27 04:00:00+00:00",
+      "newest_entry_at": "2025-07-28 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "827c73d5-8964-4bee-864b-6b0a9de2e1dc",
+          "title": "Public Schedule \u2013 July 28, 2025 - United States Department of State",
+          "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO Secretary Rubio has no public appointments. DEPUTY SECRETARY OF STATE CHRISTOPHER LANDAU 1:00 p.m. Deputy Secretary Landau meets with Kyrgyz First Deputy Prime Minister Daniiar Amangeldiev at the Department of State.(CLOSED PRESS COVERAGE) DEPUTY SECRETARY OF STATE FOR MANAGEMENT AND RESOURCES MICHAEL J. RIGAS Deputy [\u2026]",
+          "published_at": "2025-07-27 04:00:00+00:00",
+          "entities": [
+            "rubio",
+            "schedule"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "831fbdb0-5466-4a37-8d15-6f1695edd2c3",
+          "title": "Deputy Secretary Landau\u2019s Meeting with Kyrgyz First Deputy Prime Minister Amangeldiev - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Deputy Secretary of State Christopher Landau met today with Kyrgyz First Deputy Prime Minister Daniiar Amangeldiev in Washington. The Deputy Secretary expressed the hope that the United States could deepen the bilateral relationship with the Kyrgyz Republic for the mutual benefit of both countries. The Deputy Secretary [\u2026]",
+          "published_at": "2025-07-28 04:00:00+00:00",
+          "entities": [
+            "amangeldiev",
+            "christopher",
+            "daniiar",
+            "kyrgyz",
+            "landau",
+            "prime",
+            "tammy"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.840914
+        }
+      ]
+    },
+    {
+      "episode_id": "21ec4204-c755-46f3-9ecb-0fe2907741a5",
+      "entry_count": 2,
+      "entities": [
+        "apply",
+        "assistance",
+        "days",
+        "flooding",
+        "following",
+        "left"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-24 12:18:24+00:00",
+      "newest_entry_at": "2025-07-25 12:25:51+00:00",
+      "entries": [
+        {
+          "entry_id": "e3dab847-6a1e-4dae-8630-6f7fc760a8c8",
+          "title": "Two Days Left to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Two Days Left to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have two days left to apply for federal disaster assistance. The deadline to apply is July 25.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the add",
+          "published_at": "2025-07-24 12:18:24+00:00",
+          "entities": [
+            "days",
+            "following",
+            "frankfort",
+            "kentucky"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.982371
+        },
+        {
+          "entry_id": "af4c9155-2ee7-4a68-835c-497061cfe110",
+          "title": "Last Day to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Last Day to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have until 11:59 p.m. today to apply for federal disaster assistance. The deadline to apply is today.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the a",
+          "published_at": "2025-07-25 12:25:51+00:00",
+          "entities": [
+            "following",
+            "frankfort",
+            "kentucky"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.944684
+        }
+      ]
+    },
+    {
+      "episode_id": "34f07d95-7017-418c-bb45-1148537c7fb9",
+      "entry_count": 2,
+      "entities": [
+        "corp",
+        "landing",
+        "moss",
+        "vistra"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-23 17:41:25+00:00",
+      "newest_entry_at": "2025-07-23 17:47:52+00:00",
+      "entries": [
+        {
+          "entry_id": "973bff3a-d62e-4773-a1a6-a2ee639682d8",
+          "title": "EPA reaches agreement with Vistra Corp. for urgent battery cleanup at Moss Landing, launches website for public updates | US EPA",
+          "summary": "U.S. Environmental Protection Agency (EPA) has reached an agreement with Vistra Corp. to safely remove and dispose of batteries impacted by the January 2025 fire at Moss Landing.",
+          "published_at": "2025-07-23 17:41:25+00:00",
+          "entities": [
+            "corp",
+            "landing",
+            "moss",
+            "vistra"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "7bcb107e-c890-4d29-9bca-4e5261f9421d",
+          "title": "EPA llega a un acuerdo con Vistra Corp. para la limpieza urgente de bater\u00edas en Moss Landing, lanza un sitio web para actualizaciones p\u00fablicas | US EPA",
+          "summary": "Moss Landing",
+          "published_at": "2025-07-23 17:47:52+00:00",
+          "entities": [
+            "bajo",
+            "calif",
+            "corp",
+            "landing",
+            "moss",
+            "vistra"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.899106
+        }
+      ]
+    },
+    {
+      "episode_id": "45f5c762-b637-4bc2-9950-47019c8fca41",
+      "entry_count": 2,
+      "entities": [
+        "calendar",
+        "silicon",
+        "valley",
+        "visiting"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-28 22:02:25+00:00",
+      "newest_entry_at": "2025-07-28 22:02:25+00:00",
+      "entries": [
+        {
+          "entry_id": "11f5cf72-d134-4868-ae07-d4a0babcda98",
+          "title": "NASA Silicon Valley Event Center \u2013 Calendar of Events",
+          "summary": "Upcoming Events for the Public Check below for upcoming events that are open to the public being held at the Event Center SundayMondayTuesdayWednesdayThursdayFridaySaturday",
+          "published_at": "2025-07-28 22:02:25+00:00",
+          "entities": [
+            "calendar",
+            "silicon",
+            "valley"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "4bd48564-aabc-438f-9c87-33b6c4094255",
+          "title": "Visiting the NASA Silicon Valley Event Center",
+          "summary": "Visiting the Event Center Due to the nature of being a NASA facility, there are some special considerations that must be taken into account. Traveling To & FromThe Event Center is located on the publicly accessible side of the Ames campus. If you plan to arrive via ride share, please be aware that the vehicle [\u2026]",
+          "published_at": "2025-07-28 22:02:25+00:00",
+          "entities": [
+            "silicon",
+            "valley",
+            "visiting"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.757975
+        }
+      ]
+    },
+    {
+      "episode_id": "54040261-6ad4-4976-88af-027fff95e66a",
+      "entry_count": 2,
+      "entities": [
+        "cambodia",
+        "high",
+        "level",
+        "malaysia",
+        "maris",
+        "phone",
+        "rubio",
+        "talks",
+        "thai",
+        "thailand"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-27 04:00:00+00:00",
+      "newest_entry_at": "2025-07-27 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "61a8779e-94d1-41b4-8ee7-06c68f8da545",
+          "title": "On Cambodia and Thailand High Level Talks - United States Department of State",
+          "summary": "Cambodia and Thailand are scheduled to begin high level talks in Malaysia shortly in hopes of achieving an immediate ceasefire. State Department officials are on the ground in Malaysia to assist these peace efforts. Both President Trump and I remain engaged with our respective counterparts for each country and are monitoring the situation very closely. [\u2026]",
+          "published_at": "2025-07-27 04:00:00+00:00",
+          "entities": [
+            "cambodia",
+            "high",
+            "level",
+            "malaysia",
+            "talks",
+            "thailand"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.729348
+        },
+        {
+          "entry_id": "9ba6a566-7882-4a17-a893-f77b4f8991f4",
+          "title": "Secretary Rubio\u2019s Phone Call with Thai Foreign Minister Maris - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio spoke with Thai Foreign Minister Maris Sangiampongsa to urge the Thai government to deescalate tensions immediately and agree to a ceasefire with Cambodia over the ongoing border dispute. Secretary Rubio reiterated President Trump\u2019s desire for peace and the importance of an immediate ceasefire. The [\u2026]",
+          "published_at": "2025-07-27 04:00:00+00:00",
+          "entities": [
+            "maris",
+            "phone",
+            "rubio",
+            "thai"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.912183
+        }
+      ]
+    },
+    {
+      "episode_id": "591b4744-d244-4030-9e24-fd7f51548849",
+      "entry_count": 3,
+      "entities": [
+        "assistant",
+        "borrowing",
+        "brian",
+        "finance",
+        "letter",
+        "minutes",
+        "refunding",
+        "smith"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-30 12:30:00+00:00",
+      "newest_entry_at": "2025-07-30 12:30:00+00:00",
+      "entries": [
+        {
+          "entry_id": "3b48d30e-1106-4938-a540-db7f2e437974",
+          "title": "Report to the Secretary of the Treasury from the Treasury Borrowing Advisory Committee",
+          "summary": "Letter to the Secretary Dear Mr. Secretary, After a period of heightened market volatility in early April, financial markets have stabilized over the last three months, reflecting increasing comfort regarding the outlook for the US and global economy. The S&P 500 index recovered from sharp declines in early April and is now up more than 8% since the start of the year following progress on trade agreements. Treasury yields have been relatively stable over the last three months, with ten-year Treasury yields in a range around 4.4% and two-year Treasury yields averaging about 3.9%. After a more rapid depreciation in early April, the broad trade-weighted US dollar has continued to weaken, but at a slower rate, totaling an 8% depreciation over the course of the year. Measures of implied asset price volatility that had been elevated have fallen back to low levels. During the last three months markets have remained orderly and liquid. Stable financing rates in the repo market and a well-behaved cross currency basis suggest that liquidity remains ample in US funding markets. Some members highlighted the potential that a rapid increase in bill issuance in conjunction with lower levels for R",
+          "published_at": "2025-07-30 12:30:00+00:00",
+          "entities": [
+            "borrowing",
+            "letter"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.611533
+        },
+        {
+          "entry_id": "dabbe1d8-294c-454d-9bc6-017a8fc3d849",
+          "title": "Minutes of the Meeting of the Treasury Borrowing Advisory Committee July 29, 2025",
+          "summary": "The Committee convened in a closed session at the Department of the Treasury at 9:00 a.m. All members were present. Barrie Ringelheim from Citigroup was also present to assist the Committee Chair. Director of Policy & Planning Hunter McMaster, Deputy Assistant Secretary for Federal Finance Brian Smith, Director of the Office of Debt Management Fred Pietrangeli, and Deputy Director of the Office of Debt Management Tom Katzenbach welcomed the Committee. Other members of Treasury staff present were Abigail Brown, Nicholas Chisholm, Dave Chung, Gabriella Csepe, Gary Grippo, Liang Jensen, Shahnewaz Khan, Chris Kubeluis, Kyle Lee, Libby Ragan, Gavin Ross, Joshua Stachura, Nick Steele, and Renee Tang. Federal Reserve Bank of New York staff members Luis Gonzalez, Justin Meyer, and Kyle Watson were also present. Director Pietrangeli highlighted changes in receipts and outlays through Q3 FY2025. Receipts totaled $4.01 trillion, an increase of $254 billion (7%) compared to the same period last year, primarily due to 6% growth in withheld taxes which reflects wage and employment growth. Outlays totaled $5.3 trillion, an increase of $318 billion (6%) compared to the same period last year, which",
+          "published_at": "2025-07-30 12:30:00+00:00",
+          "entities": [
+            "borrowing",
+            "minutes"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.686051
+        },
+        {
+          "entry_id": "fbff8453-dca4-4aff-b723-3aa3aafc75ad",
+          "title": "Quarterly Refunding Statement of Deputy Assistant Secretary for Federal Finance Brian Smith",
+          "summary": "WASHINGTON \u2014 The U.S. Department of the Treasury is offering $125 billion of Treasury securities to refund approximately $89.8 billion of privately-held Treasury notes and bonds maturing on August 15, 2025. This issuance will raise new cash from private investors of approximately $35.2 billion. The securities are:- A 3-year note in the amount of $58 billion, maturing August 15, 2028;- A 10-year note in the amount of $42 billion, maturing August 15, 2035; and- A 30-year bond in the amount of $25 billion, maturing August 15, 2055.The 3-year note will be auctioned at 1:00 p.m. ET on Tuesday, August 5, 2025. The 10-year note will be auctioned at 1:00 p.m. ET on Wednesday, August 6, 2025. The 30-year bond will be auctioned at 1:00 p.m. ET on Thursday, August 7, 2025. All these auctions will take place on a yield basis and will settle on Friday, August 15, 2025. The balance of Treasury financing requirements over the quarter will be met with regular weekly bill auctions, cash management bills (CMBs), and monthly note, bond, Treasury Inflation-Protected Securities (TIPS), and 2-year Floating Rate Note (FRN) auctions.NOMINAL COUPON AND FRN FINANCINGTreasury believes its current auction siz",
+          "published_at": "2025-07-30 12:30:00+00:00",
+          "entities": [
+            "assistant",
+            "brian",
+            "finance",
+            "refunding",
+            "smith"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.682378
+        }
+      ]
+    },
+    {
+      "episode_id": "6e4698b6-da52-48f9-92ff-baa9d72f6b05",
+      "entry_count": 2,
+      "entities": [
+        "global",
+        "imposing",
+        "iran",
+        "military",
+        "network",
+        "procurement",
+        "sanctions",
+        "supporting"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-31 04:00:00+00:00",
+      "newest_entry_at": "2025-07-31 19:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "456e4de1-54bc-4301-8ca4-699db132aa9b",
+          "title": "Imposing Sanctions on an International Procurement Network for Iran\u2019s UAV Program - United States Department of State",
+          "summary": "The United States today sanctioned five entities and one individual based in Iran, China, Taiwan, and Hong Kong SAR that have been involved in the procurement of technology and equipment in support of Iran\u2019s unmanned aerial vehicle (UAV) program. Today\u2019s action supports President Trump\u2019s National Security Presidential Memorandum-2 to counter Iran\u2019s aggressive development of [\u2026]",
+          "published_at": "2025-07-31 04:00:00+00:00",
+          "entities": [
+            "imposing",
+            "iran",
+            "network",
+            "procurement",
+            "sanctions"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "e78dc3cf-0ee5-4cef-b47f-e8f7c78eefce",
+          "title": "Treasury Sanctions Global Network Supporting Iran\u2019s Military UAV Program",
+          "summary": "WASHINGTON \u2014 Today, the U.S. Department of the Treasury\u2019s Office of Foreign Assets Control (OFAC) is designating five entities and one individual based in Iran, Hong Kong, Taiwan, and China for their procurement of technology in support of OFAC-designated Iran Aircraft Manufacturing Industrial Company (HESA). HESA is a state-owned subsidiary of Iran\u2019s Ministry of Defense and Armed Forces Logistics (MODAFL) that manufactures Iran\u2019s military aircraft and Ababil\u2011series unmanned aerial vehicles (UAVs), which have been employed by the Islamic Revolutionary Guard Corps (IRGC). Today\u2019s action is being taken in furtherance of National Security Presidential Memorandum 2, which directs that Iran be denied asymmetric and conventional weapons capabilities, and that the IRGC and its surrogates be disrupted and degraded.\u201cIran continues to pursue the development of asymmetric weapons capabilities, including unmanned aerial vehicles, to carry out attacks on the United States, our servicemembers and our partners and allies in the region,\u201d said Under Secretary of the Treasury for Terrorism and Financial Intelligence John K. Hurley. \u201cWe will continue to put America first by disrupting Tehran\u2019s abilit",
+          "published_at": "2025-07-31 19:00:00+00:00",
+          "entities": [
+            "global",
+            "iran",
+            "military",
+            "network",
+            "sanctions",
+            "supporting"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.700143
+        }
+      ]
+    },
+    {
+      "episode_id": "8a26e035-0105-47b3-9b0e-88662f990e77",
+      "entry_count": 2,
+      "entities": [
+        "administrator",
+        "agreement",
+        "alicia",
+        "applause",
+        "around",
+        "cooperation",
+        "council",
+        "crisis",
+        "decades",
+        "environment",
+        "environmental",
+        "ibarra",
+        "long",
+        "memorandum",
+        "mexico",
+        "permanently",
+        "reach",
+        "resources",
+        "sewage",
+        "tijuana",
+        "trump",
+        "understanding",
+        "urgently",
+        "zeldin"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-24 18:31:31+00:00",
+      "newest_entry_at": "2025-07-25 19:36:55+00:00",
+      "entries": [
+        {
+          "entry_id": "4cbfdb87-1d52-4dcf-9434-cffa210bdddf",
+          "title": "United States and Mexico Reach Agreement to Permanently and Urgently End Decades-Long Tijuana River Sewage Crisis | US EPA",
+          "summary": "EPA Administrator Lee Zeldin met with Mexico's Secretary of the Environment and National Resources Alicia B\u00e1rcena Ibarra at the Council of the Commission for Environmental Cooperation to sign a MOU to fix the Tijuana River sewage crisis.",
+          "published_at": "2025-07-24 18:31:31+00:00",
+          "entities": [
+            "administrator",
+            "agreement",
+            "alicia",
+            "cooperation",
+            "council",
+            "crisis",
+            "decades",
+            "environment",
+            "environmental",
+            "ibarra",
+            "long",
+            "mexico",
+            "permanently",
+            "reach",
+            "resources",
+            "sewage",
+            "tijuana",
+            "urgently",
+            "zeldin"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "1f178684-9f40-48a4-bc72-d2aa1c45b5d1",
+          "title": "WHAT THEY ARE SAYING: All Around Applause for Trump Administration\u2019s Agreement with Mexico to End Tijuana River Sewage Crisis | US EPA",
+          "summary": "EPA Administrator Lee Zeldin signed a Memorandum of Understanding (MOU) with Secretary of the Environment and National Resources of Mexico Alicia B\u00e1rcena Ibarra to address and solve the decades-long Tijuana River sewage crisis.",
+          "published_at": "2025-07-25 19:36:55+00:00",
+          "entities": [
+            "administrator",
+            "agreement",
+            "alicia",
+            "applause",
+            "around",
+            "crisis",
+            "environment",
+            "ibarra",
+            "memorandum",
+            "mexico",
+            "resources",
+            "sewage",
+            "tijuana",
+            "trump",
+            "understanding",
+            "zeldin"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.937346
+        }
+      ]
+    },
+    {
+      "episode_id": "93c924ae-21d0-4179-8104-35d38e057805",
+      "entry_count": 3,
+      "entities": [
+        "apply",
+        "assistance",
+        "change",
+        "disaster",
+        "employed",
+        "help",
+        "hours",
+        "middle",
+        "recovery",
+        "renters",
+        "self",
+        "students",
+        "tennesseans",
+        "tennessee",
+        "western"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-21 13:22:54+00:00",
+      "newest_entry_at": "2025-07-23 12:41:16+00:00",
+      "entries": [
+        {
+          "entry_id": "da410fd8-5a62-431b-9169-5a5439504a63",
+          "title": "Hours to Change at Disaster Recovery Centers in Tennessee",
+          "summary": "Hours to Change at Disaster Recovery Centers in Tennessee Middle and Western Tennesseans who experienced damage from the April 2-24 severe storms can get in-person assistance at FEMA Disaster Recovery Centers. The deadline to apply for assistance is Aug. 19.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing. Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties can apply for FEMA assistance.Disaster Recovery CenterHours: Beginning Monday, July 21 centers are open:9 a.m. to 6 p.m. Monday \u2013 Friday9 a.m. to 2 p.m. SaturdayClosed SundayLOCATIONS:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039McNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Montgomery County: Montgomery County Library, 350 Pageant Lane, Clarksville, TN 37040Obion County: Obion County Library, 1221 E. Reelfoot Ave., Union City, TN 38",
+          "published_at": "2025-07-21 13:22:54+00:00",
+          "entities": [
+            "change",
+            "hours",
+            "middle",
+            "tennesseans",
+            "tennessee",
+            "western"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.820715
+        },
+        {
+          "entry_id": "3c981044-ea72-4f5b-9c1e-ebf0254f3778",
+          "title": "Help FEMA Help You",
+          "summary": "Help FEMA Help You As FEMA assistance applications are processed, individual situations can change. It is important that you keep FEMA informed of your current contact information. This will ensure any benefits you are eligible for reach you without delay.The fastest way to provide missing or new information is to create an account at DisasterAssistance.gov and upload documents there. If you do not have internet access or need services not available on FEMA\u2019s website, call the FEMA Helpline at 800-621-3362.If more information is needed to process your application, FEMA may call you. These calls may come from unfamiliar phone numbers. It\u2019s important that you answer these calls. FEMA will ask to verify your identity by stating your damaged dwelling address, the last four digits of your social security number, and possibly your registration number. To avoid fraud and scams, verify callers are from FEMA before sharing any information.Tennesseans in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties who experienced damage from the April 2-24 severe storms have until Aug. 19 to apply for FEMA assistance. How to Apply for FEMA AssistanceApply onlin",
+          "published_at": "2025-07-22 13:57:38+00:00",
+          "entities": [
+            "help"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.842245
+        },
+        {
+          "entry_id": "80f4a816-8fbf-4dfb-a1c5-9442a6db7af4",
+          "title": "Renters, Students, Self-Employed Can Apply for FEMA Assistance",
+          "summary": "Renters, Students, Self-Employed Can Apply for FEMA Assistance Tennessee renters, students and self-employed in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties may be eligible for money to help with personal losses from the April 2-24 severe storms, straight-line winds, tornadoes and flooding. The deadline to apply for FEMA assistance is Aug. 19.Money is available to help with rent or temporary housing costs like a hotel. Renters, students and self-employed may also be eligible for money for uninsured essential personal property losses and other disaster-related expenses including:Replacement or repair of necessary personal property, such as clothing, textbooks, school supplies, and furniture and appliances a renter owns. FEMA does not cover furniture or appliances provided by the landlord.Replacement or repair of tools and other job-related equipment required for self-employment.Replacement or repair of a primary vehicle.Disaster-related uninsured medical, dental, childcare, moving and storage expenses.How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at ",
+          "published_at": "2025-07-23 12:41:16+00:00",
+          "entities": [
+            "employed",
+            "renters",
+            "self",
+            "students"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.957086
+        }
+      ]
+    },
+    {
+      "episode_id": "957be806-bea1-4ea3-96b7-e0bd5d425283",
+      "entry_count": 3,
+      "entities": [
+        "agreement",
+        "cadre",
+        "congo",
+        "democratic",
+        "framework",
+        "furthering",
+        "implementation",
+        "integration",
+        "peace",
+        "principes",
+        "regional",
+        "republic",
+        "rwanda",
+        "tenets"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-08-01 04:00:00+00:00",
+      "newest_entry_at": "2025-08-01 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "69d05f99-2e85-46ce-9397-f20051ab4e27",
+          "title": "\u00c9nonc\u00e9 des Principes du Cadre d\u2019Int\u00e9gration \u00c9conomique R\u00e9gionale - United States Department of State",
+          "summary": "English Version Le Gouvernement de la R\u00e9publique d\u00e9mocratique du Congo (RDC) et le Gouvernement de la R\u00e9publique du Rwanda (Rwanda) (ensemble, \u00ab les Participants \u00bb) Saluant de la D\u00e9claration de principes sign\u00e9e par la ministre des Affaires \u00e9trang\u00e8res Th\u00e9r\u00e8se Kayikwamba Wagner de la R\u00e9publique d\u00e9mocratique du Congo (RDC) et le ministre des Affaires \u00e9trang\u00e8res du [\u2026]",
+          "published_at": "2025-08-01 04:00:00+00:00",
+          "entities": [
+            "cadre",
+            "principes"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.69226
+        },
+        {
+          "entry_id": "746d4324-1771-4628-88fa-36f577f23c25",
+          "title": "Furthering Implementation of the Peace Agreement Between the Democratic Republic of the Congo and the Republic of Rwanda - United States Department of State",
+          "summary": "In support of implementation of the Peace Agreement Between the Democratic Republic of the Congo (DRC) and the Republic of Rwanda (Rwanda) signed in Washington, D.C. on June 27, 2025, the United States hosted two sets of meetings on July 30 through August 1, 2025, focused on implementation of the security aspects of the agreement [\u2026]",
+          "published_at": "2025-08-01 04:00:00+00:00",
+          "entities": [
+            "agreement",
+            "congo",
+            "democratic",
+            "furthering",
+            "implementation",
+            "peace",
+            "republic",
+            "rwanda"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.801307
+        },
+        {
+          "entry_id": "fa1910b9-b66b-4ee5-adb4-092fcb2b9607",
+          "title": "Statement of Tenets for the Regional Economic Integration Framework - United States Department of State",
+          "summary": "French Version The Government of the Democratic Republic of the Congo (DRC) and the Government of Republic of Rwanda (Rwanda) (together, \u201cthe Participants\u201d) Welcoming the Declaration of Principles signed by Foreign Minister Th\u00e9r\u00e8se Kayikwamba Wagner of the Democratic Republic of the Congo (DRC) and Foreign Minister Olivier Nduhungirehe of Rwanda in Washington, D.C. on April [\u2026]",
+          "published_at": "2025-08-01 04:00:00+00:00",
+          "entities": [
+            "framework",
+            "integration",
+            "regional",
+            "tenets"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.911908
+        }
+      ]
+    },
+    {
+      "episode_id": "96d65a1a-6cec-4d18-878f-8bc7cea70a94",
+      "entry_count": 2,
+      "entities": [
+        "deregulatory",
+        "earlier",
+        "endangerment",
+        "finding",
+        "history",
+        "indianapolis",
+        "largest",
+        "launching",
+        "leaders",
+        "obama",
+        "praise",
+        "proposal",
+        "rescind"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-30 18:12:00+00:00",
+      "newest_entry_at": "2025-08-01 16:36:00+00:00",
+      "entries": [
+        {
+          "entry_id": "490cc3ba-dd32-4928-8303-29f12b18192a",
+          "title": "ICYMI: EPA Launches the Largest Deregulatory Actions in U.S. History with Proposal to Rescind Obama-Era Endangerment Finding | US EPA",
+          "summary": "EPA Administrator Lee Zeldin released the agency\u2019s proposal to rescind the 2009 Endangerment Finding, which has been used to justify over $1 trillion in regulations",
+          "published_at": "2025-07-30 18:12:00+00:00",
+          "entities": [
+            "deregulatory",
+            "endangerment",
+            "finding",
+            "history",
+            "indianapolis",
+            "largest",
+            "obama",
+            "proposal",
+            "rescind"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.935248
+        },
+        {
+          "entry_id": "e4556b88-d320-48e2-8dea-5072293cf5cc",
+          "title": "WHAT THEY ARE SAYING: Leaders Praise the EPA for Launching Largest Deregulatory Action in U.S. History with Proposal to Rescind Obama-Era Endangerment Finding | US EPA",
+          "summary": "Elected officials, constituents and stakeholders weigh in on the EPA's proposal to rescind the 2009 Endangerment Finding, which has been used to justify over $1 trillion in regulations, including the Biden-Harris Administration\u2019s electric vehicle mandate.",
+          "published_at": "2025-08-01 16:36:00+00:00",
+          "entities": [
+            "deregulatory",
+            "earlier",
+            "endangerment",
+            "finding",
+            "history",
+            "largest",
+            "launching",
+            "leaders",
+            "obama",
+            "praise",
+            "proposal",
+            "rescind"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.845872
+        }
+      ]
+    },
+    {
+      "episode_id": "a5a46614-bb2f-48d2-b890-fcd3ce1f20f5",
+      "entry_count": 2,
+      "entities": [
+        "east",
+        "entities",
+        "facilitators",
+        "have",
+        "iran",
+        "iranian",
+        "middle",
+        "petrochemical",
+        "petroleum",
+        "sanctioning",
+        "traded"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-30 04:00:00+00:00",
+      "newest_entry_at": "2025-07-30 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "b9ce5fe0-6367-4d10-9570-f3c82098e4d4",
+          "title": "Sanctioning Entities That Have Traded in Iran\u2019s Petroleum - United States Department of State",
+          "summary": "The Iranian regime continues to fuel conflict in the Middle East to fund its destabilizing activities. Today, the United States is taking action to stem the flow of revenue that the regime uses to support terrorism abroad, as well as to oppress its own people. The Department of State is imposing sanctions on 20 entities [\u2026]",
+          "published_at": "2025-07-30 04:00:00+00:00",
+          "entities": [
+            "east",
+            "entities",
+            "have",
+            "iran",
+            "iranian",
+            "middle",
+            "petroleum",
+            "sanctioning",
+            "traded"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "c4b7b93d-2f08-40d1-9218-2e70dd657fea",
+          "title": "Sanctioning Facilitators of Iran\u2019s Petroleum and Petrochemical Trade - United States Department of State",
+          "summary": "Today, the United States is taking decisive action to disrupt the Iranian regime\u2019s ability to fund its destabilizing activities, including its nuclear program, support for terrorist groups, and oppression of its own people. The Department of State is imposing sanctions on 20 entities for their involvement in the trade of Iranian petroleum, petroleum products, or [\u2026]",
+          "published_at": "2025-07-30 04:00:00+00:00",
+          "entities": [
+            "facilitators",
+            "iran",
+            "iranian",
+            "petrochemical",
+            "petroleum",
+            "sanctioning"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.932678
+        }
+      ]
+    },
+    {
+      "episode_id": "aec981e7-7e45-4045-84c6-a02a8144a4fd",
+      "entry_count": 2,
+      "entities": [
+        "continues",
+        "family",
+        "immigration",
+        "policy",
+        "reestablishing",
+        "regarding",
+        "screening",
+        "standards",
+        "vetting"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-08-01 16:15:50+00:00",
+      "newest_entry_at": "2025-08-01 17:19:13+00:00",
+      "entries": [
+        {
+          "entry_id": "12fd4581-f4bb-4508-a1ef-2ee6f769ab97",
+          "title": "USCIS Issues Guidance Regarding Family-Based Immigration Policy",
+          "summary": "U.S. Citizenship and Immigration Services is issuing policy guidance in the USCIS Policy Manual that will enhance our capability to screen and vet family-based immigrant visa petitions.",
+          "published_at": "2025-08-01 16:15:50+00:00",
+          "entities": [
+            "family",
+            "immigration",
+            "policy",
+            "regarding"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "new_cluster",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "983a6b21-ff97-4379-9f58-48ae6f79acaf",
+          "title": "USCIS Continues to Put the Safety of Americans First by Reestablishing Screening and Vetting Standards",
+          "summary": "U.S. Citizenship and Immigration Services is updating the USCIS Policy Manual to clarify the interview criteria for aliens who are asylees and refugees and their derivative family members filing Form I-485, Application to Register Permanent Residence or Adjust Status.",
+          "published_at": "2025-08-01 17:19:13+00:00",
+          "entities": [
+            "continues",
+            "reestablishing",
+            "screening",
+            "standards",
+            "vetting"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.789228
+        }
+      ]
+    },
+    {
+      "episode_id": "b7472989-9699-4ced-a29e-d3165c9f306c",
+      "entry_count": 2,
+      "entities": [
+        "atomic",
+        "bombings",
+        "japan",
+        "manhattan",
+        "observance",
+        "peace",
+        "project",
+        "remembrance",
+        "richland"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-31 04:00:00+00:00",
+      "newest_entry_at": "2025-08-01 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "395cfc33-d66f-4690-9bd2-d1243a2add18",
+          "title": "Manhattan Project National Historical Park to host commemoration events in Richland, WA in observation of the 80th anniversary of atomic bombings of Japan - Manhattan Project National Historical Park (U.S. National Park Service)",
+          "summary": "",
+          "published_at": "2025-07-31 04:00:00+00:00",
+          "entities": [
+            "japan",
+            "manhattan",
+            "project",
+            "richland"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "4939205c-0511-4e16-94cc-52b117bcb4b1",
+          "title": "Manhattan Project National Historical Park hosting days of Peace and Remembrance in 80th Anniversary Observance of Atomic Bombings of Japan - Manhattan Project National Historical Park (U.S. National Park Service)",
+          "summary": "",
+          "published_at": "2025-08-01 04:00:00+00:00",
+          "entities": [
+            "atomic",
+            "bombings",
+            "japan",
+            "manhattan",
+            "observance",
+            "peace",
+            "project",
+            "remembrance"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.726408
+        }
+      ]
+    },
+    {
+      "episode_id": "d268bd1f-8a6e-4354-b0fe-80b209b95917",
+      "entry_count": 2,
+      "entities": [
+        "address",
+        "foods",
+        "processed",
+        "risks",
+        "ultra",
+        "under",
+        "washington"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-23 00:00:00+00:00",
+      "newest_entry_at": "2025-07-23 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "08fd7905-1015-4edc-9b3c-2cc16a5c214e",
+          "title": "HHS, FDA and USDA Address the Health Risks of Ultra-Processed Foods",
+          "summary": "",
+          "published_at": "2025-07-23 00:00:00+00:00",
+          "entities": [
+            "foods",
+            "processed",
+            "risks",
+            "ultra"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "a269af69-9911-4b94-9450-fd0a1fabb954",
+          "title": "HHS, FDA and USDA Address the Health Risks of Ultra-Processed Foods",
+          "summary": "HHS, FDA and USDA Address the Health Risks of Ultra-Processed Foods",
+          "published_at": "2025-07-23 04:00:00+00:00",
+          "entities": [
+            "foods",
+            "processed",
+            "risks",
+            "ultra"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.757606
+        }
+      ]
+    },
+    {
+      "episode_id": "d4733243-5046-41ab-9ede-092d27cf8c25",
+      "entry_count": 2,
+      "entities": [
+        "aire",
+        "authority",
+        "autoridad",
+        "clean",
+        "electric",
+        "genera",
+        "limpio",
+        "power",
+        "puerto",
+        "resolve",
+        "rico",
+        "violations"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-24 18:07:37+00:00",
+      "newest_entry_at": "2025-07-24 18:11:59+00:00",
+      "entries": [
+        {
+          "entry_id": "092dbfc8-b462-426e-b89d-dd1e30551f41",
+          "title": "Puerto Rico Electric Power Authority and Genera Resolve Violations of the Clean Air Act with EPA | US EPA",
+          "summary": "Puerto Rico Electric Power Authority and Genera Resolve Violations of the Clean Air Act with EPA",
+          "published_at": "2025-07-24 18:07:37+00:00",
+          "entities": [
+            "authority",
+            "clean",
+            "electric",
+            "genera",
+            "power",
+            "puerto",
+            "resolve",
+            "rico",
+            "violations"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "5a9284c6-0754-4d17-b556-a0370870465a",
+          "title": "La Autoridad de Energ\u00eda El\u00e9ctrica de Puerto Rico y Genera llegan a un acuerdo con la EPA sobre violaciones pasadas a la Ley Federal de Aire Limpio | US EPA",
+          "summary": "La Autoridad de Energ\u00eda El\u00e9ctrica de Puerto Rico y Genera llegan a un acuerdo con la EPA sobre violaciones pasadas a la Ley Federal de Aire Limpio",
+          "published_at": "2025-07-24 18:11:59+00:00",
+          "entities": [
+            "aire",
+            "autoridad",
+            "genera",
+            "limpio",
+            "puerto",
+            "rico"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.935044
+        }
+      ]
+    },
+    {
+      "episode_id": "dcd3879e-1891-46db-be4e-6c16ace194a3",
+      "entry_count": 2,
+      "entities": [
+        "evasion",
+        "financial",
+        "houthi",
+        "houthis",
+        "linked",
+        "network",
+        "petroleum",
+        "sanctioning",
+        "sanctions",
+        "smuggling"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-22 04:00:00+00:00",
+      "newest_entry_at": "2025-07-22 14:30:00+00:00",
+      "entries": [
+        {
+          "entry_id": "ba96cfd9-e2c4-4e59-8c76-9c099492e2ea",
+          "title": "Sanctioning a Houthi Petroleum and Financial Network - United States Department of State",
+          "summary": "The United States is today sanctioning two individuals and five entities that have imported refined petroleum products and circumvented sanctions in support of the Houthis. These actors have generated millions in personal gains while bolstering the Iran-backed Houthis\u2019 ability to threaten shipping lanes vital to international commerce. The United States is committed to disrupting the Houthis\u2019 [\u2026]",
+          "published_at": "2025-07-22 04:00:00+00:00",
+          "entities": [
+            "houthi",
+            "houthis",
+            "network",
+            "petroleum",
+            "sanctioning"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "62d05025-1129-4359-940c-1a9a9cb2e4cd",
+          "title": "Treasury Sanctions Houthi-Linked Petroleum Smuggling and Sanctions Evasion Network",
+          "summary": "WASHINGTON \u2014 Today, the U.S. Department of the Treasury\u2019s Office of Foreign Assets Control (OFAC) is designating two individuals and five entities that profit through money laundering and importing petroleum products into territory controlled by Ansarallah, commonly known as the Houthis. The Iran-backed Houthis gain hundreds of millions of dollars annually by working with Yemeni businessmen to tax petroleum imports, generating critical revenue that funds the Houthis\u2019 destabilizing activities in the region.Today\u2019s action targets a network of individuals and their companies located across Yemen and the United Arab Emirates (UAE) who are among the most significant importers of petroleum products and money launderers that benefit the Houthis. \u201cThe Houthis collaborate with opportunistic businessmen to reap enormous profits from the importation of petroleum products and to enable the group\u2019s access to the international financial system,\u201d said Deputy Secretary of the Treasury Michael Faulkender. \u201cThese networks of shady businesses underpin the Houthis\u2019 terrorist machine, and Treasury will use all tools at its disposal to disrupt these schemes.\u201dToday\u2019s action is being taken pursuant to the",
+          "published_at": "2025-07-22 14:30:00+00:00",
+          "entities": [
+            "evasion",
+            "houthi",
+            "linked",
+            "network",
+            "petroleum",
+            "sanctions",
+            "smuggling"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.718068
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+theme_id,granularity,probe_label,members_gained,reason
+15c67b7e-5b4a-44a4-b77a-38724d1fcb58,right,USPS Stamp Releases,,Members cohere as USPS stamp releases without needing broadening
+20db1ac9-d272-4808-a08a-42ca7772c23a,right,Treasury Financial Policy,,Fiscal and crypto members form one Treasury-policy thread
+34e98295-0b01-4896-b701-02705ee9f57a,right,EPA Grant Awards,,Broadening adds no new EPA grant members from the corpus
+37ff3e77-f783-4048-8359-f9b95048f5e4,right,EPA Site Cleanup Plans,,Broadening risks admitting brownfields cleanup grants as junk
+3b0ab9c9-2f08-4abf-817c-574c5176ba69,right,VA Research Briefs,,"Additional research brief already fits current label, no lift"
+3b10ffe1-9d4f-44bb-a7a3-751a79432bd9,right,National Park Activities,,Broader label would admit many unrelated NPS storylines
+4fabbf0e-9852-40a5-a971-638157aa6a1d,right,National Day Greetings,,Members cohere; broadening adds no clean members
+615bac19-2e4d-4a94-9ba0-b1be5904ef36,right,Sanctions Enforcement Campaign,,Broadening could admit condemnation and conference intruders
+6cfbcccd-ae6d-45d0-9733-70a973f246e1,right,NASA Space Partnerships,,Broader label would pull in distinct satellite-mission thread
+788bd142-c1ec-4248-8b48-97bff36a4746,right,DOJ Consent Decrees,,Members are consent decree actions; no clean lift from broadening
+7ca10d73-ff72-4f17-9541-7df96ad509b8,right,USDA Secretary Actions,,Members cohere as USDA/Rollins actions without broadening
+8c75056e-9552-4f7e-a68a-39e8e6768f87,right,IRS Guidance Updates,,Members cohere as IRS taxpayer guidance without lift
+9a524fe0-7adf-4840-b1dc-30b725677b08,right,US Diplomatic Meetings,,Members are bilateral meetings; broadening overlaps another theme
+b083fc1e-723b-4c8a-bf15-2b1f9ec52926,right,BLS Labor Data Releases,,Members are recurring BLS releases without needing broadening
+b722dee1-b6d5-465c-9ee0-20561b2041b3,right,False Claims Act Settlements,,Members are FCA settlements; broadening adds no clean members
+ba6ebd23-0058-47ed-a81d-707c4fa9813f,right,EPA Enforcement Settlements,,Members cohere as EPA settlements and cleanups
+bc8630a0-1c65-4513-ac8e-462f7574f11a,right,FTC Enforcement Actions,,Members are FTC consumer protection actions; no clean lift
+d0b74468-d5d7-4c53-8ede-7c4efde5ca8a,right,CFTC Relief Letters,,Members are CFTC no-action letters; broadening adds nothing
+e4146a2b-f866-45c7-97c4-4596044e6378,right,Earth Observation Advances,,Members cohere as satellite Earth observation missions
+ed80610a-1307-4211-9bed-9244d99fb33c,right,Federal Student Aid Updates,,Members are Education student aid updates without needing broadening
+f13a8946-2865-4321-b526-8660094adbc0,right,State Department Diplomacy,,Members cohere as senior State diplomacy activities
+f19428da-b19b-4009-8022-1b7c87c09cbf,right,USGS Data Releases,,Additional USGS releases already fit current mapping-and-data label
+fab89bfb-af0c-4a7e-94d1-862bc619edd2,right,Atomic Bombings Commemorations,,Members are atomic bombing commemorations without needing broadening
