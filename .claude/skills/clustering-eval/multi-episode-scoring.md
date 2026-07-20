@@ -17,20 +17,32 @@ Ordering contract (two different orders, do not conflate):
 
 ## V1 — storyline chain coherence
 
-**Cases:** every multi-episode storyline (no sampling; report `n_chains`,
-`n_episodes_judged`).
+**Cases:** every multi-episode storyline (no sampling). The judged unit is
+a **join** — each non-anchor episode's attach to the chain. Report
+`n_chains` and `n_joins_judged`; in the human report write them in units
+("6 chains, 7 joins judged"), never a bare `n=`.
 
 **Per non-anchor episode: `related 1/0`** to the chain's event thread,
 walking build order. Criteria:
 - Related = same real-world event thread evolving over time — not merely
-  same topic, same agency, same program, or same occasion/observance (the
+  same topic, same agency, or same occasion/observance (the
   "Independence Day hub" failure: distinct events sharing an anniversary are
   NOT one storyline).
+- **Same program/initiative in a tight window is one thread.** Episodes
+  covering the same named program, enforcement push, or campaign published
+  within ~1 week of each other are `related` even when the individual
+  subjects differ (two same-day success stories about one VA program → `1`;
+  a State deportation announcement and a USCIS arrest two days later under
+  the same enforcement push → `1`). The same program **months apart** is
+  theme material, not a chain link → `0`. Occasion/observance hubs stay
+  excluded: agencies coincidentally publishing around the same holiday is
+  not a program.
 - **Entities are primary evidence when present.** Differing key
   discriminators mean different events even when text reads similar: same
   hazard type but locations genuinely far apart; same policy action but
-  different subjects; different docket/case/contract numbers. Shared rare
-  entities + temporal continuity → related.
+  different subjects *outside the tight-window program case above*;
+  different docket/case/contract numbers. Shared rare entities + temporal
+  continuity → related.
 - Uncertain after entity check → `0` (split bias — a false join shows the
   reader two unrelated events as one story, worse than showing two stories).
 
@@ -118,8 +130,8 @@ The Storylines section of the eval report must contain, in this order:
    chains are single evolving events; weak with low drift_rate = bad joins
    at attach time; high drift_rate = joins fine locally but chains wander.
 2. Per-chain score table (worst 10), endpoints/chain verdicts inline.
-3. `V6` + n — weak = episode formation merging distinct events (upstream of
-   everything; fix before touching storyline levers).
+3. `V6` + entries judged — weak = episode formation merging distinct events
+   (upstream of everything; fix before touching storyline levers).
 4. `V7` + per-criterion pass rates — lever mapping per criterion above.
 5. Embedding diagnostics: chains with decaying entity persistence.
 6. Storyline-axis recall vs gold (`pipeline.evals.pairwise_f1` / `b_cubed`

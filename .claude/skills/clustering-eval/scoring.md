@@ -147,9 +147,14 @@ written for a human reviewer, not the loop:
 - One Themes section per `theme_scoring.md` §Report, one Storylines section
   per `multi-episode-scoring.md` §Report, then V3/V5/recall rows.
 - **Every metric line carries its interpretation inline**: the value, its
-  `n`, what strong means, what weak means, and the first lever to pull.
-  A number a human cannot act on from the report alone does not belong in
-  the report.
+  sample size, what strong means, what weak means, and the first lever to
+  pull. A number a human cannot act on from the report alone does not
+  belong in the report.
+- **Sample sizes are written in units, never a bare `n=`**: "7 joins
+  judged", "6 themes + 5 planted intruders", "150 category pairs", "68
+  entity tokens". The reader must know what one data point IS without
+  consulting the rubric files. (Scorecard CSV columns keep their `*_n`
+  names — this rule is for the prose report.)
 - Worst-10 exemplar tables (chains, themes) with ids, so a human can spot-
   check any verdict against the artifacts.
 

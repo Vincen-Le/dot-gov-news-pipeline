@@ -8,19 +8,19 @@
 | eval / metric | value | effect |
 |---|---|---|
 | R_v2 (reward) | 0.343 | mean(V1,V2,V3,V5,V6,V7) − 0.02·merge pairs; the loop's objective |
-| V1 chain coherence | 0.143 (n=7) | below target 0.70; joins judged unrelated cost −2 — low value = false merges at attach time |
+| V1 chain coherence | 0.143 (7 joins judged) | below target 0.70; joins judged unrelated cost −2 — low value = false merges at attach time |
 | V1 drift rate | 0.000 | share of chains that pass link-by-link but wander overall; high → chain-level checks needed |
 | V1 worst attach method | adjudicated_join (0.714) | attach path contributing the most bad joins |
-| V2 theme membership | 0.091 (n=6+5 intruders) | below target 0.50; misfits and accepted intruders cost −2 |
+| V2 theme membership | 0.091 (6 members + 5 planted intruders) | below target 0.50; misfits and accepted intruders cost −2 |
 | V2 discrimination | 0.633 | fit_rate − intruder accept rate; < 0.40 means judge couldn't tell members from intruders → V2/V4 weak |
-| V3 categorization | 0.993 (n=150) | meets target 0.90; share of storylines filed under the best available category |
+| V3 categorization | 0.993 (150 category pairs) | meets target 0.90; share of storylines filed under the best available category |
 | V4 should-merge pairs | 0 of 0 candidates | unmerged near-duplicate themes; each costs 0.02 R |
 | V4 singleton-theme rate | 0.000 | share of themes with one storyline; high = premature minting |
-| V5 entity precision | 0.118 (n=68) | below target 0.80; invalid tokens feed every downstream join — junk lexicon lever |
-| V5 event-key validity | n/a (n=0) | share of event keys that are real document/case identifiers |
+| V5 entity precision | 0.118 (68 entity tokens) | below target 0.80; invalid tokens feed every downstream join — junk lexicon lever |
+| V5 event-key validity | n/a (0 event keys) | share of event keys that are real document/case identifiers |
 | V5 missed-salient mean | 1.930 | salient entities the extractor missed, per entry; recall side of V5 |
-| V6 episode coherence | -0.286 (n=7) | below target 0.70; entries in one episode must be one event — upstream of every storyline lever |
-| V7 overview quality | 1.000 (n=6) | meets target 0.70; per-criterion: coverage=1.000, current=1.000, faithful=1.000, representative=1.000 |
+| V6 episode coherence | -0.286 (7 entries judged) | below target 0.70; entries in one episode must be one event — upstream of every storyline lever |
+| V7 overview quality | 1.000 (6 overviews) | meets target 0.70; per-criterion: coverage=1.000, current=1.000, faithful=1.000, representative=1.000 |
 | Gold recall (storyline / theme) | n/a / n/a | n/a (no gold labels) |
 
 ## Themes — observations
@@ -56,6 +56,16 @@
   the same 2 of 150 pairs across two dispatches; those 2 pairs were judged in
   a second dispatch with the identical rubric and merged before validation.
   One-dispatch-per-vector was not strictly met for V3.
+- **V1 rubric updated after this crawl's verdicts (comparability note):**
+  a same-program tight-window provision was added to
+  `multi-episode-scoring.md` — episodes on the same named program/
+  enforcement push within ~1 week are `related` even with differing
+  subjects; the same program months apart is theme material. This crawl
+  was judged under the stricter same-event-only wording. Both failed
+  joins (30ced07a VA success stories, ae6f94d1 Haiti enforcement push)
+  would plausibly flip under the new wording — V1 0.143 is not comparable
+  to next slice's V1. Human-directed revision per scoring.md §reward
+  (between loops, journaled here).
 - **V3 rubric updated after this crawl's dispatch:** the reader-impact
   question ("would a user clicking a competing category have cared more to
   see this there?") was added to scoring.md after these v3 verdicts were
