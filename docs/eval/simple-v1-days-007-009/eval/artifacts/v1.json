@@ -1,0 +1,1783 @@
+{
+  "chains": [
+    {
+      "storyline": {
+        "storyline_id": "09926b22-8867-41c8-aedf-a4692885c9a5",
+        "headline": "VA Research Office Publishes Weekly Health Study Briefs",
+        "summary": "VA's Office of Research and Development released weekly news briefs summarizing new findings on loneliness, Parkinson's disease, asthma, liver cancer treatment, and dementia.",
+        "entities": [
+          "briefs",
+          "development",
+          "parkinson",
+          "research",
+          "wrap"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 13:30:00+00:00",
+        "newest_entry_at": "2025-07-25 13:30:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "b8b9bd3a-25b4-4ccd-95da-f8531dcf308f",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "910993eb-f572-49da-aebd-ae11389dd7a6",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-18 13:30:00+00:00",
+          "newest_entry_at": "2025-07-18 13:30:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "briefs",
+            "development",
+            "parkinson",
+            "research",
+            "wrap"
+          ],
+          "event_keys": [],
+          "headline": "VA Research Wrap Up: New findings on loneliness, Parkinson\u2019s disease and asthma",
+          "summary": "This week, VA\u2019s Office of Research and Development published three News Briefs highlighting research advances in how writing caring letters combats loneliness, Parkinson\u2019s disease and asthma medication.",
+          "entries": [
+            {
+              "entry_id": "38d77f79-e891-4c75-ab64-c0a50e54829a",
+              "title": "VA Research Wrap Up: New findings on loneliness, Parkinson\u2019s disease and asthma",
+              "summary": "This week, VA\u2019s Office of Research and Development published three News Briefs highlighting research advances in how writing caring letters combats loneliness, Parkinson\u2019s disease and asthma medication.",
+              "published_at": "2025-07-18 13:30:00+00:00",
+              "entities": [
+                "briefs",
+                "development",
+                "parkinson",
+                "research",
+                "wrap"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "cbe1b28e-0b57-40bd-89ba-8db7e02a0295",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.76515,
+          "attach_reason": "This is a new weekly VA Research Wrap Up covering different findings (cancer treatment, Parkinson's, dementia) than the prior installment.'",
+          "first_entry_at": "2025-07-25 13:30:00+00:00",
+          "newest_entry_at": "2025-07-25 13:30:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "briefs",
+            "development",
+            "parkinson",
+            "research",
+            "wrap"
+          ],
+          "event_keys": [],
+          "headline": "VA Research Wrap Up: New findings on cancer treatment, Parkinson\u2019s disease and dementia",
+          "summary": "This week, VA\u2019s Office of Research and Development published three News Briefs highlighting research advances on a potential new liver cancer treatment, Parkinson\u2019s disease treatment and dementia.",
+          "entries": [
+            {
+              "entry_id": "ba61eaa3-e020-4cec-b2e0-c6865b1ccd9a",
+              "title": "VA Research Wrap Up: New findings on cancer treatment, Parkinson\u2019s disease and dementia",
+              "summary": "This week, VA\u2019s Office of Research and Development published three News Briefs highlighting research advances on a potential new liver cancer treatment, Parkinson\u2019s disease treatment and dementia.",
+              "published_at": "2025-07-25 13:30:00+00:00",
+              "entities": [
+                "briefs",
+                "development",
+                "parkinson",
+                "research",
+                "wrap"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.76515
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "0bb6fc42-03c5-4399-b516-9f67940f7abf",
+        "headline": "EPA Opens $14M Brownfields Job Training Grant Program",
+        "summary": "EPA announced a Notice of Funding Opportunity making up to $14 million available for its Fiscal Year 2026 Brownfields Job Training Grants Program.",
+        "entities": [
+          "$14 million",
+          "availability",
+          "brownfields",
+          "training"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-23 14:10:19+00:00",
+        "newest_entry_at": "2025-07-24 11:24:42+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "f87f8862-f014-40d7-b130-8d27fc182cad",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "be5fbf74-e2a6-41eb-9eb6-c0d3f115185d",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "This is a new distinct grant program announcement (job training funding) unrelated to the specific storylines listed.",
+          "first_entry_at": "2025-07-23 14:10:19+00:00",
+          "newest_entry_at": "2025-07-23 14:10:19+00:00",
+          "entry_count": 1,
+          "entities": [
+            "$14 million",
+            "availability",
+            "brownfields",
+            "training"
+          ],
+          "event_keys": [],
+          "headline": "EPA Announces Availability of Up to $14 Million in Funding for Brownfields Job Training Program Grants | US EPA",
+          "summary": "Today, U.S. Environmental Protection Agency (EPA) announced the Notice of Funding Opportunity (NOFO) for the Fiscal Year 2026 Brownfields Job Training Grants Program.",
+          "entries": [
+            {
+              "entry_id": "7df1b33d-dcc7-4217-bf39-a9c481119f6b",
+              "title": "EPA Announces Availability of Up to $14 Million in Funding for Brownfields Job Training Program Grants | US EPA",
+              "summary": "Today, U.S. Environmental Protection Agency (EPA) announced the Notice of Funding Opportunity (NOFO) for the Fiscal Year 2026 Brownfields Job Training Grants Program.",
+              "published_at": "2025-07-23 14:10:19+00:00",
+              "entities": [
+                "$14 million",
+                "availability",
+                "brownfields",
+                "training"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "8dea1a14-fdc6-4384-9989-27eee2fa3611",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.910745,
+          "attach_reason": "This article restates the same $14M Brownfields Job Training Grants funding announcement covered in storyline 0's latest episode.",
+          "first_entry_at": "2025-07-24 11:24:42+00:00",
+          "newest_entry_at": "2025-07-24 11:24:42+00:00",
+          "entry_count": 1,
+          "entities": [
+            "$14 million",
+            "availability",
+            "brownfields",
+            "training"
+          ],
+          "event_keys": [],
+          "headline": "EPA Announces Availability of Up to $14 Million in Funding for Brownfields Job Training Program Grants | US EPA",
+          "summary": "EPA News Release: EPA Announces Availability of Up to $14 Million in Funding for Brownfields Job Training Program Grants",
+          "entries": [
+            {
+              "entry_id": "2a889351-35c1-4e3b-b197-3a5d15d4826d",
+              "title": "EPA Announces Availability of Up to $14 Million in Funding for Brownfields Job Training Program Grants | US EPA",
+              "summary": "EPA News Release: EPA Announces Availability of Up to $14 Million in Funding for Brownfields Job Training Program Grants",
+              "published_at": "2025-07-24 11:24:42+00:00",
+              "entities": [
+                "$14 million",
+                "availability",
+                "brownfields",
+                "training"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.910745
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "2d7c9bf9-79cc-4c8a-9af4-542499961e8e",
+        "headline": "FEMA Sets Application Deadlines for Tennessee and Kentucky Storm Survivors",
+        "summary": "FEMA is processing disaster assistance for survivors of April severe storms/flooding in Tennessee and Kentucky, and May tornadoes in Kentucky, with Disaster Recovery Centers open and application deadlines set for Aug. 19-22, 2025.",
+        "entities": [
+          "affected",
+          "application",
+          "apply",
+          "assistance",
+          "change",
+          "days",
+          "deadline",
+          "disaster",
+          "employed",
+          "extended",
+          "flooding",
+          "following",
+          "help",
+          "hours",
+          "including",
+          "instruments",
+          "kentuckians",
+          "left",
+          "less",
+          "losses",
+          "middle",
+          "money",
+          "musical",
+          "personal",
+          "property",
+          "recovery",
+          "renters",
+          "self",
+          "severe",
+          "storms",
+          "students",
+          "tennesseans",
+          "tennessee",
+          "than",
+          "tornadoes",
+          "western"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 13:52:19+00:00",
+        "newest_entry_at": "2025-07-25 12:25:51+00:00",
+        "episode_count": 5,
+        "entry_count": 9,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "745408b1-2ca2-4707-bfe2-07c95addd9e7",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "34a37833-2f47-4f60-b589-73c2d57d5ade",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-18 13:52:19+00:00",
+          "newest_entry_at": "2025-07-18 13:52:19+00:00",
+          "entry_count": 1,
+          "entities": [
+            "apply",
+            "assistance",
+            "left",
+            "severe",
+            "storms",
+            "tennessee"
+          ],
+          "event_keys": [],
+          "headline": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms",
+          "summary": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms Middle and Western Tennesseans who have been affected by April severe storms, straight-line winds, tornadoes and flooding have one month left to apply for FEMA assistance.Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties who were displaced or have property damage from the April 2-24 storms have until Tuesday, Aug. 19 to submit an application for FEMA assistance.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing.How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at 800-621-3362. In-person help is available at any Disaster Recovery Center for submitting applications, getting updates and asking questions. Find a center here: DRC Locator (fema.gov).Video: What to Expect Before Applying for FEMA Assistance | ASL | SpanishVideo: Next Steps After Applying for FEMA Assistance | ASL | SpanishDisaster Recovery Center locations:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hours: 8 a.m.\u20136 p.m. CT Monday-SundayHardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039Hours: 8 a.m.\u20136 p.m. CT Monday-SundayMcNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Hours: 8 a.m.\u20136 p.m. CT Monday-SundayMo",
+          "entries": [
+            {
+              "entry_id": "aa693d8c-0aa5-4f99-bf61-c6cfb0c73ef9",
+              "title": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms",
+              "summary": "One Month Left to Apply for FEMA Assistance After Tennessee April Severe Storms Middle and Western Tennesseans who have been affected by April severe storms, straight-line winds, tornadoes and flooding have one month left to apply for FEMA assistance.Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties who were displaced or have property damage from the April 2-24 storms have until Tuesday, Aug. 19 to submit an application for FEMA assistance.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing.How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at 800-621-3362. In-person help is available at any Disaster Recovery Center for submitting applications, getting updates and asking questions. Find a center here: DRC Locator (fema.gov).Video: What to Expect Before Applying for FEMA Assistance | ASL | SpanishVideo: Next Steps After Applying for ",
+              "published_at": "2025-07-18 13:52:19+00:00",
+              "entities": [
+                "apply",
+                "assistance",
+                "left",
+                "severe",
+                "storms",
+                "tennessee"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "93c924ae-21d0-4179-8104-35d38e057805",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.820715,
+          "attach_reason": "This article reports a new detail (hours change at Disaster Recovery Centers) within the ongoing FEMA assistance storyline for Tennessee storm victims.",
+          "first_entry_at": "2025-07-21 13:22:54+00:00",
+          "newest_entry_at": "2025-07-23 12:41:16+00:00",
+          "entry_count": 4,
+          "entities": [
+            "apply",
+            "assistance",
+            "change",
+            "disaster",
+            "employed",
+            "flooding",
+            "following",
+            "help",
+            "hours",
+            "left",
+            "less",
+            "middle",
+            "recovery",
+            "renters",
+            "self",
+            "students",
+            "tennesseans",
+            "tennessee",
+            "than",
+            "western"
+          ],
+          "event_keys": [],
+          "headline": "Hours to Change at Disaster Recovery Centers in Tennessee",
+          "summary": "Hours to Change at Disaster Recovery Centers in Tennessee Middle and Western Tennesseans who experienced damage from the April 2-24 severe storms can get in-person assistance at FEMA Disaster Recovery Centers. The deadline to apply for assistance is Aug. 19.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing. Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties can apply for FEMA assistance.Disaster Recovery CenterHours: Beginning Monday, July 21 centers are open:9 a.m. to 6 p.m. Monday \u2013 Friday9 a.m. to 2 p.m. SaturdayClosed SundayLOCATIONS:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039McNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Montgomery County: Montgomery County Library, 350 Pageant Lane, Clarksville, TN 37040Obion County: Obion County Library, 1221 E. Reelfoot Ave., Union City, TN 38261How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at 800-621-3362. In-person help is available at any Disaster Recovery Center for submitting applications, getting updates and asking questions. Find a center here: DRC Locator (fema.gov).Video: What to Expect Before Applying for FEMA Assistance | ASL | SpanishVid",
+          "entries": [
+            {
+              "entry_id": "da410fd8-5a62-431b-9169-5a5439504a63",
+              "title": "Hours to Change at Disaster Recovery Centers in Tennessee",
+              "summary": "Hours to Change at Disaster Recovery Centers in Tennessee Middle and Western Tennesseans who experienced damage from the April 2-24 severe storms can get in-person assistance at FEMA Disaster Recovery Centers. The deadline to apply for assistance is Aug. 19.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing. Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties can apply for FEMA assistance.Disaster Recovery CenterHours: Beginning Monday, July 21 centers are open:9 a.m. to 6 p.m. Monday \u2013 Friday9 a.m. to 2 p.m. SaturdayClosed SundayLOCATIONS:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039McNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Montgomery County: Montgomery County Library, 350 Pageant Lane, Clarksville, TN 37040Obion County: Obion County Library, 1221 E. Reelfoot Ave., Union City, TN 38",
+              "published_at": "2025-07-21 13:22:54+00:00",
+              "entities": [
+                "change",
+                "disaster",
+                "hours",
+                "middle",
+                "recovery",
+                "tennesseans",
+                "tennessee",
+                "western"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.820715
+            },
+            {
+              "entry_id": "cc4fd792-fa5e-4c1a-a288-a05cd5e463e4",
+              "title": "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding",
+              "summary": "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have less than one week left to apply for federal disaster assistance. The deadline to apply is July 25.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the ",
+              "published_at": "2025-07-21 14:15:35+00:00",
+              "entities": [
+                "apply",
+                "assistance",
+                "flooding",
+                "following",
+                "left",
+                "less",
+                "than"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_join",
+              "entry_similarity": 0.813525
+            },
+            {
+              "entry_id": "3c981044-ea72-4f5b-9c1e-ebf0254f3778",
+              "title": "Help FEMA Help You",
+              "summary": "Help FEMA Help You As FEMA assistance applications are processed, individual situations can change. It is important that you keep FEMA informed of your current contact information. This will ensure any benefits you are eligible for reach you without delay.The fastest way to provide missing or new information is to create an account at DisasterAssistance.gov and upload documents there. If you do not have internet access or need services not available on FEMA\u2019s website, call the FEMA Helpline at 800-621-3362.If more information is needed to process your application, FEMA may call you. These calls may come from unfamiliar phone numbers. It\u2019s important that you answer these calls. FEMA will ask to verify your identity by stating your damaged dwelling address, the last four digits of your social security number, and possibly your registration number. To avoid fraud and scams, verify callers are from FEMA before sharing any information.Tennesseans in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties who experienced damage from the April 2-24 severe storms have until Aug. 19 to apply for FEMA assistance. How to Apply for FEMA AssistanceApply onlin",
+              "published_at": "2025-07-22 13:57:38+00:00",
+              "entities": [
+                "help"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_join",
+              "entry_similarity": 0.842245
+            },
+            {
+              "entry_id": "80f4a816-8fbf-4dfb-a1c5-9442a6db7af4",
+              "title": "Renters, Students, Self-Employed Can Apply for FEMA Assistance",
+              "summary": "Renters, Students, Self-Employed Can Apply for FEMA Assistance Tennessee renters, students and self-employed in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties may be eligible for money to help with personal losses from the April 2-24 severe storms, straight-line winds, tornadoes and flooding. The deadline to apply for FEMA assistance is Aug. 19.Money is available to help with rent or temporary housing costs like a hotel. Renters, students and self-employed may also be eligible for money for uninsured essential personal property losses and other disaster-related expenses including:Replacement or repair of necessary personal property, such as clothing, textbooks, school supplies, and furniture and appliances a renter owns. FEMA does not cover furniture or appliances provided by the landlord.Replacement or repair of tools and other job-related equipment required for self-employment.Replacement or repair of a primary vehicle.Disaster-related uninsured medical, dental, childcare, moving and storage expenses.How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at ",
+              "published_at": "2025-07-23 12:41:16+00:00",
+              "entities": [
+                "apply",
+                "assistance",
+                "employed",
+                "renters",
+                "self",
+                "students"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_join",
+              "entry_similarity": 0.957086
+            }
+          ]
+        },
+        {
+          "episode_id": "97c51680-3410-4eec-9613-40ab3a349771",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.830707,
+          "attach_reason": "This article reports a new development\u2014extending Kentucky's FEMA application deadline to August 22\u2014building on the same FEMA disaster assistance storyline for storm survivors.",
+          "first_entry_at": "2025-07-24 12:13:10+00:00",
+          "newest_entry_at": "2025-07-24 12:18:24+00:00",
+          "entry_count": 2,
+          "entities": [
+            "affected",
+            "application",
+            "apply",
+            "assistance",
+            "days",
+            "deadline",
+            "extended",
+            "flooding",
+            "following",
+            "kentuckians",
+            "left",
+            "tornadoes"
+          ],
+          "event_keys": [],
+          "headline": "FEMA Application Deadline Extended To August 22 For Kentuckians Affected by May Tornadoes",
+          "summary": "FEMA Application Deadline Extended To August 22 For Kentuckians Affected by May Tornadoes FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes now have until August 22 to apply for FEMA assistance. Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply For FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When You Apply, You Will Need To Provide:A current phone number where you can be contacted.Your address at the time of the disaster and the address where you are now staying.Your Social Security Number. A general list of damage and losses.Banking information if you choose direct deposit. If insured, the policy number or the agent and/or the co",
+          "entries": [
+            {
+              "entry_id": "b9355bf1-88cb-4cb0-87b6-3433c9a356b0",
+              "title": "FEMA Application Deadline Extended To August 22 For Kentuckians Affected by May Tornadoes",
+              "summary": "FEMA Application Deadline Extended To August 22 For Kentuckians Affected by May Tornadoes FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes now have until August 22 to apply for FEMA assistance. Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply For FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA representatives can explain available assistance programs, how to apply to FEMA, and help con",
+              "published_at": "2025-07-24 12:13:10+00:00",
+              "entities": [
+                "affected",
+                "application",
+                "deadline",
+                "extended",
+                "kentuckians",
+                "tornadoes"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.830707
+            },
+            {
+              "entry_id": "e3dab847-6a1e-4dae-8630-6f7fc760a8c8",
+              "title": "Two Days Left to Apply for FEMA Assistance Following April Flooding",
+              "summary": "Two Days Left to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have two days left to apply for federal disaster assistance. The deadline to apply is July 25.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the add",
+              "published_at": "2025-07-24 12:18:24+00:00",
+              "entities": [
+                "apply",
+                "assistance",
+                "days",
+                "flooding",
+                "following",
+                "left"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_join",
+              "entry_similarity": 0.982371
+            }
+          ]
+        },
+        {
+          "episode_id": "4022120b-8f90-4c0f-9397-1c88e96f9a27",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.859703,
+          "attach_reason": "This article details FEMA personal property assistance for Tennessee storm survivors, a new detail within the same FEMA Tennessee/Kentucky storm aid storyline.",
+          "first_entry_at": "2025-07-25 11:22:47+00:00",
+          "newest_entry_at": "2025-07-25 11:22:47+00:00",
+          "entry_count": 1,
+          "entities": [
+            "including",
+            "instruments",
+            "losses",
+            "money",
+            "musical",
+            "personal",
+            "property",
+            "tennesseans"
+          ],
+          "event_keys": [],
+          "headline": "Money Is Available for Personal Property Losses, Including Musical Instruments",
+          "summary": "Money Is Available for Personal Property Losses, Including Musical Instruments Tennesseans love their music! So, it is good news that musicians and other residents who had damage or losses from April 2-24 severe storms, straight-line winds, tornadoes and flooding, may be eligible for FEMA assistance. Homeowners and renters in Cheatham, Davidson, Dickson Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties are encouraged to apply by the Aug. 19 deadline.Insurance is the best means to recover after a natural disaster. FEMA assistance covers basic needs, it does not restore all disaster-related property loss. However, FEMA assistance may repair or replace disaster-damaged property if conditions meet the eligibility requirements, and the item(s) fall within any of these categories:Appliances: includes standard household appliances, such as a refrigerator, washing machine, etc.Clothing: essential clothing needed due to overall loss, damage, or contamination.Furniture: basic furnishings found in a bedroom, kitchen, bathroom and living room.Tools: tools and equipment (including musical instruments) required for your job and items required as a condition of an applicant\u2019s or household member\u2019s education. This assistance also applies to self-employed individuals.Computer: funds to cover replacement of one personal or family computer. Funds for additional computers required for work or school may be approved.Accessibility: FEMA also provides assistance for damaged personal property required for qualified applicants with disabilities.How to Apply for FEMA AssistanceApply onl",
+          "entries": [
+            {
+              "entry_id": "20bf349e-be86-40c5-a5f2-15ef254709bb",
+              "title": "Money Is Available for Personal Property Losses, Including Musical Instruments",
+              "summary": "Money Is Available for Personal Property Losses, Including Musical Instruments Tennesseans love their music! So, it is good news that musicians and other residents who had damage or losses from April 2-24 severe storms, straight-line winds, tornadoes and flooding, may be eligible for FEMA assistance. Homeowners and renters in Cheatham, Davidson, Dickson Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties are encouraged to apply by the Aug. 19 deadline.Insurance is the best means to recover after a natural disaster. FEMA assistance covers basic needs, it does not restore all disaster-related property loss. However, FEMA assistance may repair or replace disaster-damaged property if conditions meet the eligibility requirements, and the item(s) fall within any of these categories:Appliances: includes standard household appliances, such as a refrigerator, washing machine, etc.Clothing: essential clothing needed due to overall loss, damage, or contamination.Furniture: basic furnishings found in a bedroom, kitchen, bathroom and living room.Tools: tools and equipment (including musical instruments) required for your job and items required as a condition of an applicant\u2019s or hous",
+              "published_at": "2025-07-25 11:22:47+00:00",
+              "entities": [
+                "including",
+                "instruments",
+                "losses",
+                "money",
+                "musical",
+                "personal",
+                "property",
+                "tennesseans"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.859703
+            }
+          ]
+        },
+        {
+          "episode_id": "21ec4204-c755-46f3-9ecb-0fe2907741a5",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.944684,
+          "attach_reason": "This article reports on the final deadline day for FEMA assistance applications, a follow-up development in the ongoing FEMA aid deadline storyline for Tennessee/Kentucky storm survivors.",
+          "first_entry_at": "2025-07-25 12:25:51+00:00",
+          "newest_entry_at": "2025-07-25 12:25:51+00:00",
+          "entry_count": 1,
+          "entities": [
+            "following"
+          ],
+          "event_keys": [],
+          "headline": "Last Day to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Last Day to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have until 11:59 p.m. today to apply for federal disaster assistance. The deadline to apply is today.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the address where you are now staying.Your Social Security Number. A general list of damage and losses.Banking information if you choose direct deposit. If insured, the policy number or the agent and/or the company name.Survivors should keep their contact information updated with FEMA as the agency may need to call to schedule a home inspection or get additional information. Disaster assistance is not ",
+          "entries": [
+            {
+              "entry_id": "af4c9155-2ee7-4a68-835c-497061cfe110",
+              "title": "Last Day to Apply for FEMA Assistance Following April Flooding",
+              "summary": "Last Day to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have until 11:59 p.m. today to apply for federal disaster assistance. The deadline to apply is today.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the a",
+              "published_at": "2025-07-25 12:25:51+00:00",
+              "entities": [
+                "following"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.944684
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "30ced07a-21c9-4753-bbcb-b895a9213040",
+        "headline": "VA's Nursing Home to Home program helps Veterans return to community living",
+        "summary": "The VA's Nursing Home to Home program has helped 61 Veterans, including 92-year-old Henry White, transition from nursing homes back into their own homes or community-based settings.",
+        "entities": [
+          "from",
+          "henry",
+          "home",
+          "nursing",
+          "veteran",
+          "veterans",
+          "white"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-21 18:30:00+00:00",
+        "newest_entry_at": "2025-07-23 14:30:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "b8b9bd3a-25b4-4ccd-95da-f8531dcf308f",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "63a47826-bf3f-4dca-ac47-21dd520407e4",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-21 18:30:00+00:00",
+          "newest_entry_at": "2025-07-21 18:30:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "henry",
+            "home",
+            "nursing",
+            "veteran",
+            "white"
+          ],
+          "event_keys": [],
+          "headline": "Nursing Home to Home program reunites Veteran and family",
+          "summary": "Nursing Home to Home gives 92-year-old Henry White the chance to leave long-term care and age at home.",
+          "entries": [
+            {
+              "entry_id": "670784b6-937b-49dc-a327-9e67ee29d0ea",
+              "title": "Nursing Home to Home program reunites Veteran and family",
+              "summary": "Nursing Home to Home gives 92-year-old Henry White the chance to leave long-term care and age at home.",
+              "published_at": "2025-07-21 18:30:00+00:00",
+              "entities": [
+                "henry",
+                "home",
+                "nursing",
+                "veteran",
+                "white"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "d1bf34b0-5f6d-40e3-a909-71f1e2e06f33",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.748762,
+          "attach_reason": "This article appears to be a new piece covering the Nursing Home to Home program generally, likely featuring a different veteran story, rather than a restatement of Henry White's specific case.",
+          "first_entry_at": "2025-07-23 14:30:00+00:00",
+          "newest_entry_at": "2025-07-23 14:30:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "from",
+            "home",
+            "nursing",
+            "veterans"
+          ],
+          "event_keys": [],
+          "headline": "From nursing homes to homes",
+          "summary": "The Nursing Home to Home program has successfully facilitated the return of 61 Veterans to their own home or a community-based setting.",
+          "entries": [
+            {
+              "entry_id": "c93d3cd4-86c6-49ab-96aa-453912e4adb2",
+              "title": "From nursing homes to homes",
+              "summary": "The Nursing Home to Home program has successfully facilitated the return of 61 Veterans to their own home or a community-based setting.",
+              "published_at": "2025-07-23 14:30:00+00:00",
+              "entities": [
+                "from",
+                "home",
+                "nursing",
+                "veterans"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.748762
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "3d36f83b-4624-412f-b3ba-f95564f2d8e1",
+        "headline": "USGS Monitors Ongoing K\u012blauea Summit Eruption",
+        "summary": "USGS scientists continued monitoring the Halema\u02bbuma\u02bbu eruption at K\u012blauea's summit through July 2025, documenting Episode 29's lava fountaining and subsequent pause via UAS flights and fieldwork.",
+        "entities": [
+          "hawaiian",
+          "observatory",
+          "volcano"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 01:19:13+00:00",
+        "newest_entry_at": "2025-07-26 02:37:18+00:00",
+        "episode_count": 3,
+        "entry_count": 3,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "f87f8862-f014-40d7-b130-8d27fc182cad",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "455cc2c4-4579-46d7-bc8e-ea80897d5840",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-18 01:19:13+00:00",
+          "newest_entry_at": "2025-07-18 01:19:13+00:00",
+          "entry_count": 1,
+          "entities": [
+            "hawaiian",
+            "observatory",
+            "volcano"
+          ],
+          "event_keys": [],
+          "headline": "Photo & Video Chronology \u2014 July 17, 2025 \u2014 UAS mission at K\u012blauea summit",
+          "summary": "On July 17, USGS Hawaiian Volcano Observatory staff conducted a UAS (uncrewed aircraft systems) flight of the recent eurption site at K\u012blauea summit.",
+          "entries": [
+            {
+              "entry_id": "70a26a65-4220-44c7-af45-9baae8048a58",
+              "title": "Photo & Video Chronology \u2014 July 17, 2025 \u2014 UAS mission at K\u012blauea summit",
+              "summary": "On July 17, USGS Hawaiian Volcano Observatory staff conducted a UAS (uncrewed aircraft systems) flight of the recent eurption site at K\u012blauea summit.",
+              "published_at": "2025-07-18 01:19:13+00:00",
+              "entities": [
+                "hawaiian",
+                "observatory",
+                "volcano"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "45e5bf28-c4c3-4aba-85da-eb691eb674f6",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.673696,
+          "attach_reason": "This article reports a new episode (July 20 Episode 29) in the ongoing K\u012blauea summit eruption monitoring storyline, distinct from the July 17 UAS flight coverage.'",
+          "first_entry_at": "2025-07-22 22:40:52+00:00",
+          "newest_entry_at": "2025-07-22 22:40:52+00:00",
+          "entry_count": 1,
+          "entities": [],
+          "event_keys": [],
+          "headline": "Photo & Video Chronology \u2014 July 20, 2025 \u2014 Episode 29 at K\u012blauea summit",
+          "summary": "Episode 29 of the ongoing Halema\u02bbuma\u02bbu eruption ended at 6:35 p.m. HST, July 20, 2025, after over 13 hours of sustained lava fountaining.",
+          "entries": [
+            {
+              "entry_id": "d5872c09-d251-4da0-9321-cc326a38a54f",
+              "title": "Photo & Video Chronology \u2014 July 20, 2025 \u2014 Episode 29 at K\u012blauea summit",
+              "summary": "Episode 29 of the ongoing Halema\u02bbuma\u02bbu eruption ended at 6:35 p.m. HST, July 20, 2025, after over 13 hours of sustained lava fountaining.",
+              "published_at": "2025-07-22 22:40:52+00:00",
+              "entities": [],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.673696
+            }
+          ]
+        },
+        {
+          "episode_id": "b21b07ff-1b08-446a-add5-633add9d0467",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.736424,
+          "attach_reason": "This article covers new field observations from USGS K\u012blauea summit monitoring on July 24-25, continuing the same ongoing eruption monitoring storyline but reporting a later distinct fieldwork period.",
+          "first_entry_at": "2025-07-26 02:37:18+00:00",
+          "newest_entry_at": "2025-07-26 02:37:18+00:00",
+          "entry_count": 1,
+          "entities": [],
+          "event_keys": [],
+          "headline": "Photo & Video Chronology \u2014 July 24 & 25, 2025 \u2014 K\u012blauea summit fieldwork",
+          "summary": "The ongoing Halema\u02bbuma\u02bbu eruption is currently paused. USGS Hawaiian Volcano Observatory scientists made observations of the summit region on July 24 and 25.",
+          "entries": [
+            {
+              "entry_id": "abe8a70a-fb47-4a2a-8da9-10f7542b71e0",
+              "title": "Photo & Video Chronology \u2014 July 24 & 25, 2025 \u2014 K\u012blauea summit fieldwork",
+              "summary": "The ongoing Halema\u02bbuma\u02bbu eruption is currently paused. USGS Hawaiian Volcano Observatory scientists made observations of the summit region on July 24 and 25.",
+              "published_at": "2025-07-26 02:37:18+00:00",
+              "entities": [],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.736424
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "40f3c0e5-e3b4-494f-8f33-478988bd4198",
+        "headline": "Rubio Meets Philippine President Marcos Amid Trump White House Visit",
+        "summary": "Secretary of State Rubio held meetings with Philippine President Marcos Jr. in Washington, culminating in a joint meeting and lunch with President Trump, reaffirming the US-Philippines alliance.",
+        "entities": [
+          "bruce",
+          "ferdinand",
+          "marco",
+          "marcos",
+          "philippine",
+          "president",
+          "presidents",
+          "rubio",
+          "schedule",
+          "spokesperson",
+          "tammy",
+          "trump",
+          "washington"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-20 04:00:00+00:00",
+        "newest_entry_at": "2025-07-22 04:00:00+00:00",
+        "episode_count": 3,
+        "entry_count": 3,
+        "theme_attach_method": "sweep_join",
+        "theme_similarity": 0.821158,
+        "theme_id": "f13a8946-2865-4321-b526-8660094adbc0",
+        "stream_category_id": "fb7d7817-c0b8-49d7-b053-0e8e616cedc1",
+        "theme_reason": "Most storylines involve Secretary Rubio conducting bilateral diplomacy and partnership discussions with foreign leaders."
+      },
+      "episodes": [
+        {
+          "episode_id": "e8bed559-ac0b-41b0-9bf0-193a4e50dcad",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-20 04:00:00+00:00",
+          "newest_entry_at": "2025-07-20 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "schedule"
+          ],
+          "event_keys": [],
+          "headline": "Public Schedule \u2013 July 21, 2025 - United States Department of State",
+          "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO1:00 p.m. Secretary Rubio meets with Philippine President Ferdinand R. Marcos, Jr. at the Department of State.(POOLED CAMERA SPRAY AT TOP) DEPUTY SECRETARY OF STATE CHRISTOPHER LANDAUDeputy Secretary Landau attends meetings and briefings at the Department of State. DEPUTY SECRETARY OF STATE FOR MANAGEMENT AND RESOURCES [\u2026]",
+          "entries": [
+            {
+              "entry_id": "ee4d3044-5e12-4f39-87db-46cf5e6b21e1",
+              "title": "Public Schedule \u2013 July 21, 2025 - United States Department of State",
+              "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO1:00 p.m. Secretary Rubio meets with Philippine President Ferdinand R. Marcos, Jr. at the Department of State.(POOLED CAMERA SPRAY AT TOP) DEPUTY SECRETARY OF STATE CHRISTOPHER LANDAUDeputy Secretary Landau attends meetings and briefings at the Department of State. DEPUTY SECRETARY OF STATE FOR MANAGEMENT AND RESOURCES [\u2026]",
+              "published_at": "2025-07-20 04:00:00+00:00",
+              "entities": [
+                "schedule"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "0cd870c1-19c8-4fe5-ba99-e2e7e6975fde",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.776112,
+          "attach_reason": "This article reports the actual Rubio-Marcos meeting readout, continuing the schedule entry from storyline 0 as a new concrete development.",
+          "first_entry_at": "2025-07-21 04:00:00+00:00",
+          "newest_entry_at": "2025-07-21 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "bruce",
+            "ferdinand",
+            "marco",
+            "marcos",
+            "philippine",
+            "president",
+            "presidents",
+            "rubio",
+            "spokesperson",
+            "tammy",
+            "trump",
+            "washington"
+          ],
+          "event_keys": [],
+          "headline": "Secretary Rubio\u2019s Meeting with Philippine President Marcos, Jr. - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio met with Philippine President Ferdinand Marcos, Jr., today in Washington, DC, ahead of the meeting between Presidents Marcos and Trump. Secretary Rubio and President Marcos underscored the importance of the ironclad United States-Philippines Alliance to maintaining peace and stability in the Indo-Pacific [\u2026]",
+          "entries": [
+            {
+              "entry_id": "12ce1834-f83d-40ee-a64f-35134ba9c8eb",
+              "title": "Secretary Rubio\u2019s Meeting with Philippine President Marcos, Jr. - United States Department of State",
+              "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio met with Philippine President Ferdinand Marcos, Jr., today in Washington, DC, ahead of the meeting between Presidents Marcos and Trump. Secretary Rubio and President Marcos underscored the importance of the ironclad United States-Philippines Alliance to maintaining peace and stability in the Indo-Pacific [\u2026]",
+              "published_at": "2025-07-21 04:00:00+00:00",
+              "entities": [
+                "bruce",
+                "ferdinand",
+                "marco",
+                "marcos",
+                "philippine",
+                "president",
+                "presidents",
+                "rubio",
+                "spokesperson",
+                "tammy",
+                "trump",
+                "washington"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.776112
+            }
+          ]
+        },
+        {
+          "episode_id": "c8b34079-3432-4555-8bc3-ff2c99e51145",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.93215,
+          "attach_reason": "This is a new daily public schedule entry (July 22) continuing the recurring State Department public schedule storyline.",
+          "first_entry_at": "2025-07-22 04:00:00+00:00",
+          "newest_entry_at": "2025-07-22 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "schedule"
+          ],
+          "event_keys": [],
+          "headline": "Public Schedule \u2013 July 22, 2025 - United States Department of State",
+          "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 11:15 a.m. Secretary Rubio attends President Trump\u2019s meeting with Philippine President Ferdinand R. Marcos, Jr. at the White House.(MEDIA DETERMINED BY THE WHITE HOUSE) 11:45 a.m. Secretary Rubio attends President Trump\u2019s lunch with Philippine President Ferdinand R. Marcos, Jr. at the White House.(MEDIA DETERMINED BY THE [\u2026]",
+          "entries": [
+            {
+              "entry_id": "09cb0384-ed68-48a2-b180-f11c0398b251",
+              "title": "Public Schedule \u2013 July 22, 2025 - United States Department of State",
+              "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 11:15 a.m. Secretary Rubio attends President Trump\u2019s meeting with Philippine President Ferdinand R. Marcos, Jr. at the White House.(MEDIA DETERMINED BY THE WHITE HOUSE) 11:45 a.m. Secretary Rubio attends President Trump\u2019s lunch with Philippine President Ferdinand R. Marcos, Jr. at the White House.(MEDIA DETERMINED BY THE [\u2026]",
+              "published_at": "2025-07-22 04:00:00+00:00",
+              "entities": [
+                "schedule"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.93215
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "48bdd9ce-e36d-4944-8293-6a64cb43a8b0",
+        "headline": "US Agencies Coordinate Crackdown on North Korean IT Worker Revenue Schemes",
+        "summary": "The State, Justice, and Treasury Departments jointly announced sanctions, indictments, and rewards targeting North Korean IT worker fraud networks that generate illicit revenue for the DPRK's weapons programs, alongside the sentencing of an Arizona woman for facilitating a $17M scheme.",
+        "entities": [
+          "$15 million",
+          "$17",
+          "arizona",
+          "clandestine",
+          "disrupts",
+          "generated",
+          "generation",
+          "justice",
+          "korea",
+          "korean",
+          "network",
+          "north",
+          "offering",
+          "revenue",
+          "rewards",
+          "sanctions",
+          "scheme",
+          "sentenced",
+          "technology",
+          "weapons",
+          "woman",
+          "worker"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-24 04:00:00+00:00",
+        "newest_entry_at": "2025-07-24 20:22:36+00:00",
+        "episode_count": 3,
+        "entry_count": 3,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "01ced28f-0501-4588-84f3-5164df601189",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "f701d5f7-035f-4507-aa29-42147bea0e0d",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "This article is about North Korea revenue disruption and rewards, unrelated to either the Houthi sanctions or Venezuela detainee release storylines.",
+          "first_entry_at": "2025-07-24 04:00:00+00:00",
+          "newest_entry_at": "2025-07-24 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "$15 million",
+            "disrupts",
+            "generation",
+            "justice",
+            "korea",
+            "north",
+            "offering",
+            "revenue",
+            "rewards"
+          ],
+          "event_keys": [],
+          "headline": "United States Disrupts North Korea Revenue Generation, Offering Rewards of Up to $15 Million - United States Department of State",
+          "summary": "Today, the Departments of State, Justice, and the Treasury are executing coordinated, decisive actions to keep Americans safe from North Korea\u2019s malicious and illicit revenue generation schemes. The Department of State\u2019s Transnational Organized Crime Rewards Program (TOCRP) is offering rewards totaling up to $15 million for information leading to the arrests and/or convictions, in any [\u2026]",
+          "entries": [
+            {
+              "entry_id": "cbcca28c-7a97-47fe-8711-01dd7522a49a",
+              "title": "United States Disrupts North Korea Revenue Generation, Offering Rewards of Up to $15 Million - United States Department of State",
+              "summary": "Today, the Departments of State, Justice, and the Treasury are executing coordinated, decisive actions to keep Americans safe from North Korea\u2019s malicious and illicit revenue generation schemes. The Department of State\u2019s Transnational Organized Crime Rewards Program (TOCRP) is offering rewards totaling up to $15 million for information leading to the arrests and/or convictions, in any [\u2026]",
+              "published_at": "2025-07-24 04:00:00+00:00",
+              "entities": [
+                "$15 million",
+                "disrupts",
+                "generation",
+                "justice",
+                "korea",
+                "north",
+                "offering",
+                "revenue",
+                "rewards"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "1faa0677-928d-4939-8f64-504e82be612b",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.650224,
+          "attach_reason": "This is a new Treasury sanctions action targeting the same North Korea IT worker revenue scheme addressed in the prior coordinated actions announcement.",
+          "first_entry_at": "2025-07-24 19:00:00+00:00",
+          "newest_entry_at": "2025-07-24 19:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "clandestine",
+            "network",
+            "sanctions",
+            "weapons",
+            "worker"
+          ],
+          "event_keys": [],
+          "headline": "Treasury Sanctions Clandestine IT Worker Network Funding the DPRK\u2019s Weapons Programs",
+          "summary": "WASHINGTON \u2014 Today, the U.S. Department of the Treasury\u2019s Office of Foreign Assets Control (OFAC) sanctioned the Korea Sobaeksu Trading Company and three associated individuals\u2014Kim Se Un, Jo Kyong Hun, and Myong Chol Min\u2014for their involvement in the evasion of U.S. and United Nations (UN) sanctions and efforts to generate revenue clandestinely for the Democratic People\u2019s Republic of Korea (DPRK) government, including through fraudulent information technology (IT) worker schemes. This action to counter the DPRK\u2019s wide-ranging revenue generation schemes is part of a collaborative effort with the Departments of Justice, Homeland Security, and State; the Federal Bureau of Investigation; and Homeland Security Investigations. \u201cThe DPRK relies on front companies like Korea Sobaesku Trading Company and key facilitators to procure materials and generate revenue for the regime\u2019s illegal nuclear and ballistic missile programs,\u201d said Director of OFAC Bradley T. Smith. \u201cOur commitment is clear: Treasury, as part of a whole-of-government effort, will continue to hold accountable those who seek to infiltrate global supply chains and enable the sanctions evasion activities that further the Kim regime\u2019s destabilizing agenda.\u201dAlongside Treasury, the Department of Justice is unsealing indictments today against seven DPRK nationals for the criminal avoidance of sanctions under the International Emergency Economic Powers Act involving the illicit trafficking of counterfeit cigarettes. Also today, the Department of State is announcing reward offers ranging from up to $500,000 to up to $7 million",
+          "entries": [
+            {
+              "entry_id": "5991d9d3-4380-45c0-851d-4c8ddd75128a",
+              "title": "Treasury Sanctions Clandestine IT Worker Network Funding the DPRK\u2019s Weapons Programs",
+              "summary": "WASHINGTON \u2014 Today, the U.S. Department of the Treasury\u2019s Office of Foreign Assets Control (OFAC) sanctioned the Korea Sobaeksu Trading Company and three associated individuals\u2014Kim Se Un, Jo Kyong Hun, and Myong Chol Min\u2014for their involvement in the evasion of U.S. and United Nations (UN) sanctions and efforts to generate revenue clandestinely for the Democratic People\u2019s Republic of Korea (DPRK) government, including through fraudulent information technology (IT) worker schemes. This action to counter the DPRK\u2019s wide-ranging revenue generation schemes is part of a collaborative effort with the Departments of Justice, Homeland Security, and State; the Federal Bureau of Investigation; and Homeland Security Investigations. \u201cThe DPRK relies on front companies like Korea Sobaesku Trading Company and key facilitators to procure materials and generate revenue for the regime\u2019s illegal nuclear and ballistic missile programs,\u201d said Director of OFAC Bradley T. Smith. \u201cOur commitment is clear: Treasury, as part of a whole-of-government effort, will continue to hold accountable those who seek to infiltrate global supply chains and enable the sanctions evasion activities that further the Kim reg",
+              "published_at": "2025-07-24 19:00:00+00:00",
+              "entities": [
+                "clandestine",
+                "network",
+                "sanctions",
+                "weapons",
+                "worker"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.650224
+            }
+          ]
+        },
+        {
+          "episode_id": "d296147b-636a-4a68-8e6e-490c3eb9ece9",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.659036,
+          "attach_reason": "This article reports a specific sentencing in the broader North Korean IT worker fraud revenue scheme crackdown described in storyline 0.",
+          "first_entry_at": "2025-07-24 20:22:36+00:00",
+          "newest_entry_at": "2025-07-24 20:22:36+00:00",
+          "entry_count": 1,
+          "entities": [
+            "$17",
+            "arizona",
+            "generated",
+            "korea",
+            "korean",
+            "revenue",
+            "scheme",
+            "sentenced",
+            "technology",
+            "woman",
+            "worker"
+          ],
+          "event_keys": [],
+          "headline": "Arizona Woman Sentenced for $17M Information Technology Worker Fraud Scheme that Generated Revenue for North Korea",
+          "summary": "An Arizona woman was sentenced today to 102 months in prison for her role in a fraudulent scheme that assisted North Korean Information Technology (IT) workers posing as U.S. citizens and residents with obtaining remote IT positions at more than 300 U.S. companies. The scheme generated more than $17 million in illicit revenue for Chapman and for the Democratic People\u2019s Republic",
+          "entries": [
+            {
+              "entry_id": "54179742-9070-422a-bda0-0fd4dce6a1f5",
+              "title": "Arizona Woman Sentenced for $17M Information Technology Worker Fraud Scheme that Generated Revenue for North Korea",
+              "summary": "An Arizona woman was sentenced today to 102 months in prison for her role in a fraudulent scheme that assisted North Korean Information Technology (IT) workers posing as U.S. citizens and residents with obtaining remote IT positions at more than 300 U.S. companies. The scheme generated more than $17 million in illicit revenue for Chapman and for the Democratic People\u2019s Republic",
+              "published_at": "2025-07-24 20:22:36+00:00",
+              "entities": [
+                "$17",
+                "arizona",
+                "generated",
+                "korea",
+                "korean",
+                "revenue",
+                "scheme",
+                "sentenced",
+                "technology",
+                "woman",
+                "worker"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.659036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "4a24e587-9e7f-4a7c-9061-828595180b42",
+        "headline": "FDA Investigates Fatal Safety Risks Tied to Sarepta's Elevidys Gene Therapy",
+        "summary": "After three deaths linked to Elevidys, the FDA requested Sarepta suspend distribution and paused related gene therapy trials, then opened an investigation into the death of an 8-year-old boy who received the drug.",
+        "entities": [
+          "clinical",
+          "death",
+          "deaths",
+          "elevidys",
+          "following",
+          "gene",
+          "hold",
+          "investigating",
+          "multiple",
+          "places",
+          "products",
+          "received",
+          "requests",
+          "sarepta",
+          "suspend",
+          "therapeutics",
+          "therapy",
+          "trials"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 04:00:00+00:00",
+        "newest_entry_at": "2025-07-25 04:00:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "48720192-df04-43f6-b873-b96f9f9cd3c3",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "15653a64-1aa6-4741-9414-4aa75273c337",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-18 04:00:00+00:00",
+          "newest_entry_at": "2025-07-18 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "clinical",
+            "deaths",
+            "elevidys",
+            "following",
+            "gene",
+            "hold",
+            "multiple",
+            "places",
+            "products",
+            "requests",
+            "sarepta",
+            "suspend",
+            "therapeutics",
+            "therapy",
+            "trials"
+          ],
+          "event_keys": [],
+          "headline": "FDA Requests Sarepta Therapeutics Suspend Distribution of Elevidys and Places Clinical Trials on Hold for Multiple Gene Therapy Products Following 3 Deaths",
+          "summary": "FDA is announcing today it has placed Elevidys and certain Sarepta investigational gene therapy clinical trials for limb girdle muscular dystrophy on clinical hold due to new safety concerns that the study participants are or would be exposed to an unreasonable and significant risk of illness or in",
+          "entries": [
+            {
+              "entry_id": "1aea0991-6bad-4c7f-a4b7-c34295f1b039",
+              "title": "FDA Requests Sarepta Therapeutics Suspend Distribution of Elevidys and Places Clinical Trials on Hold for Multiple Gene Therapy Products Following 3 Deaths",
+              "summary": "FDA is announcing today it has placed Elevidys and certain Sarepta investigational gene therapy clinical trials for limb girdle muscular dystrophy on clinical hold due to new safety concerns that the study participants are or would be exposed to an unreasonable and significant risk of illness or in",
+              "published_at": "2025-07-18 04:00:00+00:00",
+              "entities": [
+                "clinical",
+                "deaths",
+                "elevidys",
+                "following",
+                "gene",
+                "hold",
+                "multiple",
+                "places",
+                "products",
+                "requests",
+                "sarepta",
+                "suspend",
+                "therapeutics",
+                "therapy",
+                "trials"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "9ec8db03-bf56-48ec-ab10-e25b0697be06",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.725705,
+          "attach_reason": "This article reports a new death investigation related to Elevidys, extending the ongoing safety concerns storyline about Sarepta's gene therapy.",
+          "first_entry_at": "2025-07-25 04:00:00+00:00",
+          "newest_entry_at": "2025-07-25 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "death",
+            "elevidys",
+            "investigating",
+            "received"
+          ],
+          "event_keys": [],
+          "headline": "FDA Investigating Death of 8-Year-Old Boy Who Received Elevidys",
+          "summary": "The U.S. Food and Drug Administration is investigating the death of an 8-year-old boy who received Elevidys, a Sarepta Therapeutics gene therapy for Duchenne muscular dystrophy.",
+          "entries": [
+            {
+              "entry_id": "db8667f6-473a-4fde-a770-92b66487ef88",
+              "title": "FDA Investigating Death of 8-Year-Old Boy Who Received Elevidys",
+              "summary": "The U.S. Food and Drug Administration is investigating the death of an 8-year-old boy who received Elevidys, a Sarepta Therapeutics gene therapy for Duchenne muscular dystrophy.",
+              "published_at": "2025-07-25 04:00:00+00:00",
+              "entities": [
+                "death",
+                "elevidys",
+                "investigating",
+                "received"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.725705
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "5184a6b9-16e4-4f5b-9631-0018bf7a9cfd",
+        "headline": "Veterans Wrap Up 44th National Wheelchair Games in Minneapolis",
+        "summary": "The 44th National Veterans Wheelchair Games concluded in Minneapolis after six days of adaptive sports competition, with veterans from across the country including an Arkansas gold medalist competing in events like axe throwing, softball and basketball.",
+        "entities": [
+          "arkansan",
+          "games",
+          "minneapolis",
+          "sole",
+          "veterans",
+          "wheelchair"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-23 18:30:00+00:00",
+        "newest_entry_at": "2025-07-24 18:30:00+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "b8b9bd3a-25b4-4ccd-95da-f8531dcf308f",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "0b681e65-f72b-40d4-8303-794970694f95",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-23 18:30:00+00:00",
+          "newest_entry_at": "2025-07-23 18:30:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "games",
+            "minneapolis",
+            "veterans",
+            "wheelchair"
+          ],
+          "event_keys": [],
+          "headline": "Veterans finish strong at the 2025 National Veterans Wheelchair Games",
+          "summary": "The 44th National Veterans Wheelchair Games came to a close in Minneapolis after six days of competition, connection and camaraderie.",
+          "entries": [
+            {
+              "entry_id": "6e7886f4-b06c-409b-9d98-dce1b06ee793",
+              "title": "Veterans finish strong at the 2025 National Veterans Wheelchair Games",
+              "summary": "The 44th National Veterans Wheelchair Games came to a close in Minneapolis after six days of competition, connection and camaraderie.",
+              "published_at": "2025-07-23 18:30:00+00:00",
+              "entities": [
+                "games",
+                "minneapolis",
+                "veterans",
+                "wheelchair"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "b5690d43-71bb-4d4a-ad78-f25160859e78",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.686923,
+          "attach_reason": "This article reports on an individual Arkansas veteran's gold medal at the same Games covered in the storyline, adding a new specific detail beyond the general conclusion of the event.",
+          "first_entry_at": "2025-07-24 18:30:00+00:00",
+          "newest_entry_at": "2025-07-24 18:30:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "arkansan",
+            "games",
+            "sole",
+            "wheelchair"
+          ],
+          "event_keys": [],
+          "headline": "Sole Arkansan earns gold at 44th annual National Veterans Wheelchair Games",
+          "summary": "The National Veterans Wheelchair Games brings together hundreds of Veterans for some friendly but fierce competition across more than 20 adaptive sports, including softball, basketball and this year\u2019s highlight \u2014 axe throwing, a sport tried and true to the 2025 Games\u2019 host site Minneapolis, Minnesota.",
+          "entries": [
+            {
+              "entry_id": "89886b04-d487-4c4b-b545-4c6a3a64aefe",
+              "title": "Sole Arkansan earns gold at 44th annual National Veterans Wheelchair Games",
+              "summary": "The National Veterans Wheelchair Games brings together hundreds of Veterans for some friendly but fierce competition across more than 20 adaptive sports, including softball, basketball and this year\u2019s highlight \u2014 axe throwing, a sport tried and true to the 2025 Games\u2019 host site Minneapolis, Minnesota.",
+              "published_at": "2025-07-24 18:30:00+00:00",
+              "entities": [
+                "arkansan",
+                "games",
+                "sole",
+                "wheelchair"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.686923
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "7af8300d-35c0-44f5-9083-46bf23d02e09",
+        "headline": "USPS Celebrates 250th Anniversary with Stamps and Events",
+        "summary": "The U.S. Postal Service is marking its 250th founding anniversary on July 26 with special events, merchandise, and the unveiling of two new commemorative stamps.",
+        "entities": [
+          "anniversary",
+          "communities",
+          "connecting",
+          "delivered",
+          "marks",
+          "postal",
+          "proud",
+          "sealed",
+          "signed",
+          "years"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-21 14:30:12+00:00",
+        "newest_entry_at": "2025-07-23 16:00:25+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "691de2c6-da3a-480e-9c6f-7ae7fb9a960b",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "bd067b4b-27b7-4ede-b12a-774aae33fb7d",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "This article is about the Postal Service's 250th anniversary, unrelated to Colombia's Independence Day congratulations.",
+          "first_entry_at": "2025-07-21 14:30:12+00:00",
+          "newest_entry_at": "2025-07-21 14:30:12+00:00",
+          "entry_count": 1,
+          "entities": [
+            "anniversary",
+            "communities",
+            "connecting",
+            "marks",
+            "postal",
+            "proud",
+            "years"
+          ],
+          "event_keys": [],
+          "headline": "Celebrating 250 Years of Connecting Communities: The Postal Service Marks a Proud Anniversary",
+          "summary": "WASHINGTON \u2014 The Postal Service will mark the 250th anniversary of its founding on July 26. To celebrate the organization\u2019s rich history of connecting people, communities and businesses, USPS will hold a series of special events this week and highlight other activities, including licensed merchandise, digital media, a stamp contest and special signage at Post Offices.",
+          "entries": [
+            {
+              "entry_id": "3d8a67a6-d9c0-45f4-97ec-99465d939ed2",
+              "title": "Celebrating 250 Years of Connecting Communities: The Postal Service Marks a Proud Anniversary",
+              "summary": "WASHINGTON \u2014 The Postal Service will mark the 250th anniversary of its founding on July 26. To celebrate the organization\u2019s rich history of connecting people, communities and businesses, USPS will hold a series of special events this week and highlight other activities, including licensed merchandise, digital media, a stamp contest and special signage at Post Offices.",
+              "published_at": "2025-07-21 14:30:12+00:00",
+              "entities": [
+                "anniversary",
+                "communities",
+                "connecting",
+                "marks",
+                "postal",
+                "proud",
+                "years"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "cc796392-86c3-4742-9460-a21dd5ac8b35",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.784393,
+          "attach_reason": "This article continues coverage of USPS's 250th anniversary celebration.",
+          "first_entry_at": "2025-07-23 16:00:25+00:00",
+          "newest_entry_at": "2025-07-23 16:00:25+00:00",
+          "entry_count": 1,
+          "entities": [
+            "delivered",
+            "sealed",
+            "signed",
+            "years"
+          ],
+          "event_keys": [],
+          "headline": "Signed, Sealed and Delivered for 250 Years",
+          "summary": "WASHINGTON \u2014 In celebration of two and a half centuries of continuous service, the U.S. Postal Service today unveiled two stamp releases at its headquarters building. The two stamp designs capture the essence of USPS, one honoring its deep-rooted history, the other highlighting its ubiquitous presence in everyday life.",
+          "entries": [
+            {
+              "entry_id": "378a8f0c-ec83-4b0b-9326-ffe32463475b",
+              "title": "Signed, Sealed and Delivered for 250 Years",
+              "summary": "WASHINGTON \u2014 In celebration of two and a half centuries of continuous service, the U.S. Postal Service today unveiled two stamp releases at its headquarters building. The two stamp designs capture the essence of USPS, one honoring its deep-rooted history, the other highlighting its ubiquitous presence in everyday life.",
+              "published_at": "2025-07-23 16:00:25+00:00",
+              "entities": [
+                "delivered",
+                "sealed",
+                "signed",
+                "years"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.784393
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "a1f7e7d3-2499-4352-afd9-77b0992afa0e",
+        "headline": "Rubio Holds Series of Diplomatic Meetings at State Department",
+        "summary": "Secretary of State Marco Rubio met with Austrian Foreign Minister Beate Meinl-Reisinger to discuss research security and Middle East conflict, and had a follow-up meeting scheduled with Pakistani Deputy PM Ishaq Dar.",
+        "entities": [
+          "austrian",
+          "beate",
+          "bruce",
+          "foreign",
+          "marco",
+          "meinl",
+          "minister",
+          "reisinger",
+          "rubio",
+          "schedule",
+          "spokesperson",
+          "tammy",
+          "washington"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-23 04:00:00+00:00",
+        "newest_entry_at": "2025-07-24 04:00:00+00:00",
+        "episode_count": 3,
+        "entry_count": 3,
+        "theme_attach_method": "sweep_join",
+        "theme_similarity": 0.830637,
+        "theme_id": "f13a8946-2865-4321-b526-8660094adbc0",
+        "stream_category_id": "fb7d7817-c0b8-49d7-b053-0e8e616cedc1",
+        "theme_reason": "Nearly all storylines describe Secretary Rubio's series of bilateral diplomatic meetings with foreign officials across various countries."
+      },
+      "episodes": [
+        {
+          "episode_id": "c6a2a108-27ea-4583-9b25-9e1540d222b7",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "Daily public schedules are distinct, non-continuing routine postings rather than an evolving storyline, so no candidate matches this specific new schedule.",
+          "first_entry_at": "2025-07-23 04:00:00+00:00",
+          "newest_entry_at": "2025-07-23 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "schedule"
+          ],
+          "event_keys": [],
+          "headline": "Public Schedule \u2013 July 24, 2025 - United States Department of State",
+          "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 9:30 a.m. Secretary Rubio meets with Austrian Foreign Minister Beate Meinl-Reisinger at the Department of State.(CAMERA SPRAY AT TOP)Call time for video cameras, still cameras, and writers is 9:00 a.m. from the 23rd Street entrance. DEPUTY SECRETARY OF STATE CHRISTOPHER LANDAU Deputy Secretary Landau attends [\u2026]",
+          "entries": [
+            {
+              "entry_id": "fde502c1-0937-43f2-9931-9a1df4d35a29",
+              "title": "Public Schedule \u2013 July 24, 2025 - United States Department of State",
+              "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 9:30 a.m. Secretary Rubio meets with Austrian Foreign Minister Beate Meinl-Reisinger at the Department of State.(CAMERA SPRAY AT TOP)Call time for video cameras, still cameras, and writers is 9:00 a.m. from the 23rd Street entrance. DEPUTY SECRETARY OF STATE CHRISTOPHER LANDAU Deputy Secretary Landau attends [\u2026]",
+              "published_at": "2025-07-23 04:00:00+00:00",
+              "entities": [
+                "schedule"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "9056feed-d8fb-46fc-88b8-aa39f5785a67",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.730561,
+          "attach_reason": "This is a new daily schedule/readout item, continuing the storyline of State Department daily schedule releases but for a new meeting with Austria's FM.",
+          "first_entry_at": "2025-07-24 04:00:00+00:00",
+          "newest_entry_at": "2025-07-24 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "austrian",
+            "beate",
+            "bruce",
+            "foreign",
+            "marco",
+            "meinl",
+            "minister",
+            "reisinger",
+            "rubio",
+            "spokesperson",
+            "tammy",
+            "washington"
+          ],
+          "event_keys": [],
+          "headline": "Secretary Rubio\u2019s Meeting with Austrian Foreign Minister Meinl-Reisinger - United States Department of State",
+          "summary": "The following is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio met with Austrian Foreign Minister Beate Meinl-Reisinger today in Washington. The Secretary and Meinl-Reisinger discussed efforts to protect sensitive research and technologies, as well as efforts to address conflict in the Middle East. Secretary Rubio welcomed significant investments from Austrian companies in [\u2026]",
+          "entries": [
+            {
+              "entry_id": "1ce69260-e92c-4d1e-91a1-7a8e1372b389",
+              "title": "Secretary Rubio\u2019s Meeting with Austrian Foreign Minister Meinl-Reisinger - United States Department of State",
+              "summary": "The following is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio met with Austrian Foreign Minister Beate Meinl-Reisinger today in Washington. The Secretary and Meinl-Reisinger discussed efforts to protect sensitive research and technologies, as well as efforts to address conflict in the Middle East. Secretary Rubio welcomed significant investments from Austrian companies in [\u2026]",
+              "published_at": "2025-07-24 04:00:00+00:00",
+              "entities": [
+                "austrian",
+                "beate",
+                "bruce",
+                "foreign",
+                "marco",
+                "meinl",
+                "minister",
+                "reisinger",
+                "rubio",
+                "spokesperson",
+                "tammy",
+                "washington"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.730561
+            }
+          ]
+        },
+        {
+          "episode_id": "83d02f67-e5f4-4aa0-84c4-09a648b86f2b",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.836059,
+          "attach_reason": "This is the next day's public schedule release, continuing the routine daily schedule storyline with a new date's content.",
+          "first_entry_at": "2025-07-24 04:00:00+00:00",
+          "newest_entry_at": "2025-07-24 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "schedule"
+          ],
+          "event_keys": [],
+          "headline": "Public Schedule \u2013 July 25, 2025 - United States Department of State",
+          "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 11:00 a.m. Secretary Rubio meets with Pakistani Deputy Prime Minister and Foreign Minister Ishaq Dar at the Department of State.(CAMERA SPRAY AT TOP) [\u2026]",
+          "entries": [
+            {
+              "entry_id": "f50598e2-8937-496e-933b-4f63a856ba79",
+              "title": "Public Schedule \u2013 July 25, 2025 - United States Department of State",
+              "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 11:00 a.m. Secretary Rubio meets with Pakistani Deputy Prime Minister and Foreign Minister Ishaq Dar at the Department of State.(CAMERA SPRAY AT TOP) [\u2026]",
+              "published_at": "2025-07-24 04:00:00+00:00",
+              "entities": [
+                "schedule"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.836059
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "ae6f94d1-b42d-4580-9ed1-8ac6009da3b9",
+        "headline": "US Cracks Down on Haitian Gang Ties Among Legal Residents",
+        "summary": "The State Department announced deportation actions against U.S. lawful permanent residents linked to Haitian gang network Viv Ansanm, and USCIS helped ICE arrest a Haitian national accused of contributing to Haiti's destabilization.",
+        "entities": [
+          "affiliated",
+          "ansanm",
+          "arrest",
+          "assists",
+          "deportation",
+          "destabilization",
+          "engaged",
+          "foreign",
+          "haiti",
+          "haitian",
+          "investigation",
+          "leading",
+          "legal",
+          "organization",
+          "permanent",
+          "residents",
+          "terrorist",
+          "violence",
+          "with"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-21 04:00:00+00:00",
+        "newest_entry_at": "2025-07-23 18:29:22+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "a67c6692-3142-4d6c-a7b4-aea29be14675",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "25fe64a5-5635-4de4-949e-22e9edc1dc11",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "No candidate storyline concerns Haitian gang designation or deportation actions; this is a new, unrelated matter.",
+          "first_entry_at": "2025-07-21 04:00:00+00:00",
+          "newest_entry_at": "2025-07-21 04:00:00+00:00",
+          "entry_count": 1,
+          "entities": [
+            "affiliated",
+            "ansanm",
+            "deportation",
+            "foreign",
+            "haitian",
+            "legal",
+            "organization",
+            "permanent",
+            "residents",
+            "terrorist",
+            "with"
+          ],
+          "event_keys": [],
+          "headline": "Deportation Actions Against U.S. Legal Permanent Residents Affiliated With Haitian Foreign Terrorist Organization Viv Ansanm - United States Department of State",
+          "summary": "I am pleased to announce the latest U.S. actions against individuals whose presence and activities in our country have potentially serious adverse foreign policy consequences for the United States. Specifically, the Department of State has determined that certain individuals with U.S. lawful permanent resident status have supported and collaborated with Haitian gang leaders connected to [\u2026]",
+          "entries": [
+            {
+              "entry_id": "6b060cfa-ab15-4942-95fa-f53573dff7c2",
+              "title": "Deportation Actions Against U.S. Legal Permanent Residents Affiliated With Haitian Foreign Terrorist Organization Viv Ansanm - United States Department of State",
+              "summary": "I am pleased to announce the latest U.S. actions against individuals whose presence and activities in our country have potentially serious adverse foreign policy consequences for the United States. Specifically, the Department of State has determined that certain individuals with U.S. lawful permanent resident status have supported and collaborated with Haitian gang leaders connected to [\u2026]",
+              "published_at": "2025-07-21 04:00:00+00:00",
+              "entities": [
+                "affiliated",
+                "ansanm",
+                "deportation",
+                "foreign",
+                "haitian",
+                "legal",
+                "organization",
+                "permanent",
+                "residents",
+                "terrorist",
+                "with"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "9da07f00-2d5d-435e-bc8c-57498ae25219",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.642935,
+          "attach_reason": "This article describes USCIS assisting in a related but distinct arrest investigation of a Haitian involved in violence, extending the broader storyline about targeting individuals linked to Haitian gang violence rather than repeating the same deportation announcement.",
+          "first_entry_at": "2025-07-23 18:29:22+00:00",
+          "newest_entry_at": "2025-07-23 18:29:22+00:00",
+          "entry_count": 1,
+          "entities": [
+            "arrest",
+            "assists",
+            "destabilization",
+            "engaged",
+            "haiti",
+            "haitian",
+            "investigation",
+            "leading",
+            "violence"
+          ],
+          "event_keys": [],
+          "headline": "USCIS Assists in Investigation Leading to Arrest of Haitian Engaged in Violence and Destabilization of Haiti",
+          "summary": "U.S. Citizenship and Immigration Services provided valuable assistance in the investigation that led to Immigration and Customs Enforcement arresting Pierre Reginald Boulus on July 17 for violating the Immigration and Nationality Act by contributing to the destabilization of Haiti.",
+          "entries": [
+            {
+              "entry_id": "5c26bd53-f3ec-4b3e-8dc4-dcd9300735c5",
+              "title": "USCIS Assists in Investigation Leading to Arrest of Haitian Engaged in Violence and Destabilization of Haiti",
+              "summary": "U.S. Citizenship and Immigration Services provided valuable assistance in the investigation that led to Immigration and Customs Enforcement arresting Pierre Reginald Boulus on July 17 for violating the Immigration and Nationality Act by contributing to the destabilization of Haiti.",
+              "published_at": "2025-07-23 18:29:22+00:00",
+              "entities": [
+                "arrest",
+                "assists",
+                "destabilization",
+                "engaged",
+                "haiti",
+                "haitian",
+                "investigation",
+                "leading",
+                "violence"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.642935
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "storyline": {
+        "storyline_id": "d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e",
+        "headline": "NASA Prepares for SpaceX Crew-11 Launch to ISS",
+        "summary": "NASA is preparing to launch the SpaceX Crew-11 mission, sending four astronauts from NASA, JAXA, and Roscosmos to the International Space Station for research and maintenance work, with public virtual guest participation invited.",
+        "entities": [
+          "crew",
+          "four",
+          "guests",
+          "invites",
+          "know",
+          "launch",
+          "mission",
+          "need",
+          "space",
+          "station",
+          "virtual"
+        ],
+        "event_keys": [],
+        "first_entry_at": "2025-07-18 14:02:33+00:00",
+        "newest_entry_at": "2025-07-25 16:41:41+00:00",
+        "episode_count": 2,
+        "entry_count": 2,
+        "theme_attach_method": null,
+        "theme_similarity": null,
+        "theme_id": null,
+        "stream_category_id": "6719cafa-0c7d-4fd4-85ab-5924d10dfb28",
+        "theme_reason": null
+      },
+      "episodes": [
+        {
+          "episode_id": "bedec935-2601-4503-b608-3359e266f6fb",
+          "attach_method": "new_storyline",
+          "attach_similarity": null,
+          "attach_reason": "no_candidates",
+          "first_entry_at": "2025-07-18 14:02:33+00:00",
+          "newest_entry_at": "2025-07-18 14:02:33+00:00",
+          "entry_count": 1,
+          "entities": [
+            "crew",
+            "four",
+            "know",
+            "mission",
+            "need",
+            "space",
+            "station"
+          ],
+          "event_keys": [],
+          "headline": "What You Need to Know About NASA\u2019s SpaceX Crew-11 Mission",
+          "summary": "Four crew members are preparing to launch to the International Space Station as part of NASA\u2019s SpaceX Crew-11 mission to perform research, technology demonstrations, and maintenance activities aboard the orbiting laboratory.",
+          "entries": [
+            {
+              "entry_id": "21f3d2c1-5514-41d6-9dbe-fd203be9437f",
+              "title": "What You Need to Know About NASA\u2019s SpaceX Crew-11 Mission",
+              "summary": "Four crew members are preparing to launch to the International Space Station as part of NASA\u2019s SpaceX Crew-11 mission to perform research, technology demonstrations, and maintenance activities aboard the orbiting laboratory.",
+              "published_at": "2025-07-18 14:02:33+00:00",
+              "entities": [
+                "crew",
+                "four",
+                "know",
+                "mission",
+                "need",
+                "space",
+                "station"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "new_cluster",
+              "entry_similarity": null
+            }
+          ]
+        },
+        {
+          "episode_id": "70358638-d8b6-4890-87e8-dee91f2bed4b",
+          "attach_method": "adjudicated_join",
+          "attach_similarity": 0.777099,
+          "attach_reason": "This article is a new update about the same Crew-11 mission, specifically NASA's invitation for virtual guests, expanding on the earlier launch coverage.'",
+          "first_entry_at": "2025-07-25 16:41:41+00:00",
+          "newest_entry_at": "2025-07-25 16:41:41+00:00",
+          "entry_count": 1,
+          "entities": [
+            "crew",
+            "guests",
+            "invites",
+            "launch",
+            "mission",
+            "space",
+            "station",
+            "virtual"
+          ],
+          "event_keys": [],
+          "headline": "NASA Invites Virtual Guests to SpaceX Crew-11 Mission Launch",
+          "summary": "NASA invites the public to participate as virtual guests in the launch of the agency\u2019s SpaceX Crew-11 mission to the International Space Station. NASA astronauts Zena Cardman and Mike Fincke, JAXA (Japan Aerospace Exploration Agency) astronaut Kimiya Yui, and Roscosmos cosmonaut Oleg Platonov will launch aboard a SpaceX Dragon spacecraft to the orbiting laboratory. This [\u2026]",
+          "entries": [
+            {
+              "entry_id": "b9a37c92-bd77-47b8-bb9c-f7fb65c25ee9",
+              "title": "NASA Invites Virtual Guests to SpaceX Crew-11 Mission Launch",
+              "summary": "NASA invites the public to participate as virtual guests in the launch of the agency\u2019s SpaceX Crew-11 mission to the International Space Station. NASA astronauts Zena Cardman and Mike Fincke, JAXA (Japan Aerospace Exploration Agency) astronaut Kimiya Yui, and Roscosmos cosmonaut Oleg Platonov will launch aboard a SpaceX Dragon spacecraft to the orbiting laboratory. This [\u2026]",
+              "published_at": "2025-07-25 16:41:41+00:00",
+              "entities": [
+                "crew",
+                "guests",
+                "invites",
+                "launch",
+                "mission",
+                "space",
+                "station",
+                "virtual"
+              ],
+              "event_keys": [],
+              "entry_attach_method": "adjudicated_new",
+              "entry_similarity": 0.777099
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

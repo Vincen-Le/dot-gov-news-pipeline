@@ -1,0 +1,128 @@
+{
+  "chains": {
+    "09926b22-8867-41c8-aedf-a4692885c9a5": {
+      "consecutive_cosine": [
+        0.7652
+      ],
+      "entity_overlap": [
+        5
+      ]
+    },
+    "0bb6fc42-03c5-4399-b516-9f67940f7abf": {
+      "consecutive_cosine": [
+        0.9107
+      ],
+      "entity_overlap": [
+        4
+      ]
+    },
+    "2d7c9bf9-79cc-4c8a-9af4-542499961e8e": {
+      "consecutive_cosine": [
+        0.8818,
+        0.8531,
+        0.7538,
+        0.7591
+      ],
+      "entity_overlap": [
+        4,
+        5,
+        0,
+        0
+      ]
+    },
+    "30ced07a-21c9-4753-bbcb-b895a9213040": {
+      "consecutive_cosine": [
+        0.7488
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "3d36f83b-4624-412f-b3ba-f95564f2d8e1": {
+      "consecutive_cosine": [
+        0.6737,
+        0.7364
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "40f3c0e5-e3b4-494f-8f33-478988bd4198": {
+      "consecutive_cosine": [
+        0.7761,
+        0.7975
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "48bdd9ce-e36d-4944-8293-6a64cb43a8b0": {
+      "consecutive_cosine": [
+        0.6502,
+        0.6167
+      ],
+      "entity_overlap": [
+        0,
+        1
+      ]
+    },
+    "4a24e587-9e7f-4a7c-9061-828595180b42": {
+      "consecutive_cosine": [
+        0.7257
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "5184a6b9-16e4-4f5b-9631-0018bf7a9cfd": {
+      "consecutive_cosine": [
+        0.6869
+      ],
+      "entity_overlap": [
+        2
+      ]
+    },
+    "7af8300d-35c0-44f5-9083-46bf23d02e09": {
+      "consecutive_cosine": [
+        0.7844
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "a1f7e7d3-2499-4352-afd9-77b0992afa0e": {
+      "consecutive_cosine": [
+        0.7306,
+        0.5995
+      ],
+      "entity_overlap": [
+        0,
+        0
+      ]
+    },
+    "ae6f94d1-b42d-4580-9ed1-8ac6009da3b9": {
+      "consecutive_cosine": [
+        0.6429
+      ],
+      "entity_overlap": [
+        1
+      ]
+    },
+    "d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e": {
+      "consecutive_cosine": [
+        0.7771
+      ],
+      "entity_overlap": [
+        4
+      ]
+    }
+  },
+  "theme_cohesion": {
+    "1a7840a0-01d9-408c-a491-f6f3f9100e52": 0.8101375222206115,
+    "4fabbf0e-9852-40a5-a971-638157aa6a1d": 0.8525186538696289,
+    "8c75056e-9552-4f7e-a68a-39e8e6768f87": 0.8305624723434448,
+    "f13a8946-2865-4321-b526-8660094adbc0": 0.8112323164939881
+  }
+}

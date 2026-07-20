@@ -1,0 +1,89 @@
+{
+  "drift_rate": 0.0,
+  "per_chain": {
+    "09926b22-8867-41c8-aedf-a4692885c9a5": -2.0,
+    "0bb6fc42-03c5-4399-b516-9f67940f7abf": 1.0,
+    "2d7c9bf9-79cc-4c8a-9af4-542499961e8e": -0.5,
+    "30ced07a-21c9-4753-bbcb-b895a9213040": 1.0,
+    "3d36f83b-4624-412f-b3ba-f95564f2d8e1": 1.0,
+    "40f3c0e5-e3b4-494f-8f33-478988bd4198": 1.0,
+    "48bdd9ce-e36d-4944-8293-6a64cb43a8b0": 1.0,
+    "4a24e587-9e7f-4a7c-9061-828595180b42": 1.0,
+    "5184a6b9-16e4-4f5b-9631-0018bf7a9cfd": 1.0,
+    "7af8300d-35c0-44f5-9083-46bf23d02e09": 1.0,
+    "a1f7e7d3-2499-4352-afd9-77b0992afa0e": -0.5,
+    "ae6f94d1-b42d-4580-9ed1-8ac6009da3b9": 1.0,
+    "d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e": 1.0
+  },
+  "quanta": {
+    "v1": 0.024999999999999998,
+    "v2": 0.012499999999999999,
+    "v3": 0.000778816199376947,
+    "v4": 0.02,
+    "v5": 0.0024509803921568627,
+    "v6": 0.049999999999999996,
+    "v7": 0.009615384615384616
+  },
+  "recall": {
+    "note": "n/a (no gold labels)",
+    "storyline_pairwise_f1": null,
+    "theme_pairwise_f1": null
+  },
+  "reward_v2": 0.569112302241769,
+  "v1_method_precision": {
+    "adjudicated_join": 0.8
+  },
+  "v1_method_worst": 0.8,
+  "v1_method_worst_name": "adjudicated_join",
+  "v1_n": 20,
+  "v1_score": 0.4,
+  "v2_discrimination": 0.975,
+  "v2_granularity": {
+    "1a7840a0-01d9-408c-a491-f6f3f9100e52": "right",
+    "4fabbf0e-9852-40a5-a971-638157aa6a1d": "right",
+    "8c75056e-9552-4f7e-a68a-39e8e6768f87": "right",
+    "f13a8946-2865-4321-b526-8660094adbc0": "right"
+  },
+  "v2_n": 25,
+  "v2_n_cases": 45,
+  "v2_n_intruders": 20,
+  "v2_n_themes": 4,
+  "v2_score": 0.4916666666666667,
+  "v2_theme_case_counts": {
+    "1a7840a0-01d9-408c-a491-f6f3f9100e52": 10,
+    "4fabbf0e-9852-40a5-a971-638157aa6a1d": 10,
+    "8c75056e-9552-4f7e-a68a-39e8e6768f87": 10,
+    "f13a8946-2865-4321-b526-8660094adbc0": 15
+  },
+  "v2_theme_scores": {
+    "1a7840a0-01d9-408c-a491-f6f3f9100e52": 0.5,
+    "4fabbf0e-9852-40a5-a971-638157aa6a1d": 0.5,
+    "8c75056e-9552-4f7e-a68a-39e8e6768f87": 0.5,
+    "f13a8946-2865-4321-b526-8660094adbc0": 0.4666666666666667
+  },
+  "v3_n": 214,
+  "v3_score": 0.9906542056074766,
+  "v4_candidate_n": 0,
+  "v4_merge_pairs": 0,
+  "v4_singleton_rate": 0.0,
+  "v5_entity_n": 68,
+  "v5_entity_precision": 0.1323529411764706,
+  "v5_entity_stats_n": 50,
+  "v5_event_key_n": 0,
+  "v5_event_key_validity": null,
+  "v5_missed_mean": 1.26,
+  "v5_sampled_entity_n": 18,
+  "v6_n": 10,
+  "v6_score": 0.4,
+  "v7_criteria": {
+    "coverage": 1.0,
+    "current": 1.0,
+    "faithful": 1.0,
+    "representative": 1.0
+  },
+  "v7_n": 13,
+  "v7_score": 1.0,
+  "validity": {
+    "v2_weak": false
+  }
+}

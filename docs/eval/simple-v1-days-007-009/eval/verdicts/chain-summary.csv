@@ -1,0 +1,14 @@
+storyline_id,endpoints_related,chain_verdict,reason
+09926b22-8867-41c8-aedf-a4692885c9a5,0,should_split,Two weekly digests share a format not an event thread
+0bb6fc42-03c5-4399-b516-9f67940f7abf,1,coherent,Both cover the same Brownfields grant announcement
+2d7c9bf9-79cc-4c8a-9af4-542499961e8e,0,should_split,Mixes distinct Tennessee and Kentucky disaster declarations
+30ced07a-21c9-4753-bbcb-b895a9213040,1,coherent,Same Nursing Home to Home program within a tight window
+3d36f83b-4624-412f-b3ba-f95564f2d8e1,1,coherent,All track the same ongoing Kilauea eruption
+40f3c0e5-e3b4-494f-8f33-478988bd4198,1,coherent,All cover the same Marcos Washington visit
+48bdd9ce-e36d-4944-8293-6a64cb43a8b0,1,coherent,All part of the same coordinated NK IT worker crackdown
+4a24e587-9e7f-4a7c-9061-828595180b42,1,coherent,Both cover the same Elevidys safety event
+5184a6b9-16e4-4f5b-9631-0018bf7a9cfd,1,coherent,Both cover the same Wheelchair Games event
+7af8300d-35c0-44f5-9083-46bf23d02e09,1,coherent,Both cover the same USPS 250th anniversary
+a1f7e7d3-2499-4352-afd9-77b0992afa0e,0,should_split,Bundles distinct Austria and Pakistan meetings
+ae6f94d1-b42d-4580-9ed1-8ac6009da3b9,1,coherent,Both part of the same Haitian gang enforcement push
+d1d4f3d3-6bd8-4dbd-a9b3-bc3e9c1bc32e,1,coherent,Both cover the same Crew-11 mission

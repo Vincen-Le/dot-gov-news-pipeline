@@ -1,0 +1,51 @@
+entity,valid,reason
+park,0,generic geography noun shared across corpus
+rubio,1,salient person name Secretary Rubio
+sentenced,0,generic legal verb common across crime stories
+veterans,0,generic term shared across VA stories
+justice,0,generic agency noun shared widely
+tammy,1,person name Tammy Bruce
+washington,0,bare geography shared across corpus
+trump,0,person name appearing across most of corpus so not discriminating
+home,0,generic noun
+marco,1,person first name Marco Rubio
+president,0,generic title
+schedule,0,generic noun
+scheme,0,generic noun
+bruce,1,person surname Tammy Bruce
+civil,0,generic legal adjective
+guilty,0,generic legal term
+prime,0,generic word from prime minister
+rights,0,generic term
+river,0,generic geography noun
+spokesperson,0,generic role noun
+assistance,0,generic noun
+foreign,0,generic adjective
+launch,0,generic verb
+minister,0,generic title
+revenue,0,generic noun
+sanctions,0,generic policy term shared across stories
+site,0,generic noun
+administrator,0,generic title
+america,0,bare geography shared widely
+area,0,generic noun
+county,0,generic geography noun
+exchange,0,generic noun
+investigation,0,generic noun
+market,0,generic noun
+network,0,generic noun
+pleads,0,generic legal verb
+space,0,generic topical noun
+tests,0,generic noun
+trade,0,generic noun
+california,0,bare geography shared across stories
+division,0,generic org noun
+following,0,generic function word
+organization,0,generic noun
+resources,0,generic noun
+rollins,1,person surname Secretary Rollins
+agreement,0,generic noun
+apply,0,generic verb
+city,0,generic noun
+director,0,generic title
+exploration,0,generic noun

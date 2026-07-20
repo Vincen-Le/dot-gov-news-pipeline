@@ -1,0 +1,46 @@
+theme_id,storyline_id,fits,reason
+1a7840a0-01d9-408c-a491-f6f3f9100e52,d29b6057-85b8-4e36-9af9-3eb751be7d6a,0,Illegal streaming/copyright case not a financial fraud sentencing
+1a7840a0-01d9-408c-a491-f6f3f9100e52,bdc1886b-bee0-4f22-93f3-07f0bb6e5369,0,Guilty plea awaiting sentencing not a sentencing case
+1a7840a0-01d9-408c-a491-f6f3f9100e52,7dea6b81-075a-484b-ad85-fb9e5e4e6850,1,Individual sentenced for wire fraud
+1a7840a0-01d9-408c-a491-f6f3f9100e52,27beaab2-1a94-4f68-a18a-7c5338443a18,0,Diplomatic greeting unrelated to fraud sentencing
+1a7840a0-01d9-408c-a491-f6f3f9100e52,d3c3f2e1-6e35-48db-9529-2ab40e53d8fc,0,Workplace safety citation not a fraud case
+1a7840a0-01d9-408c-a491-f6f3f9100e52,10a5879a-b278-4d40-9b47-799456eb4be2,0,Sanctions export violation not financial fraud
+1a7840a0-01d9-408c-a491-f6f3f9100e52,775073fd-ca2b-4264-b65a-17fa41c4212f,1,Individual sentenced for IRS fraud scheme
+1a7840a0-01d9-408c-a491-f6f3f9100e52,95b9073c-bdbb-4767-90bf-6beddb2f164b,1,Individual sentenced for COVID relief fraud
+1a7840a0-01d9-408c-a491-f6f3f9100e52,fd4f6bf0-cbe0-4b06-9ef9-beae525f8c0b,1,Individual sentenced for tax evasion
+1a7840a0-01d9-408c-a491-f6f3f9100e52,36d6f9a1-62f3-4dd1-bb19-82194928538b,1,Individual sentenced for tax shelter scheme
+4fabbf0e-9852-40a5-a971-638157aa6a1d,7af8300d-35c0-44f5-9083-46bf23d02e09,0,USPS anniversary event not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,27774b33-19b1-4908-a79f-b090ea47fecb,0,Prisoner release not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,5b6eca2c-7820-42c4-becc-6b93ee5ee6a7,1,US congratulatory message on Egypt national day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,bbf00f28-28e2-427b-a7b7-12e84bdb0502,0,Condemnation statement not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,27beaab2-1a94-4f68-a18a-7c5338443a18,1,US congratulatory message on Colombia independence day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,ec9d27d2-67c7-4a79-9c05-b4fcb59f36ab,0,Peace declaration welcome not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,db53a455-ea00-4c23-b751-8dd75305683c,1,US congratulatory message on Liberia independence day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,4fab41cc-4fa5-4651-b470-dc833134bf71,0,Official travel visit not a national day greeting
+4fabbf0e-9852-40a5-a971-638157aa6a1d,c1f3ce2f-217a-45d6-a186-2eb470a31d38,1,US congratulatory message on Belgium national day
+4fabbf0e-9852-40a5-a971-638157aa6a1d,5888e045-11b9-40cd-96ec-6f93d3db4979,1,US congratulatory message on Maldives independence day
+8c75056e-9552-4f7e-a68a-39e8e6768f87,69cbb205-d96c-4064-b8de-524e7a6f0653,0,USDA farmers market event not IRS guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,abd74d1d-f545-4da6-864d-d8f4f4a4706a,0,USCIS fee update not IRS taxpayer guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,aad3c1e1-9bbc-4eb2-97dd-a103fa0ce3c2,0,EPA reorganization not IRS taxpayer guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,5bfceb17-7238-4d93-b342-c1c374d189ca,1,IRS procedural revalidation reminder for officials
+8c75056e-9552-4f7e-a68a-39e8e6768f87,729c897b-c2f9-4bbe-8fee-67f5180325b6,1,IRS interim guidance on examinations
+8c75056e-9552-4f7e-a68a-39e8e6768f87,54ae0b71-79d7-4bbc-86ba-48e1ef69b1bd,1,IRS tax tip guidance on filing status
+8c75056e-9552-4f7e-a68a-39e8e6768f87,1497df54-9a20-40a9-a9e3-bcb1a3f7a4e6,0,Social Security service update not IRS guidance
+8c75056e-9552-4f7e-a68a-39e8e6768f87,0950f235-0016-4c66-b072-f933c5dc8845,1,IRS tax tip advising taxpayers on sources
+8c75056e-9552-4f7e-a68a-39e8e6768f87,cce87ba3-277a-4d29-b302-ad4064dff3f0,1,IRS reminder guidance for late filers
+8c75056e-9552-4f7e-a68a-39e8e6768f87,ec9d27d2-67c7-4a79-9c05-b4fcb59f36ab,0,Peace declaration unrelated to IRS guidance
+f13a8946-2865-4321-b526-8660094adbc0,57c13ba1-3acf-405f-9ce4-0595cd93c943,1,Rubio bilateral call with Portuguese FM
+f13a8946-2865-4321-b526-8660094adbc0,b954c5a8-eda7-4da9-afa6-fc104a5385df,1,Rubio bilateral call with Ethiopian PM
+f13a8946-2865-4321-b526-8660094adbc0,c3591b86-fdc5-43ae-a866-d5285bc8c9dd,0,Landau trilateral meeting does not mention Rubio
+f13a8946-2865-4321-b526-8660094adbc0,f8795edd-53fd-464a-a8ad-165ac216a4a4,1,Rubio call with Djiboutian president
+f13a8946-2865-4321-b526-8660094adbc0,584872ed-3e8d-4dbf-b683-dbf7271a6fa8,1,Rubio call with Iraqi PM
+f13a8946-2865-4321-b526-8660094adbc0,40f3c0e5-e3b4-494f-8f33-478988bd4198,1,Rubio meeting with Philippine president
+f13a8946-2865-4321-b526-8660094adbc0,cf583756-238a-4317-b067-6b077c0ae965,0,Landau meeting does not mention Rubio
+f13a8946-2865-4321-b526-8660094adbc0,8248dd9b-4c9a-4f38-9810-a3adabefff92,1,Rubio scheduled meeting with Jordanian FM
+f13a8946-2865-4321-b526-8660094adbc0,fad8d4ad-eca5-43bb-9e26-f03324435252,1,Rubio meeting with Pakistani FM
+f13a8946-2865-4321-b526-8660094adbc0,d29b6057-85b8-4e36-9af9-3eb751be7d6a,0,Streaming crime case unrelated to Rubio diplomacy
+f13a8946-2865-4321-b526-8660094adbc0,7617cf5a-77b3-41b5-a3c4-f5a63ca08318,0,Maritime conference does not involve Rubio
+f13a8946-2865-4321-b526-8660094adbc0,0703aa86-e150-4438-ab02-c4f6077bc5d1,0,Veterans job listings unrelated to Rubio
+f13a8946-2865-4321-b526-8660094adbc0,4a1ee998-f2a6-4152-95f6-72a1492d22a2,1,Rubio call with Suriname president
+f13a8946-2865-4321-b526-8660094adbc0,9edc4a89-6dcd-4f06-a95c-ff40caecb374,0,Domestic media interview not a diplomatic engagement
+f13a8946-2865-4321-b526-8660094adbc0,a1f7e7d3-2499-4352-afd9-77b0992afa0e,1,Rubio series of bilateral meetings with foreign ministers

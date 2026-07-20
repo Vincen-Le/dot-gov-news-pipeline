@@ -1,0 +1,510 @@
+{
+  "total_multi_entry_episodes": 8,
+  "sampled_episode_count": 8,
+  "episodes": [
+    {
+      "episode_id": "0374c8ff-2d5e-4f79-b3e5-0d8e570d7d5c",
+      "entry_count": 2,
+      "entities": [
+        "foreign",
+        "jordanian",
+        "minister",
+        "rubio",
+        "safadi",
+        "schedule"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-22 04:00:00+00:00",
+      "newest_entry_at": "2025-07-23 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "bcdeec1f-6786-47fa-bacf-04724325f662",
+          "title": "Public Schedule \u2013 July 23, 2025 - United States Department of State",
+          "summary": "***THE DAILY PUBLIC SCHEDULE IS SUBJECT TO CHANGE*** SECRETARY MARCO RUBIO 4:30 p.m. Secretary Rubio meets with Jordanian Deputy Prime Minister and Foreign Minister Ayman Safadi at the Department of State. (OPEN PRESS COVERAGE) Call time for video cameras, still cameras, and writers is 4:00 p.m. from the 23rd Street entrance. DEPUTY SECRETARY OF STATE CHRISTOPHER LANDAU Deputy [\u2026]",
+          "published_at": "2025-07-22 04:00:00+00:00",
+          "entities": [
+            "schedule"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "cf58ffb0-e38c-4fa3-9d62-aab65eebf2b6",
+          "title": "Secretary Rubio's Meeting with Jordanian Foreign Minister Safadi - United States Department of State",
+          "summary": "The below is attributable to Spokesperson Tammy Bruce: Secretary of State Marco Rubio met today with Jordan\u2019s Deputy Prime Minister and Minister of Foreign Affairs and Expatriates Ayman Safadi to discuss the trilateral agreement between the United States, Jordan, and Syria to maintain the ceasefire in Syria. The Secretary stressed the need for dialogue to [\u2026]",
+          "published_at": "2025-07-23 04:00:00+00:00",
+          "entities": [
+            "foreign",
+            "jordanian",
+            "minister",
+            "rubio",
+            "safadi"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.787017
+        }
+      ]
+    },
+    {
+      "episode_id": "34f07d95-7017-418c-bb45-1148537c7fb9",
+      "entry_count": 2,
+      "entities": [
+        "corp",
+        "landing",
+        "moss",
+        "vistra"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-23 17:41:25+00:00",
+      "newest_entry_at": "2025-07-23 17:47:52+00:00",
+      "entries": [
+        {
+          "entry_id": "973bff3a-d62e-4773-a1a6-a2ee639682d8",
+          "title": "EPA reaches agreement with Vistra Corp. for urgent battery cleanup at Moss Landing, launches website for public updates | US EPA",
+          "summary": "U.S. Environmental Protection Agency (EPA) has reached an agreement with Vistra Corp. to safely remove and dispose of batteries impacted by the January 2025 fire at Moss Landing.",
+          "published_at": "2025-07-23 17:41:25+00:00",
+          "entities": [
+            "corp",
+            "landing",
+            "moss",
+            "vistra"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "7bcb107e-c890-4d29-9bca-4e5261f9421d",
+          "title": "EPA llega a un acuerdo con Vistra Corp. para la limpieza urgente de bater\u00edas en Moss Landing, lanza un sitio web para actualizaciones p\u00fablicas | US EPA",
+          "summary": "Moss Landing",
+          "published_at": "2025-07-23 17:47:52+00:00",
+          "entities": [
+            "corp",
+            "landing",
+            "moss",
+            "vistra"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.899106
+        }
+      ]
+    },
+    {
+      "episode_id": "8a26e035-0105-47b3-9b0e-88662f990e77",
+      "entry_count": 2,
+      "entities": [
+        "administrator",
+        "agreement",
+        "alicia",
+        "applause",
+        "around",
+        "cooperation",
+        "council",
+        "crisis",
+        "decades",
+        "environment",
+        "environmental",
+        "ibarra",
+        "long",
+        "memorandum",
+        "mexico",
+        "permanently",
+        "reach",
+        "resources",
+        "sewage",
+        "tijuana",
+        "trump",
+        "understanding",
+        "urgently",
+        "zeldin"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-24 18:31:31+00:00",
+      "newest_entry_at": "2025-07-25 19:36:55+00:00",
+      "entries": [
+        {
+          "entry_id": "4cbfdb87-1d52-4dcf-9434-cffa210bdddf",
+          "title": "United States and Mexico Reach Agreement to Permanently and Urgently End Decades-Long Tijuana River Sewage Crisis | US EPA",
+          "summary": "EPA Administrator Lee Zeldin met with Mexico's Secretary of the Environment and National Resources Alicia B\u00e1rcena Ibarra at the Council of the Commission for Environmental Cooperation to sign a MOU to fix the Tijuana River sewage crisis.",
+          "published_at": "2025-07-24 18:31:31+00:00",
+          "entities": [
+            "administrator",
+            "agreement",
+            "alicia",
+            "cooperation",
+            "council",
+            "crisis",
+            "decades",
+            "environment",
+            "environmental",
+            "ibarra",
+            "long",
+            "mexico",
+            "permanently",
+            "reach",
+            "resources",
+            "sewage",
+            "tijuana",
+            "urgently",
+            "zeldin"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "1f178684-9f40-48a4-bc72-d2aa1c45b5d1",
+          "title": "WHAT THEY ARE SAYING: All Around Applause for Trump Administration\u2019s Agreement with Mexico to End Tijuana River Sewage Crisis | US EPA",
+          "summary": "EPA Administrator Lee Zeldin signed a Memorandum of Understanding (MOU) with Secretary of the Environment and National Resources of Mexico Alicia B\u00e1rcena Ibarra to address and solve the decades-long Tijuana River sewage crisis.",
+          "published_at": "2025-07-25 19:36:55+00:00",
+          "entities": [
+            "administrator",
+            "agreement",
+            "alicia",
+            "applause",
+            "around",
+            "crisis",
+            "environment",
+            "ibarra",
+            "memorandum",
+            "mexico",
+            "resources",
+            "sewage",
+            "tijuana",
+            "trump",
+            "understanding",
+            "zeldin"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.937346
+        }
+      ]
+    },
+    {
+      "episode_id": "93c924ae-21d0-4179-8104-35d38e057805",
+      "entry_count": 4,
+      "entities": [
+        "apply",
+        "assistance",
+        "change",
+        "disaster",
+        "employed",
+        "flooding",
+        "following",
+        "help",
+        "hours",
+        "left",
+        "less",
+        "middle",
+        "recovery",
+        "renters",
+        "self",
+        "students",
+        "tennesseans",
+        "tennessee",
+        "than",
+        "western"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-21 13:22:54+00:00",
+      "newest_entry_at": "2025-07-23 12:41:16+00:00",
+      "entries": [
+        {
+          "entry_id": "da410fd8-5a62-431b-9169-5a5439504a63",
+          "title": "Hours to Change at Disaster Recovery Centers in Tennessee",
+          "summary": "Hours to Change at Disaster Recovery Centers in Tennessee Middle and Western Tennesseans who experienced damage from the April 2-24 severe storms can get in-person assistance at FEMA Disaster Recovery Centers. The deadline to apply for assistance is Aug. 19.Money is available for survivors who need help covering uninsured costs for things like rental expenses, home repairs, vehicle damage, medical expenses, moving and storage, and reimbursement for temporary housing. Homeowners, renters, students, self-employed, ranchers and farmers in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties can apply for FEMA assistance.Disaster Recovery CenterHours: Beginning Monday, July 21 centers are open:9 a.m. to 6 p.m. Monday \u2013 Friday9 a.m. to 2 p.m. SaturdayClosed SundayLOCATIONS:Dyer County: Bogota Community Center, 78 Sandy Lane, Bogota, TN 38007Hardeman County: Safehaven Storm Shelter, 530 Madison Ave W., Grand Junction, TN 38039McNairy County: Latta Theatre, 205 W. Court Ave., Selmer, TN 38375Montgomery County: Montgomery County Library, 350 Pageant Lane, Clarksville, TN 37040Obion County: Obion County Library, 1221 E. Reelfoot Ave., Union City, TN 38",
+          "published_at": "2025-07-21 13:22:54+00:00",
+          "entities": [
+            "change",
+            "disaster",
+            "hours",
+            "middle",
+            "recovery",
+            "tennesseans",
+            "tennessee",
+            "western"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.820715
+        },
+        {
+          "entry_id": "cc4fd792-fa5e-4c1a-a288-a05cd5e463e4",
+          "title": "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Less Than One Week Left to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have less than one week left to apply for federal disaster assistance. The deadline to apply is July 25.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the ",
+          "published_at": "2025-07-21 14:15:35+00:00",
+          "entities": [
+            "apply",
+            "assistance",
+            "flooding",
+            "following",
+            "left",
+            "less",
+            "than"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.813525
+        },
+        {
+          "entry_id": "3c981044-ea72-4f5b-9c1e-ebf0254f3778",
+          "title": "Help FEMA Help You",
+          "summary": "Help FEMA Help You As FEMA assistance applications are processed, individual situations can change. It is important that you keep FEMA informed of your current contact information. This will ensure any benefits you are eligible for reach you without delay.The fastest way to provide missing or new information is to create an account at DisasterAssistance.gov and upload documents there. If you do not have internet access or need services not available on FEMA\u2019s website, call the FEMA Helpline at 800-621-3362.If more information is needed to process your application, FEMA may call you. These calls may come from unfamiliar phone numbers. It\u2019s important that you answer these calls. FEMA will ask to verify your identity by stating your damaged dwelling address, the last four digits of your social security number, and possibly your registration number. To avoid fraud and scams, verify callers are from FEMA before sharing any information.Tennesseans in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties who experienced damage from the April 2-24 severe storms have until Aug. 19 to apply for FEMA assistance. How to Apply for FEMA AssistanceApply onlin",
+          "published_at": "2025-07-22 13:57:38+00:00",
+          "entities": [
+            "help"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.842245
+        },
+        {
+          "entry_id": "80f4a816-8fbf-4dfb-a1c5-9442a6db7af4",
+          "title": "Renters, Students, Self-Employed Can Apply for FEMA Assistance",
+          "summary": "Renters, Students, Self-Employed Can Apply for FEMA Assistance Tennessee renters, students and self-employed in Cheatham, Davidson, Dickson, Dyer, Hardeman, McNairy, Montgomery, Obion and Wilson counties may be eligible for money to help with personal losses from the April 2-24 severe storms, straight-line winds, tornadoes and flooding. The deadline to apply for FEMA assistance is Aug. 19.Money is available to help with rent or temporary housing costs like a hotel. Renters, students and self-employed may also be eligible for money for uninsured essential personal property losses and other disaster-related expenses including:Replacement or repair of necessary personal property, such as clothing, textbooks, school supplies, and furniture and appliances a renter owns. FEMA does not cover furniture or appliances provided by the landlord.Replacement or repair of tools and other job-related equipment required for self-employment.Replacement or repair of a primary vehicle.Disaster-related uninsured medical, dental, childcare, moving and storage expenses.How to Apply for FEMA AssistanceApply online at DisasterAssistance.gov, use the FEMA App for mobile devices or call the FEMA Helpline at ",
+          "published_at": "2025-07-23 12:41:16+00:00",
+          "entities": [
+            "apply",
+            "assistance",
+            "employed",
+            "renters",
+            "self",
+            "students"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.957086
+        }
+      ]
+    },
+    {
+      "episode_id": "97c51680-3410-4eec-9613-40ab3a349771",
+      "entry_count": 2,
+      "entities": [
+        "affected",
+        "application",
+        "apply",
+        "assistance",
+        "days",
+        "deadline",
+        "extended",
+        "flooding",
+        "following",
+        "kentuckians",
+        "left",
+        "tornadoes"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-24 12:13:10+00:00",
+      "newest_entry_at": "2025-07-24 12:18:24+00:00",
+      "entries": [
+        {
+          "entry_id": "b9355bf1-88cb-4cb0-87b6-3433c9a356b0",
+          "title": "FEMA Application Deadline Extended To August 22 For Kentuckians Affected by May Tornadoes",
+          "summary": "FEMA Application Deadline Extended To August 22 For Kentuckians Affected by May Tornadoes FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who suffered uninsured damage to their property from the May 16-17 tornadoes now have until August 22 to apply for FEMA assistance. Eligible counties are Caldwell, Laurel, Pulaski, Russell, Trigg and Union.Survivors are encouraged to file insurance claims for damage to their homes, personal property and vehicles before they apply for FEMA assistance. FEMA Individual Assistance cannot duplicate insurance benefits or other sources of assistance. How To Apply For FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA representatives can explain available assistance programs, how to apply to FEMA, and help con",
+          "published_at": "2025-07-24 12:13:10+00:00",
+          "entities": [
+            "affected",
+            "application",
+            "deadline",
+            "extended",
+            "kentuckians",
+            "tornadoes"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": 0.830707
+        },
+        {
+          "entry_id": "e3dab847-6a1e-4dae-8630-6f7fc760a8c8",
+          "title": "Two Days Left to Apply for FEMA Assistance Following April Flooding",
+          "summary": "Two Days Left to Apply for FEMA Assistance Following April Flooding FRANKFORT, Ky. \u2013 Kentucky homeowners and renters who experienced damage or loss caused by the April severe storms, straight-line winds, flooding, landslides and mudslides have two days left to apply for federal disaster assistance. The deadline to apply is July 25.How To Apply for FEMA AssistanceThere are several ways to apply for FEMA assistance:Online at DisasterAssistance.gov.Visit any Disaster Recovery Center. To find a center close to you, visit fema.gov/DRC, or text DRC along with your Zip Code to 43362 (Example: \u201cDRC 29169\u201d).Use the FEMA mobile app.Call the FEMA Helpline at 800-621-3362. Help is available in many languages. If you use a relay service, such as Video Relay Service (VRS), captioned telephone or other service, give FEMA your number for that service. FEMA works with every household on a case-by-case basis.FEMA representatives can explain available assistance programs, how to apply to FEMA, and help connect survivors with resources for their recovery needs.When you apply, you will need to provide:A current phone number where you can be contacted.Your address at the time of the disaster and the add",
+          "published_at": "2025-07-24 12:18:24+00:00",
+          "entities": [
+            "apply",
+            "assistance",
+            "days",
+            "flooding",
+            "following",
+            "left"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.982371
+        }
+      ]
+    },
+    {
+      "episode_id": "d268bd1f-8a6e-4354-b0fe-80b209b95917",
+      "entry_count": 2,
+      "entities": [
+        "address",
+        "foods",
+        "processed",
+        "risks",
+        "ultra",
+        "under",
+        "washington"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-23 00:00:00+00:00",
+      "newest_entry_at": "2025-07-23 04:00:00+00:00",
+      "entries": [
+        {
+          "entry_id": "08fd7905-1015-4edc-9b3c-2cc16a5c214e",
+          "title": "HHS, FDA and USDA Address the Health Risks of Ultra-Processed Foods",
+          "summary": "",
+          "published_at": "2025-07-23 00:00:00+00:00",
+          "entities": [
+            "address",
+            "foods",
+            "processed",
+            "risks",
+            "ultra",
+            "under",
+            "washington"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "a269af69-9911-4b94-9450-fd0a1fabb954",
+          "title": "HHS, FDA and USDA Address the Health Risks of Ultra-Processed Foods",
+          "summary": "HHS, FDA and USDA Address the Health Risks of Ultra-Processed Foods",
+          "published_at": "2025-07-23 04:00:00+00:00",
+          "entities": [
+            "address",
+            "foods",
+            "processed",
+            "risks",
+            "ultra"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.757606
+        }
+      ]
+    },
+    {
+      "episode_id": "d4733243-5046-41ab-9ede-092d27cf8c25",
+      "entry_count": 2,
+      "entities": [
+        "aire",
+        "authority",
+        "autoridad",
+        "clean",
+        "electric",
+        "genera",
+        "limpio",
+        "power",
+        "puerto",
+        "resolve",
+        "rico",
+        "violations"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-24 18:07:37+00:00",
+      "newest_entry_at": "2025-07-24 18:11:59+00:00",
+      "entries": [
+        {
+          "entry_id": "092dbfc8-b462-426e-b89d-dd1e30551f41",
+          "title": "Puerto Rico Electric Power Authority and Genera Resolve Violations of the Clean Air Act with EPA | US EPA",
+          "summary": "Puerto Rico Electric Power Authority and Genera Resolve Violations of the Clean Air Act with EPA",
+          "published_at": "2025-07-24 18:07:37+00:00",
+          "entities": [
+            "authority",
+            "clean",
+            "electric",
+            "genera",
+            "power",
+            "puerto",
+            "resolve",
+            "rico",
+            "violations"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "5a9284c6-0754-4d17-b556-a0370870465a",
+          "title": "La Autoridad de Energ\u00eda El\u00e9ctrica de Puerto Rico y Genera llegan a un acuerdo con la EPA sobre violaciones pasadas a la Ley Federal de Aire Limpio | US EPA",
+          "summary": "La Autoridad de Energ\u00eda El\u00e9ctrica de Puerto Rico y Genera llegan a un acuerdo con la EPA sobre violaciones pasadas a la Ley Federal de Aire Limpio",
+          "published_at": "2025-07-24 18:11:59+00:00",
+          "entities": [
+            "aire",
+            "autoridad",
+            "genera",
+            "limpio",
+            "puerto",
+            "rico"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.935044
+        }
+      ]
+    },
+    {
+      "episode_id": "dcd3879e-1891-46db-be4e-6c16ace194a3",
+      "entry_count": 2,
+      "entities": [
+        "evasion",
+        "financial",
+        "houthi",
+        "houthis",
+        "linked",
+        "network",
+        "petroleum",
+        "sanctioning",
+        "sanctions",
+        "smuggling"
+      ],
+      "event_keys": [],
+      "first_entry_at": "2025-07-22 04:00:00+00:00",
+      "newest_entry_at": "2025-07-22 14:30:00+00:00",
+      "entries": [
+        {
+          "entry_id": "ba96cfd9-e2c4-4e59-8c76-9c099492e2ea",
+          "title": "Sanctioning a Houthi Petroleum and Financial Network - United States Department of State",
+          "summary": "The United States is today sanctioning two individuals and five entities that have imported refined petroleum products and circumvented sanctions in support of the Houthis. These actors have generated millions in personal gains while bolstering the Iran-backed Houthis\u2019 ability to threaten shipping lanes vital to international commerce. The United States is committed to disrupting the Houthis\u2019 [\u2026]",
+          "published_at": "2025-07-22 04:00:00+00:00",
+          "entities": [
+            "financial",
+            "houthi",
+            "houthis",
+            "network",
+            "petroleum",
+            "sanctioning"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_new",
+          "entry_similarity": null
+        },
+        {
+          "entry_id": "62d05025-1129-4359-940c-1a9a9cb2e4cd",
+          "title": "Treasury Sanctions Houthi-Linked Petroleum Smuggling and Sanctions Evasion Network",
+          "summary": "WASHINGTON \u2014 Today, the U.S. Department of the Treasury\u2019s Office of Foreign Assets Control (OFAC) is designating two individuals and five entities that profit through money laundering and importing petroleum products into territory controlled by Ansarallah, commonly known as the Houthis. The Iran-backed Houthis gain hundreds of millions of dollars annually by working with Yemeni businessmen to tax petroleum imports, generating critical revenue that funds the Houthis\u2019 destabilizing activities in the region.Today\u2019s action targets a network of individuals and their companies located across Yemen and the United Arab Emirates (UAE) who are among the most significant importers of petroleum products and money launderers that benefit the Houthis. \u201cThe Houthis collaborate with opportunistic businessmen to reap enormous profits from the importation of petroleum products and to enable the group\u2019s access to the international financial system,\u201d said Deputy Secretary of the Treasury Michael Faulkender. \u201cThese networks of shady businesses underpin the Houthis\u2019 terrorist machine, and Treasury will use all tools at its disposal to disrupt these schemes.\u201dToday\u2019s action is being taken pursuant to the",
+          "published_at": "2025-07-22 14:30:00+00:00",
+          "entities": [
+            "evasion",
+            "houthi",
+            "linked",
+            "network",
+            "petroleum",
+            "sanctions",
+            "smuggling"
+          ],
+          "event_keys": [],
+          "entry_attach_method": "adjudicated_join",
+          "entry_similarity": 0.718068
+        }
+      ]
+    }
+  ]
+}
