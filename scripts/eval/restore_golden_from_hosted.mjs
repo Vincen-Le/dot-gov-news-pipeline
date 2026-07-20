@@ -1,4 +1,5 @@
-// Restore golden_* + simple_v1 ledger from hosted Supabase → local
+// Restore golden_*, the simple_v1 ledger, and prepared corpus features from
+// hosted Supabase → local
 // simple_v1_db (recovery after a local wipe; see golden-slice-loop skill).
 // Insert order respects FKs. Run after scripts/create-pipeline-db.sh:
 //   node scripts/eval/restore_golden_from_hosted.mjs
@@ -34,11 +35,11 @@ const sql = postgres(
   },
 );
 
-async function fetchAll(table) {
+async function fetchAll(table, select = "*") {
   const rows = [];
   for (let offset = 0; ; offset += 1000) {
     const r = await fetch(
-      `${base}/rest/v1/${table}?select=*&limit=1000&offset=${offset}`,
+      `${base}/rest/v1/${table}?select=${encodeURIComponent(select)}&limit=1000&offset=${offset}`,
       { headers },
     );
     if (!r.ok) throw new Error(`${table}: ${r.status} ${await r.text()}`);
@@ -65,13 +66,22 @@ function wire(row) {
   return out;
 }
 
+// Restore image prerequisites and canonical thumbnail assignments before
+// storylines. Inserting a storyline fires the fallback-thumbnail trigger; an
+// existing assignment makes that trigger a no-op and preserves the exact
+// hosted selection (including generated images).
 const TABLES = [
+  "images",
+  "agency_thumbnail_images",
+  "golden_storyline_thumbnails",
   "golden_topic_categories",
   "golden_topic_themes",
   "golden_storylines",
   "golden_episodes",
   "golden_event_cards",
   "golden_news_entries",
+  "golden_event_card_article_overviews",
+  "golden_storyline_thumbnail_assignment_runs",
   "simple_v1_experiment_runs",
   "simple_v1_experiment_cluster_snapshots",
   "simple_v1_rank_snapshots",
@@ -92,5 +102,46 @@ for (const table of TABLES) {
     await sql`select count(*)::int as count from ${sql(table)}`;
   console.log(`${table}: inserted ${rows.length}, local now ${count}`);
 }
+
+const FEATURE_COLUMNS = [
+  "embedding",
+  "embedding_model",
+  "enriched_text",
+  "enricher_version",
+  "entity_set",
+  "event_keys",
+  "extractor_version",
+];
+const featureRows = await fetchAll(
+  "news_entries",
+  ["id", "content_hash", ...FEATURE_COLUMNS].join(","),
+);
+let restoredFeatures = 0;
+for (let start = 0; start < featureRows.length; start += 500) {
+  const batch = featureRows.slice(start, start + 500).map(wire);
+  const results = await Promise.all(
+    batch.map(
+      (row) => sql`
+        update public.news_entries
+        set embedding = ${row.embedding},
+            embedding_model = ${row.embedding_model},
+            enriched_text = ${row.enriched_text},
+            enricher_version = ${row.enricher_version},
+            entity_set = ${row.entity_set},
+            event_keys = ${row.event_keys},
+            extractor_version = ${row.extractor_version}
+        where id = ${row.id}
+          and content_hash = ${row.content_hash}
+      `,
+    ),
+  );
+  restoredFeatures += results.reduce(
+    (count, result) => count + result.count,
+    0,
+  );
+}
+console.log(
+  `news_entries features: restored ${restoredFeatures}/${featureRows.length}`,
+);
 
 await sql.end({ timeout: 5 });
