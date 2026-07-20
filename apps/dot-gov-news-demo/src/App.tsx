@@ -40,7 +40,7 @@ export function App() {
     const stored = window.localStorage.getItem("dot-gov-theme");
     return stored === null ? true : stored === "dark";
   });
-  const effectiveDay = asOf === "" ? bounds.maximum : asOf;
+  const effectiveDay = asOf === "" ? bounds.minimum : asOf;
   const sectionName =
     location.pathname === "/ranking" ? "Ranking" : "Storylines";
 

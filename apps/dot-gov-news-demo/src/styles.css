@@ -369,6 +369,12 @@ p {
 input[type="range"] {
   width: 100%;
   accent-color: var(--text);
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+
+input[type="range"]:active {
+  cursor: grabbing;
 }
 
 .date-ticks {

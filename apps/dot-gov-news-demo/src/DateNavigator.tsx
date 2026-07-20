@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 import { displayDate } from "./components";
 
 function offsetDay(day: string, amount: number): string {
@@ -29,7 +31,36 @@ export function DateNavigator({
 }) {
   const span = dayDistance(minimum, maximum);
   const position = dayDistance(minimum, asOf);
+  const clampedPosition = Math.min(position, span);
   const midpoint = offsetDay(minimum, Math.round(span / 2));
+  const [dragPosition, setDragPosition] = useState(clampedPosition);
+  const dragging = useRef(false);
+  const emittedPosition = useRef(clampedPosition);
+
+  useEffect(() => {
+    emittedPosition.current = clampedPosition;
+    if (!dragging.current) setDragPosition(clampedPosition);
+  }, [clampedPosition]);
+
+  function emitDay(value: number): void {
+    const day = Math.round(Math.max(0, Math.min(span, value)));
+    if (day === emittedPosition.current) return;
+    emittedPosition.current = day;
+    onChange(offsetDay(minimum, day));
+  }
+
+  function moveThumb(value: number): void {
+    const next = Math.max(0, Math.min(span, value));
+    setDragPosition(next);
+    emitDay(next);
+  }
+
+  function finishDrag(value: number): void {
+    dragging.current = false;
+    const snapped = Math.round(Math.max(0, Math.min(span, value)));
+    setDragPosition(snapped);
+    emitDay(snapped);
+  }
 
   return (
     <aside className="date-navigation" aria-label="Timeline navigation">
@@ -49,14 +80,25 @@ export function DateNavigator({
           <div className="date-track">
             <input
               aria-label="Simulated publication date"
+              aria-valuetext={displayDate(
+                offsetDay(minimum, Math.round(dragPosition)),
+              )}
               max={span}
               min="0"
-              onChange={(event) =>
-                onChange(offsetDay(minimum, Number(event.target.value)))
+              onBlur={(event) => finishDrag(Number(event.currentTarget.value))}
+              onChange={(event) => moveThumb(Number(event.currentTarget.value))}
+              onPointerCancel={(event) =>
+                finishDrag(Number(event.currentTarget.value))
               }
-              step="1"
+              onPointerDown={() => {
+                dragging.current = true;
+              }}
+              onPointerUp={(event) =>
+                finishDrag(Number(event.currentTarget.value))
+              }
+              step="any"
               type="range"
-              value={Math.min(position, span)}
+              value={dragPosition}
             />
             <div className="date-ticks" aria-hidden="true">
               <span>{displayDate(minimum)}</span>
