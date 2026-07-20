@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 
 import { dotGovApi } from "./api/client";
 import { displayDate, StatePanel } from "./components";
-import { isThemeAvailableAsOf } from "./domain/as-of";
+import {
+  endOfDay,
+  isAvailableAsOf,
+  isThemeAvailableAsOf,
+} from "./domain/as-of";
 
 function termStyle(terms: {
   agencyTerm: number;
@@ -75,6 +79,27 @@ export function RankingPage({ asOf }: { asOf: string }) {
       ),
     [asOf, category, overview.data, storylines.data],
   );
+  const availableStorylineIds = useMemo(
+    () =>
+      new Set(
+        (storylines.data?.items ?? [])
+          .filter((item) => isAvailableAsOf(item, asOf))
+          .map((item) => item.id),
+      ),
+    [asOf, storylines.data],
+  );
+  const visibleRows = useMemo(
+    () =>
+      (rows.data?.rows ?? [])
+        .filter(
+          (row) =>
+            availableStorylineIds.has(row.storylineId) &&
+            row.newestEntryAt !== null &&
+            Date.parse(row.newestEntryAt) <= endOfDay(asOf),
+        )
+        .map((row, index) => ({ ...row, position: index + 1 })),
+    [asOf, availableStorylineIds, rows.data],
+  );
 
   useEffect(() => {
     if (theme !== "" && !themes.some((item) => item.id === theme)) setTheme("");
@@ -111,7 +136,11 @@ export function RankingPage({ asOf }: { asOf: string }) {
           </div>
         </div>
         <div className="rank-heading-meta">
-          <span>Reviewed golden dataset · {dataset.storylines} storylines</span>
+          <span>
+            Reviewed golden dataset ·{" "}
+            {rows.data === undefined ? "…" : visibleRows.length} of{" "}
+            {dataset.storylines} ranked stories by {displayDate(asOf)}
+          </span>
           <ul aria-label="Score composition color key" className="rank-legend">
             <li>
               <i className="term-rubric" />
@@ -140,7 +169,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
       <section className="rank-controls" aria-label="Ranking filters">
         <label>
           <span>Scope</span>
-          <output>Reviewed dataset</output>
+          <output>Published through {displayDate(asOf)}</output>
         </label>
         <label>
           <span>Dataset</span>
@@ -199,13 +228,17 @@ export function RankingPage({ asOf }: { asOf: string }) {
         entries
       </p>
 
-      {rows.isLoading ? (
+      {rows.isLoading || storylines.isLoading ? (
         <StatePanel title="Applying the ranking">
-          Recalculating this editorial slice.
+          Finding the reviewed stories available on this date.
         </StatePanel>
-      ) : rows.error ? (
+      ) : rows.error || storylines.error ? (
         <StatePanel title="This ranking slice is unavailable">
           Try removing one of the filters.
+        </StatePanel>
+      ) : visibleRows.length === 0 ? (
+        <StatePanel title="No ranked stories yet">
+          Advance the timeline to the first reviewed publication.
         </StatePanel>
       ) : (
         <div className="rank-table-scroll">
@@ -224,7 +257,7 @@ export function RankingPage({ asOf }: { asOf: string }) {
               </tr>
             </thead>
             <tbody>
-              {(rows.data?.rows ?? []).map((row) => (
+              {visibleRows.map((row) => (
                 <tr key={row.storylineId}>
                   <td className="rank-position">
                     {String(row.position).padStart(2, "0")}
