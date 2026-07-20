@@ -60,23 +60,63 @@ async function get<T>(
   return z.object({ data: schema }).parse(body).data;
 }
 
+const RevisionSchema = z.object({ revision: z.string().regex(/^\d+$/u) });
+let pendingRevision: Promise<string> | undefined;
+
+async function currentRevision(): Promise<string> {
+  const lookup =
+    pendingRevision ??
+    get("/revision", RevisionSchema).then(({ revision }) => revision);
+  pendingRevision = lookup;
+  try {
+    return await lookup;
+  } finally {
+    if (pendingRevision === lookup) pendingRevision = undefined;
+  }
+}
+
+async function versionedGet<T>(
+  path: string,
+  schema: z.ZodType<T>,
+  signal?: AbortSignal,
+): Promise<T> {
+  let staleError: DotGovApiError | undefined;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const revision = await currentRevision();
+    const separator = path.includes("?") ? "&" : "?";
+    const versionedPath = `${path}${separator}revision=${encodeURIComponent(revision)}`;
+    try {
+      return await get(versionedPath, schema, signal);
+    } catch (error) {
+      if (
+        !(error instanceof DotGovApiError) ||
+        error.code !== "stale_revision"
+      ) {
+        throw error;
+      }
+      staleError = error;
+    }
+  }
+  throw staleError;
+}
+
 export const dotGovApi = {
   bootstrap: (signal?: AbortSignal) =>
-    get("/bootstrap?limit=500&sort=rank", BootstrapSchema, signal),
+    versionedGet("/bootstrap?limit=500&sort=rank", BootstrapSchema, signal),
   agencies: (signal?: AbortSignal) =>
-    get(
+    versionedGet(
       "/agencies",
       z.object({ agencies: AgencyOptionSchema.array() }),
       signal,
     ),
   categories: (signal?: AbortSignal) =>
-    get(
+    versionedGet(
       "/topics/categories",
       z.object({ categories: CategorySchema.array() }),
       signal,
     ),
   rankOverview: (signal?: AbortSignal) =>
-    get(
+    versionedGet(
       "/rank/golden",
       z.object({
         dataset: RankDatasetSchema,
@@ -96,16 +136,20 @@ export const dotGovApi = {
     if (filter.agency !== undefined) params.set("agency", filter.agency);
     if (filter.category !== undefined) params.set("category", filter.category);
     if (filter.theme !== undefined) params.set("theme", filter.theme);
-    return get(
+    return versionedGet(
       `/rank/golden/filtered-snapshot?${params.toString()}`,
       z.object({ rows: RankRowSchema.array() }),
       signal,
     );
   },
   storyline: (id: string, signal?: AbortSignal) =>
-    get(`/storylines/${encodeURIComponent(id)}`, StorylineDetailSchema, signal),
+    versionedGet(
+      `/storylines/${encodeURIComponent(id)}`,
+      StorylineDetailSchema,
+      signal,
+    ),
   storylines: (signal?: AbortSignal) =>
-    get(
+    versionedGet(
       "/storylines?limit=500&sort=rank",
       z.object({
         hasMore: z.boolean(),
@@ -114,5 +158,9 @@ export const dotGovApi = {
       signal,
     ),
   themes: (signal?: AbortSignal) =>
-    get("/topics/themes", z.object({ themes: ThemeSchema.array() }), signal),
+    versionedGet(
+      "/topics/themes",
+      z.object({ themes: ThemeSchema.array() }),
+      signal,
+    ),
 };

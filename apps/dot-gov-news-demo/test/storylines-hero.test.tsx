@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
 import type { Card, StorylineListItem } from "../src/api/contracts";
+import { dotGovApi } from "../src/api/client";
 import { StorylinesPage } from "../src/StorylinesPage";
 
 const firstId = "00000000-0000-4000-8000-000000000021";
@@ -72,6 +73,9 @@ afterEach(() => {
 describe("storylines hero artwork", () => {
   it("crossfades to the top-ranked storyline available on the selected day", async () => {
     const fetch = vi.spyOn(globalThis, "fetch");
+    vi.spyOn(dotGovApi, "storyline").mockImplementation(
+      () => new Promise(() => undefined),
+    );
     const first = {
       ...storyline(firstId, "2026-07-10T12:00:00.000Z", 5),
       rankKey: 20,

@@ -56,6 +56,7 @@ function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
       storylines: { hasMore: false, items: [storyline()] },
       themes: [],
     }),
+    getContentRevision: vi.fn().mockResolvedValue("7"),
     getThumbnailAsset: vi.fn().mockResolvedValue(null),
     getRankOverview: vi.fn().mockResolvedValue(null),
     getStoryline: vi.fn().mockResolvedValue(detail()),
@@ -107,7 +108,7 @@ describe("the Vercel demo API", () => {
 
     const response = await handler(
       new Request(
-        "https://demo.example/api/lab/storylines?limit=500&sort=rank",
+        "https://demo.example/api/lab/storylines?limit=500&sort=rank&revision=7",
       ),
     );
 
@@ -128,7 +129,7 @@ describe("the Vercel demo API", () => {
 
     const response = await handler(
       new Request(
-        "https://demo.example/api/lab/storylines?limit=500&sort=rank&path=storylines",
+        "https://demo.example/api/lab/storylines?limit=500&sort=rank&revision=7&path=storylines",
       ),
     );
 
@@ -142,7 +143,7 @@ describe("the Vercel demo API", () => {
 
     const response = await handler(
       new Request(
-        "https://demo.example/api/lab?limit=500&sort=rank&path=storylines",
+        "https://demo.example/api/lab?limit=500&sort=rank&revision=7&path=storylines",
       ),
     );
 
@@ -156,7 +157,7 @@ describe("the Vercel demo API", () => {
 
     const response = await handler(
       new Request(
-        "https://demo.example/api/lab/storylines?limit=500&unknown=value",
+        "https://demo.example/api/lab/storylines?limit=500&unknown=value&revision=7",
       ),
     );
 
@@ -176,7 +177,9 @@ describe("the Vercel demo API", () => {
     const handler = createVercelDemoHandler(configuredEnvironment, () => data);
 
     const response = await handler(
-      new Request(`https://demo.example/api/lab/storylines/${storylineId}`),
+      new Request(
+        `https://demo.example/api/lab/storylines/${storylineId}?revision=7`,
+      ),
     );
 
     expect(response.status).toBe(404);
@@ -189,8 +192,12 @@ describe("the Vercel demo API", () => {
     const factory = vi.fn(() => repository());
     const handler = createVercelDemoHandler(configuredEnvironment, factory);
 
-    await handler(new Request("https://demo.example/api/lab/storylines"));
-    await handler(new Request("https://demo.example/api/lab/agencies"));
+    await handler(
+      new Request("https://demo.example/api/lab/storylines?revision=7"),
+    );
+    await handler(
+      new Request("https://demo.example/api/lab/agencies?revision=7"),
+    );
 
     expect(factory).toHaveBeenCalledTimes(1);
   });

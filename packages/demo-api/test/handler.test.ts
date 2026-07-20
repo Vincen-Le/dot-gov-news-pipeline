@@ -54,6 +54,7 @@ function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
       storylines: { hasMore: false, items: [storyline()] },
       themes: [],
     }),
+    getContentRevision: vi.fn().mockResolvedValue("7"),
     getThumbnailAsset: vi.fn().mockResolvedValue(null),
     getRankOverview: vi.fn().mockResolvedValue(null),
     getStoryline: vi.fn().mockResolvedValue(detail()),
@@ -70,21 +71,69 @@ function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
 }
 
 describe("demo read handler", () => {
-  it("serves the bootstrap payload with edge-cache headers", async () => {
+  it("resolves an uncached revision and serves immutable revisioned JSON", async () => {
     const data = repository();
+    const revision = await handleDemoRequest(
+      new Request("https://demo.example/api/lab/revision"),
+      { repository: data },
+    );
     const response = await handleDemoRequest(
-      new Request("https://demo.example/api/lab/bootstrap?limit=500&sort=rank"),
+      new Request(
+        "https://demo.example/api/lab/bootstrap?limit=500&sort=rank&revision=7",
+      ),
       { repository: data },
     );
 
+    expect(revision.headers.get("cache-control")).toBe("no-store");
+    expect(await revision.json()).toMatchObject({ data: { revision: "7" } });
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe(
       "public, max-age=0, must-revalidate",
     );
     expect(response.headers.get("vercel-cdn-cache-control")).toBe(
-      "public, s-maxage=300, stale-while-revalidate=86400",
+      "public, s-maxage=31536000, immutable",
     );
     expect(data.getBootstrap).toHaveBeenCalledWith(500);
+  });
+
+  it("rejects missing and stale revisions without caching the error", async () => {
+    const data = repository();
+    const missing = await handleDemoRequest(
+      new Request("https://demo.example/api/lab/bootstrap?limit=500"),
+      { repository: data },
+    );
+    const stale = await handleDemoRequest(
+      new Request(
+        "https://demo.example/api/lab/bootstrap?limit=500&revision=6",
+      ),
+      { repository: data },
+    );
+
+    expect(missing.status).toBe(400);
+    expect(stale.status).toBe(409);
+    expect(stale.headers.get("cache-control")).toBe("no-store");
+    expect(await stale.json()).toMatchObject({
+      error: { code: "stale_revision", retryable: true },
+    });
+    expect(data.getBootstrap).not.toHaveBeenCalled();
+  });
+
+  it("rejects a response when content changes while it is assembled", async () => {
+    const data = repository({
+      getContentRevision: vi
+        .fn()
+        .mockResolvedValueOnce("7")
+        .mockResolvedValueOnce("8"),
+    });
+    const response = await handleDemoRequest(
+      new Request(
+        "https://demo.example/api/lab/bootstrap?limit=500&revision=7",
+      ),
+      { repository: data },
+    );
+
+    expect(response.status).toBe(409);
+    expect(response.headers.get("cache-control")).toBe("no-store");
   });
 
   it("filters unreviewed items even when a repository returns one", async () => {
@@ -99,7 +148,9 @@ describe("demo read handler", () => {
     });
 
     const response = await handleDemoRequest(
-      new Request("https://demo.example/api/lab/storylines?limit=10"),
+      new Request(
+        "https://demo.example/api/lab/storylines?limit=10&revision=7",
+      ),
       { repository: data },
     );
 
@@ -133,7 +184,9 @@ describe("demo read handler", () => {
     });
 
     const response = await handleDemoRequest(
-      new Request(`https://demo.example/api/lab/storylines/${storylineId}`),
+      new Request(
+        `https://demo.example/api/lab/storylines/${storylineId}?revision=7`,
+      ),
       { repository: data },
     );
 
@@ -150,7 +203,9 @@ describe("demo read handler", () => {
       { repository: data },
     );
     const head = await handleDemoRequest(
-      new Request("https://demo.example/api/lab/agencies", { method: "HEAD" }),
+      new Request("https://demo.example/api/lab/agencies?revision=7", {
+        method: "HEAD",
+      }),
       { repository: data },
     );
 
@@ -165,7 +220,7 @@ describe("demo read handler", () => {
     });
 
     const response = await handleDemoRequest(
-      new Request("https://demo.example/api/lab/topics/themes"),
+      new Request("https://demo.example/api/lab/topics/themes?revision=7"),
       { repository: data },
     );
     const body = await response.text();

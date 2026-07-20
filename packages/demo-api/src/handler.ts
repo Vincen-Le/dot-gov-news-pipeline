@@ -13,10 +13,11 @@ const publicResponseHeaders = {
   "cache-control": "public, max-age=0, must-revalidate",
   "content-type": "application/json; charset=utf-8",
   "referrer-policy": "no-referrer",
-  "vercel-cdn-cache-control":
-    "public, s-maxage=300, stale-while-revalidate=86400",
+  "vercel-cdn-cache-control": "public, s-maxage=31536000, immutable",
   "x-content-type-options": "nosniff",
 } as const;
+
+const ContentRevisionSchema = z.string().regex(/^\d+$/u);
 
 const StorylinesQuerySchema = z
   .object({
@@ -123,7 +124,29 @@ function parseQuery<T>(schema: z.ZodType<T>, url: URL): T {
   return result.data;
 }
 
-async function routeDemoRequest(
+function contentRevision(url: URL): { revision: string; routedUrl: URL } {
+  const revisions = url.searchParams.getAll("revision");
+  if (revisions.length !== 1) {
+    throw new DemoHttpError(
+      400,
+      "invalid_revision",
+      "Exactly one content revision is required",
+    );
+  }
+  const result = ContentRevisionSchema.safeParse(revisions[0]);
+  if (!result.success) {
+    throw new DemoHttpError(
+      400,
+      "invalid_revision",
+      "Content revision is invalid",
+    );
+  }
+  const routedUrl = new URL(url);
+  routedUrl.searchParams.delete("revision");
+  return { revision: result.data, routedUrl };
+}
+
+async function routeVersionedDemoRequest(
   request: Request,
   options: DemoHandlerOptions,
 ): Promise<Response> {
@@ -211,6 +234,47 @@ async function routeDemoRequest(
   }
 
   throw new DemoHttpError(404, "not_found", "Route was not found");
+}
+
+async function routeDemoRequest(
+  request: Request,
+  options: DemoHandlerOptions,
+): Promise<Response> {
+  const url = new URL(request.url);
+  if (url.pathname === "/api/lab/revision") {
+    return responseBody(
+      request,
+      { data: { revision: await options.repository.getContentRevision() } },
+      200,
+      false,
+    );
+  }
+
+  const { revision, routedUrl } = contentRevision(url);
+  const before = await options.repository.getContentRevision();
+  if (before !== revision) {
+    throw new DemoHttpError(
+      409,
+      "stale_revision",
+      "Content changed; resolve the current revision and retry",
+      true,
+    );
+  }
+
+  const response = await routeVersionedDemoRequest(
+    new Request(routedUrl, request),
+    options,
+  );
+  const after = await options.repository.getContentRevision();
+  if (after !== revision) {
+    throw new DemoHttpError(
+      409,
+      "stale_revision",
+      "Content changed while the response was assembled; retry",
+      true,
+    );
+  }
+  return response;
 }
 
 export async function handleDemoRequest(
