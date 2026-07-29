@@ -20,14 +20,8 @@ import { dotGovApi } from "../src/api/client";
 import { StorylinesPage } from "../src/StorylinesPage";
 
 vi.mock("../src/ExplorerView", () => ({
-  ExplorerView: ({
-    entryId,
-    items,
-  }: {
-    entryId: string | null;
-    items: StorylineListItem[];
-  }) => (
-    <div data-entry-id={entryId ?? ""} data-testid="explorer-fixture">
+  ExplorerView: ({ items }: { items: StorylineListItem[] }) => (
+    <div data-testid="explorer-fixture">
       {items.map((item) => (
         <span key={item.id}>{item.headline}</span>
       ))}
@@ -177,7 +171,7 @@ describe("storyline rendering window", () => {
     expect(screen.queryByText("Environment storyline")).toBeNull();
   });
 
-  it("uses a selected facet as the Explorer entry point without hiding the rest of the map", async () => {
+  it("filters the Explorer map to the selected facet", async () => {
     renderFilterFixture();
 
     fireEvent.click(screen.getByRole("button", { name: "Explorer" }));
@@ -188,12 +182,13 @@ describe("storyline rendering window", () => {
       }),
     );
 
-    await waitFor(() => expect(explorer.dataset.entryId).toBe(storyline(3).id));
-    expect(explorer.querySelectorAll("span")).toHaveLength(3);
-    expect(screen.getByText("Labor storyline")).toBeTruthy();
-    expect(screen.getByText("Defense storyline")).toBeTruthy();
+    await waitFor(() =>
+      expect(explorer.querySelectorAll("span")).toHaveLength(1),
+    );
+    expect(screen.queryByText("Labor storyline")).toBeNull();
+    expect(screen.queryByText("Defense storyline")).toBeNull();
     expect(screen.getByText("Environment storyline")).toBeTruthy();
-    expect(screen.getByText(/Explore all/).textContent).toContain("3");
+    expect(screen.getByText(/Showing/).textContent).toContain("1 of 3");
   });
 
   it("fades a theme in when it reaches its storyline threshold", () => {

@@ -515,14 +515,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             </button>
           </div>
         </header>
-        <div
-          className="filter-deck"
-          aria-label={
-            view === "explorer"
-              ? "Choose an Explorer starting point"
-              : "Storyline filters"
-          }
-        >
+        <div className="filter-deck" aria-label="Storyline filters">
           <FilterGroup
             animateLayout
             exitingOptions={displayedAgencies.exitingIds}
@@ -559,23 +552,8 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
 
         <div className="toolbar">
           <div className="result-copy" aria-live="polite">
-            {view === "explorer" ? (
-              <>
-                Starting at the{" "}
-                <strong>
-                  {agencies.size + categories.size + themes.size > 0
-                    ? "highest-ranked match"
-                    : "highest-ranked storyline"}
-                </strong>
-                {" · "}Explore all <strong>{available.length}</strong>{" "}
-                storylines
-              </>
-            ) : (
-              <>
-                Showing <strong>{filtered.length}</strong> of{" "}
-                <strong>{available.length}</strong> reviewed storylines
-              </>
-            )}
+            Showing <strong>{filtered.length}</strong> of{" "}
+            <strong>{available.length}</strong> reviewed storylines
           </div>
           {view === "explorer" ? null : (
             <div className="table-controls">
@@ -616,9 +594,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               onClick={clearFilters}
               type="button"
             >
-              {view === "explorer"
-                ? "Reset starting point"
-                : "Clear selected filters"}
+              Clear selected filters
             </button>
           ) : null}
         </div>
@@ -696,14 +672,13 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
           >
             <ExplorerView
               asOf={asOf}
-              entryId={topStoryline?.id ?? null}
               focusedId={
                 focusedId !== null &&
-                available.some((item) => item.id === focusedId)
+                filtered.some((item) => item.id === focusedId)
                   ? focusedId
                   : null
               }
-              items={available.map(displayItem)}
+              items={filtered.map(displayItem)}
               onFocus={focus}
               onOpen={open}
               previewByStoryline={previewByStoryline}

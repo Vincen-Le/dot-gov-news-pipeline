@@ -208,7 +208,6 @@ function mapNode(
 
 export function ExplorerView({
   asOf,
-  entryId,
   focusedId,
   items,
   onFocus,
@@ -217,7 +216,6 @@ export function ExplorerView({
   rankItems,
 }: {
   asOf: string;
-  entryId: string | null;
   focusedId: string | null;
   items: StorylineListItem[];
   onFocus: (storylineId: string) => void;
@@ -307,21 +305,20 @@ export function ExplorerView({
   );
 
   useEffect(() => {
-    if (
-      instance === null ||
-      entryId === null ||
-      compactedLayout.has(entryId) === false
-    ) {
-      return;
+    const first = nodes[0];
+    if (focusedId === null && first !== undefined) {
+      onFocus(first.id);
     }
-    onFocus(entryId);
+  }, [focusedId, nodes, onFocus]);
+
+  useEffect(() => {
+    if (instance === null || nodes.length === 0) return;
     void instance.fitView({
-      duration: 520,
-      maxZoom: 1.05,
-      nodes: [{ id: entryId }],
-      padding: 2.2,
+      duration: 320,
+      maxZoom: 0.9,
+      padding: 0.14,
     });
-  }, [compactedLayout, entryId, instance, layoutVersion, onFocus]);
+  }, [instance, layoutVersion, nodes.length]);
 
   if (explorer.isLoading) {
     return (

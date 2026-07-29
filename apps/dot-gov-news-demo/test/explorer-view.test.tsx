@@ -105,7 +105,6 @@ function renderExplorer(
   focusedId: string | null,
   onFocus = vi.fn(),
   onOpen = vi.fn(),
-  entryId = storylineId,
 ) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -118,7 +117,6 @@ function renderExplorer(
       <QueryClientProvider client={client}>
         <ExplorerView
           asOf="2026-07-28"
-          entryId={entryId}
           focusedId={focusedId}
           items={[item, neighbor]}
           onFocus={onFocus}
@@ -183,11 +181,10 @@ describe("semantic storyline explorer", () => {
     }
   });
 
-  it("starts from the requested highest-ranked entry point", async () => {
-    const onFocus = vi.fn();
-    renderExplorer(null, onFocus, vi.fn(), neighborId);
+  it("focuses the highest-ranked mapped storyline by default", async () => {
+    const { onFocus } = renderExplorer(null);
 
-    await waitFor(() => expect(onFocus).toHaveBeenCalledWith(neighborId));
+    await waitFor(() => expect(onFocus).toHaveBeenCalledWith(storylineId));
   });
 
   it("uses spatial proximity without drawing neighbor connection lines", () => {
