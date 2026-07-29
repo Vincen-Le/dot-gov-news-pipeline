@@ -14,6 +14,7 @@ import type {
   StorylinePreview,
 } from "../src/api/contracts";
 import {
+  compactExplorerLayout,
   ExplorerView,
   nodeDimensions,
   rankPercentiles,
@@ -130,6 +131,39 @@ describe("semantic storyline explorer", () => {
       ["middle", 0.5],
       ["high", 1],
     ]);
+  });
+
+  it("compacts sparse snapshots without overlapping storyline nodes", () => {
+    const source = Array.from({ length: 36 }, (_, index) => ({
+      height: 80,
+      id: String(index),
+      width: 140,
+      x: (index % 6) * 1_000,
+      y: Math.floor(index / 6) * 1_000,
+    }));
+    const compacted = compactExplorerLayout(source);
+    const positions = [...compacted.values()];
+    const width =
+      Math.max(...positions.map(({ x }) => x)) -
+      Math.min(...positions.map(({ x }) => x));
+    const height =
+      Math.max(...positions.map(({ y }) => y)) -
+      Math.min(...positions.map(({ y }) => y));
+
+    expect(width).toBeLessThanOrEqual(1_000);
+    expect(height).toBeLessThanOrEqual(1_000);
+    for (const [index, left] of source.entries()) {
+      const leftPosition = compacted.get(left.id)!;
+      for (const right of source.slice(index + 1)) {
+        const rightPosition = compacted.get(right.id)!;
+        const overlaps =
+          Math.abs(leftPosition.x - rightPosition.x) <
+            (left.width + right.width) / 2 + 20 &&
+          Math.abs(leftPosition.y - rightPosition.y) <
+            (left.height + right.height) / 2 + 20;
+        expect(overlaps).toBe(false);
+      }
+    }
   });
 
   it("focuses the highest-ranked mapped storyline by default", async () => {

@@ -17,11 +17,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import "@xyflow/react/dist/style.css";
 
 import { dotGovApi } from "./api/client";
-import type {
-  ExplorerNode,
-  StorylineListItem,
-  StorylinePreview,
-} from "./api/contracts";
+import type { StorylineListItem, StorylinePreview } from "./api/contracts";
 import { cardAsOf } from "./domain/as-of";
 
 interface ExplorerNodeData extends Record<string, unknown> {
@@ -36,6 +32,14 @@ interface ExplorerNodeData extends Record<string, unknown> {
 
 type StorylineFlowNode = Node<ExplorerNodeData, "storyline">;
 
+interface ExplorerLayoutNode {
+  height: number;
+  id: string;
+  width: number;
+  x: number;
+  y: number;
+}
+
 export function nodeDimensions(rankPercentile: number): {
   height: number;
   width: number;
@@ -45,6 +49,82 @@ export function nodeDimensions(rankPercentile: number): {
     height: 64 + 48 * scale,
     width: 120 + 100 * scale,
   };
+}
+
+function median(values: number[]): number {
+  const ordered = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2 === 0
+    ? ((ordered[middle - 1] ?? 0) + (ordered[middle] ?? 0)) / 2
+    : (ordered[middle] ?? 0);
+}
+
+export function compactExplorerLayout(
+  nodes: ExplorerLayoutNode[],
+): Map<string, { x: number; y: number }> {
+  if (nodes.length === 0) return new Map();
+
+  const ordered = [...nodes].sort((left, right) =>
+    left.id.localeCompare(right.id),
+  );
+  const centerX = median(ordered.map((node) => node.x));
+  const centerY = median(ordered.map((node) => node.y));
+  const compression = Math.min(1, Math.max(0.12, ordered.length / 300));
+  const positions = ordered.map((node) => ({
+    x: (node.x - centerX) * compression,
+    y: (node.y - centerY) * compression,
+  }));
+
+  for (let iteration = 0; iteration < 160; iteration += 1) {
+    let moved = false;
+    for (let leftIndex = 0; leftIndex < positions.length; leftIndex += 1) {
+      const left = ordered[leftIndex]!;
+      const leftPosition = positions[leftIndex]!;
+      for (
+        let rightIndex = leftIndex + 1;
+        rightIndex < positions.length;
+        rightIndex += 1
+      ) {
+        const right = ordered[rightIndex]!;
+        const rightPosition = positions[rightIndex]!;
+        const dx = rightPosition.x - leftPosition.x;
+        const dy = rightPosition.y - leftPosition.y;
+        const requiredX = (left.width + right.width) / 2 + 20;
+        const requiredY = (left.height + right.height) / 2 + 20;
+        const overlapX = requiredX - Math.abs(dx);
+        const overlapY = requiredY - Math.abs(dy);
+        if (overlapX <= 0 || overlapY <= 0) continue;
+
+        moved = true;
+        if (overlapX / requiredX < overlapY / requiredY) {
+          const direction =
+            dx === 0
+              ? (leftIndex + rightIndex) % 2 === 0
+                ? 1
+                : -1
+              : Math.sign(dx);
+          const adjustment = (overlapX + 0.01) / 2;
+          leftPosition.x -= direction * adjustment;
+          rightPosition.x += direction * adjustment;
+        } else {
+          const direction =
+            dy === 0
+              ? (leftIndex + rightIndex) % 2 === 0
+                ? 1
+                : -1
+              : Math.sign(dy);
+          const adjustment = (overlapY + 0.01) / 2;
+          leftPosition.y -= direction * adjustment;
+          rightPosition.y += direction * adjustment;
+        }
+      }
+    }
+    if (!moved) break;
+  }
+
+  return new Map(
+    ordered.map((node, index) => [node.id, positions[index]!] as const),
+  );
 }
 
 export function rankPercentiles(
@@ -111,9 +191,9 @@ const StorylineMapNode = memo(function StorylineMapNode({
 const nodeTypes = { storyline: StorylineMapNode };
 
 function mapNode(
-  point: ExplorerNode,
   item: StorylineListItem,
   focusedId: string | null,
+  position: { x: number; y: number },
   rankPercentile: number,
 ): StorylineFlowNode {
   const dimensions = nodeDimensions(rankPercentile);
@@ -131,8 +211,8 @@ function mapNode(
     draggable: false,
     id: item.id,
     position: {
-      x: point.x - dimensions.width / 2,
-      y: point.y - dimensions.height / 2,
+      x: position.x - dimensions.width / 2,
+      y: position.y - dimensions.height / 2,
     },
     selectable: true,
     style: dimensions,
@@ -180,22 +260,43 @@ export function ExplorerView({
     () => rankPercentiles(rankItems),
     [rankItems],
   );
+  const compactedLayout = useMemo(
+    () =>
+      compactExplorerLayout(
+        items.flatMap((item) => {
+          const point = pointById.get(item.id);
+          if (point === undefined) return [];
+          const dimensions = nodeDimensions(
+            rankPercentileById.get(item.id) ?? 0,
+          );
+          return [{ ...dimensions, id: item.id, x: point.x, y: point.y }];
+        }),
+      ),
+    [items, pointById, rankPercentileById],
+  );
   const nodes = useMemo(
     () =>
       items.flatMap((item) => {
-        const point = pointById.get(item.id);
-        return point === undefined
+        const position = compactedLayout.get(item.id);
+        return position === undefined
           ? []
           : [
               mapNode(
-                point,
                 item,
                 focusedId,
+                position,
                 rankPercentileById.get(item.id) ?? 0,
               ),
             ];
       }),
-    [focusedId, items, pointById, rankPercentileById],
+    [compactedLayout, focusedId, items, rankPercentileById],
+  );
+  const layoutVersion = useMemo(
+    () =>
+      `${explorer.data?.version ?? "loading"}|${items
+        .map((item) => `${item.id}:${item.rankKey ?? "unranked"}`)
+        .join("|")}`,
+    [explorer.data?.version, items],
   );
   const focusedPoint =
     focusedId === null ? undefined : pointById.get(focusedId);
@@ -249,6 +350,15 @@ export function ExplorerView({
     }
   }, [focusedId, nodes, onFocus]);
 
+  useEffect(() => {
+    if (instance === null || nodes.length === 0) return;
+    void instance.fitView({
+      duration: 320,
+      maxZoom: 0.9,
+      padding: 0.14,
+    });
+  }, [instance, layoutVersion, nodes.length]);
+
   if (explorer.isLoading) {
     return (
       <div className="explorer-state" role="status">
@@ -280,8 +390,6 @@ export function ExplorerView({
         <ReactFlow<StorylineFlowNode, Edge>
           edges={edges}
           elementsSelectable
-          fitView
-          fitViewOptions={{ maxZoom: 0.9, padding: 0.16 }}
           maxZoom={1.8}
           minZoom={0.16}
           nodes={nodes}
