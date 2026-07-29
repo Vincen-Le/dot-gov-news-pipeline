@@ -40,6 +40,7 @@ const MIRRORS = [
   { table: "golden_episodes", key: "id" },
   { table: "golden_event_cards", key: "id" },
   { table: "golden_event_card_contexts", key: "event_card_id" },
+  { table: "golden_storyline_explorer_nodes", key: "storyline_id" },
 ];
 
 function wire(row) {

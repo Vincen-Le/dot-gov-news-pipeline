@@ -79,16 +79,26 @@ export function App() {
   }, [dark]);
 
   useEffect(() => {
-    if (bootstrap.data === undefined || requestedDay === effectiveDay) return;
+    if (bootstrap.data === undefined) return;
+    const targetDay =
+      params.get("view") === "explorer" ? bounds.maximum : effectiveDay;
+    if (requestedDay === targetDay) return;
     setParams(
       (current) => {
         const next = new URLSearchParams(current);
-        next.set("asOf", effectiveDay);
+        next.set("asOf", targetDay);
         return next;
       },
       { replace: true },
     );
-  }, [bootstrap.data, effectiveDay, requestedDay, setParams]);
+  }, [
+    bootstrap.data,
+    bounds.maximum,
+    effectiveDay,
+    params,
+    requestedDay,
+    setParams,
+  ]);
 
   const setAsOf = (day: string) => {
     setParams(

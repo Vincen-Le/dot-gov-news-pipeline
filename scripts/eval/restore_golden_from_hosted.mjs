@@ -80,6 +80,7 @@ const TABLES = [
   "golden_episodes",
   "golden_event_cards",
   "golden_event_card_contexts",
+  "golden_storyline_explorer_nodes",
   "golden_news_entries",
   "golden_event_card_article_overviews",
   "golden_storyline_thumbnail_assignment_runs",

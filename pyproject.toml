@@ -10,6 +10,7 @@ dependencies = [
     "numpy>=2",
     "psycopg[binary]>=3.2",
     "python-dotenv>=1.0",
+    "scikit-learn>=1.9",
 ]
 
 [tool.uv]

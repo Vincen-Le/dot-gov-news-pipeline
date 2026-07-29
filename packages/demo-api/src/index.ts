@@ -9,6 +9,8 @@ export {
   type DemoCategory,
   type DemoEntry,
   type DemoEpisode,
+  type DemoExplorer,
+  type DemoExplorerNode,
   type DemoRankOverview,
   type DemoRankRow,
   type DemoRepository,

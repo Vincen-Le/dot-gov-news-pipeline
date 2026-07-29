@@ -4,6 +4,7 @@ import {
   AgencyOptionSchema,
   BootstrapSchema,
   CategorySchema,
+  ExplorerSchema,
   RankDatasetSchema,
   RankRowSchema,
   StorylineDetailSchema,
@@ -75,6 +76,7 @@ export const dotGovApi = {
       z.object({ categories: CategorySchema.array() }),
       signal,
     ),
+  explorer: (signal?: AbortSignal) => get("/explorer", ExplorerSchema, signal),
   rankOverview: (signal?: AbortSignal) =>
     get(
       "/rank/golden",

@@ -205,6 +205,21 @@ const ExperimentRunRowSchema = z.object({
   name: z.string(),
 });
 
+const ExplorerNeighborSchema = z.object({
+  similarity: z.coerce.number().min(-1).max(1),
+  storylineId: z.string(),
+});
+
+const ExplorerNodeRowSchema = z.object({
+  generated_at: z.string(),
+  neighbors: z.array(ExplorerNeighborSchema),
+  projection_version: z.string(),
+  rank_percentile: z.coerce.number().min(0).max(1),
+  storyline_id: z.string(),
+  x: z.coerce.number(),
+  y: z.coerce.number(),
+});
+
 type GoldenStorylineRow = z.infer<typeof GoldenStorylineRowSchema>;
 type GoldenCardRow = z.infer<typeof GoldenCardRowSchema>;
 type GoldenMembershipRow = z.infer<typeof GoldenMembershipRowSchema>;
@@ -353,6 +368,24 @@ export interface DemoStorylinePreviewCard {
   version: number;
 }
 
+export interface DemoExplorerNode {
+  neighbors: Array<{ similarity: number; storylineId: string }>;
+  rankPercentile: number;
+  storylineId: string;
+  x: number;
+  y: number;
+}
+
+export interface DemoExplorer {
+  coverage: {
+    mapped: number;
+    reviewed: number;
+  };
+  generatedAt: string | null;
+  nodes: DemoExplorerNode[];
+  version: string;
+}
+
 export interface DemoBootstrap {
   agencies: DemoAgency[];
   categories: DemoCategory[];
@@ -395,6 +428,7 @@ export interface DemoRankOverview {
 }
 
 export interface DemoRepository {
+  getExplorer(): Promise<DemoExplorer>;
   getBootstrap(limit: number): Promise<DemoBootstrap>;
   getThumbnailAsset(id: string): Promise<DemoThumbnailAsset | null>;
   getRankOverview(): Promise<DemoRankOverview | null>;
@@ -769,6 +803,62 @@ class SupabaseDemoRepository implements DemoRepository {
 
   private async listItems(): Promise<DemoStorylineListItem[]> {
     return (await this.catalog()).items;
+  }
+
+  async getExplorer(): Promise<DemoExplorer> {
+    const [items, explorerRows] = await Promise.all([
+      this.listItems(),
+      rows(
+        "golden storyline explorer nodes",
+        await this.client
+          .from("golden_storyline_explorer_nodes")
+          .select(
+            "storyline_id,projection_version,x,y,rank_percentile,neighbors,generated_at",
+          )
+          .order("storyline_id")
+          .limit(5000),
+        ExplorerNodeRowSchema,
+      ),
+    ]);
+    const reviewedIds = new Set(
+      items
+        .filter((item) => item.unreviewedEntryCount === 0)
+        .map((item) => item.id),
+    );
+    const included = explorerRows.filter((row) =>
+      reviewedIds.has(row.storyline_id),
+    );
+    if (included.length !== reviewedIds.size) {
+      throw new Error(
+        `Golden explorer maps ${included.length}/${reviewedIds.size} reviewed storylines`,
+      );
+    }
+    const mappedIds = new Set(included.map((row) => row.storyline_id));
+    const versions = new Set(included.map((row) => row.projection_version));
+    if (versions.size > 1) {
+      throw new Error("Golden explorer contains multiple projection versions");
+    }
+    return {
+      coverage: {
+        mapped: included.length,
+        reviewed: reviewedIds.size,
+      },
+      generatedAt:
+        included
+          .map((row) => row.generated_at)
+          .sort()
+          .at(-1) ?? null,
+      nodes: included.map((row) => ({
+        neighbors: row.neighbors.filter((neighbor) =>
+          mappedIds.has(neighbor.storylineId),
+        ),
+        rankPercentile: row.rank_percentile,
+        storylineId: row.storyline_id,
+        x: row.x,
+        y: row.y,
+      })),
+      version: [...versions][0] ?? "empty",
+    };
   }
 
   async listStorylines(limit: number): Promise<{

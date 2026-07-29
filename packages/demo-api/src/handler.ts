@@ -141,6 +141,13 @@ async function routeDemoRequest(
     });
   }
 
+  if (pathname === "/api/lab/explorer") {
+    return responseBody(request, {
+      data: await options.repository.getExplorer(),
+      meta,
+    });
+  }
+
   if (pathname === "/api/lab/storylines") {
     const query = parseQuery(StorylinesQuerySchema, url);
     const data = await options.repository.listStorylines(query.limit);

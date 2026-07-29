@@ -4,6 +4,7 @@ import {
   CardSchema,
   CategorySchema,
   EpisodeSchema,
+  ExplorerSchema,
   StorylineListItemSchema,
 } from "../src/api/contracts";
 
@@ -119,5 +120,35 @@ describe("operator-console API contracts", () => {
         version: 1,
       }),
     ).toMatchObject({ articleOverview: null, thumbnail: null });
+  });
+
+  it("validates bounded explorer ranks and cosine similarities", () => {
+    const explorer = {
+      coverage: { mapped: 1, reviewed: 1 },
+      generatedAt: "2026-07-28T12:00:00.000Z",
+      nodes: [
+        {
+          neighbors: [{ similarity: 0.87, storylineId: "storyline-2" }],
+          rankPercentile: 1,
+          storylineId: "storyline-1",
+          x: 120,
+          y: -40,
+        },
+      ],
+      version: "projection-1",
+    };
+
+    expect(ExplorerSchema.parse(explorer).nodes[0]?.rankPercentile).toBe(1);
+    expect(
+      ExplorerSchema.safeParse({
+        ...explorer,
+        nodes: [
+          {
+            ...explorer.nodes[0],
+            neighbors: [{ similarity: 1.1, storylineId: "storyline-2" }],
+          },
+        ],
+      }).success,
+    ).toBe(false);
   });
 });

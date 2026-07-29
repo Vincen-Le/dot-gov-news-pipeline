@@ -1,5 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 
 import type { StorylineListItem, StorylinePreview } from "./api/contracts";
@@ -29,9 +37,14 @@ import { StorylinesHero } from "./StorylinesHero";
 
 const RENDER_BATCH_SIZE = 18;
 const LOAD_AHEAD_ROOT_MARGIN = "1200px 0px";
+const ExplorerView = lazy(() =>
+  import("./ExplorerView").then((module) => ({
+    default: module.ExplorerView,
+  })),
+);
 
 type SortOrder = "episodes" | "newest" | "rank";
-type ViewMode = "product" | "table";
+type ViewMode = "explorer" | "product" | "table";
 
 function toggled(current: Set<string>, value: string): Set<string> {
   const next = new Set(current);
@@ -148,7 +161,11 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
     requestedSort === "episodes" || requestedSort === "newest"
       ? requestedSort
       : "rank";
-  const view: ViewMode = params.get("view") === "table" ? "table" : "product";
+  const requestedView = params.get("view");
+  const view: ViewMode =
+    requestedView === "table" || requestedView === "explorer"
+      ? requestedView
+      : "product";
   const groupBy: StorylineGroupBy =
     params.get("group") === "category" ? "category" : "theme";
   const [visibleCount, setVisibleCount] = useState(RENDER_BATCH_SIZE);
@@ -373,6 +390,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   const tableGroups = groupStorylinesForTable(visibleItems, groupBy);
 
   const selectedId = params.get("storyline");
+  const focusedId = params.get("focus");
   const selectedSource =
     available.find((item) => item.id === selectedId) ?? null;
   const selected = selectedSource === null ? null : displayItem(selectedSource);
@@ -384,6 +402,11 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
   const close = () => {
     const next = new URLSearchParams(params);
     next.delete("storyline");
+    setParams(next, { replace: true });
+  };
+  const focus = (storylineId: string) => {
+    const next = new URLSearchParams(params);
+    next.set("focus", storylineId);
     setParams(next, { replace: true });
   };
   const clearFilters = () => {
@@ -450,6 +473,14 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             >
               Table view
             </button>
+            <button
+              aria-pressed={view === "explorer"}
+              className="view-button"
+              onClick={() => setValue("view", "explorer", "product")}
+              type="button"
+            >
+              Explorer
+            </button>
           </div>
         </header>
         <div className="filter-deck" aria-label="Storyline filters">
@@ -492,37 +523,39 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             Showing <strong>{filtered.length}</strong> of{" "}
             <strong>{available.length}</strong> reviewed storylines
           </div>
-          <div className="table-controls">
-            <div className="sort-field">
-              <label htmlFor="storyline-sort">Sort by</label>
-              <select
-                id="storyline-sort"
-                onChange={(event) =>
-                  setValue("sort", event.target.value, "rank")
-                }
-                value={sort}
-              >
-                <option value="rank">Ranking</option>
-                <option value="newest">Newest update</option>
-                <option value="episodes">Episode count</option>
-              </select>
-            </div>
-            {view === "table" ? (
+          {view === "explorer" ? null : (
+            <div className="table-controls">
               <div className="sort-field">
-                <label htmlFor="storyline-group">Group by</label>
+                <label htmlFor="storyline-sort">Sort by</label>
                 <select
-                  id="storyline-group"
+                  id="storyline-sort"
                   onChange={(event) =>
-                    setValue("group", event.target.value, "theme")
+                    setValue("sort", event.target.value, "rank")
                   }
-                  value={groupBy}
+                  value={sort}
                 >
-                  <option value="theme">Theme</option>
-                  <option value="category">Category</option>
+                  <option value="rank">Ranking</option>
+                  <option value="newest">Newest update</option>
+                  <option value="episodes">Episode count</option>
                 </select>
               </div>
-            ) : null}
-          </div>
+              {view === "table" ? (
+                <div className="sort-field">
+                  <label htmlFor="storyline-group">Group by</label>
+                  <select
+                    id="storyline-group"
+                    onChange={(event) =>
+                      setValue("group", event.target.value, "theme")
+                    }
+                    value={groupBy}
+                  >
+                    <option value="theme">Theme</option>
+                    <option value="category">Category</option>
+                  </select>
+                </div>
+              ) : null}
+            </div>
+          )}
           {agencies.size + categories.size + themes.size > 0 ? (
             <button
               className="clear-button"
@@ -557,7 +590,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               />
             ))}
           </section>
-        ) : (
+        ) : view === "table" ? (
           <div className="table-view">
             <table>
               <thead>
@@ -597,8 +630,30 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               ))}
             </table>
           </div>
+        ) : (
+          <Suspense
+            fallback={
+              <div className="explorer-state" role="status">
+                Preparing Explorer…
+              </div>
+            }
+          >
+            <ExplorerView
+              asOf={asOf}
+              focusedId={
+                focusedId !== null &&
+                filtered.some((item) => item.id === focusedId)
+                  ? focusedId
+                  : null
+              }
+              items={filtered.map(displayItem)}
+              onFocus={focus}
+              onOpen={open}
+              previewByStoryline={previewByStoryline}
+            />
+          </Suspense>
         )}
-        {visibleCount < filtered.length ? (
+        {view !== "explorer" && visibleCount < filtered.length ? (
           <div className="load-more-sentinel" ref={loadMore}>
             <span aria-live="polite">
               {Math.min(visibleCount, filtered.length)} of {filtered.length}

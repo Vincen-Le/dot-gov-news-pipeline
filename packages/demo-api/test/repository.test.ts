@@ -154,6 +154,17 @@ function fixtures(entryCount = 1): Tables {
         storyline_id: storylineId,
       },
     ],
+    golden_storyline_explorer_nodes: [
+      {
+        generated_at: "2025-07-21T12:00:00.000Z",
+        neighbors: [],
+        projection_version: "projection-1",
+        rank_percentile: 1,
+        storyline_id: storylineId,
+        x: 120,
+        y: -80,
+      },
+    ],
     images: [
       {
         alt_text: "Geometric editorial illustration of the agency action.",
@@ -375,6 +386,35 @@ describe("demo repository", () => {
         storylineId,
       }),
     ]);
+  });
+
+  it("serves only reviewed nodes from one explorer projection", async () => {
+    const repository = createDemoRepositoryFromClient(client(fixtures()));
+
+    await expect(repository.getExplorer()).resolves.toEqual({
+      coverage: { mapped: 1, reviewed: 1 },
+      generatedAt: "2025-07-21T12:00:00.000Z",
+      nodes: [
+        {
+          neighbors: [],
+          rankPercentile: 1,
+          storylineId,
+          x: 120,
+          y: -80,
+        },
+      ],
+      version: "projection-1",
+    });
+  });
+
+  it("fails closed when the explorer projection misses a reviewed storyline", async () => {
+    const tables = fixtures();
+    tables.golden_storyline_explorer_nodes = [];
+    const repository = createDemoRepositoryFromClient(client(tables));
+
+    await expect(repository.getExplorer()).rejects.toThrow(
+      "maps 0/1 reviewed storylines",
+    );
   });
 
   it("uses the latest overview card available on the requested date", async () => {

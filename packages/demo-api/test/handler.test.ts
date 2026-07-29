@@ -47,6 +47,12 @@ function detail(
 
 function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
   return {
+    getExplorer: vi.fn().mockResolvedValue({
+      coverage: { mapped: 1, reviewed: 1 },
+      generatedAt: "2026-07-28T12:00:00.000Z",
+      nodes: [],
+      version: "projection-1",
+    }),
     getBootstrap: vi.fn().mockResolvedValue({
       agencies: [],
       categories: [],
@@ -85,6 +91,20 @@ describe("demo read handler", () => {
       "public, s-maxage=300, stale-while-revalidate=86400",
     );
     expect(data.getBootstrap).toHaveBeenCalledWith(500);
+  });
+
+  it("serves the lazy explorer projection with edge-cache headers", async () => {
+    const data = repository();
+    const response = await handleDemoRequest(
+      new Request("https://demo.example/api/lab/explorer"),
+      { repository: data },
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe(
+      "public, max-age=0, must-revalidate",
+    );
+    expect(data.getExplorer).toHaveBeenCalledOnce();
   });
 
   it("filters unreviewed items even when a repository returns one", async () => {

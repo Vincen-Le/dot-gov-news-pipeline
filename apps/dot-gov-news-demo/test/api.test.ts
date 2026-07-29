@@ -49,6 +49,12 @@ function detail(
 
 function repository(overrides: Partial<DemoRepository> = {}): DemoRepository {
   return {
+    getExplorer: vi.fn().mockResolvedValue({
+      coverage: { mapped: 0, reviewed: 1 },
+      generatedAt: null,
+      nodes: [],
+      version: "empty",
+    }),
     getBootstrap: vi.fn().mockResolvedValue({
       agencies: [],
       categories: [],

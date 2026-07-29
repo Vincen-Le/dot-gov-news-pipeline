@@ -35,6 +35,20 @@ if (
 const previewByStoryline = new Map(
   data.previews.map((preview) => [preview.storylineId, preview]),
 );
+const explorerUrl = new URL("/api/lab/explorer", origin);
+const explorerResponse = await fetch(explorerUrl, {
+  headers: { accept: "application/json" },
+});
+if (!explorerResponse.ok) {
+  throw new Error(
+    `Explorer warm failed (${explorerResponse.status} ${explorerResponse.statusText}).`,
+  );
+}
+const explorerEnvelope = await explorerResponse.json();
+if (!Array.isArray(explorerEnvelope?.data?.nodes)) {
+  throw new Error("Explorer warm returned an invalid payload.");
+}
+
 const thumbnailUrls = data.storylines.items
   .slice(0, 18)
   .flatMap((storyline) => {
@@ -68,6 +82,9 @@ process.stdout.write(
   `${JSON.stringify({
     bootstrapCache: bootstrapResponse.headers.get("x-vercel-cache"),
     bootstrapUrl: bootstrapUrl.toString(),
+    explorerCache: explorerResponse.headers.get("x-vercel-cache"),
+    explorerNodes: explorerEnvelope.data.nodes.length,
+    explorerUrl: explorerUrl.toString(),
     thumbnails: imageResults,
   })}\n`,
 );

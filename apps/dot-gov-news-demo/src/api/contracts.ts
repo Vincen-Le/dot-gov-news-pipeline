@@ -152,6 +152,29 @@ export const BootstrapSchema = z.object({
   themes: z.array(ThemeSchema),
 });
 
+export const ExplorerNeighborSchema = z.object({
+  similarity: z.number().min(-1).max(1),
+  storylineId: z.string(),
+});
+
+export const ExplorerNodeSchema = z.object({
+  neighbors: z.array(ExplorerNeighborSchema),
+  rankPercentile: z.number().min(0).max(1),
+  storylineId: z.string(),
+  x: z.number(),
+  y: z.number(),
+});
+
+export const ExplorerSchema = z.object({
+  coverage: z.object({
+    mapped: z.number().int().nonnegative(),
+    reviewed: z.number().int().nonnegative(),
+  }),
+  generatedAt: z.string().nullable(),
+  nodes: z.array(ExplorerNodeSchema),
+  version: z.string(),
+});
+
 export const RankTermsSchema = z
   .object({
     agency_term: z.number(),
@@ -206,6 +229,8 @@ export type Bootstrap = z.infer<typeof BootstrapSchema>;
 export type Card = z.infer<typeof CardSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type Episode = z.infer<typeof EpisodeSchema>;
+export type Explorer = z.infer<typeof ExplorerSchema>;
+export type ExplorerNode = z.infer<typeof ExplorerNodeSchema>;
 export type RankRow = z.infer<typeof RankRowSchema>;
 export type StorylineDetail = z.infer<typeof StorylineDetailSchema>;
 export type StorylineListItem = z.infer<typeof StorylineListItemSchema>;

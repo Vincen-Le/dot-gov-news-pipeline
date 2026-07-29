@@ -21,6 +21,7 @@ import numpy as np
 
 from pipeline.shared.bench import assert_local_dsn, reset_clusters
 from pipeline.shared.config import Config
+from pipeline.explorer import refresh_golden_explorer_layout
 from pipeline.shared.preparation import valid_enrichment
 from pipeline.runner import cluster
 from pipeline.shared.store import Store
@@ -623,6 +624,7 @@ def _mirror_render_tables(db, source_run_id) -> dict:
                 f"insert into public.golden_{table} ({names}) "
                 f"select {names} from public.{table}")
         counts[table] = cursor.rowcount
+    counts["storyline_explorer_nodes"] = refresh_golden_explorer_layout(db)["nodes"]
     return counts
 
 

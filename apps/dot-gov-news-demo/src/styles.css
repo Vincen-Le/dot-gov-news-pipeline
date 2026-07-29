@@ -795,6 +795,216 @@ select {
   border-bottom: 1px solid var(--rule);
 }
 
+.explorer-state {
+  min-height: 34rem;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  text-align: center;
+}
+
+.explorer-shell {
+  min-height: 42rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  border: 1px solid var(--rule);
+  background: var(--canvas);
+}
+
+.explorer-map {
+  min-width: 0;
+  min-height: 42rem;
+  position: relative;
+  border-right: 1px solid var(--rule);
+}
+
+.explorer-map .react-flow {
+  background: var(--canvas);
+}
+
+.explorer-map .react-flow__edge-path {
+  stroke: var(--live);
+}
+
+.explorer-map .react-flow__controls,
+.explorer-map .react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.explorer-map .react-flow__controls button {
+  border-color: var(--rule);
+  background: var(--surface);
+  fill: var(--text);
+}
+
+.explorer-map .react-flow__controls button:hover {
+  background: var(--raised);
+}
+
+.explorer-map .react-flow__minimap {
+  background: var(--surface);
+}
+
+.explorer-node {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  overflow: hidden;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--explorer-color) 72%, var(--rule));
+  border-left: 5px solid var(--explorer-color);
+  background: color-mix(in srgb, var(--surface) 94%, var(--explorer-color));
+  box-shadow: 0 12px 30px rgb(0 0 0 / 18%);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.explorer-node:hover,
+.explorer-node:focus-visible,
+.explorer-node.is-focused {
+  border-color: var(--explorer-color);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--explorer-color) 34%, transparent),
+    0 16px 38px rgb(0 0 0 / 28%);
+  transform: translateY(-2px);
+}
+
+.explorer-node:focus-visible {
+  outline: 2px solid var(--live);
+  outline-offset: 3px;
+}
+
+.explorer-node strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: clamp(0.72rem, 0.9vw, 0.9rem);
+  font-weight: 600;
+  line-height: 1.15;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.explorer-node-category,
+.explorer-node-meta {
+  overflow: hidden;
+  color: var(--muted);
+  font: 600 0.58rem var(--mono);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.explorer-node-category {
+  color: var(--explorer-color);
+}
+
+.explorer-handle {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.explorer-legend {
+  max-width: min(28rem, calc(100% - 8rem));
+  display: grid;
+  gap: 0.25rem;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 5;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(12px);
+  font: var(--font-micro) var(--mono);
+}
+
+.explorer-legend span {
+  color: var(--muted);
+}
+
+.explorer-inspector {
+  align-self: stretch;
+  padding: 1.35rem;
+  background: var(--surface);
+}
+
+.explorer-jump {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1.4rem;
+}
+
+.explorer-jump > span {
+  color: var(--muted);
+  font: 600 var(--font-micro) var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.explorer-inspector h3 {
+  margin: 0.3rem 0 0.8rem;
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.explorer-inspector > p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: var(--font-small);
+  line-height: 1.5;
+}
+
+.explorer-inspector dl {
+  display: grid;
+  gap: 0;
+  margin: 1.5rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.explorer-inspector dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.explorer-inspector dt,
+.explorer-inspector dd {
+  margin: 0;
+  font: var(--font-micro) var(--mono);
+}
+
+.explorer-inspector dt {
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.explorer-inspector dd {
+  text-align: right;
+}
+
+.explorer-inspector .primary-button {
+  width: 100%;
+  min-height: var(--control-height);
+  justify-content: center;
+}
+
 .event-card {
   min-width: 0;
   grid-column: span 6;
@@ -2189,6 +2399,16 @@ select {
   .rank-controls {
     grid-template-columns: repeat(2, minmax(190px, 1fr));
   }
+
+  .explorer-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .explorer-map {
+    min-height: 34rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
 }
 
 @media (max-width: 680px) {
@@ -2254,6 +2474,22 @@ select {
   .view-switcher,
   .view-button {
     width: 100%;
+  }
+
+  .view-switcher {
+    flex-wrap: wrap;
+  }
+
+  .view-button {
+    flex: 1 1 30%;
+  }
+
+  .explorer-shell {
+    border-inline: 0;
+  }
+
+  .explorer-legend {
+    max-width: calc(100% - 5rem);
   }
 
   .facet-row {
