@@ -47,6 +47,30 @@ export function nodeDimensions(rankPercentile: number): {
   };
 }
 
+export function rankPercentiles(
+  items: StorylineListItem[],
+): Map<string, number> {
+  const percentiles = new Map<string, number>(
+    items
+      .filter((item) => item.rankKey === null)
+      .map((item) => [item.id, 0] as const),
+  );
+  const ranked = items
+    .filter(
+      (item): item is StorylineListItem & { rankKey: number } =>
+        item.rankKey !== null,
+    )
+    .sort(
+      (left, right) =>
+        left.rankKey - right.rankKey || left.id.localeCompare(right.id),
+    );
+  const denominator = Math.max(1, ranked.length - 1);
+  for (const [index, item] of ranked.entries()) {
+    percentiles.set(item.id, ranked.length === 1 ? 1 : index / denominator);
+  }
+  return percentiles;
+}
+
 function categoryColor(category: string): string {
   let hash = 0;
   for (const character of category) {
@@ -90,8 +114,9 @@ function mapNode(
   point: ExplorerNode,
   item: StorylineListItem,
   focusedId: string | null,
+  rankPercentile: number,
 ): StorylineFlowNode {
-  const dimensions = nodeDimensions(point.rankPercentile);
+  const dimensions = nodeDimensions(rankPercentile);
   const category = item.categoryName ?? "Government";
   return {
     data: {
@@ -100,7 +125,7 @@ function mapNode(
       focused: item.id === focusedId,
       headline: item.headline ?? "Untitled storyline",
       rankKey: item.rankKey,
-      rankPercentile: point.rankPercentile,
+      rankPercentile,
       theme: item.themeName,
     },
     draggable: false,
@@ -122,6 +147,7 @@ export function ExplorerView({
   onFocus,
   onOpen,
   previewByStoryline,
+  rankItems,
 }: {
   asOf: string;
   focusedId: string | null;
@@ -129,6 +155,7 @@ export function ExplorerView({
   onFocus: (storylineId: string) => void;
   onOpen: (item: StorylineListItem) => void;
   previewByStoryline: Map<string, StorylinePreview>;
+  rankItems: StorylineListItem[];
 }) {
   const explorer = useQuery({
     queryFn: ({ signal }) => dotGovApi.explorer(signal),
@@ -149,13 +176,26 @@ export function ExplorerView({
       ),
     [explorer.data],
   );
+  const rankPercentileById = useMemo(
+    () => rankPercentiles(rankItems),
+    [rankItems],
+  );
   const nodes = useMemo(
     () =>
       items.flatMap((item) => {
         const point = pointById.get(item.id);
-        return point === undefined ? [] : [mapNode(point, item, focusedId)];
+        return point === undefined
+          ? []
+          : [
+              mapNode(
+                point,
+                item,
+                focusedId,
+                rankPercentileById.get(item.id) ?? 0,
+              ),
+            ];
       }),
-    [focusedId, items, pointById],
+    [focusedId, items, pointById, rankPercentileById],
   );
   const focusedPoint =
     focusedId === null ? undefined : pointById.get(focusedId);

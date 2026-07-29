@@ -79,11 +79,42 @@ function useFilterPresence(options: FilterOption[]): {
   const incomingAfterExit = useRef(options);
   const entryTimer =
     useRef<ReturnType<typeof globalThis.setTimeout>>(undefined);
+  const exitTimer = useRef<ReturnType<typeof globalThis.setTimeout>>(undefined);
+
+  const finishExit = useCallback(() => {
+    if (exitTimer.current !== undefined) {
+      globalThis.clearTimeout(exitTimer.current);
+      exitTimer.current = undefined;
+    }
+    pendingExitIds.current.clear();
+
+    const retained = retainedAfterExit.current;
+    const incoming = incomingAfterExit.current;
+    displayedRef.current = retained;
+    setDisplayed(retained);
+    setExitingIds(new Set());
+
+    const retainedIds = new Set(retained.map((option) => option.value));
+    const hasIncoming = incoming.some(
+      (option) => !retainedIds.has(option.value),
+    );
+    if (!hasIncoming) return;
+
+    entryTimer.current = globalThis.setTimeout(() => {
+      displayedRef.current = incomingAfterExit.current;
+      setDisplayed(incomingAfterExit.current);
+      entryTimer.current = undefined;
+    }, filterMotion.entryDelayMs);
+  }, []);
 
   useEffect(() => {
     if (entryTimer.current !== undefined) {
       globalThis.clearTimeout(entryTimer.current);
       entryTimer.current = undefined;
+    }
+    if (exitTimer.current !== undefined) {
+      globalThis.clearTimeout(exitTimer.current);
+      exitTimer.current = undefined;
     }
 
     const activeIds = new Set(options.map((option) => option.value));
@@ -111,35 +142,28 @@ function useFilterPresence(options: FilterOption[]): {
     displayedRef.current = nextDisplayed;
     setDisplayed(nextDisplayed);
     setExitingIds(nextExitingIds);
-  }, [options]);
-
-  const completeExit = useCallback((value: string) => {
-    if (!pendingExitIds.current.delete(value)) return;
-    if (pendingExitIds.current.size > 0) return;
-
-    const retained = retainedAfterExit.current;
-    const incoming = incomingAfterExit.current;
-    displayedRef.current = retained;
-    setDisplayed(retained);
-    setExitingIds(new Set());
-
-    const retainedIds = new Set(retained.map((option) => option.value));
-    const hasIncoming = incoming.some(
-      (option) => !retainedIds.has(option.value),
+    exitTimer.current = globalThis.setTimeout(
+      finishExit,
+      filterMotion.exitFallbackMs,
     );
-    if (!hasIncoming) return;
+  }, [finishExit, options]);
 
-    entryTimer.current = globalThis.setTimeout(() => {
-      displayedRef.current = incomingAfterExit.current;
-      setDisplayed(incomingAfterExit.current);
-      entryTimer.current = undefined;
-    }, filterMotion.entryDelayMs);
-  }, []);
+  const completeExit = useCallback(
+    (value: string) => {
+      if (!pendingExitIds.current.delete(value)) return;
+      if (pendingExitIds.current.size > 0) return;
+      finishExit();
+    },
+    [finishExit],
+  );
 
   useEffect(
     () => () => {
       if (entryTimer.current !== undefined) {
         globalThis.clearTimeout(entryTimer.current);
+      }
+      if (exitTimer.current !== undefined) {
+        globalThis.clearTimeout(exitTimer.current);
       }
     },
     [],
@@ -650,6 +674,7 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               onFocus={focus}
               onOpen={open}
               previewByStoryline={previewByStoryline}
+              rankItems={available}
             />
           </Suspense>
         )}

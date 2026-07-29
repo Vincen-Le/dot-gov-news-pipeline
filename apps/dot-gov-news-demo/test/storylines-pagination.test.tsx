@@ -322,6 +322,100 @@ describe("storyline rendering window", () => {
     ).toBe(true);
   });
 
+  it("settles on the latest filters when date changes cancel exit animations", () => {
+    vi.useFakeTimers();
+    const themedItems = [
+      ...[1, 2, 3, 4].map((index) => ({
+        ...storyline(index),
+        firstEntryAt: "2026-07-20T12:00:00.000Z",
+        firstOverviewAt: "2026-07-20T12:00:00.000Z",
+        newestEntryAt: "2026-07-22T12:00:00.000Z",
+        themeId: "theme-old",
+        themeName: "Outgoing theme",
+      })),
+      ...[5, 6, 7, 8].map((index) => ({
+        ...storyline(index),
+        firstEntryAt: "2026-07-24T12:00:00.000Z",
+        firstOverviewAt: "2026-07-24T12:00:00.000Z",
+        newestEntryAt: "2026-07-26T12:00:00.000Z",
+        themeId: "theme-middle",
+        themeName: "Skipped theme",
+      })),
+      ...[9, 10, 11, 12].map((index) => ({
+        ...storyline(index),
+        firstEntryAt: "2026-07-28T12:00:00.000Z",
+        firstOverviewAt: "2026-07-28T12:00:00.000Z",
+        newestEntryAt: "2026-07-30T12:00:00.000Z",
+        themeId: "theme-latest",
+        themeName: "Latest theme",
+      })),
+    ];
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    client.setQueryData(["bootstrap"], {
+      agencies: [],
+      categories: [],
+      previews: themedItems.map(preview),
+      storylines: { hasMore: false, items: themedItems },
+      themes: [
+        {
+          categoryId: null,
+          categoryName: null,
+          displayName: "Outgoing theme",
+          firstStorylineAt: "2026-07-20T12:00:00.000Z",
+          id: "theme-old",
+          manuallySet: false,
+          newestStorylineAt: "2026-07-22T12:00:00.000Z",
+          storylineCount: 4,
+        },
+        {
+          categoryId: null,
+          categoryName: null,
+          displayName: "Skipped theme",
+          firstStorylineAt: "2026-07-24T12:00:00.000Z",
+          id: "theme-middle",
+          manuallySet: false,
+          newestStorylineAt: "2026-07-26T12:00:00.000Z",
+          storylineCount: 4,
+        },
+        {
+          categoryId: null,
+          categoryName: null,
+          displayName: "Latest theme",
+          firstStorylineAt: "2026-07-28T12:00:00.000Z",
+          id: "theme-latest",
+          manuallySet: false,
+          newestStorylineAt: "2026-07-30T12:00:00.000Z",
+          storylineCount: 4,
+        },
+      ],
+    });
+
+    const page = (asOf: string) => (
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <StorylinesPage asOf={asOf} />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+    const view = render(page("2026-07-22"));
+
+    view.rerender(page("2026-07-26"));
+    view.rerender(page("2026-07-30"));
+
+    expect(
+      screen.getByRole("button", { name: "Outgoing theme" }).classList,
+    ).toContain("is-exiting");
+    expect(screen.queryByRole("button", { name: "Latest theme" })).toBeNull();
+
+    act(() => vi.advanceTimersByTime(600));
+
+    expect(screen.queryByRole("button", { name: "Outgoing theme" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Skipped theme" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Latest theme" })).toBeTruthy();
+  });
+
   it("prefetches detail for each rendered preview-backed storyline", async () => {
     const items = Array.from({ length: 20 }, (_, index) =>
       storyline(index + 1),

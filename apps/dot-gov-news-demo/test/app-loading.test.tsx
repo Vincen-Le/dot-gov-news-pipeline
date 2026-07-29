@@ -70,7 +70,7 @@ describe("application loading", () => {
     expect(screen.queryByText("Preparing the publication timeline")).toBeNull();
   });
 
-  it("pins the beta explorer to the latest reviewed snapshot", async () => {
+  it("keeps the selected publication date when opening explorer", async () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
     });
@@ -139,7 +139,7 @@ describe("application loading", () => {
 
     await waitFor(() =>
       expect(screen.getByTestId("search").textContent).toContain(
-        "asOf=2026-07-28",
+        "asOf=2026-07-20",
       ),
     );
   });

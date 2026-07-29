@@ -5,6 +5,8 @@
 // the append-only anchor (upsert only). bytea columns (centroids,
 // embeddings) travel as \x hex strings. Run from repo root:
 //   node scripts/eval/mirror_golden_hosted.mjs
+// Limit a repair to named tables with:
+//   GOLDEN_MIRROR_TABLES=golden_storyline_explorer_nodes node scripts/eval/mirror_golden_hosted.mjs
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 
@@ -42,6 +44,26 @@ const MIRRORS = [
   { table: "golden_event_card_contexts", key: "event_card_id" },
   { table: "golden_storyline_explorer_nodes", key: "storyline_id" },
 ];
+const requestedTables = new Set(
+  (process.env.GOLDEN_MIRROR_TABLES ?? "")
+    .split(",")
+    .map((table) => table.trim())
+    .filter(Boolean),
+);
+const knownTables = new Set([
+  ...MIRRORS.map(({ table }) => table),
+  "golden_news_entries",
+]);
+const unknownTables = [...requestedTables].filter(
+  (table) => !knownTables.has(table),
+);
+if (unknownTables.length > 0) {
+  throw new Error(`Unknown golden mirror tables: ${unknownTables.join(", ")}`);
+}
+const selectedMirrors =
+  requestedTables.size === 0
+    ? MIRRORS
+    : MIRRORS.filter(({ table }) => requestedTables.has(table));
 
 function wire(row) {
   const out = {};
@@ -108,7 +130,7 @@ const sql = postgres(LOCAL_DSN, { max: 1, prepare: false });
 
 // mirrors last-write-wins; cards reference storylines only by uuid (no FK),
 // so ordering is cosmetic
-for (const { table, key } of MIRRORS) {
+for (const { table, key } of selectedMirrors) {
   const rows = await sql`select * from ${sql(table)}`;
   await upsert(table, rows, key);
   const removed = await deleteMissing(
@@ -119,15 +141,17 @@ for (const { table, key } of MIRRORS) {
   console.log(`${table}: ${rows.length} upserted, ${removed} removed`);
 }
 
-const anchor = await sql`
-  select news_entry_id, content_hash_at_review, ordinal, batch_number,
-         review_status, gold_episode_id, gold_episode_label,
-         gold_storyline_id, gold_storyline_label, gold_theme_id,
-         gold_theme_name, gold_category_id, is_syndicated, notes,
-         proposed_at, reviewed_at, created_at, updated_at
-  from public.golden_news_entries order by ordinal`;
-await upsert("golden_news_entries", anchor, "news_entry_id");
-console.log(`golden_news_entries: ${anchor.length} upserted`);
+if (requestedTables.size === 0 || requestedTables.has("golden_news_entries")) {
+  const anchor = await sql`
+    select news_entry_id, content_hash_at_review, ordinal, batch_number,
+           review_status, gold_episode_id, gold_episode_label,
+           gold_storyline_id, gold_storyline_label, gold_theme_id,
+           gold_theme_name, gold_category_id, is_syndicated, notes,
+           proposed_at, reviewed_at, created_at, updated_at
+    from public.golden_news_entries order by ordinal`;
+  await upsert("golden_news_entries", anchor, "news_entry_id");
+  console.log(`golden_news_entries: ${anchor.length} upserted`);
+}
 await sql.end();
 
 const check = await fetch(`${base}/rest/v1/golden_storylines?select=id`, {

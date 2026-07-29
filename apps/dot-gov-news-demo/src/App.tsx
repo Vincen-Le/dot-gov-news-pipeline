@@ -80,25 +80,16 @@ export function App() {
 
   useEffect(() => {
     if (bootstrap.data === undefined) return;
-    const targetDay =
-      params.get("view") === "explorer" ? bounds.maximum : effectiveDay;
-    if (requestedDay === targetDay) return;
+    if (requestedDay === effectiveDay) return;
     setParams(
       (current) => {
         const next = new URLSearchParams(current);
-        next.set("asOf", targetDay);
+        next.set("asOf", effectiveDay);
         return next;
       },
       { replace: true },
     );
-  }, [
-    bootstrap.data,
-    bounds.maximum,
-    effectiveDay,
-    params,
-    requestedDay,
-    setParams,
-  ]);
+  }, [bootstrap.data, effectiveDay, requestedDay, setParams]);
 
   const setAsOf = (day: string) => {
     setParams(

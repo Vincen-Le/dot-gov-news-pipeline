@@ -13,7 +13,11 @@ import type {
   StorylineListItem,
   StorylinePreview,
 } from "../src/api/contracts";
-import { ExplorerView, nodeDimensions } from "../src/ExplorerView";
+import {
+  ExplorerView,
+  nodeDimensions,
+  rankPercentiles,
+} from "../src/ExplorerView";
 
 const storylineId = "00000000-0000-4000-8000-000000000021";
 
@@ -102,6 +106,7 @@ function renderExplorer(
           onFocus={onFocus}
           onOpen={onOpen}
           previewByStoryline={new Map([[storylineId, preview]])}
+          rankItems={[item]}
         />
       </QueryClientProvider>,
     ),
@@ -113,6 +118,18 @@ describe("semantic storyline explorer", () => {
     expect(nodeDimensions(0)).toEqual({ height: 64, width: 120 });
     expect(nodeDimensions(1)).toEqual({ height: 112, width: 220 });
     expect(nodeDimensions(0.25)).toEqual({ height: 88, width: 170 });
+  });
+
+  it("derives node prominence from the selected date's rank keys", () => {
+    const low = { ...item, id: "low", rankKey: 10 };
+    const middle = { ...item, id: "middle", rankKey: 20 };
+    const high = { ...item, id: "high", rankKey: 30 };
+
+    expect([...rankPercentiles([middle, high, low])]).toEqual([
+      ["low", 0],
+      ["middle", 0.5],
+      ["high", 1],
+    ]);
   });
 
   it("focuses the highest-ranked mapped storyline by default", async () => {
