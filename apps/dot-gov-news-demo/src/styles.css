@@ -824,12 +824,7 @@ select {
   background: var(--canvas);
 }
 
-.explorer-map .react-flow__edge-path {
-  stroke: var(--live);
-}
-
-.explorer-map .react-flow__controls,
-.explorer-map .react-flow__minimap {
+.explorer-map .react-flow__controls {
   overflow: hidden;
   border: 1px solid var(--rule);
   border-radius: 0;
@@ -844,10 +839,6 @@ select {
 
 .explorer-map .react-flow__controls button:hover {
   background: var(--raised);
-}
-
-.explorer-map .react-flow__minimap {
-  background: var(--surface);
 }
 
 .explorer-node {
@@ -911,12 +902,6 @@ select {
   color: var(--explorer-color);
 }
 
-.explorer-handle {
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
 .explorer-legend {
   max-width: min(28rem, calc(100% - 8rem));
   display: grid;
@@ -934,6 +919,31 @@ select {
 
 .explorer-legend span {
   color: var(--muted);
+}
+
+.explorer-roam-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  z-index: 5;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--muted);
+  font: 600 var(--font-micro) var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.explorer-roam-hint span:first-child,
+.explorer-roam-hint span:last-child {
+  color: var(--live);
+  font-size: 1rem;
 }
 
 .explorer-inspector {

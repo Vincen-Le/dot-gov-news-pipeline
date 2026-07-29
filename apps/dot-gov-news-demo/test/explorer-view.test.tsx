@@ -21,6 +21,7 @@ import {
 } from "../src/ExplorerView";
 
 const storylineId = "00000000-0000-4000-8000-000000000021";
+const neighborId = "00000000-0000-4000-8000-000000000022";
 
 const item: StorylineListItem = {
   agencies: ["fda"],
@@ -56,16 +57,30 @@ const preview: StorylinePreview = {
   storylineId,
 };
 
+const neighbor: StorylineListItem = {
+  ...item,
+  headline: "FDA publishes a related public-health update",
+  id: neighborId,
+  rankKey: 21,
+};
+
 const projection: Explorer = {
-  coverage: { mapped: 1, reviewed: 1 },
+  coverage: { mapped: 2, reviewed: 2 },
   generatedAt: "2026-07-28T13:00:00.000Z",
   nodes: [
     {
-      neighbors: [],
+      neighbors: [{ similarity: 0.92, storylineId: neighborId }],
       rankPercentile: 1,
       storylineId,
       x: 0,
       y: 0,
+    },
+    {
+      neighbors: [{ similarity: 0.92, storylineId }],
+      rankPercentile: 0,
+      storylineId: neighborId,
+      x: 300,
+      y: 120,
     },
   ],
   version: "projection-1",
@@ -90,6 +105,7 @@ function renderExplorer(
   focusedId: string | null,
   onFocus = vi.fn(),
   onOpen = vi.fn(),
+  entryId = storylineId,
 ) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -102,12 +118,13 @@ function renderExplorer(
       <QueryClientProvider client={client}>
         <ExplorerView
           asOf="2026-07-28"
+          entryId={entryId}
           focusedId={focusedId}
-          items={[item]}
+          items={[item, neighbor]}
           onFocus={onFocus}
           onOpen={onOpen}
           previewByStoryline={new Map([[storylineId, preview]])}
-          rankItems={[item]}
+          rankItems={[item, neighbor]}
         />
       </QueryClientProvider>,
     ),
@@ -166,10 +183,17 @@ describe("semantic storyline explorer", () => {
     }
   });
 
-  it("focuses the highest-ranked mapped storyline by default", async () => {
-    const { onFocus } = renderExplorer(null);
+  it("starts from the requested highest-ranked entry point", async () => {
+    const onFocus = vi.fn();
+    renderExplorer(null, onFocus, vi.fn(), neighborId);
 
-    await waitFor(() => expect(onFocus).toHaveBeenCalledWith(storylineId));
+    await waitFor(() => expect(onFocus).toHaveBeenCalledWith(neighborId));
+  });
+
+  it("uses spatial proximity without drawing neighbor connection lines", () => {
+    const { container } = renderExplorer(storylineId);
+
+    expect(container.querySelectorAll(".react-flow__edge")).toHaveLength(0);
   });
 
   it("shows the focused summary and opens the existing detail experience", () => {

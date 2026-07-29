@@ -428,11 +428,19 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
     next.delete("storyline");
     setParams(next, { replace: true });
   };
-  const focus = (storylineId: string) => {
-    const next = new URLSearchParams(params);
-    next.set("focus", storylineId);
-    setParams(next, { replace: true });
-  };
+  const focus = useCallback(
+    (storylineId: string) => {
+      setParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set("focus", storylineId);
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setParams],
+  );
   const clearFilters = () => {
     setParams((current) => {
       const next = new URLSearchParams(current);
@@ -507,7 +515,14 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
             </button>
           </div>
         </header>
-        <div className="filter-deck" aria-label="Storyline filters">
+        <div
+          className="filter-deck"
+          aria-label={
+            view === "explorer"
+              ? "Choose an Explorer starting point"
+              : "Storyline filters"
+          }
+        >
           <FilterGroup
             animateLayout
             exitingOptions={displayedAgencies.exitingIds}
@@ -544,8 +559,23 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
 
         <div className="toolbar">
           <div className="result-copy" aria-live="polite">
-            Showing <strong>{filtered.length}</strong> of{" "}
-            <strong>{available.length}</strong> reviewed storylines
+            {view === "explorer" ? (
+              <>
+                Starting at the{" "}
+                <strong>
+                  {agencies.size + categories.size + themes.size > 0
+                    ? "highest-ranked match"
+                    : "highest-ranked storyline"}
+                </strong>
+                {" · "}Explore all <strong>{available.length}</strong>{" "}
+                storylines
+              </>
+            ) : (
+              <>
+                Showing <strong>{filtered.length}</strong> of{" "}
+                <strong>{available.length}</strong> reviewed storylines
+              </>
+            )}
           </div>
           {view === "explorer" ? null : (
             <div className="table-controls">
@@ -586,7 +616,9 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
               onClick={clearFilters}
               type="button"
             >
-              Clear selected filters
+              {view === "explorer"
+                ? "Reset starting point"
+                : "Clear selected filters"}
             </button>
           ) : null}
         </div>
@@ -664,13 +696,14 @@ export function StorylinesPage({ asOf }: { asOf: string }) {
           >
             <ExplorerView
               asOf={asOf}
+              entryId={topStoryline?.id ?? null}
               focusedId={
                 focusedId !== null &&
-                filtered.some((item) => item.id === focusedId)
+                available.some((item) => item.id === focusedId)
                   ? focusedId
                   : null
               }
-              items={filtered.map(displayItem)}
+              items={available.map(displayItem)}
               onFocus={focus}
               onOpen={open}
               previewByStoryline={previewByStoryline}

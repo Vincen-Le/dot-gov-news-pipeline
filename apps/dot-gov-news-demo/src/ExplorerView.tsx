@@ -2,11 +2,7 @@ import {
   Background,
   BackgroundVariant,
   Controls,
-  Handle,
-  MiniMap,
-  Position,
   ReactFlow,
-  type Edge,
   type Node,
   type NodeProps,
   type ReactFlowInstance,
@@ -169,21 +165,11 @@ const StorylineMapNode = memo(function StorylineMapNode({
       style={{ "--explorer-color": data.color } as React.CSSProperties}
       type="button"
     >
-      <Handle
-        className="explorer-handle"
-        position={Position.Left}
-        type="target"
-      />
       <span className="explorer-node-category">{data.category}</span>
       <strong>{data.headline}</strong>
       <span className="explorer-node-meta">
         {data.theme ?? "Independent storyline"}
       </span>
-      <Handle
-        className="explorer-handle"
-        position={Position.Right}
-        type="source"
-      />
     </button>
   );
 });
@@ -222,6 +208,7 @@ function mapNode(
 
 export function ExplorerView({
   asOf,
+  entryId,
   focusedId,
   items,
   onFocus,
@@ -230,6 +217,7 @@ export function ExplorerView({
   rankItems,
 }: {
   asOf: string;
+  entryId: string | null;
   focusedId: string | null;
   items: StorylineListItem[];
   onFocus: (storylineId: string) => void;
@@ -241,10 +229,8 @@ export function ExplorerView({
     queryFn: ({ signal }) => dotGovApi.explorer(signal),
     queryKey: ["explorer"],
   });
-  const [instance, setInstance] = useState<ReactFlowInstance<
-    StorylineFlowNode,
-    Edge
-  > | null>(null);
+  const [instance, setInstance] =
+    useState<ReactFlowInstance<StorylineFlowNode> | null>(null);
   const itemById = useMemo(
     () => new Map(items.map((item) => [item.id, item])),
     [items],
@@ -298,29 +284,6 @@ export function ExplorerView({
         .join("|")}`,
     [explorer.data?.version, items],
   );
-  const focusedPoint =
-    focusedId === null ? undefined : pointById.get(focusedId);
-  const edges = useMemo<Edge[]>(
-    () =>
-      focusedPoint?.neighbors.flatMap((neighbor) =>
-        itemById.has(neighbor.storylineId)
-          ? [
-              {
-                animated: false,
-                id: `${focusedPoint.storylineId}:${neighbor.storylineId}`,
-                source: focusedPoint.storylineId,
-                style: {
-                  opacity: 0.2 + Math.max(0, neighbor.similarity) * 0.55,
-                  strokeWidth: 1 + Math.max(0, neighbor.similarity) * 2,
-                },
-                target: neighbor.storylineId,
-                type: "straight",
-              },
-            ]
-          : [],
-      ) ?? [],
-    [focusedPoint, itemById],
-  );
   const focusedItem = focusedId === null ? undefined : itemById.get(focusedId);
   const focusedCard =
     focusedItem === undefined
@@ -344,20 +307,21 @@ export function ExplorerView({
   );
 
   useEffect(() => {
-    const first = nodes[0];
-    if (focusedId === null && first !== undefined) {
-      onFocus(first.id);
+    if (
+      instance === null ||
+      entryId === null ||
+      compactedLayout.has(entryId) === false
+    ) {
+      return;
     }
-  }, [focusedId, nodes, onFocus]);
-
-  useEffect(() => {
-    if (instance === null || nodes.length === 0) return;
+    onFocus(entryId);
     void instance.fitView({
-      duration: 320,
-      maxZoom: 0.9,
-      padding: 0.14,
+      duration: 520,
+      maxZoom: 1.05,
+      nodes: [{ id: entryId }],
+      padding: 2.2,
     });
-  }, [instance, layoutVersion, nodes.length]);
+  }, [compactedLayout, entryId, instance, layoutVersion, onFocus]);
 
   if (explorer.isLoading) {
     return (
@@ -387,8 +351,8 @@ export function ExplorerView({
       aria-label="Semantic storyline explorer"
     >
       <div className="explorer-map">
-        <ReactFlow<StorylineFlowNode, Edge>
-          edges={edges}
+        <ReactFlow<StorylineFlowNode>
+          edges={[]}
           elementsSelectable
           maxZoom={1.8}
           minZoom={0.16}
@@ -414,24 +378,23 @@ export function ExplorerView({
             size={1}
             variant={BackgroundVariant.Dots}
           />
-          <Controls showInteractive={false} />
-          <MiniMap
-            maskColor="color-mix(in srgb, var(--canvas) 76%, transparent)"
-            nodeColor={(node) => String(node.data?.color ?? "var(--muted)")}
-            nodeStrokeWidth={2}
-            pannable
-            zoomable
-          />
+          <Controls showFitView={false} showInteractive={false} />
         </ReactFlow>
         <div className="explorer-legend">
           <strong>Semantic Explorer · Beta</strong>
-          <span>Nearby means similar language and subject matter.</span>
-          <span>Larger nodes have a higher current rank.</span>
+          <span>Drag or scroll to roam in any direction.</span>
+          <span>Nearby stories share language and subject matter.</span>
+          <span>Larger stories have a higher current rank.</span>
+        </div>
+        <div className="explorer-roam-hint" aria-hidden="true">
+          <span>←</span>
+          <span>Explore freely</span>
+          <span>→</span>
         </div>
       </div>
       <aside className="explorer-inspector" aria-live="polite">
         <label className="explorer-jump">
-          <span>Jump to storyline</span>
+          <span>Jump anywhere</span>
           <select
             onChange={(event) => focusNode(event.target.value)}
             value={focusedId ?? ""}
@@ -451,8 +414,8 @@ export function ExplorerView({
             <p className="eyebrow">Choose a landmark</p>
             <h3>Explore the current brief</h3>
             <p>
-              Pan in any direction and select a storyline to reveal its nearest
-              semantic neighbors.
+              Pan in any direction and select any storyline to continue
+              exploring from there.
             </p>
           </>
         ) : (
