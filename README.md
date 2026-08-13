@@ -1,7 +1,8 @@
 # Dot Gov News
 
 News from official U.S. government sources, clustered into storylines you can
-replay day by day.
+replay day by day. Currently seeded with 1.5 months of events from verifiable
+sources as a proof of concept.
 
 **Live demo:** [pdc-navy.vercel.app](https://pdc-navy.vercel.app/)
 (shared-password preview)
@@ -51,9 +52,10 @@ and clustering-lab visibility.
 
 ## Status
 
-Working scaffolding and a reviewed corpus — not yet a continuously running
-feed monitor. The corpus is populated by explicit backfills and offline
-experiments; recurring discovery is implemented but deployed disabled
+Proof of concept: the corpus is currently seeded with 1.5 months of events
+from verifiable official sources — working scaffolding and a reviewed corpus,
+not yet a continuously running feed monitor. The corpus is populated by
+explicit backfills and offline experiments; recurring discovery is implemented but deployed disabled
 (`DISCOVERY_ENABLED=false`) while inventory review and rollout controls are
 completed. Recurring source polling, learned ranking, search, and a public API
 are follow-up work. [Architecture and implementation status](docs/architecture.md)
